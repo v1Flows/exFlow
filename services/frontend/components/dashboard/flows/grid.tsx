@@ -3,8 +3,11 @@ import { Card, CardBody, CardFooter, CardHeader } from "@heroui/card";
 import { Chip } from "@heroui/chip";
 import { CircularProgress, Progress } from "@heroui/progress";
 import { Icon } from "@iconify/react";
+import { useRouter } from "next/navigation";
 
 export default function FlowGrid() {
+  const router = useRouter();
+
   return (
     <main>
       <p className="text-md font-bold text-default-500 mb-2">Folders</p>
@@ -13,6 +16,7 @@ export default function FlowGrid() {
           fullWidth
           isPressable
           className="bg-primary bg-opacity-10 border-2 border-primary p-3"
+          onPress={() => router.push("/flows/folder/1")}
         >
           <CardBody className="flex flex-col items-center justify-center gap-2">
             <Icon className="text-3xl" icon="solar:folder-with-files-linear" />
