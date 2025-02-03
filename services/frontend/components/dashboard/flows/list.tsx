@@ -9,7 +9,11 @@ export default function FlowList() {
     <main>
       <p className="text-md font-bold text-default-500 mb-2">Folders</p>
       <div className="grid grid-cols-4 gap-4 mb-4">
-        <Card fullWidth isPressable className="bg-primary bg-opacity-20 p-10">
+        <Card
+          fullWidth
+          isPressable
+          className="bg-primary bg-opacity-10 border-2 border-primary p-3"
+        >
           <CardBody className="flex flex-col items-center justify-center gap-2">
             <Icon className="text-3xl" icon="solar:folder-with-files-linear" />
             <p>Folder 1</p>
@@ -28,11 +32,7 @@ export default function FlowList() {
             </Chip>
           </CardHeader>
           <CardBody className="grid grid-cols-6 items-center justify-center gap-4">
-            <CircularProgress
-              aria-label="Loading..."
-              className="justify-self-center"
-              size="lg"
-            />
+            <CircularProgress aria-label="Loading..." size="lg" />
             <div className="text-center">
               <p>Terraform</p>
               <p className="text-sm text-default-500">Description</p>
@@ -68,21 +68,18 @@ export default function FlowList() {
             </Chip>
           </CardHeader>
           <CardBody className="grid grid-cols-6 items-center justify-center gap-4">
-            <div className="flex flex-cols items-center justify-center gap-2">
-              <CircularProgress
-                showValueLabel
-                aria-label="Loading..."
-                size="lg"
-                value={100}
-                valueLabel={
-                  <Icon
-                    className="text-xl text-primary"
-                    icon="solar:hand-shake-linear"
-                  />
-                }
-              />
-              <p className="text-md font-semibold text-primary">Interaction</p>
-            </div>
+            <CircularProgress
+              showValueLabel
+              aria-label="Loading..."
+              size="lg"
+              value={100}
+              valueLabel={
+                <Icon
+                  className="text-xl text-primary"
+                  icon="solar:hand-shake-linear"
+                />
+              }
+            />
             <div className="text-center">
               <p>Terraform</p>
               <p className="text-sm text-default-500">Description</p>
@@ -113,22 +110,19 @@ export default function FlowList() {
             </Chip>
           </CardHeader>
           <CardBody className="grid grid-cols-6 items-center justify-center gap-4">
-            <div className="flex flex-cols items-center justify-center gap-2">
-              <CircularProgress
-                showValueLabel
-                aria-label="Loading..."
-                color="warning"
-                size="lg"
-                value={100}
-                valueLabel={
-                  <Icon
-                    className="text-xl text-warning"
-                    icon="solar:shield-warning-linear"
-                  />
-                }
-              />
-              <p className="text-md font-semibold text-warning">Warning</p>
-            </div>
+            <CircularProgress
+              showValueLabel
+              aria-label="Loading..."
+              color="warning"
+              size="lg"
+              value={100}
+              valueLabel={
+                <Icon
+                  className="text-xl text-warning"
+                  icon="solar:shield-warning-linear"
+                />
+              }
+            />
             <div className="text-center">
               <p>Terraform</p>
               <p className="text-sm text-default-500">Description</p>
@@ -159,22 +153,16 @@ export default function FlowList() {
             </Chip>
           </CardHeader>
           <CardBody className="grid grid-cols-6 items-center justify-center gap-4">
-            <div className="flex flex-cols items-center justify-center gap-2">
-              <CircularProgress
-                showValueLabel
-                aria-label="Loading..."
-                color="danger"
-                size="lg"
-                value={100}
-                valueLabel={
-                  <Icon
-                    className="text-xl text-danger"
-                    icon="gridicons:cross"
-                  />
-                }
-              />
-              <p className="text-md font-semibold text-danger">Failed</p>
-            </div>
+            <CircularProgress
+              showValueLabel
+              aria-label="Loading..."
+              color="danger"
+              size="lg"
+              value={100}
+              valueLabel={
+                <Icon className="text-xl text-danger" icon="gridicons:cross" />
+              }
+            />
             <div className="text-center">
               <p>Terraform</p>
               <p className="text-sm text-default-500">Description</p>
