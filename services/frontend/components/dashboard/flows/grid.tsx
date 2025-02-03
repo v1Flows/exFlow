@@ -29,7 +29,7 @@ export default function FlowGrid() {
 
       <div className="grid grid-cols-4 gap-4">
         {/* Running Flow Card */}
-        <Card fullWidth isPressable>
+        <Card fullWidth isPressable onPress={() => router.push("/flow/1")}>
           <CardHeader className="flex flex-cols items-center text-start justify-between gap-4">
             <div>
               <p>Ansible</p>

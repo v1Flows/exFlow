@@ -29,7 +29,7 @@ export default function FlowList() {
 
       <div className="flex flex-col gap-4">
         {/* Running Flow Card */}
-        <Card fullWidth isPressable>
+        <Card fullWidth isPressable onPress={() => router.push("/flow/1")}>
           <CardBody className="grid grid-cols-7 items-center justify-center gap-4">
             <div className="flex items-center justify-center">
               <CircularProgress aria-label="Loading..." size="lg" />
