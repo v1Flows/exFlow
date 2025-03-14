@@ -55,7 +55,7 @@ export default function RootLayout({
                 title="heroui.com homepage"
               >
                 <span className="text-default-600">Powered by</span>
-                <p className="text-primary">JustLab</p>
+                <p className="text-primary">v1Flows</p>
               </Link>
             </footer>
           </div>

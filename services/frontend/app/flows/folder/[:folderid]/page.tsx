@@ -14,7 +14,7 @@ export default function AboutPage() {
   return (
     <main>
       <div className="grid grid-cols-2 items-center justify-between gap-2 lg:grid-cols-2">
-        <p className="text-2xl font-bold">Flows</p>
+        <p className="text-2xl font-bold">Folder 1</p>
         <div className="flex flex-cols justify-end gap-2">
           <ButtonGroup radius="md" variant="ghost">
             <Button isIconOnly onPress={() => setView("grid")} color={view === "grid" ? "primary" : "default"}>
@@ -44,7 +44,7 @@ export default function AboutPage() {
             }
             variant="flat"
           >
-            Create Folder
+            Create Subfolder
           </Button>
         </div>
       </div>
