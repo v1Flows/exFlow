@@ -27,6 +27,7 @@ func StartRouter(db *bun.DB) {
 	{
 		Admin(v1, db)
 		Auth(v1, db)
+		Folders(v1, db)
 		Executions(v1, db)
 		Flows(v1, db)
 		Page(v1, db)
