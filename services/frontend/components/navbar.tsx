@@ -22,6 +22,8 @@ import { Input } from "@heroui/input";
 import { link as linkStyles } from "@heroui/theme";
 import NextLink from "next/link";
 import clsx from "clsx";
+import { Icon } from "@iconify/react";
+import { useTheme } from "next-themes";
 
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
@@ -53,6 +55,12 @@ export const Navbar = ({ userDetails }) => {
   async function LogoutHandler() {
     await Logout();
   }
+
+  const { theme, setTheme } = useTheme();
+
+  const onChange = () => {
+    theme === "light" ? setTheme("dark") : setTheme("light");
+  };
 
   return (
     <HeroUINavbar maxWidth="xl" position="sticky">
@@ -103,10 +111,43 @@ export const Navbar = ({ userDetails }) => {
               <p className="font-semibold">Signed in as</p>
               <p className="font-semibold">{userDetails.username}</p>
             </DropdownItem>
-            <DropdownItem key="settings">Profile</DropdownItem>
-            <DropdownItem key="settings">My Settings</DropdownItem>
-            <DropdownItem key="system">System</DropdownItem>
-            <DropdownItem key="logout" color="danger" onPress={LogoutHandler}>
+            {theme === "light" ? (
+              <DropdownItem
+                key="dark_mode"
+                startContent={<Icon icon="hugeicons:moon-01" width={20} />}
+                onPress={onChange}
+              >
+                Dark Mode
+              </DropdownItem>
+            ) : (
+              <DropdownItem
+                key="white_mode"
+                startContent={<Icon icon="hugeicons:sun-01" width={20} />}
+                onPress={onChange}
+              >
+                White Mode
+              </DropdownItem>
+            )}
+            <DropdownItem
+              key="settings"
+              startContent={
+                <Icon icon="hugeicons:location-user-03" width={20} />
+              }
+            >
+              Profile
+            </DropdownItem>
+            <DropdownItem
+              key="settings"
+              startContent={<Icon icon="hugeicons:settings-01" width={20} />}
+            >
+              My Settings
+            </DropdownItem>
+            <DropdownItem
+              key="logout"
+              color="danger"
+              startContent={<Icon icon="hugeicons:logout-02" width={20} />}
+              onPress={LogoutHandler}
+            >
               Log Out
             </DropdownItem>
           </DropdownMenu>
