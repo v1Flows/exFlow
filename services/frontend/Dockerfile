@@ -7,7 +7,7 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
-COPY services/frontend/package.json services/frontend/package-lock.json services/frontend/pnpm-lock.yaml ./
+COPY services/frontend/package.json services/frontend/pnpm-lock.yaml ./
 RUN corepack enable pnpm && pnpm --version
 RUN pnpm install
 
