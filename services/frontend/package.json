@@ -1,7 +1,7 @@
 {
-  "name": "next-app-template",
-  "version": "0.0.1",
-  "private": true,
+  "name": "exflow",
+  "version": "1.0.0",
+  "private": false,
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
