@@ -22,7 +22,6 @@ func GetSettings(context *gin.Context, db *bun.DB) {
 		"add_project_members",
 		"add_flow_actions",
 		"start_executions",
-		"receive_alerts",
 	).Where("id = 1").Scan(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error collecting settings data on db", err)
