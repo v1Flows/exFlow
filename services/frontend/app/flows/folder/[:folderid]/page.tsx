@@ -4,8 +4,8 @@ import { Button, ButtonGroup } from "@heroui/button";
 import { Divider } from "@heroui/divider";
 import { Icon } from "@iconify/react";
 
-import FlowList from "@/components/dashboard/flows/list";
-import FlowGrid from "@/components/dashboard/flows/grid";
+import FlowList from "@/components/flows/list";
+import FlowGrid from "@/components/flows/grid";
 import { useState } from "react";
 
 export default function AboutPage() {
