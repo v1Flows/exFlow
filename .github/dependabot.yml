@@ -12,23 +12,17 @@ updates:
     labels:
       - "dependencies"
       - "frontend"
-    open-pull-requests-limit: 5
+    target-branch: "develop"
+
+  - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "/services/backend" # Location of package manifests
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "backend"
     target-branch: "develop"
     groups:
-      frontend:
+      backend:
         patterns:
           - "*"
-
-  # - package-ecosystem: "gomod" # See documentation for possible values
-  #   directory: "/services/backend" # Location of package manifests
-  #   schedule:
-  #     interval: "weekly"
-  #   labels:
-  #     - "dependencies"
-  #     - "backend"
-  #   open-pull-requests-limit: 5
-  #   target-branch: "develop"
-  #   groups:
-  #     backend:
-  #       patterns:
-  #         - "*"
