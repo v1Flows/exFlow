@@ -46,8 +46,5 @@ func Runners(router *gin.RouterGroup, db *bun.DB) {
 		runner.PUT("/:runnerID/actions", func(c *gin.Context) {
 			runners.SetRunnerActions(c, db)
 		})
-		runner.PUT("/:runnerID/alert_endpoints", func(c *gin.Context) {
-			runners.SetRunnerAlertEndpoints(c, db)
-		})
 	}
 }

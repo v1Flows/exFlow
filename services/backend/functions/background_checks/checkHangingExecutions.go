@@ -58,9 +58,14 @@ func checkHangingExecutions(db *bun.DB) {
 				Action: models.Actions{
 					Name: "Automated Check",
 				},
-				Messages: []string{
-					"All steps finished since 15 minutes but execution is still running",
-					"Marking as error",
+				Messages: []models.Message{
+					{
+						Title: "Automated Check",
+						Lines: []string{
+							"All steps finished since 15 minutes but execution is still running",
+							"Marking as error",
+						},
+					},
 				},
 				Status:     "error",
 				FinishedAt: time.Now(),
