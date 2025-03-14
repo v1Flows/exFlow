@@ -22,7 +22,9 @@ export default function FlowList() {
         </Card>
       </div>
 
-      <p className="text-md font-bold text-default-500 mb-2">Flows</p>
+      <p className="text-md font-bold text-default-500 mb-2">
+        Flows <span className="text-tiny">(without folder)</span>
+      </p>
 
       <div className="flex flex-col gap-4">
         {/* Running Flow Card */}
