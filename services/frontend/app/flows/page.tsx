@@ -1,12 +1,11 @@
 "use client";
 
-import { Button, ButtonGroup } from "@heroui/button";
-import { Divider } from "@heroui/divider";
+import { Divider, Button, ButtonGroup } from "@heroui/react";
 import { Icon } from "@iconify/react";
+import { useState } from "react";
 
 import FlowList from "@/components/flows/list";
 import FlowGrid from "@/components/flows/grid";
-import { useState } from "react";
 
 export default function AboutPage() {
   const [view, setView] = useState("list");
@@ -17,10 +16,18 @@ export default function AboutPage() {
         <p className="text-2xl font-bold">Flows</p>
         <div className="flex flex-cols justify-end gap-2">
           <ButtonGroup radius="md" variant="ghost">
-            <Button isIconOnly onPress={() => setView("grid")} color={view === "grid" ? "primary" : "default"}>
+            <Button
+              isIconOnly
+              color={view === "grid" ? "primary" : "default"}
+              onPress={() => setView("grid")}
+            >
               <Icon icon="line-md:grid-3-filled" width={16} />
             </Button>
-            <Button isIconOnly color={view === "list" ? "primary" : "default"} onPress={() => setView("list")}>
+            <Button
+              isIconOnly
+              color={view === "list" ? "primary" : "default"}
+              onPress={() => setView("list")}
+            >
               <Icon icon="line-md:list-3-filled" width={16} />
             </Button>
           </ButtonGroup>

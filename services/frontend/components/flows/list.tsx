@@ -1,7 +1,4 @@
-import { Button } from "@heroui/button";
-import { Card, CardBody, CardHeader } from "@heroui/card";
-import { Chip } from "@heroui/chip";
-import { CircularProgress } from "@heroui/progress";
+import { Card, CardBody, Button, CircularProgress } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 
@@ -36,7 +33,9 @@ export default function FlowList() {
             </div>
             <div className="text-center">
               <p>Ansible</p>
-              <p className="text-sm text-default-500">This is the Description</p>
+              <p className="text-sm text-default-500">
+                This is the Description
+              </p>
             </div>
             <div className="text-center">
               <p>12 Seconds</p>
@@ -58,8 +57,8 @@ export default function FlowList() {
               isDisabled
               isIconOnly
               className="justify-self-center"
-              variant="flat"
               color="success"
+              variant="flat"
             >
               <Icon icon="solar:play-linear" />
             </Button>
@@ -69,24 +68,26 @@ export default function FlowList() {
         {/* Success Flow Card */}
         <Card fullWidth isPressable>
           <CardBody className="grid grid-cols-7 items-center justify-center gap-4">
-          <div className="flex items-center justify-center">
-            <CircularProgress
-              showValueLabel
-              aria-label="Loading..."
-              size="lg"
-              value={100}
-              color="success"
-              valueLabel={
-                <Icon
-                  className="text-2xl text-success"
-                  icon="solar:check-read-linear"
-                />
-              }
-            />
+            <div className="flex items-center justify-center">
+              <CircularProgress
+                showValueLabel
+                aria-label="Loading..."
+                color="success"
+                size="lg"
+                value={100}
+                valueLabel={
+                  <Icon
+                    className="text-2xl text-success"
+                    icon="solar:check-read-linear"
+                  />
+                }
+              />
             </div>
             <div className="text-center">
               <p>Terraform</p>
-              <p className="text-sm text-default-500">This is the Description</p>
+              <p className="text-sm text-default-500">
+                This is the Description
+              </p>
             </div>
             <div className="text-center">
               <p>12 Seconds</p>
@@ -104,7 +105,12 @@ export default function FlowList() {
               <p>31.01.2025</p>
               <p className="text-sm text-default-500">Last Success</p>
             </div>
-            <Button isIconOnly className="justify-self-center" variant="flat" color="success">
+            <Button
+              isIconOnly
+              className="justify-self-center"
+              color="success"
+              variant="flat"
+            >
               <Icon icon="solar:play-linear" />
             </Button>
           </CardBody>
@@ -113,23 +119,25 @@ export default function FlowList() {
         {/* Interaction Flow Card */}
         <Card fullWidth isPressable>
           <CardBody className="grid grid-cols-7 items-center justify-center gap-4">
-          <div className="flex items-center justify-center">
-            <CircularProgress
-              showValueLabel
-              aria-label="Loading..."
-              size="lg"
-              value={100}
-              valueLabel={
-                <Icon
-                  className="text-2xl text-primary"
-                  icon="solar:hand-shake-linear"
-                />
-              }
-            />
+            <div className="flex items-center justify-center">
+              <CircularProgress
+                showValueLabel
+                aria-label="Loading..."
+                size="lg"
+                value={100}
+                valueLabel={
+                  <Icon
+                    className="text-2xl text-primary"
+                    icon="solar:hand-shake-linear"
+                  />
+                }
+              />
             </div>
             <div className="text-center">
               <p>Terraform</p>
-              <p className="text-sm text-default-500">This is the Description</p>
+              <p className="text-sm text-default-500">
+                This is the Description
+              </p>
             </div>
             <div className="text-center">
               <p>12 Seconds</p>
@@ -147,7 +155,12 @@ export default function FlowList() {
               <p>31.01.2025</p>
               <p className="text-sm text-default-500">Last Success</p>
             </div>
-            <Button isIconOnly className="justify-self-center" variant="flat" color="success">
+            <Button
+              isIconOnly
+              className="justify-self-center"
+              color="success"
+              variant="flat"
+            >
               <Icon icon="solar:play-linear" />
             </Button>
           </CardBody>
@@ -156,24 +169,26 @@ export default function FlowList() {
         {/* Warning Flow Card */}
         <Card fullWidth isPressable>
           <CardBody className="grid grid-cols-7 items-center justify-center gap-4">
-          <div className="flex items-center justify-center">
-            <CircularProgress
-              showValueLabel
-              aria-label="Loading..."
-              color="warning"
-              size="lg"
-              value={100}
-              valueLabel={
-                <Icon
-                  className="text-2xl text-warning"
-                  icon="solar:shield-warning-linear"
-                />
-              }
-            />
+            <div className="flex items-center justify-center">
+              <CircularProgress
+                showValueLabel
+                aria-label="Loading..."
+                color="warning"
+                size="lg"
+                value={100}
+                valueLabel={
+                  <Icon
+                    className="text-2xl text-warning"
+                    icon="solar:shield-warning-linear"
+                  />
+                }
+              />
             </div>
             <div className="text-center">
               <p>Terraform</p>
-              <p className="text-sm text-default-500">This is the Description</p>
+              <p className="text-sm text-default-500">
+                This is the Description
+              </p>
             </div>
             <div className="text-center">
               <p>12 Seconds</p>
@@ -191,7 +206,12 @@ export default function FlowList() {
               <p>31.01.2025</p>
               <p className="text-sm text-default-500">Last Success</p>
             </div>
-            <Button isIconOnly className="justify-self-center" variant="flat" color="success">
+            <Button
+              isIconOnly
+              className="justify-self-center"
+              color="success"
+              variant="flat"
+            >
               <Icon icon="solar:play-linear" />
             </Button>
           </CardBody>
@@ -200,21 +220,26 @@ export default function FlowList() {
         {/* Failed Flow Card */}
         <Card fullWidth isPressable>
           <CardBody className="grid grid-cols-7 items-center justify-center gap-4">
-          <div className="flex items-center justify-center">
-            <CircularProgress
-              showValueLabel
-              aria-label="Loading..."
-              color="danger"
-              size="lg"
-              value={100}
-              valueLabel={
-                <Icon className="text-2xl text-danger" icon="gridicons:cross" />
-              }
-            />
+            <div className="flex items-center justify-center">
+              <CircularProgress
+                showValueLabel
+                aria-label="Loading..."
+                color="danger"
+                size="lg"
+                value={100}
+                valueLabel={
+                  <Icon
+                    className="text-2xl text-danger"
+                    icon="gridicons:cross"
+                  />
+                }
+              />
             </div>
             <div className="text-center">
               <p>Terraform</p>
-              <p className="text-sm text-default-500">This is the Description</p>
+              <p className="text-sm text-default-500">
+                This is the Description
+              </p>
             </div>
             <div className="text-center">
               <p>12 Seconds</p>
@@ -232,7 +257,12 @@ export default function FlowList() {
               <p>31.01.2025</p>
               <p className="text-sm text-default-500">Last Success</p>
             </div>
-            <Button isIconOnly className="justify-self-center" variant="flat" color="success">
+            <Button
+              isIconOnly
+              className="justify-self-center"
+              color="success"
+              variant="flat"
+            >
               <Icon icon="solar:play-linear" />
             </Button>
           </CardBody>

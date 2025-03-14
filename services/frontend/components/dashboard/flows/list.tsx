@@ -1,7 +1,11 @@
-import { Button } from "@heroui/button";
-import { Card, CardBody, CardHeader } from "@heroui/card";
-import { Chip } from "@heroui/chip";
-import { CircularProgress } from "@heroui/progress";
+import {
+  Card,
+  CardBody,
+  CardHeader,
+  Button,
+  Chip,
+  CircularProgress,
+} from "@heroui/react";
 import { Icon } from "@iconify/react";
 
 export default function FlowList() {

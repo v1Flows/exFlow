@@ -1,13 +1,14 @@
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
-import { Link } from "@heroui/link";
+import { Link } from "@heroui/react";
 import clsx from "clsx";
-
-import { Providers } from "./providers";
+import { ReactNode } from "react";
 
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
 import { Navbar } from "@/components/navbar";
+
+import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: {
@@ -27,11 +28,7 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html suppressHydrationWarning lang="en">
       <head />

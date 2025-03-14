@@ -13,6 +13,7 @@ type Flows struct {
 	ID                  uuid.UUID `bun:",pk,type:uuid,default:gen_random_uuid()" json:"id"`
 	Name                string    `bun:"name,type:text,notnull" json:"name"`
 	Description         string    `bun:"description,type:text,default:''" json:"description"`
+	FolderID            string    `bun:"folder_id,type:text,default:''" json:"folder_id"`
 	ProjectID           string    `bun:"project_id,type:text,notnull" json:"project_id"`
 	RunnerID            string    `bun:"runner_id,type:text,default:''" json:"runner_id"`
 	ExecParallel        bool      `bun:"exec_parallel,type:bool,default:false" json:"exec_parallel"`

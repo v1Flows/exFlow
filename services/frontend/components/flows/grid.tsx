@@ -1,7 +1,11 @@
-import { Button } from "@heroui/button";
-import { Card, CardBody, CardFooter, CardHeader } from "@heroui/card";
-import { Chip } from "@heroui/chip";
-import { CircularProgress, Progress } from "@heroui/progress";
+import {
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  Button,
+  Progress,
+} from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 
@@ -33,14 +37,16 @@ export default function FlowGrid() {
           <CardHeader className="flex flex-cols items-center text-start justify-between gap-4">
             <div>
               <p>Ansible</p>
-              <p className="text-sm text-default-500">This is the Description</p>
+              <p className="text-sm text-default-500">
+                This is the Description
+              </p>
             </div>
             <Button
               isDisabled
               isIconOnly
               className="justify-self-center"
-              variant="flat"
               color="success"
+              variant="flat"
             >
               <Icon icon="solar:play-linear" />
             </Button>
@@ -64,7 +70,7 @@ export default function FlowGrid() {
             </div>
           </CardBody>
           <CardFooter>
-            <Progress size="sm" isIndeterminate />
+            <Progress isIndeterminate size="sm" />
           </CardFooter>
         </Card>
 
@@ -73,13 +79,15 @@ export default function FlowGrid() {
           <CardHeader className="flex flex-cols items-center text-start justify-between gap-4">
             <div>
               <p>Ansible</p>
-              <p className="text-sm text-default-500">This is the Description</p>
+              <p className="text-sm text-default-500">
+                This is the Description
+              </p>
             </div>
             <Button
               isIconOnly
               className="justify-self-center"
-              variant="flat"
               color="success"
+              variant="flat"
             >
               <Icon icon="solar:play-linear" />
             </Button>
@@ -103,7 +111,7 @@ export default function FlowGrid() {
             </div>
           </CardBody>
           <CardFooter>
-            <Progress size="sm" color="success" value={100} />
+            <Progress color="success" size="sm" value={100} />
           </CardFooter>
         </Card>
 
@@ -112,13 +120,15 @@ export default function FlowGrid() {
           <CardHeader className="flex flex-cols items-center text-start justify-between gap-4">
             <div>
               <p>Ansible</p>
-              <p className="text-sm text-default-500">This is the Description</p>
+              <p className="text-sm text-default-500">
+                This is the Description
+              </p>
             </div>
             <Button
               isIconOnly
               className="justify-self-center"
-              variant="flat"
               color="success"
+              variant="flat"
             >
               <Icon icon="solar:play-linear" />
             </Button>
@@ -142,8 +152,10 @@ export default function FlowGrid() {
             </div>
           </CardBody>
           <CardFooter className="flex flex-col items-start justify-center gap-1">
-            <p className="text-sm font-semibold text-primary">Interaction Required</p>
-            <Progress size="sm" color="primary" isIndeterminate />
+            <p className="text-sm font-semibold text-primary">
+              Interaction Required
+            </p>
+            <Progress isIndeterminate color="primary" size="sm" />
           </CardFooter>
         </Card>
 
@@ -152,13 +164,15 @@ export default function FlowGrid() {
           <CardHeader className="flex flex-cols items-center text-start justify-between gap-4">
             <div>
               <p>Ansible</p>
-              <p className="text-sm text-default-500">This is the Description</p>
+              <p className="text-sm text-default-500">
+                This is the Description
+              </p>
             </div>
             <Button
               isIconOnly
               className="justify-self-center"
-              variant="flat"
               color="success"
+              variant="flat"
             >
               <Icon icon="solar:play-linear" />
             </Button>
@@ -182,7 +196,7 @@ export default function FlowGrid() {
             </div>
           </CardBody>
           <CardFooter>
-            <Progress size="sm" color="warning" value={100} />
+            <Progress color="warning" size="sm" value={100} />
           </CardFooter>
         </Card>
 
@@ -191,13 +205,15 @@ export default function FlowGrid() {
           <CardHeader className="flex flex-cols items-center text-start justify-between gap-4">
             <div>
               <p>Ansible</p>
-              <p className="text-sm text-default-500">This is the Description</p>
+              <p className="text-sm text-default-500">
+                This is the Description
+              </p>
             </div>
             <Button
               isIconOnly
               className="justify-self-center"
-              variant="flat"
               color="success"
+              variant="flat"
             >
               <Icon icon="solar:play-linear" />
             </Button>
@@ -221,7 +237,7 @@ export default function FlowGrid() {
             </div>
           </CardBody>
           <CardFooter>
-            <Progress size="sm" color="danger" value={100} />
+            <Progress color="danger" size="sm" value={100} />
           </CardFooter>
         </Card>
       </div>

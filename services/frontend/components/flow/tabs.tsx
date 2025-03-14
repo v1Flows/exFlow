@@ -1,5 +1,5 @@
-import { Card, CardBody } from "@heroui/card";
-import { Tab, Tabs } from "@heroui/tabs";
+import { Card, CardBody, Tab, Tabs } from "@heroui/react";
+
 import FlowExecutions from "./executions";
 
 export default function FlowTabs() {
@@ -9,9 +9,10 @@ export default function FlowTabs() {
         <Tab key="details" title="Details">
           <Card>
             <CardBody>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-              incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-              exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+              enim ad minim veniam, quis nostrud exercitation ullamco laboris
+              nisi ut aliquip ex ea commodo consequat.
             </CardBody>
           </Card>
         </Tab>
@@ -20,5 +21,5 @@ export default function FlowTabs() {
         </Tab>
       </Tabs>
     </div>
-  )
+  );
 }

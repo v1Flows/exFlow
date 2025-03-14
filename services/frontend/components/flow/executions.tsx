@@ -1,7 +1,4 @@
-import { Button } from "@heroui/button";
-import { Card, CardBody, CardHeader } from "@heroui/card";
-import { Chip } from "@heroui/chip";
-import { CircularProgress } from "@heroui/progress";
+import { Card, CardBody, Button, CircularProgress } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 
@@ -27,12 +24,11 @@ export default function FlowExecutions() {
               <p>12 Seconds</p>
               <p className="text-sm text-default-500">Duration</p>
             </div>
-            <Button
-              isIconOnly
-              className="justify-self-center"
-              variant="flat"
-            >
-              <Icon icon="solar:double-alt-arrow-right-line-duotone" className="text-2xl" />
+            <Button isIconOnly className="justify-self-center" variant="flat">
+              <Icon
+                className="text-2xl"
+                icon="solar:double-alt-arrow-right-line-duotone"
+              />
             </Button>
           </CardBody>
         </Card>
@@ -40,20 +36,20 @@ export default function FlowExecutions() {
         {/* Success Flow Card */}
         <Card fullWidth isPressable>
           <CardBody className="grid grid-cols-4 items-center justify-center gap-4">
-          <div className="flex items-center justify-center">
-            <CircularProgress
-              showValueLabel
-              aria-label="Loading..."
-              size="lg"
-              value={100}
-              color="success"
-              valueLabel={
-                <Icon
-                  className="text-2xl text-success"
-                  icon="solar:check-read-linear"
-                />
-              }
-            />
+            <div className="flex items-center justify-center">
+              <CircularProgress
+                showValueLabel
+                aria-label="Loading..."
+                color="success"
+                size="lg"
+                value={100}
+                valueLabel={
+                  <Icon
+                    className="text-2xl text-success"
+                    icon="solar:check-read-linear"
+                  />
+                }
+              />
             </div>
             <div className="text-center">
               <p>20min ago</p>
@@ -63,12 +59,11 @@ export default function FlowExecutions() {
               <p>12 Seconds</p>
               <p className="text-sm text-default-500">Duration</p>
             </div>
-            <Button
-              isIconOnly
-              className="justify-self-center"
-              variant="flat"
-            >
-              <Icon icon="solar:double-alt-arrow-right-line-duotone" className="text-2xl" />
+            <Button isIconOnly className="justify-self-center" variant="flat">
+              <Icon
+                className="text-2xl"
+                icon="solar:double-alt-arrow-right-line-duotone"
+              />
             </Button>
           </CardBody>
         </Card>
@@ -76,19 +71,19 @@ export default function FlowExecutions() {
         {/* Interaction Flow Card */}
         <Card fullWidth isPressable>
           <CardBody className="grid grid-cols-4 items-center justify-center gap-4">
-          <div className="flex items-center justify-center">
-            <CircularProgress
-              showValueLabel
-              aria-label="Loading..."
-              size="lg"
-              value={100}
-              valueLabel={
-                <Icon
-                  className="text-2xl text-primary"
-                  icon="solar:hand-shake-linear"
-                />
-              }
-            />
+            <div className="flex items-center justify-center">
+              <CircularProgress
+                showValueLabel
+                aria-label="Loading..."
+                size="lg"
+                value={100}
+                valueLabel={
+                  <Icon
+                    className="text-2xl text-primary"
+                    icon="solar:hand-shake-linear"
+                  />
+                }
+              />
             </div>
             <div className="text-center">
               <p>20min ago</p>
@@ -98,12 +93,11 @@ export default function FlowExecutions() {
               <p>12 Seconds</p>
               <p className="text-sm text-default-500">Duration</p>
             </div>
-            <Button
-              isIconOnly
-              className="justify-self-center"
-              variant="flat"
-            >
-              <Icon icon="solar:double-alt-arrow-right-line-duotone" className="text-2xl" />
+            <Button isIconOnly className="justify-self-center" variant="flat">
+              <Icon
+                className="text-2xl"
+                icon="solar:double-alt-arrow-right-line-duotone"
+              />
             </Button>
           </CardBody>
         </Card>
@@ -111,20 +105,20 @@ export default function FlowExecutions() {
         {/* Warning Flow Card */}
         <Card fullWidth isPressable>
           <CardBody className="grid grid-cols-4 items-center justify-center gap-4">
-          <div className="flex items-center justify-center">
-            <CircularProgress
-              showValueLabel
-              aria-label="Loading..."
-              color="warning"
-              size="lg"
-              value={100}
-              valueLabel={
-                <Icon
-                  className="text-2xl text-warning"
-                  icon="solar:shield-warning-linear"
-                />
-              }
-            />
+            <div className="flex items-center justify-center">
+              <CircularProgress
+                showValueLabel
+                aria-label="Loading..."
+                color="warning"
+                size="lg"
+                value={100}
+                valueLabel={
+                  <Icon
+                    className="text-2xl text-warning"
+                    icon="solar:shield-warning-linear"
+                  />
+                }
+              />
             </div>
             <div className="text-center">
               <p>20min ago</p>
@@ -134,12 +128,11 @@ export default function FlowExecutions() {
               <p>12 Seconds</p>
               <p className="text-sm text-default-500">Duration</p>
             </div>
-            <Button
-              isIconOnly
-              className="justify-self-center"
-              variant="flat"
-            >
-              <Icon icon="solar:double-alt-arrow-right-line-duotone" className="text-2xl" />
+            <Button isIconOnly className="justify-self-center" variant="flat">
+              <Icon
+                className="text-2xl"
+                icon="solar:double-alt-arrow-right-line-duotone"
+              />
             </Button>
           </CardBody>
         </Card>
@@ -147,17 +140,20 @@ export default function FlowExecutions() {
         {/* Failed Flow Card */}
         <Card fullWidth isPressable>
           <CardBody className="grid grid-cols-4 items-center justify-center gap-4">
-          <div className="flex items-center justify-center">
-            <CircularProgress
-              showValueLabel
-              aria-label="Loading..."
-              color="danger"
-              size="lg"
-              value={100}
-              valueLabel={
-                <Icon className="text-2xl text-danger" icon="gridicons:cross" />
-              }
-            />
+            <div className="flex items-center justify-center">
+              <CircularProgress
+                showValueLabel
+                aria-label="Loading..."
+                color="danger"
+                size="lg"
+                value={100}
+                valueLabel={
+                  <Icon
+                    className="text-2xl text-danger"
+                    icon="gridicons:cross"
+                  />
+                }
+              />
             </div>
             <div className="text-center">
               <p>20min ago</p>
@@ -167,12 +163,11 @@ export default function FlowExecutions() {
               <p>12 Seconds</p>
               <p className="text-sm text-default-500">Duration</p>
             </div>
-            <Button
-              isIconOnly
-              className="justify-self-center"
-              variant="flat"
-            >
-              <Icon icon="solar:double-alt-arrow-right-line-duotone" className="text-2xl" />
+            <Button isIconOnly className="justify-self-center" variant="flat">
+              <Icon
+                className="text-2xl"
+                icon="solar:double-alt-arrow-right-line-duotone"
+              />
             </Button>
           </CardBody>
         </Card>
