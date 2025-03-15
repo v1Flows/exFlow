@@ -18,7 +18,6 @@ export default async function FlowsPage() {
     projectsData,
   ]);
 
-
   return (
     <main>
       {folders.success && projects.success && flows.success ? (
