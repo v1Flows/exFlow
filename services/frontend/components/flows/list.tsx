@@ -10,24 +10,32 @@ import {
   DropdownSection,
   DropdownItem,
   DropdownTrigger,
+  useDisclosure,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import DeleteFolderModal from "../modals/folders/delete";
+import UpdateFolderModal from "../modals/folders/update";
+
 export default function FlowList({
   flows,
   folders,
+  projects,
 }: {
   flows: any;
   folders: any;
+  projects: any;
 }) {
   const router = useRouter();
 
   const [filteredFolders, setFilteredFolders] = useState([]);
   const [filteredFlows, setFilteredFlows] = useState([]);
+  const [targetFolder, setTargetFolder] = useState({});
 
-  const [targetFolder, setTargetFolder] = useState(null);
+  const updateFolderModal = useDisclosure();
+  const deleteFolderModal = useDisclosure();
 
   // get folder id from query params
   const searchParams = useSearchParams();
@@ -71,13 +79,13 @@ export default function FlowList({
             </CardBody>
           </Card>
         )}
-        {filteredFolders.map((folder: any) => (
+        {filteredFolders.map((f: any) => (
           <Card
-            key={folder.id}
+            key={f.id}
             fullWidth
             isPressable
             className="bg-primary bg-opacity-10 border-2 border-primary pb-3"
-            onPress={() => router.push("/flows?folder=" + folder.id)}
+            onPress={() => router.push("/flows?folder=" + f.id)}
           >
             <CardBody>
               <div className="flex items-start justify-end">
@@ -99,8 +107,8 @@ export default function FlowList({
                           <Icon icon="hugeicons:pencil-edit-02" width={18} />
                         }
                         onPress={() => {
-                          setTargetFolder(folder);
-                          // editProjectModal.onOpen();
+                          setTargetFolder(f);
+                          updateFolderModal.onOpen();
                         }}
                       >
                         Edit
@@ -115,8 +123,8 @@ export default function FlowList({
                           <Icon icon="hugeicons:delete-02" width={18} />
                         }
                         onPress={() => {
-                          setTargetFolder(folder);
-                          // deleteProjectModal.onOpen();
+                          setTargetFolder(f);
+                          deleteFolderModal.onOpen();
                         }}
                       >
                         Delete
@@ -127,7 +135,10 @@ export default function FlowList({
               </div>
               <div className="flex flex-col items-center justify-center gap-2">
                 <Icon className="text-3xl" icon="hugeicons:folder-01" />
-                <p>{folder.name}</p>
+                <div className="text-center">
+                  <p>{f.name}</p>
+                  <p className="text-tiny text-default-500">{f.description}</p>
+                </div>
               </div>
             </CardBody>
           </Card>
@@ -192,6 +203,13 @@ export default function FlowList({
           </Card>
         ))}
       </div>
+      <UpdateFolderModal
+        disclosure={updateFolderModal}
+        folder={targetFolder}
+        folders={folders}
+        projects={projects}
+      />
+      <DeleteFolderModal disclosure={deleteFolderModal} folder={targetFolder} />
     </main>
   );
 }

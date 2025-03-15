@@ -27,7 +27,11 @@ export default async function FlowsPage() {
             projects={projects.data.projects}
           />
           <Divider className="mt-4 mb-4" />
-          <FlowList flows={flows.data.flows} folders={folders.data.folders} />
+          <FlowList
+            flows={flows.data.flows}
+            folders={folders.data.folders}
+            projects={projects.data.projects}
+          />
         </>
       ) : (
         <ErrorCard

@@ -1,0 +1,169 @@
+import {
+  addToast,
+  Button,
+  Card,
+  CardBody,
+  Spacer,
+  Switch,
+} from "@heroui/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Icon } from "@iconify/react";
+
+import UpdateFlow from "@/lib/fetch/flow/PUT/UpdateFlow";
+import ErrorCard from "@/components/error/ErrorCard";
+
+export default function FlowSettings({ flow }: { flow: any }) {
+  const router = useRouter();
+
+  const [groupAlerts, setGroupAlerts] = useState(flow.group_alerts);
+  const [groupAlertsIdentifier, setGroupAlertsIdentifier] = useState(
+    flow.group_alerts_identifier,
+  );
+  const [encryptAlerts, setEncryptAlerts] = useState(flow.encrypt_alerts);
+  const [encryptExecutions, setEncryptExecutions] = useState(
+    flow.encrypt_executions,
+  );
+  const [encryptActionParams, setEncryptActionParams] = useState(
+    flow.encrypt_action_params,
+  );
+  const [alertThreshold, setAlertThreshold] = useState(flow.alert_threshold);
+
+  const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    setEncryptAlerts(flow.encrypt_alerts);
+    setEncryptExecutions(flow.encrypt_executions);
+    setEncryptActionParams(flow.encrypt_action_params);
+    setGroupAlerts(flow.group_alerts);
+    setGroupAlertsIdentifier(flow.group_alerts_identifier);
+    setAlertThreshold(flow.alert_threshold);
+  }, [flow]);
+
+  async function updateFlow() {
+    const response = (await UpdateFlow(
+      flow.id,
+      flow.name,
+      flow.description,
+      flow.project_id,
+      flow.runner_id,
+      encryptAlerts,
+      encryptExecutions,
+      encryptActionParams,
+      groupAlerts,
+      groupAlertsIdentifier,
+      alertThreshold,
+    )) as any;
+
+    if (!response) {
+      setError(true);
+      setErrorMessage("An error occurred while updating the flow");
+
+      return;
+    }
+
+    if (response.success) {
+      router.refresh();
+      addToast({
+        title: "Flow",
+        description: "Flow updated successfully",
+        color: "success",
+        variant: "flat",
+      });
+    } else {
+      setError(true);
+      setErrorMessage(response.message);
+      addToast({
+        title: "Flow",
+        description: "Failed to update flow",
+        color: "danger",
+        variant: "flat",
+      });
+    }
+  }
+
+  return (
+    <>
+      {error && <ErrorCard error={error} message={errorMessage} />}
+      <div className="flex flex-col gap-4">
+        <div>
+          <p className="text-lg font-bold mb-2">Encryption</p>
+          <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4">
+            <Card>
+              <CardBody>
+                <div className="flex flex-cols items-center justify-between gap-8">
+                  <div>
+                    <p className="text-md font-bold">Action Parameters</p>
+                    <p className="text-sm text-default-500">
+                      The parameters of actions will be encrypted stored on the
+                      db.
+                    </p>
+                  </div>
+                  <Switch
+                    isSelected={encryptActionParams}
+                    size="sm"
+                    onValueChange={(value) => {
+                      setEncryptActionParams(value);
+                    }}
+                  />
+                </div>
+              </CardBody>
+            </Card>
+
+            <Card>
+              <CardBody>
+                <div className="flex flex-cols items-center justify-between gap-8">
+                  <div>
+                    <p className="text-md font-bold">Alert Payloads</p>
+                    <p className="text-sm text-default-500">
+                      The payload of incoming alerts will be encrypted stored on
+                      the db when they reached the backend
+                    </p>
+                  </div>
+                  <Switch
+                    isSelected={encryptAlerts}
+                    size="sm"
+                    onValueChange={(value) => {
+                      setEncryptAlerts(value);
+                    }}
+                  />
+                </div>
+              </CardBody>
+            </Card>
+
+            <Card>
+              <CardBody>
+                <div className="flex flex-cols items-center justify-between gap-8">
+                  <div>
+                    <p className="text-md font-bold">Executions</p>
+                    <p className="text-sm text-default-500">
+                      All execution action messages will be stored encrypted on
+                      the db
+                    </p>
+                  </div>
+                  <Switch
+                    isSelected={encryptExecutions}
+                    size="sm"
+                    onValueChange={(value) => {
+                      setEncryptExecutions(value);
+                    }}
+                  />
+                </div>
+              </CardBody>
+            </Card>
+          </div>
+        </div>
+      </div>
+      <Spacer y={4} />
+      <Button
+        fullWidth
+        color="primary"
+        startContent={<Icon icon="hugeicons:floppy-disk" width={20} />}
+        onPress={updateFlow}
+      >
+        Save
+      </Button>
+    </>
+  );
+}

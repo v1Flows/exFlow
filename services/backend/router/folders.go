@@ -19,9 +19,15 @@ func Folders(router *gin.RouterGroup, db *bun.DB) {
 			folders.CreateFolder(c, db)
 		})
 
-		// flow
+		// folder
 		folder.GET("/:folderID", func(c *gin.Context) {
 			folders.GetFolder(c, db)
+		})
+		folder.PUT("/:folderID", func(c *gin.Context) {
+			folders.UpdateFolder(c, db)
+		})
+		folder.DELETE("/:folderID", func(c *gin.Context) {
+			folders.DeleteFolder(c, db)
 		})
 	}
 }
