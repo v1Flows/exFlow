@@ -17,23 +17,25 @@ export default function FlowList({
     <main>
       <p className="text-md font-bold text-default-500 mb-2">Folders</p>
       <div className="grid grid-cols-4 gap-4 mb-4">
-        {folders.map((folder: any) => (
-          <Card
-            key={folder.id}
-            fullWidth
-            isPressable
-            className="bg-primary bg-opacity-10 border-2 border-primary p-3"
-            onPress={() => router.push("/flows/folder/1")}
-          >
-            <CardBody className="flex flex-col items-center justify-center gap-2">
-              <Icon
-                className="text-3xl"
-                icon="solar:folder-with-files-linear"
-              />
-              <p>{folder.name}</p>
-            </CardBody>
-          </Card>
-        ))}
+        {folders
+          .filter((folder: any) => folder.parent_id === "")
+          .map((folder: any) => (
+            <Card
+              key={folder.id}
+              fullWidth
+              isPressable
+              className="bg-primary bg-opacity-10 border-2 border-primary p-3"
+              onPress={() => router.push("/flows/folder/1")}
+            >
+              <CardBody className="flex flex-col items-center justify-center gap-2">
+                <Icon
+                  className="text-3xl"
+                  icon="solar:folder-with-files-linear"
+                />
+                <p>{folder.name}</p>
+              </CardBody>
+            </Card>
+          ))}
         {folders.length === 0 && (
           <p className="text-default-500 text-center col-span-4">
             No folders found

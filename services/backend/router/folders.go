@@ -15,6 +15,9 @@ func Folders(router *gin.RouterGroup, db *bun.DB) {
 		folder.GET("/", func(c *gin.Context) {
 			folders.GetFolders(c, db)
 		})
+		folder.POST("/", func(c *gin.Context) {
+			folders.CreateFolder(c, db)
+		})
 
 		// flow
 		folder.GET("/:folderID", func(c *gin.Context) {

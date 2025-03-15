@@ -1,49 +1,41 @@
-import { Divider, Button } from "@heroui/react";
-import { Icon } from "@iconify/react";
+import { Divider } from "@heroui/react";
 
 import FlowList from "@/components/flows/list";
 import GetFlows from "@/lib/fetch/flow/all";
 import GetFolders from "@/lib/fetch/folder/all";
+import FlowsHeading from "@/components/flows/heading";
+import GetProjects from "@/lib/fetch/project/all";
+import ErrorCard from "@/components/error/ErrorCard";
 
 export default async function FlowsPage() {
   const flowsData = await GetFlows();
   const foldersData = await GetFolders();
+  const projectsData = await GetProjects();
 
-  const [flows, folders] = await Promise.all([flowsData, foldersData]);
+  const [flows, folders, projects] = await Promise.all([
+    flowsData,
+    foldersData,
+    projectsData,
+  ]);
+
 
   return (
     <main>
-      <div className="grid grid-cols-2 items-center justify-between gap-2 lg:grid-cols-2">
-        <p className="text-2xl font-bold">Flows</p>
-        <div className="flex flex-cols justify-end gap-2">
-          <Button isIconOnly variant="ghost">
-            <Icon icon="line-md:filter" width={16} />
-          </Button>
-
-          <Divider className="h-10 mr-2 ml-2" orientation="vertical" />
-
-          <Button
-            color="primary"
-            startContent={<Icon icon="solar:book-2-outline" width={16} />}
-          >
-            Create Flow
-          </Button>
-          <Button
-            color="primary"
-            startContent={
-              <Icon icon="solar:folder-with-files-outline" width={16} />
-            }
-            variant="flat"
-          >
-            Create Folder
-          </Button>
-        </div>
-      </div>
-      <Divider className="mt-4 mb-4" />
-      <FlowList
-        flows={flows.success ? flows.data.flows : []}
-        folders={folders.success ? folders.data.folders : []}
-      />
+      {folders.success && projects.success && flows.success ? (
+        <>
+          <FlowsHeading
+            folders={folders.data.folders}
+            projects={projects.data.projects}
+          />
+          <Divider className="mt-4 mb-4" />
+          <FlowList flows={flows.data.flows} folders={folders.data.folders} />
+        </>
+      ) : (
+        <ErrorCard
+          error={projects.error || flows.error || folders.error}
+          message={projects.message || flows.message || folders.message}
+        />
+      )}
     </main>
   );
 }

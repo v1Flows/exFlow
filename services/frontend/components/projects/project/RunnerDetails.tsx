@@ -12,7 +12,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 
-import { PlusIcon } from "@/components/icons";
 import CreateRunnerModal from "@/components/modals/runner/create";
 import UpdateProject from "@/lib/fetch/project/PUT/UpdateProject";
 
@@ -192,7 +191,7 @@ export default function ProjectRunnerDetails({ project }: { project: any }) {
               variant="flat"
               onPress={addRunnerModal.onOpen}
             >
-              <PlusIcon />
+              <Icon icon="hugeicons:plus-sign" />
             </Button>
           </CardBody>
         </Card>

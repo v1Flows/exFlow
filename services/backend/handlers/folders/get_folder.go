@@ -24,7 +24,7 @@ func GetFolder(context *gin.Context, db *bun.DB) {
 	}
 
 	// check if user has access to project
-	access, err := gatekeeper.CheckUserProjectAccess(folder.ProjectID.String(), context, db)
+	access, err := gatekeeper.CheckUserProjectAccess(folder.ProjectID, context, db)
 	if err != nil {
 		httperror.InternalServerError(context, "Error checking for folder access", err)
 		return
