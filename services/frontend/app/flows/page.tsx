@@ -20,7 +20,7 @@ export default async function FlowsPage() {
 
   return (
     <main>
-      {folders.success && projects.success && flows.success ? (
+      {projects.success && folders.success && flows.success ? (
         <>
           <FlowsHeading
             folders={folders.data.folders}

@@ -4,6 +4,7 @@ import { Button, Divider, useDisclosure } from "@heroui/react";
 import { Icon } from "@iconify/react";
 
 import CreateFolderModal from "../modals/folders/create";
+import CreateFlowModal from "../modals/flows/create";
 
 export default function FlowsHeading({
   projects,
@@ -13,6 +14,7 @@ export default function FlowsHeading({
   folders: any;
 }) {
   const createFolderModal = useDisclosure();
+  const createFlowModal = useDisclosure();
 
   return (
     <main>
@@ -28,6 +30,7 @@ export default function FlowsHeading({
           <Button
             color="primary"
             startContent={<Icon icon="solar:book-2-outline" width={16} />}
+            onPress={createFlowModal.onOpen}
           >
             Create Flow
           </Button>
@@ -45,6 +48,11 @@ export default function FlowsHeading({
       </div>
       <CreateFolderModal
         disclosure={createFolderModal}
+        folders={folders}
+        projects={projects}
+      />
+      <CreateFlowModal
+        disclosure={createFlowModal}
         folders={folders}
         projects={projects}
       />

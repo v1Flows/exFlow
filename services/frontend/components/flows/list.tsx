@@ -1,6 +1,16 @@
 "use client";
 
-import { Card, CardBody, Button, CircularProgress } from "@heroui/react";
+import {
+  Card,
+  CardBody,
+  Button,
+  CircularProgress,
+  Dropdown,
+  DropdownMenu,
+  DropdownSection,
+  DropdownItem,
+  DropdownTrigger,
+} from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -14,12 +24,10 @@ export default function FlowList({
 }) {
   const router = useRouter();
 
-  const [filteredFolders, setFilteredFolders] = useState(
-    folders.filter((f: any) => f.parent_id === ""),
-  );
-  const [filteredFlows, setFilteredFlows] = useState(
-    flows.filter((f: any) => f.folder_id === ""),
-  );
+  const [filteredFolders, setFilteredFolders] = useState([]);
+  const [filteredFlows, setFilteredFlows] = useState([]);
+
+  const [targetFolder, setTargetFolder] = useState(null);
 
   // get folder id from query params
   const searchParams = useSearchParams();
@@ -35,7 +43,7 @@ export default function FlowList({
       );
     } else {
       setFilteredFolders(folders.filter((f: any) => f.parent_id === ""));
-      setFilteredFlows(flows);
+      setFilteredFlows(flows.filter((f: any) => f.folder_id === ""));
     }
   }, [searchFolderID]);
 
@@ -68,12 +76,59 @@ export default function FlowList({
             key={folder.id}
             fullWidth
             isPressable
-            className="bg-primary bg-opacity-10 border-2 border-primary p-3"
+            className="bg-primary bg-opacity-10 border-2 border-primary pb-3"
             onPress={() => router.push("/flows?folder=" + folder.id)}
           >
-            <CardBody className="flex flex-col items-center justify-center gap-2">
-              <Icon className="text-3xl" icon="hugeicons:folder-01" />
-              <p>{folder.name}</p>
+            <CardBody>
+              <div className="flex items-start justify-end">
+                <Dropdown backdrop="opaque">
+                  <DropdownTrigger>
+                    <Icon
+                      className="m-1 hover:text-primary"
+                      icon="solar:menu-dots-bold"
+                      width={24}
+                    />
+                  </DropdownTrigger>
+                  <DropdownMenu variant="flat">
+                    <DropdownSection title="Actions">
+                      <DropdownItem
+                        key="edit"
+                        showDivider
+                        color="warning"
+                        startContent={
+                          <Icon icon="hugeicons:pencil-edit-02" width={18} />
+                        }
+                        onPress={() => {
+                          setTargetFolder(folder);
+                          // editProjectModal.onOpen();
+                        }}
+                      >
+                        Edit
+                      </DropdownItem>
+                    </DropdownSection>
+                    <DropdownSection title="Danger Zone">
+                      <DropdownItem
+                        key="delete"
+                        className="text-danger"
+                        color="danger"
+                        startContent={
+                          <Icon icon="hugeicons:delete-02" width={18} />
+                        }
+                        onPress={() => {
+                          setTargetFolder(folder);
+                          // deleteProjectModal.onOpen();
+                        }}
+                      >
+                        Delete
+                      </DropdownItem>
+                    </DropdownSection>
+                  </DropdownMenu>
+                </Dropdown>
+              </div>
+              <div className="flex flex-col items-center justify-center gap-2">
+                <Icon className="text-3xl" icon="hugeicons:folder-01" />
+                <p>{folder.name}</p>
+              </div>
             </CardBody>
           </Card>
         ))}
@@ -85,7 +140,7 @@ export default function FlowList({
       </div>
 
       <p className="text-md font-bold text-default-500 mb-2">
-        Flows <span className="text-tiny">(without folder)</span>
+        Flows <span className="text-tiny">(in current folder)</span>
       </p>
 
       <div className="flex flex-col gap-4">
@@ -98,32 +153,30 @@ export default function FlowList({
             key={flow.id}
             fullWidth
             isPressable
-            onPress={() => router.push("/flow/1")}
+            onPress={() => router.push("/flows/" + flow.id)}
           >
             <CardBody className="grid grid-cols-7 items-center justify-center gap-4">
               <div className="flex items-center justify-center">
                 <CircularProgress aria-label="Loading..." size="lg" />
               </div>
               <div className="text-center">
-                <p>Ansible</p>
-                <p className="text-sm text-default-500">
-                  This is the Description
-                </p>
+                <p>{flow.name}</p>
+                <p className="text-sm text-default-500">{flow.description}</p>
               </div>
               <div className="text-center">
-                <p>12 Seconds</p>
+                <p>-</p>
                 <p className="text-sm text-default-500">Duration</p>
               </div>
               <div className="text-center">
-                <p>3</p>
+                <p>-</p>
                 <p className="text-sm text-default-500">Total Executions</p>
               </div>
               <div className="text-center">
-                <p>01.02.2025</p>
+                <p>-</p>
                 <p className="text-sm text-default-500">Last Failed</p>
               </div>
               <div className="text-center">
-                <p>31.01.2025</p>
+                <p>-</p>
                 <p className="text-sm text-default-500">Last Success</p>
               </div>
               <Button
@@ -138,209 +191,6 @@ export default function FlowList({
             </CardBody>
           </Card>
         ))}
-
-        {/* Success Flow Card */}
-        <Card fullWidth isPressable>
-          <CardBody className="grid grid-cols-7 items-center justify-center gap-4">
-            <div className="flex items-center justify-center">
-              <CircularProgress
-                showValueLabel
-                aria-label="Loading..."
-                color="success"
-                size="lg"
-                value={100}
-                valueLabel={
-                  <Icon
-                    className="text-2xl text-success"
-                    icon="solar:check-read-linear"
-                  />
-                }
-              />
-            </div>
-            <div className="text-center">
-              <p>Terraform</p>
-              <p className="text-sm text-default-500">
-                This is the Description
-              </p>
-            </div>
-            <div className="text-center">
-              <p>12 Seconds</p>
-              <p className="text-sm text-default-500">Duration</p>
-            </div>
-            <div className="text-center">
-              <p>3</p>
-              <p className="text-sm text-default-500">Total Executions</p>
-            </div>
-            <div className="text-center">
-              <p>01.02.2025</p>
-              <p className="text-sm text-default-500">Last Failed</p>
-            </div>
-            <div className="text-center">
-              <p>31.01.2025</p>
-              <p className="text-sm text-default-500">Last Success</p>
-            </div>
-            <Button
-              isIconOnly
-              className="justify-self-center"
-              color="success"
-              variant="flat"
-            >
-              <Icon icon="solar:play-linear" />
-            </Button>
-          </CardBody>
-        </Card>
-
-        {/* Interaction Flow Card */}
-        <Card fullWidth isPressable>
-          <CardBody className="grid grid-cols-7 items-center justify-center gap-4">
-            <div className="flex items-center justify-center">
-              <CircularProgress
-                showValueLabel
-                aria-label="Loading..."
-                size="lg"
-                value={100}
-                valueLabel={
-                  <Icon
-                    className="text-2xl text-primary"
-                    icon="solar:hand-shake-linear"
-                  />
-                }
-              />
-            </div>
-            <div className="text-center">
-              <p>Terraform</p>
-              <p className="text-sm text-default-500">
-                This is the Description
-              </p>
-            </div>
-            <div className="text-center">
-              <p>12 Seconds</p>
-              <p className="text-sm text-default-500">Duration</p>
-            </div>
-            <div className="text-center">
-              <p>3</p>
-              <p className="text-sm text-default-500">Total Executions</p>
-            </div>
-            <div className="text-center">
-              <p>01.02.2025</p>
-              <p className="text-sm text-default-500">Last Failed</p>
-            </div>
-            <div className="text-center">
-              <p>31.01.2025</p>
-              <p className="text-sm text-default-500">Last Success</p>
-            </div>
-            <Button
-              isIconOnly
-              className="justify-self-center"
-              color="success"
-              variant="flat"
-            >
-              <Icon icon="solar:play-linear" />
-            </Button>
-          </CardBody>
-        </Card>
-
-        {/* Warning Flow Card */}
-        <Card fullWidth isPressable>
-          <CardBody className="grid grid-cols-7 items-center justify-center gap-4">
-            <div className="flex items-center justify-center">
-              <CircularProgress
-                showValueLabel
-                aria-label="Loading..."
-                color="warning"
-                size="lg"
-                value={100}
-                valueLabel={
-                  <Icon
-                    className="text-2xl text-warning"
-                    icon="solar:shield-warning-linear"
-                  />
-                }
-              />
-            </div>
-            <div className="text-center">
-              <p>Terraform</p>
-              <p className="text-sm text-default-500">
-                This is the Description
-              </p>
-            </div>
-            <div className="text-center">
-              <p>12 Seconds</p>
-              <p className="text-sm text-default-500">Duration</p>
-            </div>
-            <div className="text-center">
-              <p>3</p>
-              <p className="text-sm text-default-500">Total Executions</p>
-            </div>
-            <div className="text-center">
-              <p>01.02.2025</p>
-              <p className="text-sm text-default-500">Last Failed</p>
-            </div>
-            <div className="text-center">
-              <p>31.01.2025</p>
-              <p className="text-sm text-default-500">Last Success</p>
-            </div>
-            <Button
-              isIconOnly
-              className="justify-self-center"
-              color="success"
-              variant="flat"
-            >
-              <Icon icon="solar:play-linear" />
-            </Button>
-          </CardBody>
-        </Card>
-
-        {/* Failed Flow Card */}
-        <Card fullWidth isPressable>
-          <CardBody className="grid grid-cols-7 items-center justify-center gap-4">
-            <div className="flex items-center justify-center">
-              <CircularProgress
-                showValueLabel
-                aria-label="Loading..."
-                color="danger"
-                size="lg"
-                value={100}
-                valueLabel={
-                  <Icon
-                    className="text-2xl text-danger"
-                    icon="gridicons:cross"
-                  />
-                }
-              />
-            </div>
-            <div className="text-center">
-              <p>Terraform</p>
-              <p className="text-sm text-default-500">
-                This is the Description
-              </p>
-            </div>
-            <div className="text-center">
-              <p>12 Seconds</p>
-              <p className="text-sm text-default-500">Duration</p>
-            </div>
-            <div className="text-center">
-              <p>3</p>
-              <p className="text-sm text-default-500">Total Executions</p>
-            </div>
-            <div className="text-center">
-              <p>01.02.2025</p>
-              <p className="text-sm text-default-500">Last Failed</p>
-            </div>
-            <div className="text-center">
-              <p>31.01.2025</p>
-              <p className="text-sm text-default-500">Last Success</p>
-            </div>
-            <Button
-              isIconOnly
-              className="justify-self-center"
-              color="success"
-              variant="flat"
-            >
-              <Icon icon="solar:play-linear" />
-            </Button>
-          </CardBody>
-        </Card>
       </div>
     </main>
   );

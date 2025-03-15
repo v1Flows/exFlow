@@ -2,13 +2,10 @@
 
 import { Divider, Button } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { useState } from "react";
 
 import FlowTabs from "@/components/flow/tabs";
 
 export default function AboutPage() {
-  const [view, setView] = useState("list");
-
   return (
     <main>
       <div className="flex flex-cols items-center justify-between gap-2 lg:grid-cols-2">
