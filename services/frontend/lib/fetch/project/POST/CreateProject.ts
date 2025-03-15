@@ -20,7 +20,7 @@ type SuccessResponse = {
 export default async function CreateProject(
   name: string,
   description: string,
-  alertflowRunners: boolean,
+  exflowRunners: boolean,
   icon: string,
   color: string,
 ): Promise<SuccessResponse | ErrorResponse> {
@@ -47,7 +47,7 @@ export default async function CreateProject(
         body: JSON.stringify({
           name,
           description,
-          alertflow_runners: alertflowRunners,
+          exflow_runners: exflowRunners,
           icon,
           color,
         }),

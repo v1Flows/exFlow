@@ -24,6 +24,7 @@ import NextLink from "next/link";
 import clsx from "clsx";
 import { Icon } from "@iconify/react";
 import { useTheme } from "next-themes";
+import { usePathname } from "next/navigation";
 
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
@@ -57,13 +58,15 @@ export const Navbar = ({ userDetails }) => {
   }
 
   const { theme, setTheme } = useTheme();
+  const pathname = usePathname();
+  const currentPath = pathname.split("/")?.[1];
 
   const onChange = () => {
     theme === "light" ? setTheme("dark") : setTheme("light");
   };
 
   return (
-    <HeroUINavbar maxWidth="xl" position="sticky">
+    <HeroUINavbar maxWidth="2xl" position="sticky">
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
         <NavbarBrand as="li" className="gap-3 max-w-fit">
           <NextLink className="flex justify-start items-center gap-1" href="/">
@@ -77,7 +80,12 @@ export const Navbar = ({ userDetails }) => {
               <NextLink
                 className={clsx(
                   linkStyles({ color: "foreground" }),
-                  "data-[active=true]:text-primary font-semibold data-[active=true]:font-medium",
+                  {
+                    "text-primary font-bold": "/" + currentPath === item.href,
+                  },
+                  {
+                    "font-semibold": "/" + currentPath !== item.href,
+                  },
                 )}
                 color="foreground"
                 href={item.href}

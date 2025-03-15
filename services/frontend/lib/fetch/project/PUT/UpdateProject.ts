@@ -21,7 +21,7 @@ export default async function UpdateProject(
   id: string,
   name: string,
   description: string,
-  alertflow_runners: boolean,
+  exflow_runners: boolean,
   icon: string,
   color: string,
   enable_auto_runners: boolean,
@@ -50,7 +50,7 @@ export default async function UpdateProject(
         body: JSON.stringify({
           name,
           description,
-          alertflow_runners,
+          exflow_runners,
           icon,
           color,
           enable_auto_runners,
