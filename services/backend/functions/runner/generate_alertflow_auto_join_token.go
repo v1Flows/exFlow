@@ -17,8 +17,8 @@ func GenerateExFlowAutoJoinToken(db *bun.DB) (token string, err error) {
 	key.ID = uuid.New()
 	key.CreatedAt = time.Now()
 	key.ProjectID = "admin"
-	key.Type = "exflow_auto_runner"
-	key.Description = "Token for ExFlow Shared Auto Runner Join"
+	key.Type = "shared_auto_runner"
+	key.Description = "Token for Shared Auto Runner Join"
 
 	key.Key, key.ExpiresAt, err = auth.GenerateExFlowAutoRunnerJWT(key.ID)
 	if err != nil {

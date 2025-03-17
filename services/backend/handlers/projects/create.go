@@ -55,7 +55,7 @@ func CreateProject(context *gin.Context, db *bun.DB) {
 		return
 	}
 
-	_, err = db.NewInsert().Model(&project).Column("id", "name", "description", "exflow_runners", "icon", "color", "runner_auto_join_token").Exec(context)
+	_, err = db.NewInsert().Model(&project).Column("id", "name", "description", "shared_runners", "icon", "color", "runner_auto_join_token").Exec(context)
 	if err != nil {
 		log.Error(err)
 		httperror.InternalServerError(context, "Error creating project on db", err)

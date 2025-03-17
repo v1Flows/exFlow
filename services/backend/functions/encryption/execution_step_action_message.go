@@ -9,10 +9,10 @@ import (
 	"io"
 
 	"github.com/v1Flows/exFlow/services/backend/config"
-	"github.com/v1Flows/exFlow/services/backend/pkg/models"
+	shared_models "github.com/v1Flows/shared-library/pkg/models"
 )
 
-func EncryptExecutionStepActionMessage(messages []models.Message) ([]models.Message, error) {
+func EncryptExecutionStepActionMessage(messages []shared_models.Message) ([]shared_models.Message, error) {
 	block, err := aes.NewCipher([]byte(config.Config.Encryption.Key))
 	if err != nil {
 		return nil, err
@@ -43,7 +43,7 @@ func EncryptExecutionStepActionMessage(messages []models.Message) ([]models.Mess
 	return messages, nil
 }
 
-func DecryptExecutionStepActionMessage(encryptedMessage []models.Message) ([]models.Message, error) {
+func DecryptExecutionStepActionMessage(encryptedMessage []shared_models.Message) ([]shared_models.Message, error) {
 	block, err := aes.NewCipher([]byte(config.Config.Encryption.Key))
 	if err != nil {
 		return nil, err

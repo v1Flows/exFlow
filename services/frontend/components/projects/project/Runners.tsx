@@ -85,7 +85,7 @@ export default function Runners({ runners, project, user, members }: any) {
       <Divider className="mb-4" />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {runners
-          .filter((runner: any) => runner.exflow_runner === false)
+          .filter((runner: any) => runner.shared_runner === false)
           .sort((a: any, b: any) => {
             const aStatus = heartbeatStatus(a) ? 1 : 0;
             const bStatus = heartbeatStatus(b) ? 1 : 0;
@@ -214,12 +214,12 @@ export default function Runners({ runners, project, user, members }: any) {
       <Spacer y={4} />
       <p className="text-lg font-bold">exFlow Runners</p>
       <Divider className="mb-4" />
-      {project.exflow_runners === true && (
+      {project.shared_runners === true && (
         <div>
           <div className="grid gap-4 lg:grid-cols-2">
             {runners.map(
               (runner: any) =>
-                runner.exflow_runner === true && (
+                runner.shared_runner === true && (
                   <Card key={runner.id}>
                     <CardHeader className="items-center justify-between">
                       <div className="flex flex-col gap-1">
@@ -365,7 +365,7 @@ export default function Runners({ runners, project, user, members }: any) {
           </div>
         </div>
       )}
-      {project.exflow_runners === false && (
+      {project.shared_runners === false && (
         <div>
           <p className="my-4 text-sm font-bold text-default-500">
             exFlow runners are disabled
@@ -375,7 +375,7 @@ export default function Runners({ runners, project, user, members }: any) {
       <RunnerDrawer disclosure={showRunnerDrawer} runner={targetRunner} />
       <CreateRunnerModal
         disclosure={addRunnerModal}
-        exflow_runner={false}
+        shared_runner={false}
         project={project}
       />
       <DeleteRunnerModal disclosure={deleteRunnerModal} runner={targetRunner} />

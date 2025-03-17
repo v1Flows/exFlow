@@ -18,19 +18,19 @@ import {
 import { LibraryIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React from "react";
+import { Icon } from "@iconify/react";
 
 import AddRunner from "@/lib/fetch/runner/POST/AddRunner";
-import { CheckIcon } from "@/components/icons";
 import ErrorCard from "@/components/error/ErrorCard";
 
 export default function CreateRunnerModal({
   disclosure,
   project,
-  exflow_runner,
+  shared_runner,
 }: {
   disclosure: UseDisclosureReturn;
   project: any;
-  exflow_runner: any;
+  shared_runner: any;
 }) {
   const router = useRouter();
   const { isOpen, onOpenChange } = disclosure;
@@ -54,7 +54,7 @@ export default function CreateRunnerModal({
     const response = (await AddRunner({
       projectId: project.id ? project.id : "none",
       name,
-      exflow_runner,
+      shared_runner,
     })) as any;
 
     if (!response) {
@@ -157,7 +157,7 @@ export default function CreateRunnerModal({
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-wrap items-center justify-center gap-2 text-success">
-                <CheckIcon />
+                <Icon icon="hugeicons:checkmark-badge-01" />
                 Runner Created
               </ModalHeader>
               <ModalBody>
@@ -196,7 +196,7 @@ export default function CreateRunnerModal({
                 </Button>
                 <Button
                   color="success"
-                  startContent={<CheckIcon />}
+                  startContent={<Icon icon="hugeicons:checkmark-badge-01" />}
                   onPress={onClose}
                 >
                   <span className="font-bold">Understood</span>

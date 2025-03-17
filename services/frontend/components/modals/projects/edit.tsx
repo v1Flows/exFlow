@@ -42,8 +42,8 @@ export default function EditProjectModal({
   const [projectIcon, setProjectIcon] = React.useState(project.icon);
   const [name, setName] = React.useState(project.name);
   const [description, setDescription] = React.useState(project.description);
-  const [exflowRunners, setExflowRunners] = React.useState(
-    project.exflow_runners,
+  const [sharedRunners, setSharedRunners] = React.useState(
+    project.shared_runners,
   );
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState(false);
@@ -54,7 +54,7 @@ export default function EditProjectModal({
     setProjectIcon(project.icon);
     setName(project.name);
     setDescription(project.description);
-    setExflowRunners(project.exflow_runners);
+    setSharedRunners(project.shared_runners);
     loadAllSolarIcons();
   }, [project]);
 
@@ -73,7 +73,7 @@ export default function EditProjectModal({
       project.id,
       name,
       description,
-      exflowRunners,
+      sharedRunners,
       projectIcon,
       color.hex,
       project.enable_auto_runners,
@@ -182,13 +182,13 @@ export default function EditProjectModal({
                       "group-data-[selected]:group-data-[pressed]:ml-4",
                     ),
                   }}
-                  isSelected={exflowRunners}
-                  onValueChange={setExflowRunners}
+                  isSelected={sharedRunners}
+                  onValueChange={setSharedRunners}
                 >
                   <div className="flex flex-col gap-1">
-                    <p className="text-medium">Enable exFlow Runners</p>
+                    <p className="text-medium">Enable shared Runners</p>
                     <p className="text-tiny text-default-400">
-                      Enable or disable exFlow runners.
+                      Enable or disable shared runners.
                     </p>
                   </div>
                 </Switch>

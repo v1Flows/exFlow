@@ -35,7 +35,7 @@ func CreateRunner(context *gin.Context, db *bun.DB) {
 
 	runner.ID = uuid.New()
 
-	if runner.ExFlowRunner {
+	if runner.SharedRunner {
 		userID, err := auth.GetUserIDFromToken(context.GetHeader("Authorization"))
 		if err != nil {
 			httperror.InternalServerError(context, "Error collecting userID from token", err)
@@ -53,7 +53,7 @@ func CreateRunner(context *gin.Context, db *bun.DB) {
 		}
 	}
 
-	_, err = db.NewInsert().Model(&runner).Column("id", "name", "project_id", "exflow_runner").Exec(context)
+	_, err = db.NewInsert().Model(&runner).Column("id", "name", "project_id", "shared_runner").Exec(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error creating runner on db", err)
 		return

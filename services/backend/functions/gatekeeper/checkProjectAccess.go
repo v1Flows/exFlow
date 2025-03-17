@@ -21,7 +21,7 @@ func CheckUserProjectAccess(projectID string, context *gin.Context, db *bun.DB) 
 		return false, err
 	}
 
-	if tokenType == "project" || tokenType == "runner" || tokenType == "project_auto_runner" || tokenType == "exflow_auto_runner" {
+	if tokenType == "project" || tokenType == "runner" || tokenType == "project_auto_runner" || tokenType == "shared_auto_runner" {
 		// check if projectID in runner token equals to the requested projectID
 		tokenProjectID, err := auth.GetProjectIDFromToken(tokenString)
 		if err != nil {

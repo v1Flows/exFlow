@@ -38,7 +38,7 @@ func GetPendingExecutions(context *gin.Context, db *bun.DB) {
 	}
 	defer tx.Rollback()
 
-	if !runner.ExFlowRunner {
+	if !runner.SharedRunner {
 		err = tx.NewSelect().Model(&executions).Where("flow_id::text IN (SELECT id::text FROM flows WHERE project_id = ?)", projectID).Where("status = 'pending' AND runner_id = ''").For("UPDATE").Limit(1).Scan(context)
 		if err != nil {
 			httperror.InternalServerError(context, "Error collecting executions from db", err)

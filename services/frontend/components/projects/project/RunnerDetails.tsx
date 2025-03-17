@@ -20,33 +20,33 @@ export default function ProjectRunnerDetails({ project }: { project: any }) {
 
   const addRunnerModal = useDisclosure();
 
-  const [exflowRunners, setExflowRunners] = useState(project.exflow_runners);
+  const [sharedRunners, setSharedRunners] = useState(project.shared_runners);
   const [autoJoin, setAutoJoin] = useState(project.enable_auto_runners);
   const [disableJoin, setDisableJoin] = useState(project.disable_runner_join);
 
   useEffect(() => {
-    setExflowRunners(project.exflow_runners);
+    setSharedRunners(project.shared_runners);
     setAutoJoin(project.enable_auto_runners);
     setDisableJoin(project.disable_runner_join);
   }, [project]);
 
   useEffect(() => {
     if (
-      exflowRunners === project.exflow_runners &&
+      sharedRunners === project.shared_runners &&
       autoJoin === project.enable_auto_runners &&
       disableJoin === project.disable_runner_join
     ) {
       return;
     }
     updateProject();
-  }, [exflowRunners, autoJoin, disableJoin]);
+  }, [sharedRunners, autoJoin, disableJoin]);
 
   async function updateProject() {
     const response = (await UpdateProject(
       project.id,
       project.name,
       project.description,
-      exflowRunners,
+      sharedRunners,
       project.icon,
       project.color,
       autoJoin,
@@ -105,10 +105,10 @@ export default function ProjectRunnerDetails({ project }: { project: any }) {
             </div>
             <Spacer y={2} />
             <Switch
-              isSelected={exflowRunners}
+              isSelected={sharedRunners}
               size="sm"
               onValueChange={(value) => {
-                setExflowRunners(value);
+                setSharedRunners(value);
               }}
             />
           </CardBody>
@@ -198,8 +198,8 @@ export default function ProjectRunnerDetails({ project }: { project: any }) {
       </div>
       <CreateRunnerModal
         disclosure={addRunnerModal}
-        exflow_runner={false}
         project={project}
+        shared_runner={false}
       />
     </>
   );

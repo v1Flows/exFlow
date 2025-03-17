@@ -13,7 +13,7 @@ type Projects struct {
 	ID                  uuid.UUID `bun:",pk,type:uuid,default:gen_random_uuid()" json:"id"`
 	Name                string    `bun:"name,type:text,notnull" json:"name"`
 	Description         string    `bun:"description,type:text,default:''" json:"description"`
-	ExFlowRunners       bool      `bun:"exflow_runners,type:bool,default:false" json:"exflow_runners"`
+	SharedRunners       bool      `bun:"shared_runners,type:bool,default:false" json:"shared_runners"`
 	Color               string    `bun:"color,type:text,default:''" json:"color"`
 	Icon                string    `bun:"icon,type:text,default:''" json:"icon"`
 	Disabled            bool      `bun:"disabled,type:bool,default:false" json:"disabled"`

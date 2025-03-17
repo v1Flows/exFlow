@@ -46,7 +46,7 @@ export default function CreateProjectModal({
   const [projectIcon, setProjectIcon] = React.useState("hugeicons:home-12");
   const [name, setName] = React.useState("");
   const [description, setDescription] = React.useState("");
-  const [exflowRunners, setExflowRunners] = React.useState(true);
+  const [sharedRunners, setSharedRunners] = React.useState(true);
   const [error, setError] = React.useState(false);
   const [errorText, setErrorText] = React.useState("");
   const [errorMessage, setErrorMessage] = React.useState("");
@@ -72,7 +72,7 @@ export default function CreateProjectModal({
     const res = (await CreateProject(
       name,
       description,
-      exflowRunners,
+      sharedRunners,
       projectIcon,
       color.hex,
     )) as any;
@@ -98,7 +98,7 @@ export default function CreateProjectModal({
       onOpenChangeSuccess();
       setName("");
       setDescription("");
-      setExflowRunners(false);
+      setSharedRunners(false);
       setIsLoading(false);
       setError(false);
       setErrorText("");
@@ -120,7 +120,7 @@ export default function CreateProjectModal({
   function cancel() {
     setName("");
     setDescription("");
-    setExflowRunners(false);
+    setSharedRunners(false);
     setIsLoading(false);
     onOpenChange();
   }
@@ -174,12 +174,8 @@ export default function CreateProjectModal({
                   />
                   <div className="flex flex-col gap-2">
                     <div className="flex-cols flex items-center gap-2">
-                      <p className="text-sm">exFlow Runners</p>
-                      <Tooltip
-                        content="We are hosting our own Runners to make the usage of
-                        exFlow for you easier. With this option you can
-                        either enable or disable the usage of them."
-                      >
+                      <p className="text-sm">Shared Runners</p>
+                      <Tooltip content="Shared runners will be used across the platform for all projects.">
                         <Icon
                           className="text-default-500"
                           icon="solar:info-circle-linear"
@@ -190,8 +186,8 @@ export default function CreateProjectModal({
                     <div>
                       <ButtonGroup radius="sm" variant="flat">
                         <Button
-                          className={`${exflowRunners ? "bg-primary" : ""}`}
-                          onPress={() => setExflowRunners(true)}
+                          className={`${sharedRunners ? "bg-primary" : ""}`}
+                          onPress={() => setSharedRunners(true)}
                         >
                           <Icon
                             className="text-success"
@@ -201,8 +197,8 @@ export default function CreateProjectModal({
                           Enabled
                         </Button>
                         <Button
-                          className={`${!exflowRunners ? "bg-primary" : ""}`}
-                          onPress={() => setExflowRunners(false)}
+                          className={`${!sharedRunners ? "bg-primary" : ""}`}
+                          onPress={() => setSharedRunners(false)}
                         >
                           <Icon
                             className="text-danger"

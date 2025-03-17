@@ -254,7 +254,7 @@ export default function CreateFlowModal({
                       >
                         {runners
                           .filter(
-                            (runner: any) => runner.exflow_runner === false,
+                            (runner: any) => runner.shared_runner === false,
                           )
                           .map((runner: any) => (
                             <SelectItem key={runner.id}>
