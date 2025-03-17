@@ -52,5 +52,5 @@ func main() {
 	database := database.StartPostgres(config.Database.Server, config.Database.Port, config.Database.User, config.Database.Password, config.Database.Name)
 
 	go background_checks.Init(database)
-	router.StartRouter(database)
+	router.StartRouter(database, config.Port)
 }

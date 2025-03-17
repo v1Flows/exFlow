@@ -115,6 +115,8 @@ github.com/uptrace/bun/extra/bunotel v1.2.11 h1:ddt96XrbvlVZu5vBddP6WmbD6bdeJTaW
 github.com/uptrace/bun/extra/bunotel v1.2.11/go.mod h1:w6Mhie5tLFeP+5ryjq4PvgZEESRJ1iL2cbvxhm+f8q4=
 github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.2 h1:ZjUj9BLYf9PEqBn8W/OapxhPjVRdC6CsXTdULHsyk5c=
 github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.2/go.mod h1:O8bHQfyinKwTXKkiKNGmLQS7vRsqRxIQTFZpYpHK3IQ=
+github.com/v1Flows/shared-library v1.0.0 h1:fiavaZ5NMVq3gqN8hBrtD8ojKZ7JYEYLEGXjVRE5Ue0=
+github.com/v1Flows/shared-library v1.0.0/go.mod h1:UVP6m6Nri6JC3L0xS3wkbqGvfQJ5fsYIJx81Gfj1TFw=
 github.com/vmihailenco/msgpack/v5 v5.4.1 h1:cQriyiUvjTwOHg8QZaPihLWeRAAVoCpE00IUPn0Bjt8=
 github.com/vmihailenco/msgpack/v5 v5.4.1/go.mod h1:GaZTsDaehaPpQVyxrf5mtQlH+pc21PIudVV/E3rRQok=
 github.com/vmihailenco/tagparser/v2 v2.0.0 h1:y09buUbR+b5aycVFQs/g70pqKVZNBmxwAhO7/IwNM9g=

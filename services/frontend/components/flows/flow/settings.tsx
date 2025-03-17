@@ -89,7 +89,7 @@ export default function FlowSettings({ flow }: { flow: any }) {
       <div className="flex flex-col gap-4">
         <div>
           <p className="text-lg font-bold mb-2">Encryption</p>
-          <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4">
+          <div className="grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-4">
             <Card>
               <CardBody>
                 <div className="flex flex-cols items-center justify-between gap-8">
@@ -105,27 +105,6 @@ export default function FlowSettings({ flow }: { flow: any }) {
                     size="sm"
                     onValueChange={(value) => {
                       setEncryptActionParams(value);
-                    }}
-                  />
-                </div>
-              </CardBody>
-            </Card>
-
-            <Card>
-              <CardBody>
-                <div className="flex flex-cols items-center justify-between gap-8">
-                  <div>
-                    <p className="text-md font-bold">Alert Payloads</p>
-                    <p className="text-sm text-default-500">
-                      The payload of incoming alerts will be encrypted stored on
-                      the db when they reached the backend
-                    </p>
-                  </div>
-                  <Switch
-                    isSelected={encryptAlerts}
-                    size="sm"
-                    onValueChange={(value) => {
-                      setEncryptAlerts(value);
                     }}
                   />
                 </div>

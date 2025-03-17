@@ -26,6 +26,7 @@ type EncryptionConf struct {
 
 type RestfulConf struct {
 	LogLevel   string `json:"LogLevel"`
+	Port       int    `json:"Port" default:"8080"`
 	Database   DatabaseConf
 	JWT        JWTConf
 	Encryption EncryptionConf

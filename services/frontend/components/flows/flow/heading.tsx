@@ -3,6 +3,8 @@
 import { Button } from "@heroui/react";
 import { Icon } from "@iconify/react";
 
+import APIStartExecution from "@/lib/fetch/executions/start";
+
 export default function FlowHeading({ flow }: { flow: any }) {
   return (
     <main>
@@ -15,6 +17,7 @@ export default function FlowHeading({ flow }: { flow: any }) {
           color="primary"
           startContent={<Icon icon="solar:play-linear" width={16} />}
           variant="solid"
+          onPress={() => APIStartExecution(flow.id)}
         >
           Execute
         </Button>
