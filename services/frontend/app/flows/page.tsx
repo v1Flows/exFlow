@@ -20,7 +20,7 @@ export default async function FlowsPage() {
 
   return (
     <main>
-      {projects.success && folders.success && flows.success ? (
+      {projects.success && folders.success && flows.success && (
         <>
           <FlowsHeading
             folders={folders.data.folders}
@@ -33,11 +33,6 @@ export default async function FlowsPage() {
             projects={projects.data.projects}
           />
         </>
-      ) : (
-        <ErrorCard
-          error={projects.error || flows.error || folders.error}
-          message={projects.message || flows.message || folders.message}
-        />
       )}
     </main>
   );
