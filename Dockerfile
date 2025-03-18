@@ -4,7 +4,7 @@ FROM node:23-alpine AS base
 FROM node:23-alpine AS frontend-builder
 RUN apk add --no-cache libc6-compat
 WORKDIR /app/frontend
-COPY services/frontend/package.json services/frontend/package-lock.json services/frontend/pnpm-lock.yaml ./
+COPY services/frontend/package.json services/frontend/pnpm-lock.yaml ./
 RUN corepack enable pnpm && pnpm --version
 RUN pnpm install
 COPY services/frontend/ ./
@@ -14,7 +14,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm run build
 
 # Stage 2: Build the backend
-FROM golang:1.23-alpine AS backend-builder
+FROM golang:1.24-alpine AS backend-builder
 WORKDIR /app/backend
 COPY services/backend/go.mod services/backend/go.sum ./
 RUN go mod download
