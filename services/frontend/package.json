@@ -62,7 +62,7 @@
     "eslint-plugin-tailwindcss": "^3.18.0",
     "eslint-plugin-testing-library": "^7.1.1",
     "eslint-plugin-unused-imports": "^4.1.4",
-    "framer-motion": "^11.18.2",
+    "framer-motion": "^12.5.0",
     "globals": "^15.15.0",
     "intl-messageformat": "^10.7.15",
     "lodash": "^4.17.21",
