@@ -4,7 +4,7 @@ FROM node:23-alpine AS base
 FROM node:23-alpine AS frontend-builder
 RUN apk add --no-cache libc6-compat
 WORKDIR /app/frontend
-COPY services/frontend/package.json services/frontend/package-lock.json services/frontend/pnpm-lock.yaml ./
+COPY services/frontend/package.json services/frontend/pnpm-lock.yaml ./
 RUN corepack enable pnpm && pnpm --version
 RUN pnpm install
 COPY services/frontend/ ./
