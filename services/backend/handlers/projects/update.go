@@ -46,7 +46,7 @@ func UpdateProject(context *gin.Context, db *bun.DB) {
 		return
 	}
 
-	_, err = db.NewUpdate().Model(&project).Column("name", "description", "exflow_runners", "icon", "color", "enable_auto_runners", "disable_runner_join").Where("id = ?", projectID).Exec(context)
+	_, err = db.NewUpdate().Model(&project).Column("name", "description", "shared_runners", "icon", "color", "enable_auto_runners", "disable_runner_join").Where("id = ?", projectID).Exec(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error updating project informations on db", err)
 	}

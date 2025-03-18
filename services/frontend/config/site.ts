@@ -2,11 +2,15 @@ export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {
   name: "exFlow",
-  description: "Make beautiful websites regardless of your design experience.",
+  description: "exFlow is an workflow automation tool",
   navItems: [
     {
       label: "Dashboard",
       href: "/",
+    },
+    {
+      label: "Projects",
+      href: "/projects",
     },
     {
       label: "Flows",
@@ -27,6 +31,10 @@ export const siteConfig = {
       href: "/",
     },
     {
+      label: "Projects",
+      href: "/projects",
+    },
+    {
       label: "Flows",
       href: "/flows",
     },
@@ -40,7 +48,7 @@ export const siteConfig = {
     },
   ],
   links: {
-    github: "https://github.com/heroui-inc/heroui",
-    docs: "https://heroui.com",
+    github: "https://github.com/v1Flows/exFlow",
+    docs: "https://exflow.org",
   },
 };

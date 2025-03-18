@@ -20,13 +20,13 @@ func GetSettings(context *gin.Context, db *bun.DB) {
 	}
 
 	// regenerate ExFlowRunnerAutoJoinToken if it got deleted or is not existing
-	if settings.ExFlowRunnerAutoJoinToken == "" {
-		settings.ExFlowRunnerAutoJoinToken, err = functions_runner.GenerateExFlowAutoJoinToken(db)
+	if settings.SharedRunnerAutoJoinToken == "" {
+		settings.SharedRunnerAutoJoinToken, err = functions_runner.GenerateExFlowAutoJoinToken(db)
 		if err != nil {
 			httperror.InternalServerError(context, "Error generating ExFlowRunnerAutoJoinToken", err)
 			return
 		}
-		_, err = db.NewUpdate().Model(&settings).Set("exflow_runner_auto_join_token = ?", settings.ExFlowRunnerAutoJoinToken).Where("id = 1").Exec(context)
+		_, err = db.NewUpdate().Model(&settings).Set("shared_runner_auto_join_token = ?", settings.SharedRunnerAutoJoinToken).Where("id = 1").Exec(context)
 		if err != nil {
 			httperror.InternalServerError(context, "Error updating ExFlowRunnerAutoJoinToken on db", err)
 			return

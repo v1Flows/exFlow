@@ -1,4 +1,4 @@
-import { Spacer } from "@heroui/spacer";
+import { Spacer } from "@heroui/react";
 
 export default function DocsPage() {
   return (

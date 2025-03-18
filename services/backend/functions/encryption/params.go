@@ -11,7 +11,7 @@ import (
 	"io"
 
 	"github.com/v1Flows/exFlow/services/backend/config"
-	"github.com/v1Flows/exFlow/services/backend/pkg/models"
+	shared_models "github.com/v1Flows/shared-library/pkg/models"
 )
 
 func IsEncrypted(value string) bool {
@@ -24,7 +24,7 @@ func IsEncrypted(value string) bool {
 	return err == nil
 }
 
-func EncryptParams(actions []models.Actions) ([]models.Actions, error) {
+func EncryptParams(actions []shared_models.Action) ([]shared_models.Action, error) {
 	block, err := aes.NewCipher([]byte(config.Config.Encryption.Key))
 	if err != nil {
 		return nil, err
@@ -67,7 +67,7 @@ func EncryptParams(actions []models.Actions) ([]models.Actions, error) {
 	return actions, nil
 }
 
-func DecryptParams(actions []models.Actions, decryptPasswords bool) ([]models.Actions, error) {
+func DecryptParams(actions []shared_models.Action, decryptPasswords bool) ([]shared_models.Action, error) {
 	block, err := aes.NewCipher([]byte(config.Config.Encryption.Key))
 	if err != nil {
 		return nil, err

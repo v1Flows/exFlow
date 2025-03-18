@@ -17,7 +17,7 @@ type Settings struct {
 	AddProjectMembers         bool   `bun:"add_project_members,type:bool,default:true" json:"add_project_members"`
 	AddFlowActions            bool   `bun:"add_flow_actions,type:bool,default:true" json:"add_flow_actions"`
 	StartExecutions           bool   `bun:"start_executions,type:bool,default:true" json:"start_executions"`
-	AllowExFlowRunnerAutoJoin bool   `bun:"allow_exflow_runner_auto_join,type:bool,default:true" json:"allow_exflow_runner_auto_join"`
-	AllowExFlowRunnerJoin     bool   `bun:"allow_exflow_runner_join,type:bool,default:true" json:"allow_exflow_runner_join"`
-	ExFlowRunnerAutoJoinToken string `bun:"exflow_runner_auto_join_token,type:text,default:''" json:"exflow_runner_auto_join_token"`
+	AllowSharedRunnerAutoJoin bool   `bun:"allow_shared_runner_auto_join,type:bool,default:true" json:"allow_shared_runner_auto_join"`
+	AllowSharedRunnerJoin     bool   `bun:"allow_shared_runner_join,type:bool,default:true" json:"allow_shared_runner_join"`
+	SharedRunnerAutoJoinToken string `bun:"shared_runner_auto_join_token,type:text,default:''" json:"shared_runner_auto_join_token"`
 }

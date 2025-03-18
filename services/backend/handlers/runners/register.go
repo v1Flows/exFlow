@@ -9,6 +9,7 @@ import (
 	"github.com/v1Flows/exFlow/services/backend/functions/auth"
 	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
 	"github.com/v1Flows/exFlow/services/backend/pkg/models"
+	shared_models "github.com/v1Flows/shared-library/pkg/models"
 
 	"math/rand"
 
@@ -25,7 +26,7 @@ func RegisterRunner(context *gin.Context, db *bun.DB) {
 	}
 
 	var runner models.Runners
-	var autoRunner models.IncomingAutoRunners
+	var autoRunner shared_models.IncomingAutoRunners
 
 	if runnerType == "project_auto_runner" {
 		if err := context.ShouldBindJSON(&autoRunner); err != nil {
@@ -33,28 +34,28 @@ func RegisterRunner(context *gin.Context, db *bun.DB) {
 			return
 		}
 
-		autoRunnerRegister(projectID, models.Runners{
-			Registered:    autoRunner.Registered,
-			LastHeartbeat: autoRunner.LastHeartbeat,
-			Version:       autoRunner.Version,
-			Mode:          autoRunner.Mode,
-			Plugins:       autoRunner.Plugins,
-			Actions:       autoRunner.Actions,
-		}, context, db)
-	} else if runnerType == "exflow_auto_runner" {
+		runner.Registered = autoRunner.Registered
+		runner.LastHeartbeat = autoRunner.LastHeartbeat
+		runner.Version = autoRunner.Version
+		runner.Mode = autoRunner.Mode
+		runner.Plugins = autoRunner.Plugins
+		runner.Actions = autoRunner.Actions
+
+		autoRunnerRegister(projectID, runner, context, db)
+	} else if runnerType == "shared_auto_runner" {
 		if err := context.ShouldBindJSON(&autoRunner); err != nil {
 			httperror.StatusBadRequest(context, "Error parsing incoming data", err)
 			return
 		}
 
-		exflowAutoRunnerRegister(models.Runners{
-			Registered:    autoRunner.Registered,
-			LastHeartbeat: autoRunner.LastHeartbeat,
-			Version:       autoRunner.Version,
-			Mode:          autoRunner.Mode,
-			Plugins:       autoRunner.Plugins,
-			Actions:       autoRunner.Actions,
-		}, context, db)
+		runner.Registered = autoRunner.Registered
+		runner.LastHeartbeat = autoRunner.LastHeartbeat
+		runner.Version = autoRunner.Version
+		runner.Mode = autoRunner.Mode
+		runner.Plugins = autoRunner.Plugins
+		runner.Actions = autoRunner.Actions
+
+		sharedAutoRunnerRegister(runner, context, db)
 	} else {
 		if err := context.ShouldBindJSON(&runner); err != nil {
 			httperror.StatusBadRequest(context, "Error parsing incoming data", err)
@@ -146,7 +147,7 @@ func autoRunnerRegister(projectID string, runner models.Runners, context *gin.Co
 	context.JSON(http.StatusCreated, gin.H{"result": "success", "runner_id": runner.ID})
 }
 
-func exflowAutoRunnerRegister(runner models.Runners, context *gin.Context, db *bun.DB) {
+func sharedAutoRunnerRegister(runner models.Runners, context *gin.Context, db *bun.DB) {
 	// check if runner join is disabled for exflow
 	var settings models.Settings
 	err := db.NewSelect().Model(&settings).Where("id = 1").Scan(context)
@@ -156,12 +157,12 @@ func exflowAutoRunnerRegister(runner models.Runners, context *gin.Context, db *b
 	}
 
 	// check if auto runners is disabled for exflow
-	if !settings.AllowExFlowRunnerAutoJoin {
+	if !settings.AllowSharedRunnerAutoJoin {
 		httperror.StatusBadRequest(context, "Auto runner join is disabled for ExFlow", errors.New("auto runner join is disabled for exflow"))
 		return
 	}
 
-	if !settings.AllowExFlowRunnerJoin {
+	if !settings.AllowSharedRunnerJoin {
 		httperror.StatusBadRequest(context, "Runner join is not disabled for ExFlow", errors.New("runner join is not disabled for exflow"))
 		return
 	}
@@ -170,7 +171,7 @@ func exflowAutoRunnerRegister(runner models.Runners, context *gin.Context, db *b
 	runner.ID = uuid.New()
 	runner.Name = "ExFlow Auto Runner " + strconv.Itoa(rand.Intn(100000))
 	runner.ProjectID = "admin"
-	runner.ExFlowRunner = true
+	runner.SharedRunner = true
 	runner.AutoRunner = true
 	runner.RegisteredAt = time.Now()
 

@@ -10,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	log "github.com/sirupsen/logrus"
 	"github.com/uptrace/bun"
 )
 
@@ -51,6 +52,7 @@ func CreateStep(context *gin.Context, db *bun.DB) {
 	_, err = db.NewInsert().Model(&step).Exec(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error creating execution step on db", err)
+		log.Error("Error creating execution step on db", err)
 		return
 	}
 

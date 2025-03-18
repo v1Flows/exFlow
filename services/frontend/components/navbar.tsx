@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Navbar as HeroUINavbar,
   NavbarContent,
@@ -20,12 +22,16 @@ import { Input } from "@heroui/input";
 import { link as linkStyles } from "@heroui/theme";
 import NextLink from "next/link";
 import clsx from "clsx";
+import { Icon } from "@iconify/react";
+import { useTheme } from "next-themes";
+import { usePathname } from "next/navigation";
 
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { GithubIcon, SearchIcon, Logo } from "@/components/icons";
+import { Logout } from "@/lib/logout";
 
-export const Navbar = () => {
+export const Navbar = ({ userDetails }) => {
   const searchInput = (
     <Input
       aria-label="Search"
@@ -47,8 +53,20 @@ export const Navbar = () => {
     />
   );
 
+  async function LogoutHandler() {
+    await Logout();
+  }
+
+  const { theme, setTheme } = useTheme();
+  const pathname = usePathname();
+  const currentPath = pathname.split("/")?.[1];
+
+  const onChange = () => {
+    theme === "light" ? setTheme("dark") : setTheme("light");
+  };
+
   return (
-    <HeroUINavbar maxWidth="xl" position="sticky">
+    <HeroUINavbar maxWidth="2xl" position="sticky">
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
         <NavbarBrand as="li" className="gap-3 max-w-fit">
           <NextLink className="flex justify-start items-center gap-1" href="/">
@@ -62,7 +80,12 @@ export const Navbar = () => {
               <NextLink
                 className={clsx(
                   linkStyles({ color: "foreground" }),
-                  "data-[active=true]:text-primary font-semibold data-[active=true]:font-medium",
+                  {
+                    "text-primary font-bold": "/" + currentPath === item.href,
+                  },
+                  {
+                    "font-semibold": "/" + currentPath !== item.href,
+                  },
                 )}
                 color="foreground"
                 href={item.href}
@@ -86,24 +109,53 @@ export const Navbar = () => {
               isBordered
               as="button"
               className="transition-transform"
-              color="secondary"
-              name="Jason Hughes"
+              color="primary"
+              name={userDetails.username}
               size="sm"
-              src="https://i.pravatar.cc/150?u=a042581f4e29026704d"
             />
           </DropdownTrigger>
           <DropdownMenu aria-label="Profile Actions" variant="flat">
             <DropdownItem key="profile" className="h-14 gap-2">
               <p className="font-semibold">Signed in as</p>
-              <p className="font-semibold">zoey@example.com</p>
+              <p className="font-semibold">{userDetails.username}</p>
             </DropdownItem>
-            <DropdownItem key="settings">My Settings</DropdownItem>
-            <DropdownItem key="team_settings">Team Settings</DropdownItem>
-            <DropdownItem key="analytics">Analytics</DropdownItem>
-            <DropdownItem key="system">System</DropdownItem>
-            <DropdownItem key="configurations">Configurations</DropdownItem>
-            <DropdownItem key="help_and_feedback">Help & Feedback</DropdownItem>
-            <DropdownItem key="logout" color="danger">
+            {theme === "light" ? (
+              <DropdownItem
+                key="dark_mode"
+                startContent={<Icon icon="hugeicons:moon-01" width={20} />}
+                onPress={onChange}
+              >
+                Dark Mode
+              </DropdownItem>
+            ) : (
+              <DropdownItem
+                key="white_mode"
+                startContent={<Icon icon="hugeicons:sun-01" width={20} />}
+                onPress={onChange}
+              >
+                White Mode
+              </DropdownItem>
+            )}
+            <DropdownItem
+              key="settings"
+              startContent={
+                <Icon icon="hugeicons:location-user-03" width={20} />
+              }
+            >
+              Profile
+            </DropdownItem>
+            <DropdownItem
+              key="settings"
+              startContent={<Icon icon="hugeicons:settings-01" width={20} />}
+            >
+              My Settings
+            </DropdownItem>
+            <DropdownItem
+              key="logout"
+              color="danger"
+              startContent={<Icon icon="hugeicons:logout-02" width={20} />}
+              onPress={LogoutHandler}
+            >
               Log Out
             </DropdownItem>
           </DropdownMenu>

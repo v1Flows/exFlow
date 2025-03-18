@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/v1Flows/exFlow/services/backend/pkg/models"
+	shared_models "github.com/v1Flows/shared-library/pkg/models"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/uptrace/bun"
@@ -53,23 +54,25 @@ func checkHangingExecutions(db *bun.DB) {
 			log.Info("Bot: Execution is hanging, marking as error", execution.ID)
 
 			// add an error step
-			_, err := db.NewInsert().Model(&models.ExecutionSteps{
-				ExecutionID: execution.ID.String(),
-				Action: models.Actions{
-					Name: "Automated Check",
-				},
-				Messages: []models.Message{
-					{
-						Title: "Automated Check",
-						Lines: []string{
-							"All steps finished since 15 minutes but execution is still running",
-							"Marking as error",
-						},
+			var executionStep models.ExecutionSteps
+
+			executionStep.ExecutionID = execution.ID.String()
+			executionStep.Action = shared_models.Action{
+				Name: "Automated Check",
+			}
+			executionStep.Messages = []shared_models.Message{
+				{
+					Title: "Automated Check",
+					Lines: []string{
+						"All steps finished since 15 minutes but execution is still running",
+						"Marking as error",
 					},
 				},
-				Status:     "error",
-				FinishedAt: time.Now(),
-			}).Exec(context)
+			}
+			executionStep.Status = "error"
+			executionStep.FinishedAt = time.Now()
+
+			_, err := db.NewInsert().Model(&executionStep).Exec(context)
 			if err != nil {
 				log.Error("Bot: Error adding error step", err)
 			}

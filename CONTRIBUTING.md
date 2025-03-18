@@ -1,6 +1,6 @@
-# Contributing to AlertFlow
+# Contributing to exFlow
 
-We welcome contributions to the AlertFlow project! By contributing, you help make this project better for everyone. Here are some guidelines to help you get started.
+We welcome contributions to the exFlow project! By contributing, you help make this project better for everyone. Here are some guidelines to help you get started.
 
 ## Table of Contents
 
@@ -17,8 +17,8 @@ We welcome contributions to the AlertFlow project! By contributing, you help mak
 1. Fork the repository on GitHub.
 2. Clone your forked repository:
     ```sh
-    git clone git@github.com:AlertFlow/alertflow.git
-    cd alertflow
+    git clone git@github.com:v1Flows/exflow.git
+    cd exflow
     ```
 3. Create a new branch for your changes:
     ```sh
@@ -63,4 +63,4 @@ Please note that this project is released with a Contributor Code of Conduct. By
 
 ## License
 
-By contributing to AlertFlow, you agree that your contributions will be licensed under the GNU AFFERO GENERAL PUBLIC LICENSE Version 3.
+By contributing to exFlow, you agree that your contributions will be licensed under the GNU AFFERO GENERAL PUBLIC LICENSE Version 3.

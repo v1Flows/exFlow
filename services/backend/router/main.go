@@ -1,6 +1,7 @@
 package router
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -10,7 +11,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func StartRouter(db *bun.DB) {
+func StartRouter(db *bun.DB, port int) {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 
@@ -27,6 +28,7 @@ func StartRouter(db *bun.DB) {
 	{
 		Admin(v1, db)
 		Auth(v1, db)
+		Folders(v1, db)
 		Executions(v1, db)
 		Flows(v1, db)
 		Page(v1, db)
@@ -37,7 +39,6 @@ func StartRouter(db *bun.DB) {
 		Health(v1)
 	}
 
-	log.Info("Starting Router on port 8080")
-
-	router.Run(":8080")
+	log.Info("Starting Router on port ", strconv.Itoa(port))
+	router.Run(":" + strconv.Itoa(port))
 }

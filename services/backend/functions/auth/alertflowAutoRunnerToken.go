@@ -14,7 +14,7 @@ func GenerateExFlowAutoRunnerJWT(id uuid.UUID) (tokenString string, expirationTi
 	claims := &models.JWTProjectRunnerClaim{
 		ProjectID: "admin",
 		ID:        id,
-		Type:      "exflow_auto_runner",
+		Type:      "shared_auto_runner",
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 		},

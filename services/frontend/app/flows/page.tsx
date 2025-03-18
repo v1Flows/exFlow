@@ -1,55 +1,44 @@
-"use client";
-
-import { Button, ButtonGroup } from "@heroui/button";
-import { Divider } from "@heroui/divider";
-import { Icon } from "@iconify/react";
+import { Divider } from "@heroui/react";
 
 import FlowList from "@/components/flows/list";
-import FlowGrid from "@/components/flows/grid";
-import { useState } from "react";
+import GetFlows from "@/lib/fetch/flow/all";
+import GetFolders from "@/lib/fetch/folder/all";
+import FlowsHeading from "@/components/flows/heading";
+import GetProjects from "@/lib/fetch/project/all";
+import ErrorCard from "@/components/error/ErrorCard";
 
-export default function AboutPage() {
-  const [view, setView] = useState("list");
+export default async function FlowsPage() {
+  const flowsData = await GetFlows();
+  const foldersData = await GetFolders();
+  const projectsData = await GetProjects();
+
+  const [flows, folders, projects] = await Promise.all([
+    flowsData,
+    foldersData,
+    projectsData,
+  ]);
 
   return (
     <main>
-      <div className="grid grid-cols-2 items-center justify-between gap-2 lg:grid-cols-2">
-        <p className="text-2xl font-bold">Flows</p>
-        <div className="flex flex-cols justify-end gap-2">
-          <ButtonGroup radius="md" variant="ghost">
-            <Button isIconOnly onPress={() => setView("grid")} color={view === "grid" ? "primary" : "default"}>
-              <Icon icon="line-md:grid-3-filled" width={16} />
-            </Button>
-            <Button isIconOnly color={view === "list" ? "primary" : "default"} onPress={() => setView("list")}>
-              <Icon icon="line-md:list-3-filled" width={16} />
-            </Button>
-          </ButtonGroup>
-
-          <Button isIconOnly variant="ghost">
-            <Icon icon="line-md:filter" width={16} />
-          </Button>
-
-          <Divider className="h-10 mr-2 ml-2" orientation="vertical" />
-
-          <Button
-            color="primary"
-            startContent={<Icon icon="solar:book-2-outline" width={16} />}
-          >
-            Create Flow
-          </Button>
-          <Button
-            color="primary"
-            startContent={
-              <Icon icon="solar:folder-with-files-outline" width={16} />
-            }
-            variant="flat"
-          >
-            Create Folder
-          </Button>
-        </div>
-      </div>
-      <Divider className="mt-4 mb-4" />
-      {view === "list" ? <FlowList /> : <FlowGrid />}
+      {projects.success && folders.success && flows.success ? (
+        <>
+          <FlowsHeading
+            folders={folders.data.folders}
+            projects={projects.data.projects}
+          />
+          <Divider className="mt-4 mb-4" />
+          <FlowList
+            flows={flows.data.flows}
+            folders={folders.data.folders}
+            projects={projects.data.projects}
+          />
+        </>
+      ) : (
+        <ErrorCard
+          error={projects.error || flows.error || folders.error}
+          message={projects.message || flows.message || folders.message}
+        />
+      )}
     </main>
   );
 }
