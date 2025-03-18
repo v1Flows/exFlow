@@ -1,12 +1,15 @@
 import { Card, CardBody } from "@heroui/react";
 import { Icon } from "@iconify/react";
+import NumberFlow from "@number-flow/react";
 
 export default function FlowDetails({
   flow,
   project,
+  executions,
 }: {
   flow: any;
   project: any;
+  executions: any;
 }) {
   return (
     <main>
@@ -53,7 +56,7 @@ export default function FlowDetails({
                   <Icon icon="hugeicons:ai-brain-04" width={24} />
                 </div>
                 <div>
-                  <p className="text-md font-bold">2</p>
+                  <p className="text-md font-bold">{flow.runner_id}</p>
                   <p className="text-sm text-default-500">Runner</p>
                 </div>
               </div>
@@ -68,7 +71,7 @@ export default function FlowDetails({
                   <Icon icon="hugeicons:rocket-02" width={24} />
                 </div>
                 <div>
-                  <p className="text-md font-bold">2</p>
+                  <NumberFlow className="font-bold" value={executions.length} />
                   <p className="text-sm text-default-500">Executions</p>
                 </div>
               </div>

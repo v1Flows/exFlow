@@ -57,7 +57,7 @@ func checkHangingExecutions(db *bun.DB) {
 			var executionStep models.ExecutionSteps
 
 			executionStep.ExecutionID = execution.ID.String()
-			executionStep.Action = shared_models.Actions{
+			executionStep.Action = shared_models.Action{
 				Name: "Automated Check",
 			}
 			executionStep.Messages = []shared_models.Message{

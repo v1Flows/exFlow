@@ -65,7 +65,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/sirupsen/logrus v1.9.3
 	github.com/uptrace/bun/dialect/pgdialect v1.2.11
-	github.com/v1Flows/shared-library v1.0.1
+	github.com/v1Flows/shared-library v1.0.4
 	github.com/zeromicro/go-zero v1.8.1
 	golang.org/x/sys v0.31.0 // indirect
 )

@@ -4,17 +4,22 @@ import {
   Card,
   CardBody,
   Button,
-  CircularProgress,
   Dropdown,
   DropdownMenu,
   DropdownSection,
   DropdownItem,
   DropdownTrigger,
   useDisclosure,
+  CardHeader,
+  CardFooter,
+  Chip,
+  addToast,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+
+import APIStartExecution from "@/lib/fetch/executions/start";
 
 import DeleteFolderModal from "../modals/folders/delete";
 import UpdateFolderModal from "../modals/folders/update";
@@ -136,7 +141,7 @@ export default function FlowList({
               <div className="flex flex-col items-center justify-center gap-2">
                 <Icon className="text-3xl" icon="hugeicons:folder-01" />
                 <div className="text-center">
-                  <p>{f.name}</p>
+                  <p className="font-bold">{f.name}</p>
                   <p className="text-tiny text-default-500">{f.description}</p>
                 </div>
               </div>
@@ -159,49 +164,78 @@ export default function FlowList({
         {filteredFlows.length === 0 && (
           <p className="text-default-500 text-center">No flows found</p>
         )}
-        {filteredFlows.map((flow: any) => (
-          <Card
-            key={flow.id}
-            fullWidth
-            isPressable
-            onPress={() => router.push("/flows/" + flow.id)}
-          >
-            <CardBody className="grid grid-cols-7 items-center justify-center gap-4">
-              <div className="flex items-center justify-center">
-                <CircularProgress aria-label="Loading..." size="lg" />
-              </div>
-              <div className="text-center">
-                <p>{flow.name}</p>
-                <p className="text-sm text-default-500">{flow.description}</p>
-              </div>
-              <div className="text-center">
-                <p>-</p>
-                <p className="text-sm text-default-500">Duration</p>
-              </div>
-              <div className="text-center">
-                <p>-</p>
-                <p className="text-sm text-default-500">Total Executions</p>
-              </div>
-              <div className="text-center">
-                <p>-</p>
-                <p className="text-sm text-default-500">Last Failed</p>
-              </div>
-              <div className="text-center">
-                <p>-</p>
-                <p className="text-sm text-default-500">Last Success</p>
-              </div>
-              <Button
-                isDisabled
-                isIconOnly
-                className="justify-self-center"
-                color="success"
-                variant="flat"
-              >
-                <Icon icon="solar:play-linear" />
-              </Button>
-            </CardBody>
-          </Card>
-        ))}
+        {filteredFlows.map((flow: any) => {
+          const project = projects.find((p: any) => p.id === flow.project_id);
+
+          return (
+            <Card
+              key={flow.id}
+              fullWidth
+              isPressable
+              className="bg-default-500 bg-opacity-10 border-2 border-default"
+              onPress={() => router.push("/flows/" + flow.id)}
+            >
+              <CardHeader className="flex flex-cols items-center justify-between">
+                <div className="flex flex-col items-start">
+                  <p className="font-bold text-lg">{flow.name}</p>
+                  <p className="text-sm text-default-500">{flow.description}</p>
+                </div>
+                <Button
+                  isIconOnly
+                  color="success"
+                  variant="flat"
+                  onPress={() => {
+                    APIStartExecution(flow.id)
+                      .then(() => {
+                        addToast({
+                          title: "Execution Started",
+                          color: "success",
+                        });
+                      })
+                      .catch((err) => {
+                        addToast({
+                          title: "Execution start failed",
+                          description: err.message,
+                          color: "danger",
+                        });
+                      });
+                  }}
+                >
+                  <Icon icon="solar:play-linear" />
+                </Button>
+              </CardHeader>
+              <CardFooter className="flex flex-cols items-center justify-between">
+                <div className="flex flex-cols items-center gap-1">
+                  <Icon
+                    icon={
+                      project.icon
+                        ? project.icon
+                        : "solar:question-square-outline"
+                    }
+                    style={{ color: project?.color }}
+                    width={22}
+                  />
+                  <p>{project?.name}</p>
+                </div>
+                <div className="flex items-center">
+                  <Button isIconOnly color="warning" variant="light">
+                    <Icon icon="hugeicons:pencil-edit-02" width={20} />
+                  </Button>
+                  <Chip
+                    color={project.disabled ? "danger" : "success"}
+                    radius="sm"
+                    size="md"
+                    variant="light"
+                  >
+                    <p className="font-bold">
+                      {project.disabled ? "Disabled" : "Active"}
+                    </p>
+                  </Chip>
+                </div>
+              </CardFooter>
+            </Card>
+          );
+        })}
       </div>
       <UpdateFolderModal
         disclosure={updateFolderModal}

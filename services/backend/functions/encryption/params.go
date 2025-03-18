@@ -24,7 +24,7 @@ func IsEncrypted(value string) bool {
 	return err == nil
 }
 
-func EncryptParams(actions []shared_models.Actions) ([]shared_models.Actions, error) {
+func EncryptParams(actions []shared_models.Action) ([]shared_models.Action, error) {
 	block, err := aes.NewCipher([]byte(config.Config.Encryption.Key))
 	if err != nil {
 		return nil, err
@@ -67,7 +67,7 @@ func EncryptParams(actions []shared_models.Actions) ([]shared_models.Actions, er
 	return actions, nil
 }
 
-func DecryptParams(actions []shared_models.Actions, decryptPasswords bool) ([]shared_models.Actions, error) {
+func DecryptParams(actions []shared_models.Action, decryptPasswords bool) ([]shared_models.Action, error) {
 	block, err := aes.NewCipher([]byte(config.Config.Encryption.Key))
 	if err != nil {
 		return nil, err

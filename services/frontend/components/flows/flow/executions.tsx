@@ -5,20 +5,22 @@ import {
   Button,
   Card,
   CardBody,
-  CardFooter,
-  CardHeader,
-  Chip,
   CircularProgress,
-  Divider,
   Pagination,
-  Spacer,
+  Snippet,
+  Table,
+  TableBody,
+  TableCell,
+  TableColumn,
+  TableHeader,
+  TableRow,
   Tooltip,
   useDisclosure,
 } from "@heroui/react";
 import NumberFlow from "@number-flow/react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-import TimeAgo from "react-timeago";
+import ReactTimeago from "react-timeago";
 
 import DeleteExecutionModal from "@/components/modals/executions/delete";
 
@@ -137,160 +139,136 @@ export default function Executions({
   function statusIcon(execution: any) {
     if (execution.status === "pending") {
       return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="default"
-            size="md"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-default-500"
-                icon="hugeicons:time-quarter-pass"
-                width={20}
-              />
-            }
-          />
-        </Tooltip>
+        <CircularProgress
+          showValueLabel
+          aria-label="Step"
+          color="default"
+          size="md"
+          value={100}
+          valueLabel={
+            <Icon
+              className="text-default-500"
+              icon="hugeicons:time-quarter-pass"
+              width={20}
+            />
+          }
+        />
       );
     } else if (execution.status === "running") {
-      return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress aria-label="Step" color="primary" size="md" />
-        </Tooltip>
-      );
+      return <CircularProgress aria-label="Step" color="primary" size="md" />;
     } else if (execution.status === "paused") {
       return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="warning"
-            size="md"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-warning"
-                icon="hugeicons:pause"
-                width={20}
-              />
-            }
-          />
-        </Tooltip>
+        <CircularProgress
+          showValueLabel
+          aria-label="Step"
+          color="warning"
+          size="md"
+          value={100}
+          valueLabel={
+            <Icon className="text-warning" icon="hugeicons:pause" width={20} />
+          }
+        />
       );
     } else if (execution.status === "canceled") {
       return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="danger"
-            size="md"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-danger"
-                icon="hugeicons:cancel-01"
-                width={20}
-              />
-            }
-          />
-        </Tooltip>
+        <CircularProgress
+          showValueLabel
+          aria-label="Step"
+          color="danger"
+          size="md"
+          value={100}
+          valueLabel={
+            <Icon
+              className="text-danger"
+              icon="hugeicons:cancel-01"
+              width={20}
+            />
+          }
+        />
       );
     } else if (execution.status === "noPatternMatch") {
       return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            color="secondary"
-            size="md"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-secondary"
-                icon="hugeicons:note-remove"
-                width={20}
-              />
-            }
-          />
-        </Tooltip>
+        <CircularProgress
+          showValueLabel
+          color="secondary"
+          size="md"
+          value={100}
+          valueLabel={
+            <Icon
+              className="text-secondary"
+              icon="hugeicons:note-remove"
+              width={20}
+            />
+          }
+        />
       );
     } else if (execution.status === "interactionWaiting") {
       return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="primary"
-            size="md"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-primary"
-                icon="hugeicons:waving-hand-01"
-                width={20}
-              />
-            }
-          />
-        </Tooltip>
+        <CircularProgress
+          showValueLabel
+          aria-label="Step"
+          color="primary"
+          size="md"
+          value={100}
+          valueLabel={
+            <Icon
+              className="text-primary"
+              icon="hugeicons:waving-hand-01"
+              width={20}
+            />
+          }
+        />
       );
     } else if (execution.status === "error") {
       return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="danger"
-            size="md"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-danger"
-                icon="hugeicons:alert-02"
-                width={20}
-              />
-            }
-          />
-        </Tooltip>
+        <CircularProgress
+          showValueLabel
+          aria-label="Step"
+          color="danger"
+          size="md"
+          value={100}
+          valueLabel={
+            <Icon
+              className="text-danger"
+              icon="hugeicons:alert-02"
+              width={20}
+            />
+          }
+        />
       );
     } else if (execution.status === "success") {
       return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="success"
-            size="md"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-success"
-                icon="hugeicons:tick-double-01"
-                width={20}
-              />
-            }
-          />
-        </Tooltip>
+        <CircularProgress
+          showValueLabel
+          aria-label="Step"
+          color="success"
+          size="md"
+          value={100}
+          valueLabel={
+            <Icon
+              className="text-success"
+              icon="hugeicons:tick-double-01"
+              width={20}
+            />
+          }
+        />
       );
     } else {
       return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="success"
-            size="md"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-success"
-                icon="solar:question-square-linear"
-                width={22}
-              />
-            }
-          />
-        </Tooltip>
+        <CircularProgress
+          showValueLabel
+          aria-label="Step"
+          color="success"
+          size="md"
+          value={100}
+          valueLabel={
+            <Icon
+              className="text-success"
+              icon="solar:question-square-linear"
+              width={22}
+            />
+          }
+        />
       );
     }
   }
@@ -337,8 +315,99 @@ export default function Executions({
     }
   }
 
-  return (
-    <>
+  const renderCell = React.useCallback((execution, columnKey) => {
+    const cellValue = execution[columnKey];
+
+    switch (columnKey) {
+      case "status":
+        return (
+          <div className="flex flex-cols items-center gap-2">
+            {statusIcon(execution)}
+            <div className="flex flex-col items-start">
+              <p className={`font-bold text-${statusColor(execution)}`}>
+                {status(execution)}
+              </p>
+              <p className="text-sm text-default-500">
+                {getDuration(execution)}
+              </p>
+            </div>
+          </div>
+        );
+      case "created_at":
+        return (
+          <Tooltip content={new Date(cellValue).toLocaleString()}>
+            <ReactTimeago date={new Date(cellValue)} locale="de-DE" />
+          </Tooltip>
+        );
+      case "executed_at":
+        return (
+          <Tooltip content={new Date(cellValue).toLocaleString()}>
+            <ReactTimeago date={new Date(cellValue)} locale="de-DE" />
+          </Tooltip>
+        );
+      case "finished_at":
+        return (
+          <Tooltip content={new Date(cellValue).toLocaleString()}>
+            <ReactTimeago date={new Date(cellValue)} locale="de-DE" />
+          </Tooltip>
+        );
+      case "id":
+        return (
+          <Snippet hideSymbol size="sm" variant="flat">
+            {cellValue}
+          </Snippet>
+        );
+      case "actions":
+        return (
+          <div className="flex items-center justify-center gap-2">
+            {displayToFlow && (
+              <Button
+                color="secondary"
+                variant="flat"
+                onPress={() => {
+                  router.push(`/flows/${execution.flow_id}`);
+                }}
+              >
+                <Icon icon="hugeicons:workflow-square-10" width={20} />
+                Flow
+              </Button>
+            )}
+            <Button
+              color="primary"
+              variant="flat"
+              onPress={() => {
+                router.push(
+                  `/flows/${execution.flow_id}/execution/${execution.id}`,
+                );
+              }}
+            >
+              <Icon icon="hugeicons:navigation-03" width={20} />
+              View
+            </Button>
+            <Tooltip color="danger" content="Delete execution">
+              <Button
+                isIconOnly
+                isDisabled={!canEdit}
+                variant="light"
+                onPress={() => {
+                  setTargetExecution(execution);
+                  deleteExecutionModal.onOpen();
+                }}
+              >
+                <span className="text-lg text-danger cursor-pointer active:opacity-50">
+                  <Icon icon="hugeicons:delete-02" width={20} />
+                </span>
+              </Button>
+            </Tooltip>
+          </div>
+        );
+      default:
+        return cellValue;
+    }
+  }, []);
+
+  const topContent = React.useMemo(() => {
+    return (
       <div className="flex flex-wrap items-stretch gap-4">
         {executions.filter((e: any) => status(e) == "Pending").length > 0 && (
           <Card
@@ -690,90 +759,60 @@ export default function Executions({
           </Card>
         )}
       </div>
-      <Spacer y={2} />
-      <Divider />
-      <Spacer y={2} />
-      <div className="flex flex-col gap-4">
-        {items.map((execution: any) => (
-          <Card
-            key={execution.id}
-            isHoverable
-            isPressable
-            className="shadow hover:shadow-primary hover:transition"
-            onPress={() =>
-              router.push(
-                `/flows/${execution.flow_id}/execution/${execution.id}`,
-              )
-            }
-          >
-            <CardHeader>
-              <div className="flex flex-cols w-full items-center justify-between gap-2">
-                <div className="flex flex-cols items-center gap-2">
-                  {statusIcon(execution)}
-                  <div className="flex flex-col items-start">
-                    <p className={`font-bold text-${statusColor(execution)}`}>
-                      {status(execution)}
-                    </p>
-                    <p className="text-sm text-default-500">
-                      {getDuration(execution)}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex flex-cols items-center gap-2">
-                  {executions[0].id === execution.id && (
-                    <p className="text-sm text-success mr-2">Latest</p>
-                  )}
-                  {displayToFlow && (
-                    <Tooltip content="Show Flow">
-                      <Button
-                        fullWidth
-                        isIconOnly
-                        color="primary"
-                        size="sm"
-                        variant="flat"
-                        onPress={() =>
-                          router.push(`/flows/${execution.flow_id}`)
-                        }
-                      >
-                        <Icon icon="hugeicons:workflow-square-10" width={18} />
-                      </Button>
-                    </Tooltip>
-                  )}
-                  <Button
-                    isIconOnly
-                    color="danger"
-                    isDisabled={!canEdit}
-                    size="sm"
-                    variant="flat"
-                    onPress={() => {
-                      setTargetExecution(execution);
-                      deleteExecutionModal.onOpen();
-                    }}
-                  >
-                    <Icon icon="hugeicons:delete-02" width={18} />
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardFooter className="flex justify-between">
-              <p className="text-tiny text-default-500">{execution.id}</p>
-              <Chip radius="sm" size="sm" variant="faded">
-                <TimeAgo date={execution.created_at} />
-              </Chip>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
-      <Spacer y={4} />
-      <div className="flex justify-center">
-        <Pagination
-          showControls
-          isDisabled={items.length === 0}
-          page={page}
-          total={pages()}
-          onChange={(page) => setPage(page)}
-        />
-      </div>
+    );
+  }, [executions, statusFilter]);
+
+  return (
+    <>
+      <Table
+        aria-label="Example table with custom cells"
+        bottomContent={
+          <div className="flex justify-center">
+            <Pagination
+              showControls
+              isDisabled={items.length === 0}
+              page={page}
+              total={pages()}
+              onChange={(page) => setPage(page)}
+            />
+          </div>
+        }
+        topContent={topContent}
+        topContentPlacement="outside"
+      >
+        <TableHeader>
+          <TableColumn key="status" align="start">
+            Status
+          </TableColumn>
+          <TableColumn key="runner_id" align="center">
+            Runner
+          </TableColumn>
+          <TableColumn key="created_at" align="center">
+            Created At
+          </TableColumn>
+          <TableColumn key="executed_at" align="center">
+            Executed At
+          </TableColumn>
+          <TableColumn key="finished_at" align="center">
+            Finished At
+          </TableColumn>
+          <TableColumn key="id" align="center">
+            ID
+          </TableColumn>
+          <TableColumn key="actions" align="center">
+            Actions
+          </TableColumn>
+        </TableHeader>
+        <TableBody items={items}>
+          {(item: any) => (
+            <TableRow key={item.id}>
+              {(columnKey) => (
+                <TableCell>{renderCell(item, columnKey)}</TableCell>
+              )}
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
       <DeleteExecutionModal
         disclosure={deleteExecutionModal}
         execution={targetExecution}
