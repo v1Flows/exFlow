@@ -44,7 +44,6 @@ export const CustomRadio = (props: any) => {
 
 export default function EditActionModal({
   disclosure,
-  runners,
   flow,
   targetAction,
 }: {

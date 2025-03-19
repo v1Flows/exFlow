@@ -5,7 +5,6 @@ import GetFlows from "@/lib/fetch/flow/all";
 import GetFolders from "@/lib/fetch/folder/all";
 import FlowsHeading from "@/components/flows/heading";
 import GetProjects from "@/lib/fetch/project/all";
-import ErrorCard from "@/components/error/ErrorCard";
 
 export default async function FlowsPage() {
   const flowsData = await GetFlows();

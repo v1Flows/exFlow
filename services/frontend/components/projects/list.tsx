@@ -31,12 +31,7 @@ import AcceptProjectInvite from "@/lib/fetch/project/PUT/AcceptProjectInvite";
 import DeclineProjectInvite from "@/lib/fetch/project/PUT/DeclineProjectInvite";
 import SparklesText from "@/components/magicui/sparkles-text";
 
-export function ProjectsList({
-  projects,
-  pending_projects,
-  settings,
-  user,
-}: any) {
+export function ProjectsList({ projects, pending_projects, user }: any) {
   const router = useRouter();
 
   const [targetProject, setTargetProject] = React.useState({});

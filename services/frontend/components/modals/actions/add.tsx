@@ -27,7 +27,6 @@ import { v4 as uuidv4 } from "uuid";
 import AddFlowActions from "@/lib/fetch/flow/POST/AddFlowActions";
 import { cn } from "@/components/cn/cn";
 import ErrorCard from "@/components/error/ErrorCard";
-
 import MinimalRowSteps from "@/components/steps/minimal-row-steps";
 
 export const CustomRadio = (props: any) => {
@@ -53,7 +52,6 @@ export default function AddActionModal({
   disclosure,
   runners,
   flow,
-  user,
 }: {
   disclosure: UseDisclosureReturn;
   runners: any;
@@ -346,111 +344,104 @@ export default function AddActionModal({
                   />
                 </div>
                 <div className="flex-cols flex w-full gap-4">
-                  {currentStep === 0 && (
-                    <div>
-                      {countTotalAvailableActions() === 0 ? (
-                        <div>
-                          <Card className="border border-danger">
-                            <CardBody>
-                              <p className="font-bold text-danger">
-                                😕 Seems like there are no Actions available.
-                              </p>
-                              <p className="text-default-500">
-                                Please check if you have a dedicated runner
-                                assign to your flow and if that runner exposes
-                                any actions
-                              </p>
-                            </CardBody>
-                          </Card>
-                        </div>
-                      ) : (
-                        <>
-                          <p className="text-lg font-bold text-default-500">
-                            Available Actions
-                          </p>
-                          <Spacer y={2} />
-                          <p className="text-sm text-default-500">Categories</p>
-                          <Spacer y={1} />
-                          <div className="flex gap-2">
-                            {availableCategories.map((category: any) => (
-                              <Chip
-                                key={category}
-                                color={
-                                  selectedCategory === category
-                                    ? "primary"
-                                    : "default"
-                                }
-                                radius="sm"
-                                size="lg"
-                                variant={
-                                  selectedCategory === category
-                                    ? "solid"
-                                    : "flat"
-                                }
-                                onClick={() => {
-                                  setSelectedCategory(category);
-                                  setActionPage(1);
-                                }}
-                              >
-                                {category}
-                              </Chip>
-                            ))}
-                          </div>
-                          <Spacer y={4} />
-                          <div className="grid grid-cols-2 items-stretch gap-4">
-                            {actionItems.map((act: any) => (
-                              <Card
-                                key={act.type}
-                                isHoverable
-                                isPressable
-                                className={`border-2 border-default-200 ${act.plugin === action.plugin && act.version === action.version ? "border-primary" : ""}`}
-                                radius="sm"
-                                onPress={() => handleActionSelect(act)}
-                              >
-                                <CardBody>
-                                  <div className="flex items-center gap-2">
-                                    <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
-                                      <Icon icon={act.icon} width={26} />
-                                    </div>
-                                    <div className="flex flex-col">
-                                      <div className="flex flex-cols gap-2 items-center">
-                                        <p className="text-lg font-bold">
-                                          {act.name}
-                                        </p>
-                                        <Chip
-                                          color="primary"
-                                          radius="sm"
-                                          size="sm"
-                                          variant="flat"
-                                        >
-                                          Ver. {act.version}
-                                        </Chip>
-                                      </div>
-                                      <p className="text-sm text-default-500">
-                                        {act.description}
-                                      </p>
-                                    </div>
-                                  </div>
-                                </CardBody>
-                              </Card>
-                            ))}
-                          </div>
-                          <Spacer y={4} />
-                          <div className="flex items-center justify-center">
-                            <Pagination
-                              showControls
-                              initialPage={1}
-                              page={actionPage}
-                              total={actionPages()}
-                              onChange={(actionPage) =>
-                                setActionPage(actionPage)
+                  {currentStep === 0 &&
+                    (countTotalAvailableActions() === 0 ? (
+                      <div>
+                        <Card className="border border-danger">
+                          <CardBody>
+                            <p className="font-bold text-danger">
+                              😕 Seems like there are no Actions available.
+                            </p>
+                            <p className="text-default-500">
+                              Please check if you have a dedicated runner assign
+                              to your flow and if that runner exposes any
+                              actions
+                            </p>
+                          </CardBody>
+                        </Card>
+                      </div>
+                    ) : (
+                      <div className="w-full">
+                        <p className="text-lg font-bold text-default-500">
+                          Available Actions
+                        </p>
+                        <Spacer y={2} />
+                        <p className="text-sm text-default-500">Categories</p>
+                        <Spacer y={1} />
+                        <div className="flex gap-2">
+                          {availableCategories.map((category: any) => (
+                            <Chip
+                              key={category}
+                              color={
+                                selectedCategory === category
+                                  ? "primary"
+                                  : "default"
                               }
-                            />
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  )}
+                              radius="sm"
+                              size="lg"
+                              variant={
+                                selectedCategory === category ? "solid" : "flat"
+                              }
+                              onClick={() => {
+                                setSelectedCategory(category);
+                                setActionPage(1);
+                              }}
+                            >
+                              {category}
+                            </Chip>
+                          ))}
+                        </div>
+                        <Spacer y={4} />
+                        <div className="grid grid-cols-2 items-stretch gap-4">
+                          {actionItems.map((act: any) => (
+                            <Card
+                              key={act.type}
+                              isHoverable
+                              isPressable
+                              className={`border-2 border-default-200 ${act.plugin === action.plugin && act.version === action.version ? "border-primary" : ""}`}
+                              radius="sm"
+                              onPress={() => handleActionSelect(act)}
+                            >
+                              <CardBody>
+                                <div className="flex items-center gap-2">
+                                  <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
+                                    <Icon icon={act.icon} width={26} />
+                                  </div>
+                                  <div className="flex flex-col">
+                                    <div className="flex flex-cols gap-2 items-center">
+                                      <p className="text-lg font-bold">
+                                        {act.name}
+                                      </p>
+                                      <Chip
+                                        color="primary"
+                                        radius="sm"
+                                        size="sm"
+                                        variant="flat"
+                                      >
+                                        Ver. {act.version}
+                                      </Chip>
+                                    </div>
+                                    <p className="text-sm text-default-500">
+                                      {act.description}
+                                    </p>
+                                  </div>
+                                </div>
+                              </CardBody>
+                            </Card>
+                          ))}
+                        </div>
+                        <Spacer y={4} />
+                        <div className="flex items-center justify-center">
+                          <Pagination
+                            showControls
+                            initialPage={1}
+                            page={actionPage}
+                            total={actionPages()}
+                            onChange={(actionPage) => setActionPage(actionPage)}
+                          />
+                        </div>
+                      </div>
+                    ))}
                   {currentStep === 1 && (
                     <div>
                       <Card

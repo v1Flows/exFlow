@@ -121,7 +121,7 @@ export default function Actions({
                             size="sm"
                             variant="flat"
                           >
-                            {action.active ? "Active" : "Inactive"}
+                            {action.active ? "Active" : "Disabled"}
                           </Chip>
                         </div>
                         <p className="text-sm text-default-500">
@@ -157,6 +157,16 @@ export default function Actions({
                     >
                       <Icon icon="hugeicons:delete-02" width={20} />
                     </Button>
+                    <Tooltip content="Reorder action by dragging">
+                      <Button
+                        isIconOnly
+                        variant="flat"
+                        {...listeners}
+                        style={{ cursor: "grab", touchAction: "none" }}
+                      >
+                        <Icon icon="hugeicons:drag-02" width={20} />
+                      </Button>
+                    </Tooltip>
                   </div>
                 </div>
                 <Spacer y={2} />
@@ -250,14 +260,6 @@ export default function Actions({
                   )}
                 </Accordion>
               </div>
-              {isDragEnabled && (
-                <div
-                  {...listeners}
-                  style={{ cursor: "grab", touchAction: "none" }}
-                >
-                  <Icon icon="mi:drag" width={20} />
-                </div>
-              )}
             </div>
           </CardBody>
         </Card>
@@ -266,10 +268,6 @@ export default function Actions({
   };
 
   const handleDragEnd = (event: any) => {
-    if (!isDragEnabled) {
-      return;
-    }
-
     const { active, over } = event;
 
     if (active.id !== over.id) {

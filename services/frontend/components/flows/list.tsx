@@ -23,6 +23,7 @@ import APIStartExecution from "@/lib/fetch/executions/start";
 
 import DeleteFolderModal from "../modals/folders/delete";
 import UpdateFolderModal from "../modals/folders/update";
+import ScheduleExecutionModal from "../modals/executions/schedule";
 
 export default function FlowList({
   flows,
@@ -38,7 +39,9 @@ export default function FlowList({
   const [filteredFolders, setFilteredFolders] = useState([]);
   const [filteredFlows, setFilteredFlows] = useState([]);
   const [targetFolder, setTargetFolder] = useState({});
+  const [targetFlow, setTargetFlow] = useState({});
 
+  const scheduleExecutionModal = useDisclosure();
   const updateFolderModal = useDisclosure();
   const deleteFolderModal = useDisclosure();
 
@@ -58,7 +61,7 @@ export default function FlowList({
       setFilteredFolders(folders.filter((f: any) => f.parent_id === ""));
       setFilteredFlows(flows.filter((f: any) => f.folder_id === ""));
     }
-  }, [searchFolderID]);
+  }, [searchFolderID, folders, flows]);
 
   return (
     <main>
@@ -89,7 +92,7 @@ export default function FlowList({
             key={f.id}
             fullWidth
             isPressable
-            className="bg-primary bg-opacity-10 border-2 border-primary pb-3"
+            className="bg-default bg-opacity-20 border-2 border-default pb-3"
             onPress={() => router.push("/flows?folder=" + f.id)}
           >
             <CardBody>
@@ -172,7 +175,7 @@ export default function FlowList({
               key={flow.id}
               fullWidth
               isPressable
-              className="bg-default-500 bg-opacity-10 border-2 border-default"
+              className="bg-primary-500 bg-opacity-10 border-2 border-primary"
               onPress={() => router.push("/flows/" + flow.id)}
             >
               <CardHeader className="flex flex-cols items-center justify-between">
@@ -181,7 +184,15 @@ export default function FlowList({
                   <p className="text-sm text-default-500">{flow.description}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button isIconOnly color="warning" variant="flat">
+                  <Button
+                    isIconOnly
+                    color="warning"
+                    variant="flat"
+                    onPress={() => {
+                      setTargetFlow(flow);
+                      scheduleExecutionModal.onOpen();
+                    }}
+                  >
                     <Icon icon="hugeicons:calendar-02" width={16} />
                   </Button>
                   <Button
@@ -242,6 +253,10 @@ export default function FlowList({
           );
         })}
       </div>
+      <ScheduleExecutionModal
+        disclosure={scheduleExecutionModal}
+        flow={targetFlow}
+      />
       <UpdateFolderModal
         disclosure={updateFolderModal}
         folder={targetFolder}

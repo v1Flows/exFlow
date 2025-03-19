@@ -1,4 +1,4 @@
-import { Divider, Spacer } from "@heroui/react";
+import { Divider } from "@heroui/react";
 
 import RunnersList from "@/components/runners/list";
 import GetRunners from "@/lib/fetch/runner/get";
