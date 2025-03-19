@@ -9,19 +9,18 @@ export default async function RunnersPage() {
   const projectsData = GetProjects();
   const runnersData = GetRunners();
 
-  const [projects, runners] = (await Promise.all([
-    projectsData,
-    runnersData,
-  ])) as any;
+  const [projects, runners] = await Promise.all([projectsData, runnersData]);
 
   return (
     <main>
       <RunnersHeading />
       <Divider className="mt-4 mb-4" />
-      <RunnersList
-        projects={projects.data.projects}
-        runners={runners.data.runners}
-      />
+      {projects.success && runners.success && (
+        <RunnersList
+          projects={projects.data.projects}
+          runners={runners.data.runners}
+        />
+      )}
     </main>
   );
 }
