@@ -27,7 +27,7 @@ func logging(logLevel string) {
 		log.SetLevel(log.WarnLevel)
 	} else if logLevel == "error" {
 		log.SetLevel(log.ErrorLevel)
-	} else if logLevel == "degbug" {
+	} else if logLevel == "debug" {
 		log.SetLevel(log.DebugLevel)
 	} else {
 		log.SetLevel(log.InfoLevel)
