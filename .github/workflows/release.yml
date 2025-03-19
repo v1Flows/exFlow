@@ -1,0 +1,55 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build Frontend Docker Image
+        run: docker build . --file services/frontend/Dockerfile --tag justnz/exflow:frontend-latest --tag justnz/exflow:frontend-${{ github.sha }} --tag justnz/exflow:frontend-${{ github.ref_name }}
+
+      - name: Build Backend Docker Image
+        run: docker build . --file services/backend/Dockerfile --tag justnz/exflow:backend-latest --tag justnz/exflow:backend-${{ github.sha }} --tag justnz/exflow:backend-${{ github.ref_name }}
+
+      - name: Build exFlow Docker Image
+        run: docker build . --file Dockerfile --tag justnz/exflow:latest --tag justnz/exflow:${{ github.sha }} --tag justnz/exflow:${{ github.ref_name }}
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Push Docker Images
+        run: |
+          docker push justnz/exflow:frontend-latest
+          docker push justnz/exflow:frontend-${{ github.sha }}
+          docker push justnz/exflow:frontend-${{ github.ref_name }}
+          docker push justnz/exflow:backend-latest
+          docker push justnz/exflow:backend-${{ github.sha }}
+          docker push justnz/exflow:backend-${{ github.ref_name }}
+          docker push justnz/exflow:latest
+          docker push justnz/exflow:${{ github.sha }}
+          docker push justnz/exflow:${{ github.ref_name }}
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Create Release
+        id: create_release
+        uses: ncipollo/release-action@v1
+        with:
+          name: Release ${{ github.ref_name }}
+          tag: ${{ github.ref_name }}
+          skipIfReleaseExists: true
+          generateReleaseNotes: true
+          token: ${{ secrets.ACCESS_TOKEN }}

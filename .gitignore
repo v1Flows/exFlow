@@ -1,0 +1,62 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+services/frontend/node_modules
+services/frontend/.pnp
+services/frontend/.pnp.js
+
+# testing
+services/frontend/coverage
+
+# next.js
+services/frontend/.next/
+services/frontend/out/
+
+# production
+services/frontend/build
+
+# misc
+services/frontend/.DS_Store
+services/frontend/*.pem
+
+services/frontend/public/sw*
+services/frontend/public/swe-worker*
+
+# debug
+services/frontend/npm-debug.log*
+services/frontend/yarn-debug.log*
+services/frontend/yarn-error.log*
+
+# local env files
+.env*.local
+
+# typescript
+services/frontend/*.tsbuildinfo
+services/frontend/next-env.d.ts
+
+# If you prefer the allow list template instead of the deny list, see community template:
+# https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
+#
+# Binaries for programs and plugins
+services/backend/*.exe
+services/backend/*.exe~
+services/backend/*.dll
+services/backend/*.so
+services/backend/*.dylib
+
+# Test binary, built with `go test -c`
+services/backend/*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+services/backend/*.out
+
+# Dependency directories (remove the comment below to include it)
+services/backend/vendor/
+
+# Go workspace file
+services/backend/go.work
+
+services/backend/.envrc
+services/backend/alertflow-backend
+
+services/backend/config.yaml

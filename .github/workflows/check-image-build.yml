@@ -1,0 +1,37 @@
+name: Check Image Build
+
+on:
+  pull_request:
+    types: [opened, reopened, edited, synchronize]
+    branches: [ "release/**", "develop" ]
+    paths-ignore:
+      - '.github/**'
+
+jobs:
+  frontend:
+    name: Check Standalone Frontend Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Frontend Docker Image
+        run: docker build . --file services/frontend/Dockerfile --tag justnz/exflow:frontend-test
+  backend:
+    name: Check Standalone Backend Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Backend Docker Image
+        run: docker build . --file services/backend/Dockerfile --tag justnz/exflow:backend-test
+  exflow:
+    name: Check exFlow Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build exFlow Docker Image
+        run: docker build . --file Dockerfile --tag justnz/exflow:test

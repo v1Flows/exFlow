@@ -1,0 +1,17 @@
+---
+
+LogLevel: info
+
+Database:
+  Server: localhost
+  Port: 5432
+  Name: postgres
+  User: postgres
+  Password: postgres
+
+Encryption:
+  Enabled: true
+  Key: null
+
+JWT:
+  Secret: null
