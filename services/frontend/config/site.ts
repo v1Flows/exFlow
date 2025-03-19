@@ -20,10 +20,6 @@ export const siteConfig = {
       label: "Runners",
       href: "/runners",
     },
-    {
-      label: "Settings",
-      href: "/settings",
-    },
   ],
   navMenuItems: [
     {
@@ -41,10 +37,6 @@ export const siteConfig = {
     {
       label: "Runners",
       href: "/runners",
-    },
-    {
-      label: "Settings",
-      href: "/settings",
     },
   ],
   links: {

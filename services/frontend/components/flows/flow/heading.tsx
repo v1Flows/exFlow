@@ -1,13 +1,21 @@
 "use client";
 
-import { addToast, Button, useDisclosure } from "@heroui/react";
+import { addToast, Button, Divider, useDisclosure } from "@heroui/react";
 import { Icon } from "@iconify/react";
 
 import APIStartExecution from "@/lib/fetch/executions/start";
 import Reloader from "@/components/reloader/Reloader";
 import ScheduleExecutionModal from "@/components/modals/executions/schedule";
+import EditFlowModal from "@/components/modals/flows/edit";
 
-export default function FlowHeading({ flow }: { flow: any }) {
+export default function FlowHeading({
+  flow,
+  projects,
+}: {
+  flow: any;
+  projects: any;
+}) {
+  const editFlowModal = useDisclosure();
   const scheduleExecutionModal = useDisclosure();
 
   return (
@@ -18,12 +26,10 @@ export default function FlowHeading({ flow }: { flow: any }) {
           <p className="text-sm text-default-500">{flow.description}</p>
         </div>
         <div className="flex items-center gap-4">
-          <Reloader />
-
           <div className="flex items-center gap-2">
             <Button
-              color="warning"
-              startContent={<Icon icon="hugeicons:calendar-02" width={16} />}
+              color="secondary"
+              startContent={<Icon icon="hugeicons:calendar-02" width={18} />}
               variant="flat"
               onPress={() => {
                 scheduleExecutionModal.onOpen();
@@ -33,7 +39,7 @@ export default function FlowHeading({ flow }: { flow: any }) {
             </Button>
             <Button
               color="primary"
-              startContent={<Icon icon="solar:play-linear" width={16} />}
+              startContent={<Icon icon="solar:play-linear" width={18} />}
               variant="solid"
               onPress={() => {
                 APIStartExecution(flow.id)
@@ -54,10 +60,27 @@ export default function FlowHeading({ flow }: { flow: any }) {
             >
               Execute
             </Button>
+            <Divider className="h-10 mr-1 ml-1" orientation="vertical" />
+            <Reloader circle />
+            <Button
+              color="warning"
+              startContent={<Icon icon="hugeicons:pencil-edit-02" width={18} />}
+              variant="flat"
+              onPress={() => {
+                editFlowModal.onOpen();
+              }}
+            >
+              Edit
+            </Button>
           </div>
         </div>
       </div>
       <ScheduleExecutionModal disclosure={scheduleExecutionModal} flow={flow} />
+      <EditFlowModal
+        disclosure={editFlowModal}
+        flow={flow}
+        projects={projects}
+      />
     </main>
   );
 }

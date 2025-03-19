@@ -1,10 +1,10 @@
 "use client";
 
-import { Progress } from "@heroui/react";
+import { CircularProgress, Progress } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import React from "react";
 
-export default function Reloader() {
+export default function Reloader({ circle = false }: { circle?: boolean }) {
   const [value, setValue] = React.useState(0);
   const router = useRouter();
 
@@ -20,7 +20,9 @@ export default function Reloader() {
     return () => clearInterval(interval);
   }, [value]);
 
-  return (
+  return circle ? (
+    <CircularProgress value={value} />
+  ) : (
     <Progress
       aria-label="Reloading..."
       className="w-32 lg:w-40"
