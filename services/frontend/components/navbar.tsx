@@ -16,6 +16,7 @@ import {
   DropdownTrigger,
   Avatar,
   Input,
+  addToast,
 } from "@heroui/react";
 import { link as linkStyles } from "@heroui/theme";
 import NextLink from "next/link";
@@ -29,7 +30,7 @@ import { ThemeSwitch } from "@/components/theme-switch";
 import { GithubIcon, SearchIcon, Logo } from "@/components/icons";
 import { Logout } from "@/lib/logout";
 
-export const Navbar = ({ userDetails }) => {
+export const Navbar = ({ userDetails, session }) => {
   const searchInput = (
     <Input
       aria-label="Search"
@@ -62,6 +63,16 @@ export const Navbar = ({ userDetails }) => {
   const onChange = () => {
     theme === "light" ? setTheme("dark") : setTheme("light");
   };
+
+  function copyToken() {
+    navigator.clipboard.writeText(session);
+    addToast({
+      title: "Session Token",
+      description: "Session Token copied to clipboard!",
+      color: "success",
+      variant: "flat",
+    });
+  }
 
   return (
     <HeroUINavbar maxWidth="2xl" position="sticky">
@@ -143,10 +154,11 @@ export const Navbar = ({ userDetails }) => {
               Profile
             </DropdownItem>
             <DropdownItem
-              key="settings"
-              startContent={<Icon icon="hugeicons:settings-01" width={20} />}
+              key="token"
+              startContent={<Icon icon="hugeicons:key-02" width={20} />}
+              onPress={copyToken}
             >
-              My Settings
+              Copy Token
             </DropdownItem>
             <DropdownItem
               key="logout"

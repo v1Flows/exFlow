@@ -47,7 +47,10 @@ export default async function FlowPage({
     <main>
       {flow.success ? (
         <>
-          <FlowHeading flow={flow.data.flow} />
+          <FlowHeading
+            flow={flow.data.flow}
+            projects={projects.data.projects}
+          />
           <Divider className="mt-4 mb-4" />
           <FlowDetails
             executions={executions.data.executions}

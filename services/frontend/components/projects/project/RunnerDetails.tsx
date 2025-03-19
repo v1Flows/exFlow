@@ -98,9 +98,9 @@ export default function ProjectRunnerDetails({ project }: { project: any }) {
         <Card fullWidth>
           <CardBody className="flex items-center justify-between text-center">
             <div className="flex flex-col">
-              <p className="text-md font-bold">exFlow Runners</p>
+              <p className="text-md font-bold">Shared Runners</p>
               <p className="text-sm text-default-500">
-                Use Runners from the official exFlow Runner Pool
+                Use Runners from shared pool
               </p>
             </div>
             <Spacer y={2} />

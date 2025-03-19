@@ -3,6 +3,7 @@ import { Metadata, Viewport } from "next";
 import { Link } from "@heroui/react";
 import clsx from "clsx";
 import { ReactNode } from "react";
+import { cookies } from "next/headers";
 
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
@@ -70,6 +71,9 @@ export default async function RootLayout({
 
   const [userDetails] = await Promise.all([userDetailsData]);
 
+  const c = await cookies();
+  const session = c.get("session")?.value;
+
   return (
     <html suppressHydrationWarning lang="en">
       <head />
@@ -82,6 +86,7 @@ export default async function RootLayout({
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
           <div className="relative flex flex-col h-screen">
             <Navbar
+              session={session}
               userDetails={userDetails.success ? userDetails.data.user : {}}
             />
             <main className="container mx-auto pt-4 px-6 flex-grow">
