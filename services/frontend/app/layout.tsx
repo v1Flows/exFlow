@@ -1,6 +1,5 @@
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
-import { Link } from "@heroui/react";
 import clsx from "clsx";
 import { ReactNode } from "react";
 import { cookies } from "next/headers";
@@ -9,6 +8,7 @@ import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
 import { Navbar } from "@/components/navbar";
 import GetUserDetails from "@/lib/fetch/user/getDetails";
+import Footer from "@/components/footer/footer";
 
 import { Providers } from "./providers";
 
@@ -92,17 +92,7 @@ export default async function RootLayout({
             <main className="container mx-auto pt-4 px-6 flex-grow">
               {children}
             </main>
-            <footer className="w-full flex items-center justify-center py-3">
-              <Link
-                isExternal
-                className="flex items-center gap-1 text-current"
-                href="https://github.com/v1Flows"
-                title="heroui.com homepage"
-              >
-                <span className="text-default-600">Powered by</span>
-                <p className="text-primary">v1Flows</p>
-              </Link>
-            </footer>
+            <Footer />
           </div>
         </Providers>
       </body>
