@@ -102,57 +102,6 @@ func GetUserStats(context *gin.Context, db *bun.DB) {
 		executionTrendPercentage, _ = strconv.ParseFloat(fmt.Sprintf("%.2f", executionTrendPercentage), 64)
 	}
 
-	var alertStats []Stats
-	err = db.NewSelect().
-		TableExpr("(SELECT DATE(created_at) as date, COUNT(*) as value FROM alerts WHERE flow_id IN (?) AND created_at >= NOW() - INTERVAL '7 days' GROUP BY DATE(created_at)) AS subquery", bun.In(flowsArray)).
-		Scan(context, &alertStats)
-	if err != nil {
-		httperror.InternalServerError(context, "Error collecting alerts stats from db", err)
-		return
-	}
-
-	// Create a map to store the alert stats by weekday of the week
-	alertsMap := make(map[string]int)
-	for _, stat := range alertStats {
-		date, _ := time.Parse("2006-01-02", stat.Date)
-		weekday := date.Weekday().String()[:2]
-		alertsMap[weekday] += stat.Value
-	}
-
-	// Generate the alert stats for each weekday of the week
-	alertStats = make([]Stats, 0)
-	for i := 6; i >= 0; i-- { // Look from the current weekday in the past
-		weekday := time.Now().AddDate(0, 0, -i).Weekday().String()[:2]
-		isCurrent := i == 0
-		alertStats = append(alertStats, Stats{Weekday: weekday, Value: alertsMap[weekday], IsCurrent: isCurrent})
-	}
-
-	// Determine the trend for alerts
-	alertTrend := "neutral"
-	alertTrendPercentage := 0.0
-	if len(alertStats) > 1 {
-		previousValue := alertStats[len(alertStats)-2].Value
-		currentValue := alertStats[len(alertStats)-1].Value
-		if previousValue != 0 {
-			if currentValue > previousValue {
-				alertTrend = "positive"
-				alertTrendPercentage = (float64(currentValue-previousValue) / float64(previousValue)) * 100
-			} else if currentValue < previousValue {
-				alertTrend = "negative"
-				alertTrendPercentage = (float64(previousValue-currentValue) / float64(previousValue)) * 100
-			}
-		} else if currentValue > 0 {
-			alertTrend = "positive"
-			alertTrendPercentage = float64(currentValue) * 100 // Reflect significant increase
-		}
-		alertTrendPercentage, _ = strconv.ParseFloat(fmt.Sprintf("%.2f", alertTrendPercentage), 64)
-	}
-
-	alertCount := 0
-	for _, alert := range alertStats {
-		alertCount += alert.Value
-	}
-
 	executionCount := 0
 	for _, execution := range executionStats {
 		executionCount += execution.Value
@@ -163,12 +112,8 @@ func GetUserStats(context *gin.Context, db *bun.DB) {
 		"total_flows":                flowCount,
 		"total_runners":              runnerCount,
 		"total_executions":           executionCount,
-		"total_alert":                alertCount,
 		"executions":                 executionStats,
-		"alerts":                     alertStats,
 		"execution_trend":            executionTrend,
 		"execution_trend_percentage": executionTrendPercentage,
-		"alert_trend":                alertTrend,
-		"alert_trend_percentage":     alertTrendPercentage,
 	}})
 }
