@@ -180,29 +180,34 @@ export default function FlowList({
                   <p className="font-bold text-lg">{flow.name}</p>
                   <p className="text-sm text-default-500">{flow.description}</p>
                 </div>
-                <Button
-                  isIconOnly
-                  color="success"
-                  variant="flat"
-                  onPress={() => {
-                    APIStartExecution(flow.id)
-                      .then(() => {
-                        addToast({
-                          title: "Execution Started",
-                          color: "success",
+                <div className="flex items-center gap-2">
+                  <Button isIconOnly color="warning" variant="flat">
+                    <Icon icon="hugeicons:calendar-02" width={16} />
+                  </Button>
+                  <Button
+                    isIconOnly
+                    color="success"
+                    variant="flat"
+                    onPress={() => {
+                      APIStartExecution(flow.id)
+                        .then(() => {
+                          addToast({
+                            title: "Execution Started",
+                            color: "success",
+                          });
+                        })
+                        .catch((err) => {
+                          addToast({
+                            title: "Execution start failed",
+                            description: err.message,
+                            color: "danger",
+                          });
                         });
-                      })
-                      .catch((err) => {
-                        addToast({
-                          title: "Execution start failed",
-                          description: err.message,
-                          color: "danger",
-                        });
-                      });
-                  }}
-                >
-                  <Icon icon="solar:play-linear" />
-                </Button>
+                    }}
+                  >
+                    <Icon icon="solar:play-linear" />
+                  </Button>
+                </div>
               </CardHeader>
               <CardFooter className="flex flex-cols items-center justify-between">
                 <div className="flex flex-cols items-center gap-1">

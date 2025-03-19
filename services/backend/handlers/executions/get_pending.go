@@ -39,14 +39,14 @@ func GetPendingExecutions(context *gin.Context, db *bun.DB) {
 	defer tx.Rollback()
 
 	if !runner.SharedRunner {
-		err = tx.NewSelect().Model(&executions).Where("flow_id::text IN (SELECT id::text FROM flows WHERE project_id = ?)", projectID).Where("status = 'pending' AND runner_id = ''").For("UPDATE").Limit(1).Scan(context)
+		err = tx.NewSelect().Model(&executions).Where("flow_id::text IN (SELECT id::text FROM flows WHERE project_id = ?)", projectID).Where("(status = 'pending' OR (status = 'scheduled' AND scheduled_at <= NOW())) AND runner_id = ''").For("UPDATE").Limit(1).Scan(context)
 		if err != nil {
 			httperror.InternalServerError(context, "Error collecting executions from db", err)
 			fmt.Println(err.Error())
 			return
 		}
 	} else {
-		err = tx.NewSelect().Model(&executions).Where("status = 'pending' AND runner_id = ''").For("UPDATE").Limit(1).Scan(context)
+		err = tx.NewSelect().Model(&executions).Where("(status = 'pending' OR (status = 'scheduled' AND scheduled_at <= NOW())) AND runner_id = ''").For("UPDATE").Limit(1).Scan(context)
 		if err != nil {
 			httperror.InternalServerError(context, "Error collecting executions from db", err)
 			return
