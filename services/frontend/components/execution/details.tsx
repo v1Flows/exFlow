@@ -5,7 +5,9 @@ import ReactTimeago from "react-timeago";
 
 export default function ExecutionDetails({ runners, execution, steps }: any) {
   function status(execution: any) {
-    if (execution.status === "pending") {
+    if (execution.status === "scheduled") {
+      return "Scheduled";
+    } else if (execution.status === "pending") {
       return "Pending";
     } else if (execution.status === "running") {
       return "Running";
@@ -27,7 +29,9 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
   }
 
   function statusColor(execution: any) {
-    if (execution.status === "pending") {
+    if (execution.status === "scheduled") {
+      return "warning";
+    } else if (execution.status === "pending") {
       return "default-500";
     } else if (execution.status === "running") {
       return "primary";
@@ -49,7 +53,24 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
   }
 
   function statusIcon(execution: any) {
-    if (execution.status === "pending") {
+    if (execution.status === "scheduled") {
+      return (
+        <CircularProgress
+          showValueLabel
+          aria-label="Step"
+          color="warning"
+          size="md"
+          value={100}
+          valueLabel={
+            <Icon
+              className="text-warning-500"
+              icon="hugeicons:calendar-02"
+              width={20}
+            />
+          }
+        />
+      );
+    } else if (execution.status === "pending") {
       return (
         <Tooltip content={`${status(execution)}`}>
           <CircularProgress
@@ -259,6 +280,27 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
             </div>
           </CardBody>
         </Card>
+        {execution.status === "scheduled" && (
+          <Card>
+            <CardBody>
+              <div className="flex items-center justify-start gap-4">
+                <div className="flex size-12 items-center justify-center rounded-large bg-default text-warning bg-opacity-40">
+                  <Icon icon="hugeicons:calendar-02" width={28} />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-warning">
+                    {execution.scheduled_at === "0001-01-01T00:00:00Z" ? (
+                      "N/A"
+                    ) : (
+                      <ReactTimeago date={execution.scheduled_at} />
+                    )}
+                  </p>
+                  <p className="text-sm text-default-500">Scheduled At</p>
+                </div>
+              </div>
+            </CardBody>
+          </Card>
+        )}
         <Card>
           <CardBody>
             <div className="flex items-center justify-start gap-4">
@@ -345,19 +387,21 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
             </div>
           </CardBody>
         </Card>
-        <Card>
-          <CardBody>
-            <div className="flex items-center justify-start gap-4">
-              <div className="flex size-12 items-center justify-center rounded-large bg-default bg-opacity-40">
-                <Icon icon="hugeicons:timer-02" width={28} />
+        {execution.status !== "scheduled" && (
+          <Card>
+            <CardBody>
+              <div className="flex items-center justify-start gap-4">
+                <div className="flex size-12 items-center justify-center rounded-large bg-default bg-opacity-40">
+                  <Icon icon="hugeicons:timer-02" width={28} />
+                </div>
+                <div>
+                  <p className="text-sm font-bold">{getDuration()}</p>
+                  <p className="text-sm text-default-500">Duration</p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-bold">{getDuration()}</p>
-                <p className="text-sm text-default-500">Duration</p>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
+            </CardBody>
+          </Card>
+        )}
       </div>
     </>
   );

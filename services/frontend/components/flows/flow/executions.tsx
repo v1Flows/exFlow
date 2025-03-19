@@ -25,6 +25,7 @@ import ReactTimeago from "react-timeago";
 import DeleteExecutionModal from "@/components/modals/executions/delete";
 
 export default function Executions({
+  runners,
   executions,
   displayToFlow,
   canEdit,
@@ -71,7 +72,9 @@ export default function Executions({
   }
 
   function status(execution: any) {
-    if (execution.status === "pending") {
+    if (execution.status === "scheduled") {
+      return "Scheduled";
+    } else if (execution.status === "pending") {
       return "Pending";
     } else if (execution.status === "running") {
       return "Running";
@@ -93,7 +96,9 @@ export default function Executions({
   }
 
   function statusFilterReturn(execution: any) {
-    if (execution.status === "pending") {
+    if (execution.status === "scheduled") {
+      return "scheduled";
+    } else if (execution.status === "pending") {
       return "pending";
     } else if (execution.status === "running") {
       return "running";
@@ -115,8 +120,10 @@ export default function Executions({
   }
 
   function statusColor(execution: any) {
-    if (execution.status === "pending") {
-      return "default";
+    if (execution.status === "scheduled") {
+      return "warning";
+    } else if (execution.status === "pending") {
+      return "default-500";
     } else if (execution.status === "running") {
       return "primary";
     } else if (execution.status === "paused") {
@@ -137,7 +144,24 @@ export default function Executions({
   }
 
   function statusIcon(execution: any) {
-    if (execution.status === "pending") {
+    if (execution.status === "scheduled") {
+      return (
+        <CircularProgress
+          showValueLabel
+          aria-label="Step"
+          color="warning"
+          size="md"
+          value={100}
+          valueLabel={
+            <Icon
+              className="text-warning-500"
+              icon="hugeicons:calendar-02"
+              width={20}
+            />
+          }
+        />
+      );
+    } else if (execution.status === "pending") {
       return (
         <CircularProgress
           showValueLabel
@@ -327,11 +351,35 @@ export default function Executions({
               <p className={`font-bold text-${statusColor(execution)}`}>
                 {status(execution)}
               </p>
-              <p className="text-sm text-default-500">
-                {getDuration(execution)}
-              </p>
+              {execution.status !== "scheduled" && (
+                <p className="text-sm text-default-500">
+                  {getDuration(execution)}
+                </p>
+              )}
             </div>
           </div>
+        );
+      case "runner_id":
+        return runners.find((runner: any) => runner.id === cellValue)?.name ? (
+          <span>
+            {runners.find((runner: any) => runner.id === cellValue).name}
+          </span>
+        ) : (
+          <span className="text-default-500">Unknown</span>
+        );
+      case "scheduled_at":
+        return cellValue !== "0001-01-01T00:00:00Z" ? (
+          <Tooltip content={new Date(cellValue).toLocaleString()}>
+            {cellValue > new Date().toISOString() ? (
+              <span className="text-warning font-bold">
+                <ReactTimeago date={new Date(cellValue)} locale="de-DE" />
+              </span>
+            ) : (
+              <ReactTimeago live date={new Date(cellValue)} locale="de-DE" />
+            )}
+          </Tooltip>
+        ) : (
+          <span className="text-default-500">Not scheduled</span>
         );
       case "created_at":
         return (
@@ -340,16 +388,20 @@ export default function Executions({
           </Tooltip>
         );
       case "executed_at":
-        return (
+        return cellValue !== "0001-01-01T00:00:00Z" ? (
           <Tooltip content={new Date(cellValue).toLocaleString()}>
             <ReactTimeago date={new Date(cellValue)} locale="de-DE" />
           </Tooltip>
+        ) : (
+          <span className="text-default-500">Not executed</span>
         );
       case "finished_at":
-        return (
+        return cellValue !== "0001-01-01T00:00:00Z" ? (
           <Tooltip content={new Date(cellValue).toLocaleString()}>
             <ReactTimeago date={new Date(cellValue)} locale="de-DE" />
           </Tooltip>
+        ) : (
+          <span className="text-default-500">Not executed</span>
         );
       case "id":
         return (
@@ -409,6 +461,49 @@ export default function Executions({
   const topContent = React.useMemo(() => {
     return (
       <div className="flex flex-wrap items-stretch gap-4">
+        {executions.filter((e: any) => status(e) == "Scheduled").length > 0 && (
+          <Card
+            isHoverable
+            isPressable
+            className={
+              statusFilter.has("scheduled")
+                ? "w-[240px] grow bg-warning/50"
+                : "w-[240px] grow"
+            }
+            onPress={() => {
+              if (statusFilter.has("scheduled")) {
+                statusFilter.delete("scheduled");
+                setStatusFilter(new Set(statusFilter));
+                setPage(1);
+              } else {
+                statusFilter.add("scheduled");
+                setStatusFilter(new Set(statusFilter));
+                setPage(1);
+              }
+            }}
+          >
+            <CardBody>
+              <div className="flex items-center gap-2">
+                <div className="flex size-10 items-center justify-center rounded-small bg-warning/10 text-warning-500">
+                  <Icon icon="hugeicons:time-quarter-pass" width={20} />
+                </div>
+                <div>
+                  <p className="text-md font-bold">
+                    <NumberFlow
+                      locales="en-US" // Intl.NumberFormat locales
+                      value={
+                        executions.filter((e: any) => status(e) == "Scheduled")
+                          .length
+                      }
+                    />
+                  </p>
+                  <p className="text-sm text-default-500">Scheduled</p>
+                </div>
+              </div>
+            </CardBody>
+          </Card>
+        )}
+
         {executions.filter((e: any) => status(e) == "Pending").length > 0 && (
           <Card
             isHoverable
@@ -786,6 +881,9 @@ export default function Executions({
           </TableColumn>
           <TableColumn key="runner_id" align="center">
             Runner
+          </TableColumn>
+          <TableColumn key="scheduled_at" align="center">
+            Scheduled At
           </TableColumn>
           <TableColumn key="created_at" align="center">
             Created At

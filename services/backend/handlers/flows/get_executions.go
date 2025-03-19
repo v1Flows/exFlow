@@ -1,11 +1,12 @@
 package flows
 
 import (
+	"errors"
+	"net/http"
+
 	"github.com/v1Flows/exFlow/services/backend/functions/gatekeeper"
 	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
 	"github.com/v1Flows/exFlow/services/backend/pkg/models"
-	"errors"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
@@ -35,7 +36,19 @@ func GetFlowExecutions(context *gin.Context, db *bun.DB) {
 	}
 
 	executions := make([]models.Executions, 0)
-	err = db.NewSelect().Model(&executions).Where("flow_id = ?", flowID).Order("created_at DESC").Scan(context)
+	err = db.NewSelect().Model(&executions).Where("flow_id = ?", flowID).OrderExpr(`
+		CASE 
+			WHEN status = 'scheduled' THEN 1
+			ELSE 2
+		END ASC, 
+		CASE 
+			WHEN status = 'scheduled' THEN scheduled_at
+		END ASC, 
+		CASE 
+			WHEN status = 'scheduled' THEN NULL
+			ELSE created_at
+		END DESC
+	`).Scan(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error collecting executions from db", err)
 		return

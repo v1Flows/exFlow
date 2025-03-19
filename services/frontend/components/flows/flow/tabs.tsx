@@ -80,7 +80,11 @@ export default function FlowTabs({
               </div>
             }
           >
-            <Executions canEdit={checkUserCanEdit()} executions={executions} />
+            <Executions
+              canEdit={checkUserCanEdit()}
+              executions={executions}
+              runners={runners}
+            />
           </Tab>
           <Tab
             key="settings"

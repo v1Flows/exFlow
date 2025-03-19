@@ -1,10 +1,11 @@
 package executions
 
 import (
+	"net/http"
+
 	"github.com/v1Flows/exFlow/services/backend/functions/auth"
 	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
 	"github.com/v1Flows/exFlow/services/backend/pkg/models"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/uptrace/bun"
@@ -32,7 +33,22 @@ func GetExecutions(context *gin.Context, db *bun.DB) {
 	}
 
 	executions := make([]models.Executions, 0)
-	err = db.NewSelect().Model(&executions).Where("flow_id IN (?)", bun.In(flowsArray)).Order("created_at DESC").Scan(context)
+	err = db.NewSelect().Model(&executions).
+		Where("flow_id IN (?)", bun.In(flowsArray)).
+		OrderExpr(`
+		CASE 
+			WHEN status = 'scheduled' THEN 1
+			ELSE 2
+		END ASC, 
+		CASE 
+			WHEN status = 'scheduled' THEN scheduled_at
+		END ASC, 
+		CASE 
+			WHEN status = 'scheduled' THEN NULL
+			ELSE created_at
+		END DESC
+	`).
+		Scan(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error collecting executions from db", err)
 		return

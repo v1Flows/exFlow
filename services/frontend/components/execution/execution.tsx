@@ -657,6 +657,7 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
         {(execution.status === "running" ||
           execution.status === "pending" ||
           execution.status === "paused" ||
+          execution.status === "scheduled" ||
           execution.status === "interactionWaiting") && (
           <>
             <Progress
@@ -688,14 +689,15 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
             <AdminExecutionActions execution={execution} />
           )}
 
-          {execution.status === "running" ||
+          {(execution.status === "running" ||
             execution.status === "pending" ||
             execution.status === "paused" ||
-            (execution.status === "interactionWaiting" && (
-              <div>
-                <Reloader />
-              </div>
-            ))}
+            execution.status === "scheduled" ||
+            execution.status === "interactionWaiting") && (
+            <div>
+              <Reloader />
+            </div>
+          )}
         </div>
       </div>
       <Divider className="my-4" />
