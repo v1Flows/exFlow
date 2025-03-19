@@ -1,3 +1,5 @@
+"use client";
+
 import { Icon } from "@iconify/react";
 import {
   addToast,
@@ -20,16 +22,17 @@ import {
 import React from "react";
 import TimeAgo from "react-timeago";
 
-import RunnerDrawer from "@/components/modals/runner/plugins";
 import DeleteRunnerModal from "@/components/modals/runner/delete";
-import CreateRunnerModal from "@/components/modals/runner/create";
+import RunnerDetails from "@/components/modals/runner/details";
 
-import ProjectRunnerDetails from "./RunnerDetails";
-
-export default function Runners({ runners, project, user, members }: any) {
+export default function ProjectRunnersList({
+  runners,
+  project,
+  user,
+  members,
+}: any) {
   const [targetRunner, setTargetRunner] = React.useState({} as any);
   const showRunnerDrawer = useDisclosure();
-  const addRunnerModal = useDisclosure();
   const deleteRunnerModal = useDisclosure();
 
   const copyRunnerIDtoClipboard = (id: string) => {
@@ -77,13 +80,11 @@ export default function Runners({ runners, project, user, members }: any) {
 
   return (
     <main>
-      <ProjectRunnerDetails project={project} />
-      <Spacer y={4} />
       <div className="flex items-center justify-between">
-        <p className="text-lg font-bold">Your Runners</p>
+        <p className="text-lg font-bold">Project Bound</p>
       </div>
       <Divider className="mb-4" />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {runners
           .filter((runner: any) => runner.shared_runner === false)
           .sort((a: any, b: any) => {
@@ -96,6 +97,7 @@ export default function Runners({ runners, project, user, members }: any) {
             <Card
               key={runner.id}
               fullWidth
+              isHoverable
               isPressable
               onPress={() => {
                 setTargetRunner(runner);
@@ -140,6 +142,7 @@ export default function Runners({ runners, project, user, members }: any) {
                           className="text-danger"
                           color="danger"
                           isDisabled={
+                            members.length > 0 &&
                             members.find((m: any) => m.user_id === user.id) &&
                             members.filter((m: any) => m.user_id === user.id)[0]
                               .role === "Viewer"
@@ -198,12 +201,12 @@ export default function Runners({ runners, project, user, members }: any) {
                 <div className="flex items-center gap-1">
                   <Icon
                     className="text-default-500"
-                    icon="solar:archive-down-minimlistic-linear"
-                    width={20}
+                    icon="hugeicons:activity-03"
+                    width={22}
                   />
                   <TimeAgo
-                    className="text-sm text-default-500"
-                    date={runner.registered_at}
+                    className={`text-sm text-${heartbeatColor(runner)}`}
+                    date={runner.last_heartbeat}
                   />
                 </div>
               </CardFooter>
@@ -212,7 +215,7 @@ export default function Runners({ runners, project, user, members }: any) {
       </div>
 
       <Spacer y={4} />
-      <p className="text-lg font-bold">exFlow Runners</p>
+      <p className="text-lg font-bold">Shared</p>
       <Divider className="mb-4" />
       {project.shared_runners === true && (
         <div>
@@ -372,12 +375,7 @@ export default function Runners({ runners, project, user, members }: any) {
           </p>
         </div>
       )}
-      <RunnerDrawer disclosure={showRunnerDrawer} runner={targetRunner} />
-      <CreateRunnerModal
-        disclosure={addRunnerModal}
-        shared_runner={false}
-        project={project}
-      />
+      <RunnerDetails disclosure={showRunnerDrawer} runner={targetRunner} />
       <DeleteRunnerModal disclosure={deleteRunnerModal} runner={targetRunner} />
     </main>
   );
