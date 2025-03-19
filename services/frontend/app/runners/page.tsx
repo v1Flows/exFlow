@@ -1,12 +1,26 @@
-import { Spacer } from "@heroui/react";
+import { Divider } from "@heroui/react";
 
-export default function DocsPage() {
+import RunnersList from "@/components/runners/list";
+import GetRunners from "@/lib/fetch/runner/get";
+import GetProjects from "@/lib/fetch/project/all";
+import RunnersHeading from "@/components/runners/heading";
+
+export default async function RunnersPage() {
+  const projectsData = GetProjects();
+  const runnersData = GetRunners();
+
+  const [projects, runners] = await Promise.all([projectsData, runnersData]);
+
   return (
     <main>
-      <div className="grid grid-cols-1 items-center justify-between gap-2 lg:grid-cols-2">
-        <p className="text-2xl font-bold">Runners</p>
-      </div>
-      <Spacer y={4} />
+      <RunnersHeading />
+      <Divider className="mt-4 mb-4" />
+      {projects.success && runners.success && (
+        <RunnersList
+          projects={projects.data.projects}
+          runners={runners.data.runners}
+        />
+      )}
     </main>
   );
 }

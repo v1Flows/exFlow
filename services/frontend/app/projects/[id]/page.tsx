@@ -6,7 +6,6 @@ import GetProject from "@/lib/fetch/project/data";
 import GetProjectRunners from "@/lib/fetch/project/runners";
 import GetProjectApiKeys from "@/lib/fetch/project/tokens";
 import GetUserDetails from "@/lib/fetch/user/getDetails";
-
 import Project from "@/components/projects/project";
 
 export default async function ProjectPage({

@@ -11,7 +11,7 @@ import {
 } from "@heroui/react";
 import TimeAgo from "react-timeago";
 
-export default function RunnerDrawer({
+export default function RunnerDetails({
   disclosure,
   runner,
 }: {
@@ -91,14 +91,6 @@ export default function RunnerDrawer({
                 <div className="text-small text-default-500">Actions</div>
                 <div className="text-small font-medium">
                   {runner.actions.length}
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="text-small text-default-500">
-                  Alert Endpoints
-                </div>
-                <div className="text-small font-medium">
-                  {runner.alert_endpoints.length}
                 </div>
               </div>
 

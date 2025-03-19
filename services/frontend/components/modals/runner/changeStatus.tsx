@@ -14,8 +14,8 @@ import {
 import { useRouter } from "next/navigation";
 import React from "react";
 
-import ChangeRunnerStatus from "@/lib/fetch/admin/PUT/ChangeRunnerStatus";
 import ErrorCard from "@/components/error/ErrorCard";
+import ChangeRunnerStatus from "@/lib/fetch/admin/PUT/ChangeRunnerStatus";
 
 export default function ChangeRunnerStatusModal({
   disclosure,

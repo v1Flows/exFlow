@@ -1,14 +1,15 @@
 "use client";
 import { Icon } from "@iconify/react";
-import { Tab, Tabs } from "@heroui/react";
+import { Spacer, Tab, Tabs } from "@heroui/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 
 import ProjectMembers from "@/components/projects/project/tables/UserTable";
 import ProjectTokens from "@/components/projects/project/tables/TokensTable";
-import Runners from "@/components/projects/project/Runners";
+import ProjectRunnersList from "@/components/projects/project/RunnerList";
 
 import ProjectAuditLogs from "./tables/AuditTable";
+import ProjectRunnerDetails from "./RunnerDetails";
 
 export default function ProjectTabs({
   project,
@@ -72,7 +73,9 @@ export default function ProjectTabs({
               </div>
             }
           >
-            <Runners
+            <ProjectRunnerDetails project={project} />
+            <Spacer y={4} />
+            <ProjectRunnersList
               members={members}
               project={project}
               runners={runners}
