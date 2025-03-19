@@ -17,7 +17,6 @@ import GetFlowStats from "@/lib/fetch/flow/stats";
 
 type ChartData = {
   key: string;
-  alerts: number;
   executions: number;
 };
 
@@ -86,37 +85,15 @@ export default function FlowStats({ flowID }: { flowID: string }) {
 
   const data: Chart[] = [
     {
-      key: "alerts-executions",
-      title: "Alerts / Executions",
-      value: stats?.alerts_executions_trends?.total_alerts || 0,
+      key: "executions",
+      title: "Executions",
+      value: stats?.executions_trends?.total_executions || 0,
       type: "number",
-      change: stats?.alerts_executions_trends?.alert_trend.percentage || 0,
+      change: stats?.executions_trends?.execution_trend.percentage || 0,
       changeType:
-        stats?.alerts_executions_trends?.alert_trend?.direction || "positive",
-      chartData: stats.alerts_executions_stats || [],
+        stats?.executions_trends?.execution_trend?.direction || "positive",
+      chartData: stats.executions_stats || [],
     },
-    // {
-    //   key: "executions",
-    //   title: "Executions",
-    //   value: 623000,
-    //   type: "number",
-    //   change: "-2.1%",
-    //   changeType: "neutral",
-    //   chartData: [
-    //     { month: "Jan", value: 587000, lastYearValue: 243500 },
-    //     { month: "Feb", value: 698000, lastYearValue: 318500 },
-    //     { month: "Mar", value: 542000, lastYearValue: 258300 },
-    //     { month: "Apr", value: 728000, lastYearValue: 335300 },
-    //     { month: "May", value: 615000, lastYearValue: 289600 },
-    //     { month: "Jun", value: 689000, lastYearValue: 256400 },
-    //     { month: "Jul", value: 573000, lastYearValue: 245200 },
-    //     { month: "Aug", value: 695000, lastYearValue: 384600 },
-    //     { month: "Sep", value: 589000, lastYearValue: 273500 },
-    //     { month: "Oct", value: 652000, lastYearValue: 365900 },
-    //     { month: "Nov", value: 623000, lastYearValue: 282300 },
-    //     { month: "Dec", value: 523000, lastYearValue: 295000 },
-    //   ],
-    // },
   ];
 
   const [activeChart, setActiveChart] = React.useState<
@@ -229,60 +206,6 @@ export default function FlowStats({ flowID }: { flowID: string }) {
                           <span>{change}%</span>
                         </Chip>
                       </div>
-                      {/* Executions */}
-                      <div className="flex items-center gap-x-3">
-                        <span className="text-3xl font-bold text-foreground">
-                          {stats?.alerts_executions_trends?.total_executions ||
-                            0}
-                        </span>
-                        <Chip
-                          classNames={{
-                            content: "font-medium",
-                          }}
-                          color={
-                            stats?.alerts_executions_trends?.execution_trend
-                              ?.direction === "positive"
-                              ? "success"
-                              : changeType === "negative"
-                                ? "danger"
-                                : "default"
-                          }
-                          radius="sm"
-                          size="sm"
-                          startContent={
-                            stats?.alerts_executions_trends?.execution_trend
-                              ?.direction === "positive" ? (
-                              <Icon
-                                height={16}
-                                icon="solar:arrow-right-up-linear"
-                                width={16}
-                              />
-                            ) : stats?.alerts_executions_trends?.execution_trend
-                                ?.direction === "negative" ? (
-                              <Icon
-                                height={16}
-                                icon="solar:arrow-right-down-linear"
-                                width={16}
-                              />
-                            ) : (
-                              <Icon
-                                height={16}
-                                icon="solar:arrow-right-linear"
-                                width={16}
-                              />
-                            )
-                          }
-                          variant="flat"
-                        >
-                          <span>
-                            {
-                              stats?.alerts_executions_trends?.execution_trend
-                                ?.percentage
-                            }
-                            %
-                          </span>
-                        </Chip>
-                      </div>
                     </div>
                   </button>
                 ))}
@@ -363,21 +286,6 @@ export default function FlowStats({ flowID }: { flowID: string }) {
               cursor={{
                 strokeWidth: 0,
               }}
-            />
-            <Area
-              activeDot={{
-                stroke: `hsl(var(--heroui-${color === "default" ? "foreground" : color}))`,
-                strokeWidth: 2,
-                fill: "hsl(var(--heroui-background))",
-                r: 5,
-              }}
-              animationDuration={1000}
-              animationEasing="ease"
-              dataKey="alerts"
-              fill="url(#colorGradient)"
-              stroke={`hsl(var(--heroui-${color === "default" ? "foreground" : color}))`}
-              strokeWidth={2}
-              type="monotone"
             />
             <Area
               activeDot={{
