@@ -9,7 +9,6 @@ import {
   NavbarItem,
   NavbarMenuItem,
   Kbd,
-  Link,
   Dropdown,
   DropdownItem,
   DropdownMenu,
@@ -24,10 +23,11 @@ import clsx from "clsx";
 import { Icon } from "@iconify/react";
 import { useTheme } from "next-themes";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
-import { GithubIcon, SearchIcon, Logo } from "@/components/icons";
+import { SearchIcon, Logo } from "@/components/icons";
 import { Logout } from "@/lib/logout";
 
 export const Navbar = ({ userDetails, session }) => {
@@ -60,6 +60,8 @@ export const Navbar = ({ userDetails, session }) => {
   const pathname = usePathname();
   const currentPath = pathname.split("/")?.[1];
 
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   const onChange = () => {
     theme === "light" ? setTheme("dark") : setTheme("light");
   };
@@ -75,7 +77,12 @@ export const Navbar = ({ userDetails, session }) => {
   }
 
   return (
-    <HeroUINavbar maxWidth="2xl" position="sticky">
+    <HeroUINavbar
+      isMenuOpen={isMenuOpen}
+      maxWidth="2xl"
+      position="sticky"
+      onMenuOpenChange={setIsMenuOpen}
+    >
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
         <NavbarBrand as="li" className="gap-3 max-w-fit">
           <NextLink className="flex justify-start items-center gap-1" href="/">
@@ -173,9 +180,6 @@ export const Navbar = ({ userDetails, session }) => {
       </NavbarContent>
 
       <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
-        <Link isExternal aria-label="Github" href={siteConfig.links.github}>
-          <GithubIcon className="text-default-500" />
-        </Link>
         <ThemeSwitch />
         <NavbarMenuToggle />
       </NavbarContent>
@@ -185,19 +189,24 @@ export const Navbar = ({ userDetails, session }) => {
         <div className="mx-4 mt-2 flex flex-col gap-2">
           {siteConfig.navMenuItems.map((item, index) => (
             <NavbarMenuItem key={`${item}-${index}`}>
-              <Link
-                color={
-                  index === 2
-                    ? "primary"
-                    : index === siteConfig.navMenuItems.length - 1
-                      ? "danger"
-                      : "foreground"
-                }
-                href="#"
-                size="lg"
+              <NextLink
+                className={clsx(
+                  linkStyles({ color: "foreground" }),
+                  {
+                    "text-primary font-bold": "/" + currentPath === item.href,
+                  },
+                  {
+                    "font-semibold": "/" + currentPath !== item.href,
+                  },
+                )}
+                color="foreground"
+                href={item.href}
+                onClick={() => {
+                  setIsMenuOpen(false);
+                }}
               >
                 {item.label}
-              </Link>
+              </NextLink>
             </NavbarMenuItem>
           ))}
         </div>
