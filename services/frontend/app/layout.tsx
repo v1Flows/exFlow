@@ -76,7 +76,9 @@ export default async function RootLayout({
 
   return (
     <html suppressHydrationWarning lang="en">
-      <head />
+      <head>
+        <link href="/manifest.json" rel="manifest" />
+      </head>
       <body
         className={clsx(
           "min-h-screen bg-background font-sans antialiased",
@@ -84,14 +86,12 @@ export default async function RootLayout({
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-          <div className="relative flex flex-col h-screen">
+          <div className="relative flex h-screen flex-col">
             <Navbar
               session={session}
               userDetails={userDetails.success ? userDetails.data.user : {}}
             />
-            <main className="container mx-auto pt-4 px-6 flex-grow">
-              {children}
-            </main>
+            <main className="pt-4 px-6 flex-grow">{children}</main>
             <Footer />
           </div>
         </Providers>

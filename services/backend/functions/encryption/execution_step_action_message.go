@@ -25,7 +25,7 @@ func EncryptExecutionStepActionMessage(messages []shared_models.Message) ([]shar
 
 	for i := range messages {
 		for line := range messages[i].Lines {
-			plaintext := []byte(messages[i].Lines[line])
+			plaintext := []byte(messages[i].Lines[line].Content)
 			nonce := make([]byte, gcm.NonceSize())
 
 			if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
@@ -36,7 +36,7 @@ func EncryptExecutionStepActionMessage(messages []shared_models.Message) ([]shar
 
 			// Encode the ciphertext as base64 to ensure it can be stored as JSON
 			encodedCiphertext := base64.StdEncoding.EncodeToString(ciphertext)
-			messages[i].Lines[line] = encodedCiphertext
+			messages[i].Lines[line].Content = encodedCiphertext
 		}
 	}
 
@@ -56,7 +56,7 @@ func DecryptExecutionStepActionMessage(encryptedMessage []shared_models.Message)
 
 	for i := range encryptedMessage {
 		for line := range encryptedMessage[i].Lines {
-			encodedCiphertext := encryptedMessage[i].Lines[line]
+			encodedCiphertext := encryptedMessage[i].Lines[line].Content
 			ciphertext, err := base64.StdEncoding.DecodeString(encodedCiphertext)
 			if err != nil {
 				return nil, err
@@ -73,7 +73,7 @@ func DecryptExecutionStepActionMessage(encryptedMessage []shared_models.Message)
 				return nil, err
 			}
 
-			encryptedMessage[i].Lines[line] = string(plaintext)
+			encryptedMessage[i].Lines[line].Content = string(plaintext)
 		}
 	}
 
