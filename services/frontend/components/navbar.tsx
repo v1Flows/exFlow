@@ -79,7 +79,7 @@ export const Navbar = ({ userDetails, session }) => {
   return (
     <HeroUINavbar
       isMenuOpen={isMenuOpen}
-      maxWidth="2xl"
+      maxWidth="full"
       position="sticky"
       onMenuOpenChange={setIsMenuOpen}
     >
