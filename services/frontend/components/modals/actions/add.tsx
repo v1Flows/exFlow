@@ -513,7 +513,7 @@ export default function AddActionModal({
                                 key={param.key}
                                 description={param?.description}
                                 isRequired={param.required}
-                                label={param.key}
+                                label={param.title || param.key}
                                 type={param.type}
                                 value={param.value}
                                 onValueChange={(e) => {
@@ -534,7 +534,7 @@ export default function AddActionModal({
                                 key={param.key}
                                 description={param?.description}
                                 isRequired={param.required}
-                                label={param.key}
+                                label={param.title || param.key}
                                 selectedKeys={[param.value]}
                                 onSelectionChange={(e) => {
                                   const value = Array.from(e).join("");
@@ -560,7 +560,7 @@ export default function AddActionModal({
                                 className="col-span-2"
                                 description={param?.description}
                                 isRequired={param.required}
-                                label={param.key}
+                                label={param.title || param.key}
                                 type={param.type}
                                 value={param.value}
                                 onValueChange={(e) => {
@@ -581,7 +581,7 @@ export default function AddActionModal({
                                 key={param.key}
                                 description={param?.description}
                                 isRequired={param.required}
-                                label={param.key}
+                                label={param.title || param.key}
                                 type={param.type}
                                 value={param.value}
                                 onValueChange={(e) => {

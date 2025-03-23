@@ -10,7 +10,7 @@ export default function Reloader({ circle = false }: { circle?: boolean }) {
 
   React.useEffect(() => {
     const interval = setInterval(() => {
-      setValue((v) => (v >= 100 ? 0 : v + 20));
+      setValue((v) => (v >= 100 ? 0 : v + 50));
       if (value === 100) {
         clearInterval(interval);
         router.refresh();

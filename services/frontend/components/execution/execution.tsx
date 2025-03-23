@@ -77,6 +77,19 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
     }
   }
 
+  function lineColor(line: any) {
+    // if line color is not set, return default
+    if (!line.color) {
+      return "default-600";
+    }
+
+    if (line.color === "info") {
+      return "primary";
+    } else {
+      return line.color;
+    }
+  }
+
   function statusColor(step: any) {
     if (step.status === "pending") {
       return "default";
@@ -453,24 +466,29 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
                 <p>Step not started yet</p>
               ) : (
                 <div className="flex flex-col gap-2">
-                  <Snippet fullWidth hideCopyButton hideSymbol radius="sm">
-                    <ScrollShadow className="max-h-[400px] max-w-screen">
+                  <ScrollShadow className="flex flex-col max-h-[600px] w-full justify-end">
+                    <Snippet
+                      hideCopyButton
+                      hideSymbol
+                      className="w-full pb-2"
+                      radius="sm"
+                    >
                       {step.messages.map((data: any) =>
                         data.lines.map((line: any, index: any) => (
-                          <p
+                          <div
                             key={index}
-                            className="flex-cols flex items-center gap-1"
+                            className={`container flex-cols font-semibold flex items-center gap-1 text-${lineColor(line)}`}
                           >
                             <Icon
                               icon="hugeicons:arrow-right-double"
                               width={16}
                             />
-                            {line}
-                          </p>
+                            <p>{line.content}</p>
+                          </div>
                         )),
                       )}
-                    </ScrollShadow>
-                  </Snippet>
+                    </Snippet>
+                  </ScrollShadow>
 
                   {step.status === "interactionWaiting" && !step.interacted && (
                     <div className="flex-cols flex items-center gap-4">
