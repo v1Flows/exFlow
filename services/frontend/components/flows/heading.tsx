@@ -27,23 +27,39 @@ export default function FlowsHeading({
 
           <Divider className="h-10 mr-2 ml-2" orientation="vertical" />
 
-          <Button
-            color="primary"
-            startContent={<Icon icon="solar:book-2-outline" width={16} />}
-            onPress={createFlowModal.onOpen}
-          >
-            Create Flow
-          </Button>
-          <Button
-            color="primary"
-            startContent={
+          <div className="hidden sm:flex gap-2">
+            <Button
+              color="primary"
+              startContent={<Icon icon="solar:book-2-outline" width={16} />}
+              onPress={createFlowModal.onOpen}
+            >
+              Create Flow
+            </Button>
+            <Button
+              color="primary"
+              startContent={
+                <Icon icon="solar:folder-with-files-outline" width={16} />
+              }
+              variant="flat"
+              onPress={createFolderModal.onOpen}
+            >
+              Create Folder
+            </Button>
+          </div>
+
+          <div className="flex sm:hidden gap-2">
+            <Button isIconOnly color="primary" onPress={createFlowModal.onOpen}>
+              <Icon icon="solar:book-2-outline" width={16} />
+            </Button>
+            <Button
+              isIconOnly
+              color="primary"
+              variant="flat"
+              onPress={createFolderModal.onOpen}
+            >
               <Icon icon="solar:folder-with-files-outline" width={16} />
-            }
-            variant="flat"
-            onPress={createFolderModal.onOpen}
-          >
-            Create Folder
-          </Button>
+            </Button>
+          </div>
         </div>
       </div>
       <CreateFolderModal

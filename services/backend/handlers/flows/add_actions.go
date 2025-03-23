@@ -2,6 +2,7 @@ package flows
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/v1Flows/exFlow/services/backend/config"
@@ -60,6 +61,7 @@ func AddFlowActions(context *gin.Context, db *bun.DB) {
 		flow.Actions, err = encryption.EncryptParams(flow.Actions)
 		if err != nil {
 			httperror.InternalServerError(context, "Error encrypting action params", err)
+			fmt.Println(err)
 			return
 		}
 	}

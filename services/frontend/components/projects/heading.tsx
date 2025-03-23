@@ -28,6 +28,7 @@ export default function ProjectsHeading({ settings, userDetails }: any) {
           <Divider className="h-10 mr-2 ml-2" orientation="vertical" />
 
           <Button
+            className="hidden sm:flex gap-2"
             color="primary"
             isDisabled={createButtonIsDisabled()}
             startContent={<Icon icon="hugeicons:plus-sign" width={16} />}
@@ -35,6 +36,16 @@ export default function ProjectsHeading({ settings, userDetails }: any) {
           >
             Create Project
           </Button>
+
+          {/* Mobile */}
+          <Button
+            isIconOnly
+            className="sm:hidden flex gap-2"
+            color="primary"
+            isDisabled={createButtonIsDisabled()}
+            startContent={<Icon icon="hugeicons:plus-sign" width={16} />}
+            onPress={() => newProjectModal.onOpen()}
+          />
         </div>
       </div>
       <CreateProjectModal disclosure={newProjectModal} />
