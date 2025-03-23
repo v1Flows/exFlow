@@ -16,6 +16,7 @@ import {
   Avatar,
   Input,
   addToast,
+  Button,
 } from "@heroui/react";
 import { link as linkStyles } from "@heroui/theme";
 import NextLink from "next/link";
@@ -111,6 +112,59 @@ export const Navbar = ({ userDetails, session }) => {
             </NavbarItem>
           ))}
         </ul>
+        <Dropdown>
+          <NavbarItem>
+            <DropdownTrigger>
+              <Button
+                disableRipple
+                className="p-0 bg-transparent data-[hover=true]:bg-transparent"
+                color="danger"
+                endContent={<Icon icon="hugeicons:arrow-down-01" />}
+                radius="sm"
+                variant="light"
+              >
+                Admin
+              </Button>
+            </DropdownTrigger>
+          </NavbarItem>
+          <DropdownMenu
+            aria-label="Admin Actions"
+            itemClasses={{
+              base: "gap-4",
+            }}
+          >
+            <DropdownItem
+              key="autoscaling"
+              description="ACME scales apps based on demand and load"
+            >
+              Autoscaling
+            </DropdownItem>
+            <DropdownItem
+              key="usage_metrics"
+              description="Real-time metrics to debug issues"
+            >
+              Usage Metrics
+            </DropdownItem>
+            <DropdownItem
+              key="production_ready"
+              description="ACME runs on ACME, join us at web scale"
+            >
+              Production Ready
+            </DropdownItem>
+            <DropdownItem
+              key="99_uptime"
+              description="High availability and uptime guarantees"
+            >
+              +99% Uptime
+            </DropdownItem>
+            <DropdownItem
+              key="supreme_support"
+              description="Support team ready to respond"
+            >
+              +Supreme Support
+            </DropdownItem>
+          </DropdownMenu>
+        </Dropdown>
       </NavbarContent>
 
       <NavbarContent
