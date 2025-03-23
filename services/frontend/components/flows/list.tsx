@@ -73,7 +73,7 @@ export default function FlowList({
           </span>
         )}
       </p>
-      <div className="grid grid-cols-4 gap-4 mb-4">
+      <div className="grid lg:grid-cols-4 grid-cols-2 md:grid-cols-3 gap-4 mb-4">
         {searchFolderID && (
           <Card
             fullWidth
@@ -221,33 +221,32 @@ export default function FlowList({
                 </div>
               </CardHeader>
               <CardFooter className="flex flex-cols items-center justify-between">
-                <div className="flex flex-cols items-center gap-1">
-                  <Icon
-                    icon={
-                      project.icon
-                        ? project.icon
-                        : "solar:question-square-outline"
-                    }
-                    style={{ color: project?.color }}
-                    width={22}
-                  />
-                  <p>{project?.name}</p>
-                </div>
-                <div className="flex items-center">
-                  <Button isIconOnly color="warning" variant="light">
-                    <Icon icon="hugeicons:pencil-edit-02" width={20} />
-                  </Button>
-                  <Chip
-                    color={project.disabled ? "danger" : "success"}
-                    radius="sm"
-                    size="md"
-                    variant="light"
-                  >
-                    <p className="font-bold">
-                      {project.disabled ? "Disabled" : "Active"}
-                    </p>
-                  </Chip>
-                </div>
+                <Chip
+                  startContent={
+                    <Icon
+                      icon={
+                        project.icon
+                          ? project.icon
+                          : "solar:question-square-outline"
+                      }
+                      style={{ color: project?.color }}
+                      width={18}
+                    />
+                  }
+                  variant="flat"
+                >
+                  {project.name || "Unknown"}
+                </Chip>
+                <Chip
+                  color={project.disabled ? "danger" : "success"}
+                  radius="sm"
+                  size="md"
+                  variant="light"
+                >
+                  <p className="font-bold">
+                    {project.disabled ? "Disabled" : "Active"}
+                  </p>
+                </Chip>
               </CardFooter>
             </Card>
           );
