@@ -39,7 +39,7 @@
     "@tsparticles/react": "^3.0.0",
     "@tsparticles/slim": "^3.8.1",
     "@types/node": "20.5.7",
-    "@types/react": "18.3.3",
+    "@types/react": "19.0.12",
     "@types/react-dom": "19.0.1",
     "@typescript-eslint/eslint-plugin": "8.26.0",
     "@typescript-eslint/parser": "8.24.0",
