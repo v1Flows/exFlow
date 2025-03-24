@@ -59,9 +59,6 @@ export default function Project({
           </div>
         </div>
         <div className="flex flex-cols items-center gap-4">
-          <div className="mt-2 lg:mt-0 lg:justify-self-end">
-            <Reloader />
-          </div>
           <Button
             color="warning"
             isDisabled={checkEditDisabled()}
@@ -71,6 +68,9 @@ export default function Project({
           >
             Edit
           </Button>
+          <div className="mt-2 lg:mt-0 lg:justify-self-end">
+            <Reloader circle refresh={20} />
+          </div>
         </div>
       </div>
       <Spacer y={2} />

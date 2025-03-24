@@ -61,7 +61,10 @@ func UpdateFlow(context *gin.Context, db *bun.DB) {
 	if flow.RunnerID != "" {
 		columns = append(columns, "runner_id")
 	}
-	if flow.EncryptExecutions {
+	if flow.EncryptActionParams || !flow.EncryptActionParams {
+		columns = append(columns, "encrypt_action_params")
+	}
+	if flow.EncryptExecutions || !flow.EncryptExecutions {
 		columns = append(columns, "encrypt_executions")
 	}
 	columns = append(columns, "updated_at")

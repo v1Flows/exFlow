@@ -86,11 +86,11 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
           <div key={project.id} className="col-span-1">
             <Card
               fullWidth
+              className="bg-default-200 bg-opacity-20"
               isDisabled={project.disabled}
               isPressable={!project.disabled}
               style={{
                 border: `2px solid ${project.color}`,
-                backgroundColor: project.color + "30",
               }}
               onPress={() => {
                 router.push(`/projects/${project.id}`);

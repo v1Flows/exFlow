@@ -61,7 +61,7 @@ export default function FlowHeading({
               Execute
             </Button>
             <Divider className="h-10 mr-1 ml-1" orientation="vertical" />
-            <Reloader circle />
+            <Reloader circle refresh={20} />
             <Button
               color="warning"
               startContent={<Icon icon="hugeicons:pencil-edit-02" width={18} />}
@@ -108,7 +108,7 @@ export default function FlowHeading({
               }}
             />
             <Divider className="h-10 mr-1 ml-1" orientation="vertical" />
-            <Reloader circle />
+            <Reloader circle refresh={20} />
             <Button
               isIconOnly
               color="warning"

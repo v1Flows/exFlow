@@ -56,13 +56,8 @@ export default function EditFlowModal({
   const [runners, setRunners] = React.useState([]);
 
   useEffect(() => {
-    setName(flow.name);
-    setDescription(flow.description);
-    setProjectId(flow.project_id);
-    setRunnerId(flow.runner_id);
-    setRunnerLimit(flow.runner_id !== "any");
     getCurrentProjectRunners();
-  }, [flow]);
+  }, [disclosure.isOpen]);
 
   async function getCurrentProjectRunners() {
     const runners = await GetProjectRunners(flow.project_id);
@@ -91,12 +86,8 @@ export default function EditFlowModal({
       description,
       projectId,
       runnerLimit ? runnerId : "any",
-      flow.encrypt_alerts,
       flow.encrypt_executions,
       flow.encrypt_action_params,
-      flow.group_alerts,
-      flow.group_alerts_identifier,
-      flow.alert_threshold,
     )) as any;
 
     if (!response) {

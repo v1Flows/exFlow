@@ -4,13 +4,19 @@ import { CircularProgress, Progress } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import React from "react";
 
-export default function Reloader({ circle = false }: { circle?: boolean }) {
+export default function Reloader({
+  circle = false,
+  refresh = 50,
+}: {
+  circle?: boolean;
+  refresh?: number;
+}) {
   const [value, setValue] = React.useState(0);
   const router = useRouter();
 
   React.useEffect(() => {
     const interval = setInterval(() => {
-      setValue((v) => (v >= 100 ? 0 : v + 50));
+      setValue((v) => (v >= 100 ? 0 : v + refresh));
       if (value === 100) {
         clearInterval(interval);
         router.refresh();
