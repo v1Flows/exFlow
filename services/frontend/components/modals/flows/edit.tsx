@@ -56,13 +56,8 @@ export default function EditFlowModal({
   const [runners, setRunners] = React.useState([]);
 
   useEffect(() => {
-    setName(flow.name);
-    setDescription(flow.description);
-    setProjectId(flow.project_id);
-    setRunnerId(flow.runner_id);
-    setRunnerLimit(flow.runner_id !== "any");
     getCurrentProjectRunners();
-  }, [flow]);
+  }, [disclosure.isOpen]);
 
   async function getCurrentProjectRunners() {
     const runners = await GetProjectRunners(flow.project_id);

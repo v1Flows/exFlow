@@ -16,30 +16,15 @@ import ErrorCard from "@/components/error/ErrorCard";
 export default function FlowSettings({ flow }: { flow: any }) {
   const router = useRouter();
 
-  const [groupAlerts, setGroupAlerts] = useState(flow.group_alerts);
-  const [groupAlertsIdentifier, setGroupAlertsIdentifier] = useState(
-    flow.group_alerts_identifier,
-  );
-  const [encryptAlerts, setEncryptAlerts] = useState(flow.encrypt_alerts);
   const [encryptExecutions, setEncryptExecutions] = useState(
     flow.encrypt_executions,
   );
   const [encryptActionParams, setEncryptActionParams] = useState(
     flow.encrypt_action_params,
   );
-  const [alertThreshold, setAlertThreshold] = useState(flow.alert_threshold);
 
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-
-  useEffect(() => {
-    setEncryptAlerts(flow.encrypt_alerts);
-    setEncryptExecutions(flow.encrypt_executions);
-    setEncryptActionParams(flow.encrypt_action_params);
-    setGroupAlerts(flow.group_alerts);
-    setGroupAlertsIdentifier(flow.group_alerts_identifier);
-    setAlertThreshold(flow.alert_threshold);
-  }, [flow]);
 
   async function updateFlow() {
     const response = (await UpdateFlow(
@@ -48,12 +33,8 @@ export default function FlowSettings({ flow }: { flow: any }) {
       flow.description,
       flow.project_id,
       flow.runner_id,
-      encryptAlerts,
       encryptExecutions,
       encryptActionParams,
-      groupAlerts,
-      groupAlertsIdentifier,
-      alertThreshold,
     )) as any;
 
     if (!response) {
