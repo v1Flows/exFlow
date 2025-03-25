@@ -372,10 +372,10 @@ export default function Executions({
           <Tooltip content={new Date(cellValue).toLocaleString()}>
             {cellValue > new Date().toISOString() ? (
               <span className="text-warning font-bold">
-                <ReactTimeago date={new Date(cellValue)} locale="de-DE" />
+                <ReactTimeago date={new Date(cellValue)} />
               </span>
             ) : (
-              <ReactTimeago live date={new Date(cellValue)} locale="de-DE" />
+              <ReactTimeago live date={new Date(cellValue)} />
             )}
           </Tooltip>
         ) : (
@@ -384,13 +384,13 @@ export default function Executions({
       case "created_at":
         return (
           <Tooltip content={new Date(cellValue).toLocaleString()}>
-            <ReactTimeago date={new Date(cellValue)} locale="de-DE" />
+            <ReactTimeago date={new Date(cellValue)} />
           </Tooltip>
         );
       case "executed_at":
         return cellValue !== "0001-01-01T00:00:00Z" ? (
           <Tooltip content={new Date(cellValue).toLocaleString()}>
-            <ReactTimeago date={new Date(cellValue)} locale="de-DE" />
+            <ReactTimeago date={new Date(cellValue)} />
           </Tooltip>
         ) : (
           <span className="text-default-500">Not executed</span>
@@ -398,7 +398,7 @@ export default function Executions({
       case "finished_at":
         return cellValue !== "0001-01-01T00:00:00Z" ? (
           <Tooltip content={new Date(cellValue).toLocaleString()}>
-            <ReactTimeago date={new Date(cellValue)} locale="de-DE" />
+            <ReactTimeago date={new Date(cellValue)} />
           </Tooltip>
         ) : (
           <span className="text-default-500">Not executed</span>
