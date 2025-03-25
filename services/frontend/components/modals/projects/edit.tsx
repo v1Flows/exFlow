@@ -51,16 +51,12 @@ export default function EditProjectModal({
   const [errorMessage, setErrorMessage] = React.useState("");
 
   useEffect(() => {
-    setProjectIcon(project.icon);
-    setName(project.name);
-    setDescription(project.description);
-    setSharedRunners(project.shared_runners);
-    loadAllSolarIcons();
-  }, [project]);
+    loadAllHugeIcons();
+  }, [disclosure.isOpen]);
 
-  async function loadAllSolarIcons() {
-    await loadIcons(["solar:home-2-linear", "solar:atom-broken"]);
-    setIcons(() => listIcons("", "solar"));
+  async function loadAllHugeIcons() {
+    await loadIcons(["hugeicons:home-01", "hugeicons:ai-folder-02"]);
+    setIcons(() => listIcons("", "hugeicons"));
   }
 
   const handleIconChange = (e: any) => {

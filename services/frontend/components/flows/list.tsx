@@ -3,7 +3,6 @@
 import {
   Card,
   CardBody,
-  Button,
   Dropdown,
   DropdownMenu,
   DropdownSection,
@@ -13,13 +12,10 @@ import {
   CardHeader,
   CardFooter,
   Chip,
-  addToast,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-
-import APIStartExecution from "@/lib/fetch/executions/start";
 
 import DeleteFolderModal from "../modals/folders/delete";
 import UpdateFolderModal from "../modals/folders/update";
@@ -65,15 +61,8 @@ export default function FlowList({
 
   return (
     <main>
-      <p className="text-md font-bold text-default-500 mb-2">
-        Folders{" "}
-        {searchFolderID && (
-          <span className="text-primary font-bold">
-            | Current: {folders.find((f: any) => f.id === searchFolderID)?.name}
-          </span>
-        )}
-      </p>
-      <div className="grid grid-cols-4 gap-4 mb-4">
+      <p className="text-lg font-bold mb-2">Folders</p>
+      <div className="grid lg:grid-cols-4 grid-cols-2 md:grid-cols-3 gap-4 mb-4">
         {searchFolderID && (
           <Card
             fullWidth
@@ -158,15 +147,15 @@ export default function FlowList({
         )}
       </div>
 
-      <p className="text-md font-bold text-default-500 mb-2">
+      <p className="text-lg font-bold mb-2">
         Flows <span className="text-tiny">(in current folder)</span>
       </p>
 
-      <div className="flex flex-col gap-4">
-        {/* Running Flow Card */}
-        {filteredFlows.length === 0 && (
-          <p className="text-default-500 text-center">No flows found</p>
-        )}
+      {filteredFlows.length === 0 && (
+        <p className="text-default-500 text-center">No flows found</p>
+      )}
+
+      <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4">
         {filteredFlows.map((flow: any) => {
           const project = projects.find((p: any) => p.id === flow.project_id);
 
@@ -175,7 +164,7 @@ export default function FlowList({
               key={flow.id}
               fullWidth
               isPressable
-              className="bg-primary-500 bg-opacity-10 border-2 border-primary"
+              className="bg-default-200 bg-opacity-20 border-2 border-primary"
               onPress={() => router.push("/flows/" + flow.id)}
             >
               <CardHeader className="flex flex-cols items-center justify-between">
@@ -183,71 +172,34 @@ export default function FlowList({
                   <p className="font-bold text-lg">{flow.name}</p>
                   <p className="text-sm text-default-500">{flow.description}</p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    isIconOnly
-                    color="warning"
-                    variant="flat"
-                    onPress={() => {
-                      setTargetFlow(flow);
-                      scheduleExecutionModal.onOpen();
-                    }}
-                  >
-                    <Icon icon="hugeicons:calendar-02" width={16} />
-                  </Button>
-                  <Button
-                    isIconOnly
-                    color="success"
-                    variant="flat"
-                    onPress={() => {
-                      APIStartExecution(flow.id)
-                        .then(() => {
-                          addToast({
-                            title: "Execution Started",
-                            color: "success",
-                          });
-                        })
-                        .catch((err) => {
-                          addToast({
-                            title: "Execution start failed",
-                            description: err.message,
-                            color: "danger",
-                          });
-                        });
-                    }}
-                  >
-                    <Icon icon="solar:play-linear" />
-                  </Button>
-                </div>
               </CardHeader>
               <CardFooter className="flex flex-cols items-center justify-between">
-                <div className="flex flex-cols items-center gap-1">
-                  <Icon
-                    icon={
-                      project.icon
-                        ? project.icon
-                        : "solar:question-square-outline"
-                    }
-                    style={{ color: project?.color }}
-                    width={22}
-                  />
-                  <p>{project?.name}</p>
-                </div>
-                <div className="flex items-center">
-                  <Button isIconOnly color="warning" variant="light">
-                    <Icon icon="hugeicons:pencil-edit-02" width={20} />
-                  </Button>
-                  <Chip
-                    color={project.disabled ? "danger" : "success"}
-                    radius="sm"
-                    size="md"
-                    variant="light"
-                  >
-                    <p className="font-bold">
-                      {project.disabled ? "Disabled" : "Active"}
-                    </p>
-                  </Chip>
-                </div>
+                <Chip
+                  startContent={
+                    <Icon
+                      icon={
+                        project.icon
+                          ? project.icon
+                          : "solar:question-square-outline"
+                      }
+                      style={{ color: project?.color }}
+                      width={18}
+                    />
+                  }
+                  variant="bordered"
+                >
+                  {project.name || "Unknown"}
+                </Chip>
+                <Chip
+                  color={project.disabled ? "danger" : "success"}
+                  radius="sm"
+                  size="md"
+                  variant="light"
+                >
+                  <p className="font-bold">
+                    {project.disabled ? "Disabled" : "Active"}
+                  </p>
+                </Chip>
               </CardFooter>
             </Card>
           );

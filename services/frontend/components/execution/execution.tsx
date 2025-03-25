@@ -713,7 +713,7 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
             execution.status === "scheduled" ||
             execution.status === "interactionWaiting") && (
             <div>
-              <Reloader />
+              <Reloader circle />
             </div>
           )}
         </div>
