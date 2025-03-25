@@ -5,6 +5,10 @@ import {
   addToast,
   Button,
   ButtonGroup,
+  Card,
+  CardBody,
+  Chip,
+  Divider,
   Input,
   Modal,
   ModalBody,
@@ -12,9 +16,11 @@ import {
   ModalFooter,
   ModalHeader,
   Radio,
+  ScrollShadow,
+  Select,
+  SelectItem,
   Spacer,
   Textarea,
-  Tooltip,
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -57,13 +63,37 @@ export default function EditActionModal({
 
   const [isLoading, setLoading] = useState(false);
   const [action, setAction] = useState({} as any);
+  const [actionParamsCategorys, setActionParamsCategorys] = useState([] as any);
   const [error, setError] = React.useState(false);
   const [errorText, setErrorText] = React.useState("");
   const [errorMessage, setErrorMessage] = React.useState("");
 
   useEffect(() => {
+    if (!targetAction) {
+      return;
+    }
+
     setAction(targetAction);
+    getParamsCategorys(targetAction.params);
   }, [targetAction]);
+
+  function getParamsCategorys(params: any) {
+    const categories = new Set();
+
+    if (!params) {
+      return;
+    }
+
+    params.map((param: any) => {
+      if (param.category !== "") {
+        categories.add(param.category);
+      } else {
+        categories.add("Uncategorized");
+      }
+    });
+
+    setActionParamsCategorys(Array.from(categories));
+  }
 
   function cancel() {
     onOpenChange();
@@ -131,15 +161,50 @@ export default function EditActionModal({
           {() => (
             <>
               <ModalHeader className="flex flex-wrap items-center">
-                <div className="flex flex-col">
-                  <p className="text-lg font-bold">Edit Action</p>
-                  <p className="text-sm text-default-500">{action.id}</p>
-                </div>
+                <p className="text-lg font-bold">Edit Action</p>
               </ModalHeader>
               <ModalBody>
                 {error && (
                   <ErrorCard error={errorText} message={errorMessage} />
                 )}
+                <Card
+                  className="border-2 border-default-200 border-primary"
+                  radius="sm"
+                >
+                  <CardBody>
+                    <div className="flex items-center gap-2">
+                      <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
+                        <Icon icon={action.icon} width={26} />
+                      </div>
+                      <div className="flex flex-col">
+                        <div className="flex flex-cols gap-2 items-center">
+                          <p className="text-lg font-bold">
+                            {action.custom_name || action.name}
+                          </p>
+                          <Chip
+                            color="primary"
+                            radius="sm"
+                            size="sm"
+                            variant="flat"
+                          >
+                            Ver. {action.version}
+                          </Chip>
+                          <Chip
+                            color="default"
+                            radius="sm"
+                            size="sm"
+                            variant="flat"
+                          >
+                            ID. {action.id}
+                          </Chip>
+                        </div>
+                        <p className="text-sm text-default-500">
+                          {action.custom_description || action.description}
+                        </p>
+                      </div>
+                    </div>
+                  </CardBody>
+                </Card>
                 <div className="flex w-full flex-col gap-4">
                   {/* Status */}
                   <div className="flex flex-col">
@@ -147,13 +212,6 @@ export default function EditActionModal({
                       <p className="text-lg font-bold text-default-500">
                         Status
                       </p>
-                      <Tooltip content="Defined Actions will either be executed one after the other or all in parallel. If in Sequential type one action fails, the others won't be processed anymore.">
-                        <Icon
-                          className="text-default-500"
-                          icon="solar:info-circle-linear"
-                          width={18}
-                        />
-                      </Tooltip>
                     </div>
                     <Spacer y={2} />
                     <div>
@@ -188,7 +246,7 @@ export default function EditActionModal({
                     </div>
                   </div>
                   <div>
-                    <p className="text-lg font-bold text-default-500">
+                    <p className="text-lg font-bold text-default-600">
                       Details
                     </p>
                     <Spacer y={2} />
@@ -212,96 +270,134 @@ export default function EditActionModal({
                         }
                       />
                     </div>
-                    <p className="text-lg font-bold text-default-500">
+                    <p className="text-lg font-bold text-default-600">
                       Parameters
                     </p>
                     <Spacer y={2} />
-                    {action.params && action.params.length > 0 ? (
-                      <div className="grid grid-cols-2 gap-2">
-                        {action.params.map((param: any) => {
-                          return param.type === "text" ||
-                            param.type === "number" ||
-                            param.type === "boolean" ? (
-                            <Input
-                              key={param.key}
-                              description={param.description}
-                              isRequired={param.required}
-                              label={param.key}
-                              type={param.type}
-                              value={
-                                action.params.find(
-                                  (x: any) => x.key === param.key,
-                                )?.value || ""
-                              }
-                              onValueChange={(e) => {
-                                setAction({
-                                  ...action,
-                                  params: action.params.map((x: any) => {
-                                    if (x.key === param.key) {
-                                      return { ...x, value: e };
-                                    }
+                    <ScrollShadow className="max-h-[600px]">
+                      {actionParamsCategorys.length > 0 ? (
+                        <div className="flex flex-col w-full gap-2">
+                          {actionParamsCategorys.map((category: any) => (
+                            <div key={category}>
+                              <p className="font-semibold text-default-500 mb-2">
+                                {category}
+                              </p>
+                              <div className="grid grid-cols-2 gap-2">
+                                {action.params.map((param: any) => {
+                                  return (param.category || "Uncategorized") ===
+                                    category ? (
+                                    param.type === "text" ||
+                                    param.type === "number" ? (
+                                      <Input
+                                        key={param.key}
+                                        description={param?.description}
+                                        isRequired={param.required}
+                                        label={param.title || param.key}
+                                        type={param.type}
+                                        value={param.value}
+                                        onValueChange={(e) => {
+                                          setAction({
+                                            ...action,
+                                            params: action.params.map(
+                                              (x: any) => {
+                                                if (x.key === param.key) {
+                                                  return { ...x, value: e };
+                                                }
 
-                                    return x;
-                                  }),
-                                });
-                              }}
-                            />
-                          ) : param.type === "textarea" ? (
-                            <Textarea
-                              key={param.key}
-                              description={param.description}
-                              isRequired={param.required}
-                              label={param.key}
-                              type={param.type}
-                              value={
-                                action.params.find(
-                                  (x: any) => x.key === param.key,
-                                )?.value || ""
-                              }
-                              onValueChange={(e) => {
-                                setAction({
-                                  ...action,
-                                  params: action.params.map((x: any) => {
-                                    if (x.key === param.key) {
-                                      return { ...x, value: e };
-                                    }
+                                                return x;
+                                              },
+                                            ),
+                                          });
+                                        }}
+                                      />
+                                    ) : param.type === "boolean" ? (
+                                      <Select
+                                        key={param.key}
+                                        description={param?.description}
+                                        isRequired={param.required}
+                                        label={param.title || param.key}
+                                        selectedKeys={[param.value]}
+                                        onSelectionChange={(e) => {
+                                          const value = Array.from(e).join("");
 
-                                    return x;
-                                  }),
-                                });
-                              }}
-                            />
-                          ) : param.type === "password" ? (
-                            <Input
-                              key={param.key}
-                              description={param?.description}
-                              isRequired={param.required}
-                              label={param.key}
-                              type={param.type}
-                              value={
-                                action.params.find(
-                                  (x: any) => x.key === param.key,
-                                )?.value || ""
-                              }
-                              onValueChange={(e) => {
-                                setAction({
-                                  ...action,
-                                  params: action.params.map((x: any) => {
-                                    if (x.key === param.key) {
-                                      return { ...x, value: e };
-                                    }
+                                          setAction({
+                                            ...action,
+                                            params: action.params.map(
+                                              (x: any) => {
+                                                if (x.key === param.key) {
+                                                  return { ...x, value };
+                                                }
 
-                                    return x;
-                                  }),
-                                });
-                              }}
-                            />
-                          ) : null;
-                        })}
-                      </div>
-                    ) : (
-                      <p>No parameters for this action found.</p>
-                    )}
+                                                return x;
+                                              },
+                                            ),
+                                          });
+                                        }}
+                                      >
+                                        <SelectItem key="true">true</SelectItem>
+                                        <SelectItem key="false">
+                                          false
+                                        </SelectItem>
+                                      </Select>
+                                    ) : param.type === "textarea" ? (
+                                      <Textarea
+                                        key={param.key}
+                                        className="col-span-2"
+                                        description={param?.description}
+                                        isRequired={param.required}
+                                        label={param.title || param.key}
+                                        type={param.type}
+                                        value={param.value}
+                                        onValueChange={(e) => {
+                                          setAction({
+                                            ...action,
+                                            params: action.params.map(
+                                              (x: any) => {
+                                                if (x.key === param.key) {
+                                                  return { ...x, value: e };
+                                                }
+
+                                                return x;
+                                              },
+                                            ),
+                                          });
+                                        }}
+                                      />
+                                    ) : param.type === "password" ? (
+                                      <Input
+                                        key={param.key}
+                                        description={param?.description}
+                                        isRequired={param.required}
+                                        label={param.title || param.key}
+                                        type={param.type}
+                                        value={param.value}
+                                        onValueChange={(e) => {
+                                          setAction({
+                                            ...action,
+                                            params: action.params.map(
+                                              (x: any) => {
+                                                if (x.key === param.key) {
+                                                  return { ...x, value: e };
+                                                }
+
+                                                return x;
+                                              },
+                                            ),
+                                          });
+                                        }}
+                                      />
+                                    ) : null
+                                  ) : null;
+                                })}
+                              </div>
+                              <Divider className="mb-2 mt-2" />
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p>No parameters for this action found.</p>
+                      )}
+                    </ScrollShadow>
                   </div>
                 </div>
               </ModalBody>
