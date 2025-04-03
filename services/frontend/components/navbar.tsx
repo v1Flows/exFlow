@@ -16,6 +16,7 @@ import {
   Avatar,
   Input,
   addToast,
+  Image,
 } from "@heroui/react";
 import { link as linkStyles } from "@heroui/theme";
 import NextLink from "next/link";
@@ -27,7 +28,7 @@ import { useState } from "react";
 
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
-import { SearchIcon, Logo } from "@/components/icons";
+import { SearchIcon } from "@/components/icons";
 import { Logout } from "@/lib/logout";
 
 export const Navbar = ({ userDetails, session }) => {
@@ -86,7 +87,14 @@ export const Navbar = ({ userDetails, session }) => {
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
         <NavbarBrand as="li" className="gap-3 max-w-fit">
           <NextLink className="flex justify-start items-center gap-1" href="/">
-            <Logo />
+            <Image
+              alt="Logo"
+              height={28}
+              radius="none"
+              shadow="none"
+              src={`/images/ef_logo_512.png`}
+              width={28}
+            />
             <p className="font-bold text-inherit">exFlow</p>
           </NextLink>
         </NavbarBrand>
