@@ -44,7 +44,7 @@
     "@typescript-eslint/eslint-plugin": "8.29.0",
     "@typescript-eslint/parser": "8.24.0",
     "@uiw/react-markdown-editor": "^6.1.2",
-    "autoprefixer": "10.4.20",
+    "autoprefixer": "10.4.21",
     "clsx": "2.1.1",
     "cmdk": "^1.1.1",
     "cobe": "^0.6.3",
