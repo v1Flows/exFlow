@@ -253,8 +253,8 @@ importers:
         specifier: ^1.33.0
         version: 1.33.0(eslint@9.22.0(jiti@1.21.7))(ts-api-utils@2.1.0(typescript@5.7.3))(typescript@5.7.3)
       '@next/eslint-plugin-next':
-        specifier: 15.1.7
-        version: 15.1.7
+        specifier: 15.3.0
+        version: 15.3.0
       '@types/lodash':
         specifier: ^4.17.16
         version: 4.17.16
@@ -1877,11 +1877,11 @@ packages:
   '@next/env@15.2.3':
     resolution: {integrity: sha512-a26KnbW9DFEUsSxAxKBORR/uD9THoYoKbkpFywMN/AFvboTt94b8+g/07T8J6ACsdLag8/PDU60ov4rPxRAixw==}
 
-  '@next/eslint-plugin-next@15.1.7':
-    resolution: {integrity: sha512-kRP7RjSxfTO13NE317ek3mSGzoZlI33nc/i5hs1KaWpK+egs85xg0DJ4p32QEiHnR0mVjuUfhRIun7awqfL7pQ==}
-
   '@next/eslint-plugin-next@15.2.1':
     resolution: {integrity: sha512-6ppeToFd02z38SllzWxayLxjjNfzvc7Wm07gQOKSLjyASvKcXjNStZrLXMHuaWkhjqxe+cnhb2uzfWXm1VEj/Q==}
+
+  '@next/eslint-plugin-next@15.3.0':
+    resolution: {integrity: sha512-511UUcpWw5GWTyKfzW58U2F/bYJyjLE9e3SlnGK/zSXq7RqLlqFO8B9bitJjumLpj317fycC96KZ2RZsjGNfBw==}
 
   '@next/swc-darwin-arm64@15.2.3':
     resolution: {integrity: sha512-uaBhA8aLbXLqwjnsHSkxs353WrRgQgiFjduDpc7YXEU0B54IKx3vU+cxQlYwPCyC8uYEEX7THhtQQsfHnvv8dw==}
@@ -9321,11 +9321,11 @@ snapshots:
 
   '@next/env@15.2.3': {}
 
-  '@next/eslint-plugin-next@15.1.7':
+  '@next/eslint-plugin-next@15.2.1':
     dependencies:
       fast-glob: 3.3.1
 
-  '@next/eslint-plugin-next@15.2.1':
+  '@next/eslint-plugin-next@15.3.0':
     dependencies:
       fast-glob: 3.3.1
 
