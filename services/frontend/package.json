@@ -19,7 +19,7 @@
     "@eslint/eslintrc": "^3.3.0",
     "@eslint/js": "^9.22.0",
     "@heroui/framer-utils": "2.1.12",
-    "@heroui/react": "2.7.5",
+    "@heroui/react": "2.7.6",
     "@heroui/system": "2.4.12",
     "@heroui/theme": "2.4.12",
     "@heroui/use-disclosure": "2.2.8",
