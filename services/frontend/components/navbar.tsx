@@ -125,7 +125,7 @@ export const Navbar = ({ userDetails, session }) => {
             <DropdownTrigger>
               <Button
                 disableRipple
-                className="p-0 bg-transparent data-[hover=true]:bg-transparent"
+                className="p-0 bg-transparent data-[hover=true]:bg-transparent font-bold"
                 color="danger"
                 endContent={<Icon icon="hugeicons:arrow-down-01" />}
                 radius="sm"
@@ -142,34 +142,50 @@ export const Navbar = ({ userDetails, session }) => {
             }}
           >
             <DropdownItem
-              key="autoscaling"
-              description="ACME scales apps based on demand and load"
+              key="projects"
+              description="Manage all projects"
+              startContent={<Icon icon="hugeicons:ai-folder-01" width={22} />}
             >
-              Autoscaling
+              Projects
             </DropdownItem>
             <DropdownItem
-              key="usage_metrics"
-              description="Real-time metrics to debug issues"
+              key="flows"
+              description="Manage all flows"
+              startContent={
+                <Icon icon="hugeicons:workflow-square-10" width={22} />
+              }
             >
-              Usage Metrics
+              Flows
             </DropdownItem>
             <DropdownItem
-              key="production_ready"
-              description="ACME runs on ACME, join us at web scale"
+              key="executions"
+              description="Manage all executions"
+              startContent={<Icon icon="hugeicons:rocket-02" width={22} />}
             >
-              Production Ready
+              Executions
             </DropdownItem>
             <DropdownItem
-              key="99_uptime"
-              description="High availability and uptime guarantees"
+              key="runners"
+              description="Manage all runners"
+              startContent={<Icon icon="hugeicons:ai-brain-04" width={22} />}
             >
-              +99% Uptime
+              Runners
             </DropdownItem>
             <DropdownItem
-              key="supreme_support"
-              description="Support team ready to respond"
+              key="users"
+              description="Manage all users"
+              startContent={
+                <Icon icon="hugeicons:location-user-02" width={22} />
+              }
             >
-              +Supreme Support
+              Users
+            </DropdownItem>
+            <DropdownItem
+              key="page_settings"
+              description="Manage the page settings"
+              startContent={<Icon icon="hugeicons:settings-05" width={22} />}
+            >
+              Page Settings
             </DropdownItem>
           </DropdownMenu>
         </Dropdown>
