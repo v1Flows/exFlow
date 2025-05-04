@@ -1,5 +1,6 @@
 import type { UseDisclosureReturn } from "@heroui/use-disclosure";
 
+import { isMobile } from "react-device-detect";
 import { Icon } from "@iconify/react";
 import {
   addToast,
@@ -82,7 +83,7 @@ export default function AddActionModal({
 
   // pagination
   const [actionPage, setActionPage] = useState(1);
-  const rowsPerPage = 6;
+  const rowsPerPage = isMobile ? 2 : 6;
   const actionItems = React.useMemo(() => {
     const start = (actionPage - 1) * rowsPerPage;
     const end = start + rowsPerPage;
@@ -395,7 +396,7 @@ export default function AddActionModal({
                         <Spacer y={2} />
                         <p className="text-sm text-default-500">Categories</p>
                         <Spacer y={1} />
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 overflow-x-auto">
                           {availableCategories.map((category: any) => (
                             <Chip
                               key={category}
@@ -430,7 +431,7 @@ export default function AddActionModal({
                           onValueChange={setSearch}
                         />
                         <Spacer y={2} />
-                        <div className="grid grid-cols-2 items-stretch gap-4">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 items-stretch gap-4">
                           {actionItems.map((act: any) => (
                             <Card
                               key={act.type}
