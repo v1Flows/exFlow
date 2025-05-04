@@ -57,7 +57,6 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
   };
 
   function checkUserEditPermissions(project: any) {
-    console.log(project);
     if (
       project.members.find((member: any) => member.user_id === user.id).role ===
       "Viewer"
@@ -172,10 +171,10 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
                         : "solar:question-square-outline"
                     }
                     style={{ color: project.color }}
-                    width={69}
+                    width={48}
                   />
                   <div className="flex flex-col items-center">
-                    <p className="text-2xl font-bold">{project.name}</p>
+                    <p className="text-xl font-bold">{project.name}</p>
                     <p className="text-md text-default-500">
                       {project.description.length > 50 ? (
                         <Tooltip
