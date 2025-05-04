@@ -1,5 +1,3 @@
-import { version } from "os";
-
 export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {

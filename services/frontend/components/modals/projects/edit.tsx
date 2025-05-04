@@ -52,7 +52,11 @@ export default function EditProjectModal({
 
   useEffect(() => {
     loadAllHugeIcons();
-  }, [disclosure.isOpen]);
+    setProjectIcon(project.icon);
+    setName(project.name);
+    setDescription(project.description);
+    setSharedRunners(project.shared_runners);
+  }, [disclosure.isOpen, project]);
 
   async function loadAllHugeIcons() {
     await loadIcons(["hugeicons:home-01", "hugeicons:ai-folder-02"]);

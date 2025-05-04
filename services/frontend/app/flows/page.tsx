@@ -5,16 +5,19 @@ import GetFlows from "@/lib/fetch/flow/all";
 import GetFolders from "@/lib/fetch/folder/all";
 import FlowsHeading from "@/components/flows/heading";
 import GetProjects from "@/lib/fetch/project/all";
+import GetRunningExecutions from "@/lib/fetch/executions/running";
 
 export default async function FlowsPage() {
   const flowsData = await GetFlows();
   const foldersData = await GetFolders();
   const projectsData = await GetProjects();
+  const runningExecutionsData = await GetRunningExecutions();
 
-  const [flows, folders, projects] = await Promise.all([
+  const [flows, folders, projects, runningExecutions] = await Promise.all([
     flowsData,
     foldersData,
     projectsData,
+    runningExecutionsData,
   ]);
 
   return (
@@ -30,6 +33,9 @@ export default async function FlowsPage() {
             flows={flows.data.flows}
             folders={folders.data.folders}
             projects={projects.data.projects}
+            runningExecutions={
+              runningExecutions.success ? runningExecutions.data : []
+            }
           />
         </>
       )}

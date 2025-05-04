@@ -3,8 +3,6 @@ import { Icon } from "@iconify/react";
 import {
   addToast,
   Alert,
-  Avatar,
-  AvatarGroup,
   Button,
   Card,
   CardBody,
@@ -22,7 +20,7 @@ import {
   useDisclosure,
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
 
 import CreateProjectModal from "@/components/modals/projects/create";
 import DeleteProjectModal from "@/components/modals/projects/delete";
@@ -34,7 +32,7 @@ import SparklesText from "@/components/magicui/sparkles-text";
 export function ProjectsList({ projects, pending_projects, user }: any) {
   const router = useRouter();
 
-  const [targetProject, setTargetProject] = React.useState({});
+  const [targetProject, setTargetProject] = useState({});
   const newProjectModal = useDisclosure();
   const editProjectModal = useDisclosure();
   const deleteProjectModal = useDisclosure();
@@ -59,6 +57,7 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
   };
 
   function checkUserEditPermissions(project: any) {
+    console.log(project);
     if (
       project.members.find((member: any) => member.user_id === user.id).role ===
       "Viewer"
@@ -81,50 +80,30 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
           <Spacer y={4} />
         </>
       )}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
         {projects.map((project: any) => (
           <div key={project.id} className="col-span-1">
             <Card
               fullWidth
-              className="bg-default-200 bg-opacity-20"
+              isHoverable
+              className="bg-default-200 bg-opacity-20 border-1 border-default-300"
               isDisabled={project.disabled}
               isPressable={!project.disabled}
-              style={{
-                border: `2px solid ${project.color}`,
-              }}
               onPress={() => {
                 router.push(`/projects/${project.id}`);
               }}
             >
-              <CardHeader className="flex items-start justify-between">
-                <div className="flex flex-cols items-center gap-2">
-                  <Icon
-                    icon={
-                      project.icon
-                        ? project.icon
-                        : "solar:question-square-outline"
-                    }
-                    width={28}
-                  />
-                  <div className="flex flex-col items-start">
-                    <p className="text-lg font-bold">{project.name}</p>
-                    <p className="text-sm text-default-500">
-                      {project.description.length > 50 ? (
-                        <Tooltip
-                          content={project.description}
-                          style={{ maxWidth: "450px" }}
-                        >
-                          <span>
-                            {project.description.slice(0, 50)}
-                            ...
-                          </span>
-                        </Tooltip>
-                      ) : (
-                        project.description
-                      )}
-                    </p>
-                  </div>
-                </div>
+              <CardHeader className="flex items-center justify-between">
+                <Chip
+                  color={project.disabled ? "danger" : "success"}
+                  radius="sm"
+                  size="md"
+                  variant="light"
+                >
+                  <p className="font-bold">
+                    {project.disabled ? "Disabled" : "Active"}
+                  </p>
+                </Chip>
                 <Dropdown backdrop="opaque">
                   <DropdownTrigger>
                     <Icon
@@ -185,31 +164,36 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
                 </Dropdown>
               </CardHeader>
               <CardBody>
+                <div className="flex flex-col items-center gap-2">
+                  <Icon
+                    icon={
+                      project.icon
+                        ? project.icon
+                        : "solar:question-square-outline"
+                    }
+                    style={{ color: project.color }}
+                    width={69}
+                  />
+                  <div className="flex flex-col items-center">
+                    <p className="text-2xl font-bold">{project.name}</p>
+                    <p className="text-md text-default-500">
+                      {project.description.length > 50 ? (
+                        <Tooltip
+                          content={project.description}
+                          style={{ maxWidth: "450px" }}
+                        >
+                          <span>
+                            {project.description.slice(0, 50)}
+                            ...
+                          </span>
+                        </Tooltip>
+                      ) : (
+                        project.description
+                      )}
+                    </p>
+                  </div>
+                </div>
                 <div className="flex flex-cols items-center justify-between gap-2">
-                  <AvatarGroup isBordered className="pl-5" size="sm">
-                    {project.members
-                      .map((member: any) => (
-                        <div key={member.user_id}>
-                          <Tooltip content={member.username}>
-                            <Avatar
-                              key={member.user_id}
-                              showFallback
-                              className="w-6 h-6 text-tiny"
-                              color={
-                                member.role === "Owner"
-                                  ? "danger"
-                                  : member.role === "Editor"
-                                    ? "primary"
-                                    : "default"
-                              }
-                              name={member.username}
-                              radius="sm"
-                            />
-                          </Tooltip>
-                        </div>
-                      ))
-                      .slice(0, 5)}
-                  </AvatarGroup>
                   {project.disabled && (
                     <Alert
                       color="danger"
@@ -218,16 +202,6 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
                       variant="flat"
                     />
                   )}
-                  <Chip
-                    color={project.disabled ? "danger" : "success"}
-                    radius="sm"
-                    size="md"
-                    variant="light"
-                  >
-                    <p className="font-bold">
-                      {project.disabled ? "Disabled" : "Active"}
-                    </p>
-                  </Chip>
                 </div>
               </CardBody>
             </Card>

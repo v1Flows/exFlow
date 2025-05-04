@@ -30,25 +30,25 @@ export default function FlowsHeading({
   return (
     <main>
       <div className="grid grid-cols-2 items-center justify-between gap-2 lg:grid-cols-2">
-        <div>
-          <p className="text-2xl font-bold">Flows</p>
-          <Breadcrumbs variant="light">
-            <BreadcrumbItem
-              href="/flows"
-              startContent={
-                <Icon icon="hugeicons:workflow-square-10" width={16} />
-              }
-            >
-              Flows
-            </BreadcrumbItem>
-            {searchFolderID && (
+        <div className="flex flex-cols items-center gap-2">
+          <p className="text-2xl font-bold mb-1">Flows</p>
+          {searchFolderID && (
+            <Breadcrumbs variant="solid">
+              <BreadcrumbItem
+                href="/flows"
+                startContent={
+                  <Icon icon="hugeicons:workflow-square-10" width={16} />
+                }
+              >
+                Flows
+              </BreadcrumbItem>
               <BreadcrumbItem
                 startContent={<Icon icon="hugeicons:folder-01" width={16} />}
               >
                 {folders.find((f: any) => f.id === searchFolderID)?.name}
               </BreadcrumbItem>
-            )}
-          </Breadcrumbs>
+            </Breadcrumbs>
+          )}
         </div>
         <div className="flex flex-cols justify-end gap-2">
           <Button isIconOnly variant="ghost">

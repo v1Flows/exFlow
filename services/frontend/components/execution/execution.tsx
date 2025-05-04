@@ -466,7 +466,7 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
                 <p>Step not started yet</p>
               ) : (
                 <div className="flex flex-col gap-2">
-                  <ScrollShadow className="flex flex-col max-h-[600px] w-full justify-end">
+                  <ScrollShadow className="flex flex-col max-h-[600px] w-full justify-end pb-6">
                     <Snippet
                       hideCopyButton
                       hideSymbol
@@ -479,10 +479,6 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
                             key={index}
                             className={`container flex-cols font-semibold flex items-center gap-1 text-${lineColor(line)}`}
                           >
-                            <Icon
-                              icon="hugeicons:arrow-right-double"
-                              width={16}
-                            />
                             <p>{line.content}</p>
                           </div>
                         )),

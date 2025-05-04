@@ -24,7 +24,6 @@ export default function ProjectTokens({
   tokens,
   project,
   settings,
-  members,
   user,
 }: any) {
   const [targetToken, setTargetToken] = React.useState({} as any);
@@ -67,8 +66,9 @@ export default function ProjectTokens({
     } else if (user.role === "admin") {
       return false;
     } else if (
-      members.find((m: any) => m.user_id === user.id) &&
-      members.filter((m: any) => m.user_id === user.id)[0].role === "Viewer"
+      project.members.find((m: any) => m.user_id === user.id) &&
+      project.members.filter((m: any) => m.user_id === user.id)[0].role ===
+        "Viewer"
     ) {
       return true;
     }
@@ -102,9 +102,12 @@ export default function ProjectTokens({
                     width={20}
                     onClick={() => {
                       if (
-                        members.find((m: any) => m.user_id === user.id) &&
-                        members.filter((m: any) => m.user_id === user.id)[0]
-                          .role !== "Viewer"
+                        project.members.find(
+                          (m: any) => m.user_id === user.id,
+                        ) &&
+                        project.members.filter(
+                          (m: any) => m.user_id === user.id,
+                        )[0].role !== "Viewer"
                       ) {
                         key.disabled = true;
                         setTargetToken(key);
@@ -123,9 +126,12 @@ export default function ProjectTokens({
                     width={20}
                     onClick={() => {
                       if (
-                        members.find((m: any) => m.user_id === user.id) &&
-                        members.filter((m: any) => m.user_id === user.id)[0]
-                          .role !== "Viewer"
+                        project.members.find(
+                          (m: any) => m.user_id === user.id,
+                        ) &&
+                        project.members.filter(
+                          (m: any) => m.user_id === user.id,
+                        )[0].role !== "Viewer"
                       ) {
                         key.disabled = false;
                         setTargetToken(key);
@@ -143,9 +149,10 @@ export default function ProjectTokens({
                   width={20}
                   onClick={() => {
                     if (
-                      members.find((m: any) => m.user_id === user.id) &&
-                      members.filter((m: any) => m.user_id === user.id)[0]
-                        .role !== "Viewer"
+                      project.members.find((m: any) => m.user_id === user.id) &&
+                      project.members.filter(
+                        (m: any) => m.user_id === user.id,
+                      )[0].role !== "Viewer"
                     ) {
                       setTargetToken(key);
 
