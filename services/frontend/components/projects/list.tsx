@@ -57,7 +57,6 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
   };
 
   function checkUserEditPermissions(project: any) {
-    console.log(project);
     if (
       project.members.find((member: any) => member.user_id === user.id).role ===
       "Viewer"
