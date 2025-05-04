@@ -59,11 +59,11 @@ export default function LoginPageComponent() {
       <div className="flex flex-col items-center pb-2">
         <Image
           alt="Logo"
-          height={32}
+          height={28}
           radius="none"
           shadow="none"
-          src={`/images/af_logo_${theme === "light" || isSSR ? "black" : "white"}.png`}
-          width={32}
+          src={`/images/ef_logo_512.png`}
+          width={28}
         />
         <p className="text-xl font-medium">Welcome Back</p>
         <p className="text-small text-default-500">
