@@ -23,3 +23,8 @@ type Projects struct {
 	DisableRunnerJoin   bool      `bun:"disable_runner_join,type:bool,default:false" json:"disable_runner_join"`
 	RunnerAutoJoinToken string    `bun:"runner_auto_join_token,type:text,notnull" json:"runner_auto_join_token"`
 }
+
+type ProjectsWithMembers struct {
+	Projects
+	Members []ProjectMembers `json:"members"`
+}

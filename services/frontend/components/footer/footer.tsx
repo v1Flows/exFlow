@@ -1,12 +1,10 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { Link, Spacer } from "@heroui/react";
+import { Link, Spacer, Image } from "@heroui/react";
 import React from "react";
 
 import { siteConfig } from "@/config/site";
-
-import { Logo } from "../icons";
 
 const navLinks = [
   {
@@ -24,8 +22,15 @@ export default function Footer() {
     <footer className="sticky top-[100vh] flex w-full flex-col">
       <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-center px-6 py-12 lg:px-8">
         <div className="flex items-center justify-center">
-          <Logo />
-          <span className="text-medium font-medium">exFlow</span>
+          <Image
+            alt="Logo"
+            height={28}
+            radius="none"
+            shadow="none"
+            src={`/images/ef_logo_512.png`}
+            width={28}
+          />
+          <span className="text-medium font-medium pl-1">exFlow</span>
         </div>
         <Spacer y={4} />
         <div className="flex flex-wrap justify-center gap-x-4 gap-y-1">

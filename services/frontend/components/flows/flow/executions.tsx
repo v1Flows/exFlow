@@ -121,7 +121,7 @@ export default function Executions({
 
   function statusColor(execution: any) {
     if (execution.status === "scheduled") {
-      return "warning";
+      return "secondary";
     } else if (execution.status === "pending") {
       return "default-500";
     } else if (execution.status === "running") {
@@ -149,13 +149,13 @@ export default function Executions({
         <CircularProgress
           showValueLabel
           aria-label="Step"
-          color="warning"
+          color="secondary"
           size="md"
           value={100}
           valueLabel={
             <Icon
-              className="text-warning-500"
-              icon="hugeicons:calendar-02"
+              className="text-secondary-500"
+              icon="hugeicons:time-schedule"
               width={20}
             />
           }
@@ -371,7 +371,7 @@ export default function Executions({
         return cellValue !== "0001-01-01T00:00:00Z" ? (
           <Tooltip content={new Date(cellValue).toLocaleString()}>
             {cellValue > new Date().toISOString() ? (
-              <span className="text-warning font-bold">
+              <span className="text-secondary font-bold">
                 <ReactTimeago date={new Date(cellValue)} locale="de-DE" />
               </span>
             ) : (
@@ -467,7 +467,7 @@ export default function Executions({
             isPressable
             className={
               statusFilter.has("scheduled")
-                ? "w-[240px] grow bg-warning/50"
+                ? "w-[240px] grow bg-secondary/50"
                 : "w-[240px] grow"
             }
             onPress={() => {
@@ -484,8 +484,8 @@ export default function Executions({
           >
             <CardBody>
               <div className="flex items-center gap-2">
-                <div className="flex size-10 items-center justify-center rounded-small bg-warning/10 text-warning-500">
-                  <Icon icon="hugeicons:time-quarter-pass" width={20} />
+                <div className="flex size-10 items-center justify-center rounded-small bg-secondary/10 text-secondary-500">
+                  <Icon icon="hugeicons:time-schedule" width={20} />
                 </div>
                 <div>
                   <p className="text-md font-bold">

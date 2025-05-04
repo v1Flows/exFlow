@@ -29,12 +29,7 @@ const statusColorMap: any = {
   Viewer: "default",
 };
 
-export default function ProjectMembers({
-  project,
-  members,
-  settings,
-  user,
-}: any) {
+export default function ProjectMembers({ project, settings, user }: any) {
   const addProjectMemberModal = useDisclosure();
   const editProjectMemberModal = useDisclosure();
   const leaveProjectModal = useDisclosure();
@@ -48,13 +43,13 @@ export default function ProjectMembers({
   // pagination
   const [page, setPage] = React.useState(1);
   const rowsPerPage = 7;
-  const pages = Math.ceil(members.length / rowsPerPage);
+  const pages = Math.ceil(project.members.length / rowsPerPage);
   const items = React.useMemo(() => {
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
 
-    return members.slice(start, end);
-  }, [page, members]);
+    return project.members.slice(start, end);
+  }, [page, project]);
 
   const renderCell = React.useCallback((tableUser: any, columnKey: any) => {
     const cellValue = tableUser[columnKey];
@@ -197,8 +192,9 @@ export default function ProjectMembers({
     } else if (user.role === "admin") {
       return false;
     } else if (
-      members.find((m: any) => m.user_id === user.id) &&
-      members.filter((m: any) => m.user_id === user.id)[0].role === "Viewer"
+      project.members.find((m: any) => m.user_id === user.id) &&
+      project.members.filter((m: any) => m.user_id === user.id)[0].role ===
+        "Viewer"
     ) {
       return true;
     }
@@ -208,8 +204,9 @@ export default function ProjectMembers({
 
   function checkLeaveProjectDisabled() {
     if (
-      members.find((m: any) => m.user_id === user.id) &&
-      members.filter((m: any) => m.user_id === user.id)[0].role === "Owner"
+      project.members.find((m: any) => m.user_id === user.id) &&
+      project.members.filter((m: any) => m.user_id === user.id)[0].role ===
+        "Owner"
     ) {
       return true;
     }
@@ -219,8 +216,9 @@ export default function ProjectMembers({
 
   function checkViewerButtonDisabled() {
     if (
-      members.find((m: any) => m.user_id === user.id) &&
-      members.filter((m: any) => m.user_id === user.id)[0].role === "Viewer"
+      project.members.find((m: any) => m.user_id === user.id) &&
+      project.members.filter((m: any) => m.user_id === user.id)[0].role ===
+        "Viewer"
     ) {
       return true;
     }
@@ -278,7 +276,6 @@ export default function ProjectMembers({
       </Table>
       <AddProjectMemberModal
         disclosure={addProjectMemberModal}
-        members={members}
         project={project}
       />
       <EditProjectMemberModal
@@ -297,7 +294,6 @@ export default function ProjectMembers({
       />
       <ProjectTransferOwnership
         disclosure={transferOwnershipModal}
-        members={members}
         project={project}
         user={user}
       />

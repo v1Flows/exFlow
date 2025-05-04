@@ -7,7 +7,7 @@ import {
   Switch,
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Icon } from "@iconify/react";
 
 import UpdateFlow from "@/lib/fetch/flow/PUT/UpdateFlow";

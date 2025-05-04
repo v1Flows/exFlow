@@ -6,14 +6,13 @@ import React from "react";
 
 import ProjectMembers from "@/components/projects/project/tables/UserTable";
 import ProjectTokens from "@/components/projects/project/tables/TokensTable";
-import ProjectRunnersList from "@/components/projects/project/RunnerList";
+import RunnersList from "@/components/runners/list";
 
 import ProjectAuditLogs from "./tables/AuditTable";
 import ProjectRunnerDetails from "./RunnerDetails";
 
 export default function ProjectTabs({
   project,
-  members,
   runners,
   tokens,
   settings,
@@ -57,12 +56,7 @@ export default function ProjectTabs({
               </div>
             }
           >
-            <ProjectMembers
-              members={members}
-              project={project}
-              settings={settings}
-              user={user}
-            />
+            <ProjectMembers project={project} settings={settings} user={user} />
           </Tab>
           <Tab
             key="runners"
@@ -75,9 +69,9 @@ export default function ProjectTabs({
           >
             <ProjectRunnerDetails project={project} />
             <Spacer y={4} />
-            <ProjectRunnersList
-              members={members}
-              project={project}
+            <RunnersList
+              singleProject
+              projects={[project]}
               runners={runners}
               user={user}
             />
@@ -92,7 +86,6 @@ export default function ProjectTabs({
             }
           >
             <ProjectTokens
-              members={members}
               project={project}
               settings={settings}
               tokens={tokens}
@@ -108,7 +101,7 @@ export default function ProjectTabs({
               </div>
             }
           >
-            <ProjectAuditLogs audit={audit} members={members} user={user} />
+            <ProjectAuditLogs audit={audit} project={project} user={user} />
           </Tab>
         </Tabs>
       </div>

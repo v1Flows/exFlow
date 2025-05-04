@@ -30,7 +30,7 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
 
   function statusColor(execution: any) {
     if (execution.status === "scheduled") {
-      return "warning";
+      return "secondary";
     } else if (execution.status === "pending") {
       return "default-500";
     } else if (execution.status === "running") {
@@ -58,13 +58,13 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
         <CircularProgress
           showValueLabel
           aria-label="Step"
-          color="warning"
+          color="secondary"
           size="md"
           value={100}
           valueLabel={
             <Icon
-              className="text-warning-500"
-              icon="hugeicons:calendar-02"
+              className="text-secondary-500"
+              icon="hugeicons:time-schedule"
               width={20}
             />
           }
@@ -284,11 +284,11 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
           <Card>
             <CardBody>
               <div className="flex items-center justify-start gap-4">
-                <div className="flex size-12 items-center justify-center rounded-large bg-default text-warning bg-opacity-40">
-                  <Icon icon="hugeicons:calendar-02" width={28} />
+                <div className="flex size-12 items-center justify-center rounded-large bg-default text-secondary bg-opacity-40">
+                  <Icon icon="hugeicons:time-schedule" width={28} />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-warning">
+                  <p className="text-sm font-bold text-secondary">
                     {execution.scheduled_at === "0001-01-01T00:00:00Z" ? (
                       "N/A"
                     ) : (

@@ -46,7 +46,6 @@ export default async function ProjectPage({
         <Project
           audit={audit.data.audit}
           flows={flows.data.flows}
-          members={project.data.members}
           project={project.data.project}
           runners={runners.data.runners}
           settings={settings.data.settings}
