@@ -49,7 +49,9 @@ export default async function FlowPage({
         <>
           <FlowHeading
             flow={flow.data.flow}
+            project={project.data.project}
             projects={projects.data.projects}
+            user={userDetails.data.user}
           />
           <Divider className="mt-4 mb-4" />
           <FlowDetails
@@ -67,7 +69,8 @@ export default async function FlowPage({
           <FlowTabs
             executions={executions.data.executions}
             flow={flow.data.flow}
-            members={project.data.members}
+            members={project.data.project.members}
+            project={project.data.project}
             runners={runners.data.runners}
             user={userDetails.data.user}
           />

@@ -7,13 +7,18 @@ import APIStartExecution from "@/lib/fetch/executions/start";
 import Reloader from "@/components/reloader/Reloader";
 import ScheduleExecutionModal from "@/components/modals/executions/schedule";
 import EditFlowModal from "@/components/modals/flows/edit";
+import canEditProject from "@/lib/functions/canEditProject";
 
 export default function FlowHeading({
   flow,
   projects,
+  project,
+  user,
 }: {
   flow: any;
   projects: any;
+  project: any;
+  user: any;
 }) {
   const editFlowModal = useDisclosure();
   const scheduleExecutionModal = useDisclosure();
@@ -63,6 +68,7 @@ export default function FlowHeading({
             <Divider className="h-10 mr-1 ml-1" orientation="vertical" />
             <Button
               color="warning"
+              isDisabled={!canEditProject(user.id, project.members)}
               startContent={<Icon icon="hugeicons:pencil-edit-02" width={18} />}
               variant="flat"
               onPress={() => {

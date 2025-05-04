@@ -22,6 +22,7 @@ import LeaveProjectModal from "@/components/modals/projects/leave";
 import AddProjectMemberModal from "@/components/modals/projects/members";
 import ProjectTransferOwnership from "@/components/modals/projects/transferOwnership";
 import DeleteProjectMemberModal from "@/components/modals/projects/removeMember";
+import canEditProject from "@/lib/functions/canEditProject";
 
 const statusColorMap: any = {
   Owner: "danger",
@@ -104,7 +105,7 @@ export default function ProjectMembers({ project, settings, user }: any) {
             <Tooltip content="Edit User">
               <Button
                 isIconOnly
-                isDisabled={checkViewerButtonDisabled()}
+                isDisabled={!canEditProject(user.id, project.members)}
                 onPress={() => {
                   setTargetUser(tableUser);
                   editProjectMemberModal.onOpen();
@@ -122,7 +123,8 @@ export default function ProjectMembers({ project, settings, user }: any) {
                 isIconOnly
                 color="danger"
                 isDisabled={
-                  checkViewerButtonDisabled() || tableUser.user_id === user.id
+                  !canEditProject(user.id, project.members) ||
+                  tableUser.user_id === user.id
                 }
                 onPress={() => {
                   setTargetUser(tableUser);
@@ -171,7 +173,7 @@ export default function ProjectMembers({ project, settings, user }: any) {
         )}
         <Button
           color="primary"
-          isDisabled={checkAddMemberDisabled()}
+          isDisabled={!canEditProject(user.id, project.members)}
           isIconOnly={isMobile}
           startContent={<Icon icon="hugeicons:plus-sign" />}
           onPress={() => addProjectMemberModal.onOpen()}
@@ -182,43 +184,11 @@ export default function ProjectMembers({ project, settings, user }: any) {
     );
   }, []);
 
-  function checkAddMemberDisabled() {
-    if (!settings.add_project_members) {
-      return true;
-    } else if (project.disabled) {
-      return true;
-    } else if (user.role === "vip") {
-      return false;
-    } else if (user.role === "admin") {
-      return false;
-    } else if (
-      project.members.find((m: any) => m.user_id === user.id) &&
-      project.members.filter((m: any) => m.user_id === user.id)[0].role ===
-        "Viewer"
-    ) {
-      return true;
-    }
-
-    return false;
-  }
-
   function checkLeaveProjectDisabled() {
     if (
       project.members.find((m: any) => m.user_id === user.id) &&
       project.members.filter((m: any) => m.user_id === user.id)[0].role ===
         "Owner"
-    ) {
-      return true;
-    }
-
-    return false;
-  }
-
-  function checkViewerButtonDisabled() {
-    if (
-      project.members.find((m: any) => m.user_id === user.id) &&
-      project.members.filter((m: any) => m.user_id === user.id)[0].role ===
-        "Viewer"
     ) {
       return true;
     }

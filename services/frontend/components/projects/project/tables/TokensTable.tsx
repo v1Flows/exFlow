@@ -19,6 +19,7 @@ import CreateProjectTokenModal from "@/components/modals/projects/createToken";
 import DeleteProjectTokenModal from "@/components/modals/projects/deleteToken";
 import ChangeProjectTokenStatusModal from "@/components/modals/projects/changeTokenStatus";
 import DeleteRunnerTokenModal from "@/components/modals/tokens/deleteRunnerToken";
+import canEditProject from "@/lib/functions/canEditProject";
 
 export default function ProjectTokens({
   tokens,
@@ -55,26 +56,6 @@ export default function ProjectTokens({
       variant: "flat",
     });
   };
-
-  function checkAddTokenDisabled() {
-    if (!settings.create_api_keys) {
-      return true;
-    } else if (project.disabled) {
-      return true;
-    } else if (user.role === "vip") {
-      return false;
-    } else if (user.role === "admin") {
-      return false;
-    } else if (
-      project.members.find((m: any) => m.user_id === user.id) &&
-      project.members.filter((m: any) => m.user_id === user.id)[0].role ===
-        "Viewer"
-    ) {
-      return true;
-    }
-
-    return false;
-  }
 
   const renderCell = React.useCallback((key: any, columnKey: any) => {
     const cellValue = key[columnKey];
@@ -201,7 +182,7 @@ export default function ProjectTokens({
       <div className="flex flex-col items-end justify-center gap-4">
         <Button
           color="primary"
-          isDisabled={checkAddTokenDisabled()}
+          isDisabled={!canEditProject(user.id, project.members)}
           startContent={<Icon icon="hugeicons:plus-sign" />}
           onPress={() => addProjectTokenModal.onOpen()}
         >
