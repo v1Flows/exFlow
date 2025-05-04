@@ -52,7 +52,6 @@ export default function FlowList({
   const searchFolderID = searchParams.get("folder");
 
   useEffect(() => {
-    console.log(runningExecutions);
     if (searchFolderID) {
       setFilteredFolders(
         folders.filter((f: any) => f.parent_id === searchFolderID),

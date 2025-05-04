@@ -29,11 +29,7 @@ const statusColorMap: any = {
   Viewer: "default",
 };
 
-export default function ProjectMembers({
-  project,
-  settings,
-  user,
-}: any) {
+export default function ProjectMembers({ project, settings, user }: any) {
   const addProjectMemberModal = useDisclosure();
   const editProjectMemberModal = useDisclosure();
   const leaveProjectModal = useDisclosure();
@@ -197,7 +193,8 @@ export default function ProjectMembers({
       return false;
     } else if (
       project.members.find((m: any) => m.user_id === user.id) &&
-      project.members.filter((m: any) => m.user_id === user.id)[0].role === "Viewer"
+      project.members.filter((m: any) => m.user_id === user.id)[0].role ===
+        "Viewer"
     ) {
       return true;
     }
@@ -208,7 +205,8 @@ export default function ProjectMembers({
   function checkLeaveProjectDisabled() {
     if (
       project.members.find((m: any) => m.user_id === user.id) &&
-      project.members.filter((m: any) => m.user_id === user.id)[0].role === "Owner"
+      project.members.filter((m: any) => m.user_id === user.id)[0].role ===
+        "Owner"
     ) {
       return true;
     }
@@ -219,7 +217,8 @@ export default function ProjectMembers({
   function checkViewerButtonDisabled() {
     if (
       project.members.find((m: any) => m.user_id === user.id) &&
-      project.members.filter((m: any) => m.user_id === user.id)[0].role === "Viewer"
+      project.members.filter((m: any) => m.user_id === user.id)[0].role ===
+        "Viewer"
     ) {
       return true;
     }

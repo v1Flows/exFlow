@@ -67,7 +67,8 @@ export default function ProjectTokens({
       return false;
     } else if (
       project.members.find((m: any) => m.user_id === user.id) &&
-      project.members.filter((m: any) => m.user_id === user.id)[0].role === "Viewer"
+      project.members.filter((m: any) => m.user_id === user.id)[0].role ===
+        "Viewer"
     ) {
       return true;
     }
@@ -101,9 +102,12 @@ export default function ProjectTokens({
                     width={20}
                     onClick={() => {
                       if (
-                        project.members.find((m: any) => m.user_id === user.id) &&
-                        project.members.filter((m: any) => m.user_id === user.id)[0]
-                          .role !== "Viewer"
+                        project.members.find(
+                          (m: any) => m.user_id === user.id,
+                        ) &&
+                        project.members.filter(
+                          (m: any) => m.user_id === user.id,
+                        )[0].role !== "Viewer"
                       ) {
                         key.disabled = true;
                         setTargetToken(key);
@@ -122,9 +126,12 @@ export default function ProjectTokens({
                     width={20}
                     onClick={() => {
                       if (
-                        project.members.find((m: any) => m.user_id === user.id) &&
-                        project.members.filter((m: any) => m.user_id === user.id)[0]
-                          .role !== "Viewer"
+                        project.members.find(
+                          (m: any) => m.user_id === user.id,
+                        ) &&
+                        project.members.filter(
+                          (m: any) => m.user_id === user.id,
+                        )[0].role !== "Viewer"
                       ) {
                         key.disabled = false;
                         setTargetToken(key);
@@ -143,8 +150,9 @@ export default function ProjectTokens({
                   onClick={() => {
                     if (
                       project.members.find((m: any) => m.user_id === user.id) &&
-                      project.members.filter((m: any) => m.user_id === user.id)[0]
-                        .role !== "Viewer"
+                      project.members.filter(
+                        (m: any) => m.user_id === user.id,
+                      )[0].role !== "Viewer"
                     ) {
                       setTargetToken(key);
 

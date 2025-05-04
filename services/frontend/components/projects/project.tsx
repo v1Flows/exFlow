@@ -35,7 +35,8 @@ export default function Project({
       return false;
     } else if (
       project.members.find((m: any) => m.user_id === user.id) &&
-      project.members.filter((m: any) => m.user_id === user.id)[0].role === "Viewer"
+      project.members.filter((m: any) => m.user_id === user.id)[0].role ===
+        "Viewer"
     ) {
       return true;
     }
