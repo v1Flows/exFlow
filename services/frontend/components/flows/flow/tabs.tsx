@@ -10,6 +10,7 @@ import FlowStats from "./stats";
 import FlowSettings from "./settings";
 
 export default function FlowTabs({
+  project,
   flow,
   executions,
   runners,
@@ -95,7 +96,7 @@ export default function FlowTabs({
               </div>
             }
           >
-            <FlowSettings flow={flow} />
+            <FlowSettings flow={flow} project={project} user={user} />
           </Tab>
           <Tab
             key="stats"

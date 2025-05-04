@@ -3,10 +3,10 @@
 import { Icon } from "@iconify/react";
 import {
   addToast,
+  Alert,
   Button,
   Card,
   CardBody,
-  CardFooter,
   CardHeader,
   Chip,
   Divider,
@@ -16,7 +16,6 @@ import {
   DropdownSection,
   DropdownTrigger,
   Spacer,
-  Spinner,
   useDisclosure,
 } from "@heroui/react";
 import React from "react";
@@ -24,6 +23,10 @@ import TimeAgo from "react-timeago";
 
 import DeleteRunnerModal from "@/components/modals/runner/delete";
 import RunnerDetails from "@/components/modals/runner/details";
+import canEditProject from "@/lib/functions/canEditProject";
+
+import EditRunnerModal from "../modals/runner/edit";
+import ChangeRunnerStatusModal from "../modals/runner/changeStatus";
 
 export default function RunnersList({
   runners,
@@ -37,7 +40,10 @@ export default function RunnersList({
   singleProject?: boolean;
 }) {
   const [targetRunner, setTargetRunner] = React.useState({} as any);
+  const [targetRunnerStatus, setTargetRunnerStatus] = React.useState(false);
   const showRunnerDrawer = useDisclosure();
+  const editRunnerModal = useDisclosure();
+  const changeRunnerStatusModal = useDisclosure();
   const deleteRunnerModal = useDisclosure();
 
   const copyRunnerIDtoClipboard = (id: string) => {
@@ -257,123 +263,176 @@ export default function RunnersList({
                 .map((runner: any) => (
                   <Card
                     key={runner.id}
-                    fullWidth
-                    isHoverable
                     isPressable
+                    className="shadow-md"
                     onPress={() => {
                       setTargetRunner(runner);
                       showRunnerDrawer.onOpen();
                     }}
                   >
-                    <CardHeader className="flex flex-cols items-center justify-between">
-                      {runner.auto_runner ? (
-                        <p className="text-md font-bold">Auto Runner</p>
-                      ) : (
-                        <p className="text-md font-bold">{runner.name}</p>
-                      )}
-                      <Dropdown backdrop="opaque">
-                        <DropdownTrigger>
-                          <Icon
-                            className="m-1 hover:text-primary"
-                            icon="solar:menu-dots-bold"
-                            width={24}
-                          />
-                        </DropdownTrigger>
-                        <DropdownMenu>
-                          <DropdownSection title="Actions">
-                            <DropdownItem
-                              key="copy"
-                              startContent={
-                                <Icon icon="solar:copy-outline" width={18} />
-                              }
-                              onPress={() => copyRunnerIDtoClipboard(runner.id)}
-                            >
-                              Copy ID
-                            </DropdownItem>
-                          </DropdownSection>
-                          <DropdownSection title="Danger zone">
-                            <DropdownItem
-                              key="delete"
-                              className="text-danger"
-                              color="danger"
-                              isDisabled={
-                                project.members.length > 0 &&
-                                project.members.find(
-                                  (m: any) => m.user_id === user.id,
-                                ) &&
-                                project.members.filter(
-                                  (m: any) => m.user_id === user.id,
-                                )[0].role === "Viewer"
-                              }
-                              startContent={
-                                <Icon icon="hugeicons:delete-02" width={18} />
-                              }
-                              onPress={() => {
-                                setTargetRunner(runner);
-                                deleteRunnerModal.onOpen();
-                              }}
-                            >
-                              Delete
-                            </DropdownItem>
-                          </DropdownSection>
-                        </DropdownMenu>
-                      </Dropdown>
-                    </CardHeader>
-                    <CardBody className="flex flex-col">
-                      {runner.disabled && (
-                        <p className="mb-4 text-center text-lg font-bold text-danger">
-                          {runner.disabled_reason}
-                        </p>
-                      )}
-                      {!runner.registered && (
-                        <div className="flex flex-wrap items-center justify-center text-center">
-                          <Spinner
-                            label="Waiting for connection..."
-                            size="sm"
-                            variant="dots"
-                          />
+                    <CardBody className="p-5">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="text-lg font-semibold">
+                            {runner.name}
+                          </h3>
+                          <p className="text-small text-default-500 mt-1">
+                            ID: {runner.id}
+                          </p>
                         </div>
-                      )}
+                        {canEditProject(user.id, project.members) && (
+                          <Dropdown>
+                            <DropdownTrigger>
+                              <Button isIconOnly size="sm" variant="light">
+                                <Icon
+                                  className="text-lg"
+                                  icon="hugeicons:more-vertical-circle-01"
+                                />
+                              </Button>
+                            </DropdownTrigger>
+                            <DropdownMenu aria-label="Runner Actions">
+                              <DropdownItem
+                                key="edit"
+                                startContent={
+                                  <Icon
+                                    icon="hugeicons:pencil-edit-02"
+                                    width={18}
+                                  />
+                                }
+                                onPress={() => {
+                                  setTargetRunner(runner);
+                                  editRunnerModal.onOpen();
+                                }}
+                              >
+                                Edit Runner
+                              </DropdownItem>
+                              {runner.disabled ? (
+                                <DropdownItem
+                                  key="enable"
+                                  startContent={
+                                    <Icon icon="hugeicons:play" width={18} />
+                                  }
+                                  onPress={() => {
+                                    setTargetRunner(runner);
+                                    setTargetRunnerStatus(false);
+                                    changeRunnerStatusModal.onOpen();
+                                  }}
+                                >
+                                  Enable Runner
+                                </DropdownItem>
+                              ) : (
+                                <DropdownItem
+                                  key="disable"
+                                  startContent={
+                                    <Icon icon="hugeicons:pause" width={18} />
+                                  }
+                                  onPress={() => {
+                                    setTargetRunner(runner);
+                                    setTargetRunnerStatus(true);
+                                    changeRunnerStatusModal.onOpen();
+                                  }}
+                                >
+                                  Disable Runner
+                                </DropdownItem>
+                              )}
+                              <DropdownItem
+                                key="delete"
+                                className="text-danger"
+                                color="danger"
+                                startContent={
+                                  <Icon icon="hugeicons:delete-02" width={18} />
+                                }
+                                onPress={() => {
+                                  setTargetRunner(runner);
+                                  deleteRunnerModal.onOpen();
+                                }}
+                              >
+                                Delete Runner
+                              </DropdownItem>
+                            </DropdownMenu>
+                          </Dropdown>
+                        )}
+                      </div>
+
+                      <Alert
+                        className="mt-4"
+                        color="danger"
+                        description={"Reason: " + runner.disabled_reason}
+                        isVisible={runner.disabled}
+                        title="Runner Disabled"
+                        variant="flat"
+                      />
+
+                      <div className="grid grid-cols-2 gap-4 mt-5">
+                        <div className="flex items-center gap-2">
+                          <Icon
+                            className={`text-${heartbeatColor(runner)}`}
+                            icon={"hugeicons:health"}
+                            width={20}
+                          />
+                          <span className="text-sm">
+                            Health:{" "}
+                            <span
+                              className={`font-medium capitalize text-${heartbeatColor(runner)}`}
+                            >
+                              {heartbeatStatus(runner)
+                                ? "Healthy"
+                                : "Unhealthy"}
+                            </span>
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <Icon
+                            className={`text-${heartbeatColor(runner)}`}
+                            icon={"hugeicons:pulse-02"}
+                            width={20}
+                          />
+                          <span className="text-sm">
+                            Heartbeat:{" "}
+                            <span className="font-medium">
+                              <TimeAgo
+                                className={`text-${heartbeatColor(runner)}`}
+                                date={runner.last_heartbeat}
+                              />
+                            </span>
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <Icon
+                            className={`text-${runner.disabled ? "danger" : "success"}`}
+                            icon={
+                              runner.disabled
+                                ? "hugeicons:toggle-off"
+                                : "hugeicons:toggle-on"
+                            }
+                            width={20}
+                          />
+                          <span className="text-sm">
+                            <span
+                              className={`font-medium text-${runner.disabled ? "danger" : "success"}`}
+                            >
+                              {runner.disabled ? "Disabled" : "Enabled"}
+                            </span>
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <Icon
+                            className={`text-${runner.executing_job ? "success" : "default-500"}`}
+                            icon={"hugeicons:energy"}
+                            width={20}
+                          />
+                          <span className="text-sm">
+                            Status:{" "}
+                            <span className="font-medium">
+                              {runner.executing_job ? "Executing Job" : "Idle"}
+                            </span>
+                          </span>
+                        </div>
+                      </div>
                     </CardBody>
-                    <CardFooter className="flex flex-cols items-center justify-between">
-                      <div className="flex flex-wrap items-start gap-2">
-                        <Chip
-                          color={heartbeatColor(runner)}
-                          radius="sm"
-                          size="sm"
-                          variant="flat"
-                        >
-                          {heartbeatStatus(runner) ? "Healthy" : "Unhealthy"}
-                        </Chip>
-                        <Chip
-                          color={runner.disabled ? "danger" : "success"}
-                          radius="sm"
-                          size="sm"
-                          variant="flat"
-                        >
-                          {runner.disabled ? "Disabled" : "Enabled"}
-                        </Chip>
-                        <Chip
-                          color={runner.registered ? "success" : "warning"}
-                          radius="sm"
-                          size="sm"
-                          variant="flat"
-                        >
-                          {runner.registered ? "Registered" : "Unregistered"}
-                        </Chip>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Icon
-                          className="text-default-500"
-                          icon="hugeicons:activity-03"
-                          width={22}
-                        />
-                        <TimeAgo
-                          className={`text-sm text-${heartbeatColor(runner)}`}
-                          date={runner.last_heartbeat}
-                        />
-                      </div>
-                    </CardFooter>
                   </Card>
                 ))}
             </div>
@@ -382,6 +441,12 @@ export default function RunnersList({
       ))}
 
       <RunnerDetails disclosure={showRunnerDrawer} runner={targetRunner} />
+      <ChangeRunnerStatusModal
+        disclosure={changeRunnerStatusModal}
+        runner={targetRunner}
+        status={targetRunnerStatus}
+      />
+      <EditRunnerModal disclosure={editRunnerModal} runner={targetRunner} />
       <DeleteRunnerModal disclosure={deleteRunnerModal} runner={targetRunner} />
     </main>
   );

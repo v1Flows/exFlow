@@ -67,7 +67,7 @@ export default function ProjectTabs({
               </div>
             }
           >
-            <ProjectRunnerDetails project={project} />
+            <ProjectRunnerDetails project={project} user={user} />
             <Spacer y={4} />
             <RunnersList
               singleProject
