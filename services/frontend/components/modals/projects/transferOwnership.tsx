@@ -30,12 +30,10 @@ import ErrorCard from "@/components/error/ErrorCard";
 export default function ProjectTransferOwnership({
   disclosure,
   project,
-  members,
   user,
 }: {
   disclosure: UseDisclosureReturn;
   project: any;
-  members: any;
   user: any;
 }) {
   const router = useRouter();
@@ -125,7 +123,7 @@ export default function ProjectTransferOwnership({
               <CardHeader className="justify-center px-6 pb-0 pt-6">
                 <div className="flex flex-col items-center">
                   <AvatarGroup isBordered size="sm">
-                    {members.map((member: any) => (
+                    {project.members.map((member: any) => (
                       <Avatar
                         key={member.id}
                         color={statusColorMap[member.role]}
@@ -148,7 +146,7 @@ export default function ProjectTransferOwnership({
               </CardHeader>
               <CardBody>
                 <Spacer y={2} />
-                {members.filter(
+                {project.members.filter(
                   (member: any) =>
                     member.user_id !== user.id &&
                     member.invite_pending === false,
@@ -159,7 +157,7 @@ export default function ProjectTransferOwnership({
                 )}
 
                 <div className="flex flex-col gap-6">
-                  {members
+                  {project.members
                     .filter(
                       (member: any) =>
                         member.user_id !== user.id &&

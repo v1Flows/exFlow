@@ -4,7 +4,6 @@ import ErrorCard from "@/components/error/ErrorCard";
 import { ProjectsList } from "@/components/projects/list";
 import PageGetSettings from "@/lib/fetch/page/settings";
 import GetProjects from "@/lib/fetch/project/all";
-import GetProject from "@/lib/fetch/project/data";
 import GetUserDetails from "@/lib/fetch/user/getDetails";
 import ProjectsHeading from "@/components/projects/heading";
 
@@ -18,19 +17,6 @@ export default async function ProjectsPage() {
     settingsData,
     userDetailsData,
   ])) as any;
-
-  // get members for each project
-  if (projects.success) {
-    for (let i = 0; i < projects.data.projects.length; i++) {
-      const project = projects.data.projects[i];
-      const membersData = GetProject(project.id);
-      const members = await membersData;
-
-      if (members.success) {
-        projects.data.projects[i].members = members.data.members;
-      }
-    }
-  }
 
   return (
     <main>

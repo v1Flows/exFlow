@@ -17,6 +17,11 @@ func Executions(router *gin.RouterGroup, db *bun.DB) {
 		execution.POST("/", func(c *gin.Context) {
 			executions.StartExecution(c, db)
 		})
+
+		execution.GET("/running", func(c *gin.Context) {
+			executions.GetRunningExecutions(c, db)
+		})
+
 		execution.POST("/schedule", func(c *gin.Context) {
 			executions.ScheduleExecution(c, db)
 		})

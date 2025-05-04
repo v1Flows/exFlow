@@ -21,7 +21,6 @@ export default function Project({
   user,
   settings,
   project,
-  members,
   runners,
   tokens,
   audit,
@@ -35,8 +34,8 @@ export default function Project({
     } else if (user.role === "admin") {
       return false;
     } else if (
-      members.find((m: any) => m.user_id === user.id) &&
-      members.filter((m: any) => m.user_id === user.id)[0].role === "Viewer"
+      project.members.find((m: any) => m.user_id === user.id) &&
+      project.members.filter((m: any) => m.user_id === user.id)[0].role === "Viewer"
     ) {
       return true;
     }
@@ -103,7 +102,7 @@ export default function Project({
                     <p className="text-md font-bold">
                       <NumberFlow
                         locales="en-US" // Intl.NumberFormat locales
-                        value={members.length}
+                        value={project.members.length}
                       />
                     </p>
                     <p className="text-sm text-default-500">Members</p>
@@ -183,7 +182,6 @@ export default function Project({
       <div className="mt-6 w-full">
         <ProjectTabs
           audit={audit}
-          members={members}
           project={project}
           runners={runners}
           settings={settings}

@@ -13,7 +13,7 @@ import {
 } from "@heroui/react";
 import React from "react";
 
-export default function ProjectAuditLogs({ audit, members, user }: any) {
+export default function ProjectAuditLogs({ audit, project, user }: any) {
   // pagination
   const [page, setPage] = React.useState(1);
   const rowsPerPage = 10;
@@ -62,7 +62,7 @@ export default function ProjectAuditLogs({ audit, members, user }: any) {
               name={
                 <div className="flex items-center gap-2">
                   <p>{entry?.username}</p>
-                  {!members.find(
+                  {!project.members.find(
                     (member: any) => member.user_id === entry.user_id,
                   ) &&
                     entry?.role !== "admin" && (

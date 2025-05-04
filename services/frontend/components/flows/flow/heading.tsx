@@ -29,7 +29,7 @@ export default function FlowHeading({
           <div className="hidden sm:flex items-center gap-2">
             <Button
               color="secondary"
-              startContent={<Icon icon="hugeicons:calendar-02" width={18} />}
+              startContent={<Icon icon="hugeicons:time-schedule" width={18} />}
               variant="flat"
               onPress={() => {
                 scheduleExecutionModal.onOpen();
@@ -61,7 +61,6 @@ export default function FlowHeading({
               Execute
             </Button>
             <Divider className="h-10 mr-1 ml-1" orientation="vertical" />
-            <Reloader circle refresh={20} />
             <Button
               color="warning"
               startContent={<Icon icon="hugeicons:pencil-edit-02" width={18} />}
@@ -72,6 +71,8 @@ export default function FlowHeading({
             >
               Edit
             </Button>
+            <Divider className="h-10 mr-1 ml-1" orientation="vertical" />
+            <Reloader circle refresh={20} />
           </div>
 
           {/* Mobile */}
@@ -79,7 +80,7 @@ export default function FlowHeading({
             <Button
               isIconOnly
               color="secondary"
-              startContent={<Icon icon="hugeicons:calendar-02" width={18} />}
+              startContent={<Icon icon="hugeicons:time-schedule" width={18} />}
               variant="flat"
               onPress={() => {
                 scheduleExecutionModal.onOpen();

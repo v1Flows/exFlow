@@ -115,6 +115,7 @@ export default function ScheduleExecutionModal({
                   <p className="font-bold">Select an date</p>
                   <Calendar
                     aria-label="Date (Min Date Value)"
+                    color="secondary"
                     minValue={today(getLocalTimeZone())}
                     value={value}
                     onChange={setValue}
@@ -134,12 +135,12 @@ export default function ScheduleExecutionModal({
                   Cancel
                 </Button>
                 <Button
-                  color="warning"
+                  color="secondary"
                   isLoading={isScheduleLoading}
-                  variant="solid"
+                  variant="flat"
                   onPress={scheduleExecution}
                 >
-                  <Icon icon="hugeicons:calendar-02" width={18} />
+                  <Icon icon="hugeicons:time-schedule" width={18} />
                   Schedule
                 </Button>
               </ModalFooter>

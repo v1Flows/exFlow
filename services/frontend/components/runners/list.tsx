@@ -25,7 +25,17 @@ import TimeAgo from "react-timeago";
 import DeleteRunnerModal from "@/components/modals/runner/delete";
 import RunnerDetails from "@/components/modals/runner/details";
 
-export default function RunnersList({ runners, projects }: any) {
+export default function RunnersList({
+  runners,
+  projects,
+  user,
+  singleProject,
+}: {
+  runners: any;
+  projects: any;
+  user: any;
+  singleProject?: boolean;
+}) {
   const [targetRunner, setTargetRunner] = React.useState({} as any);
   const showRunnerDrawer = useDisclosure();
   const deleteRunnerModal = useDisclosure();
@@ -75,128 +85,8 @@ export default function RunnersList({ runners, projects }: any) {
 
   return (
     <main>
-      <p className="text-lg font-bold">Project Bound</p>
-      <Spacer y={2} />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {runners
-          .filter((runner: any) => runner.shared_runner === false)
-          .sort((a: any, b: any) => {
-            const aStatus = heartbeatStatus(a) ? 1 : 0;
-            const bStatus = heartbeatStatus(b) ? 1 : 0;
-
-            return bStatus - aStatus;
-          })
-          .map((runner: any) => (
-            <Card
-              key={runner.id}
-              fullWidth
-              isHoverable
-              isPressable
-              onPress={() => {
-                setTargetRunner(runner);
-                showRunnerDrawer.onOpen();
-              }}
-            >
-              <CardHeader className="flex flex-cols items-center justify-between">
-                <Chip
-                  className="text-sm text-default-500"
-                  color="secondary"
-                  radius="sm"
-                  variant="dot"
-                >
-                  {projects.find(
-                    (project: any) => project.id === runner.project_id,
-                  )?.name || "Unknown"}
-                </Chip>
-                <div className="relative flex items-center justify-end gap-2">
-                  <Chip
-                    color={heartbeatColor(runner)}
-                    radius="sm"
-                    size="sm"
-                    variant="flat"
-                  >
-                    {heartbeatStatus(runner) ? "Healthy" : "Unhealthy"}
-                  </Chip>
-                  <Dropdown backdrop="opaque">
-                    <DropdownTrigger>
-                      <Button isIconOnly size="sm" variant="light">
-                        <Icon
-                          className="text-default-300"
-                          icon="solar:menu-dots-bold"
-                        />
-                      </Button>
-                    </DropdownTrigger>
-                    <DropdownMenu>
-                      <DropdownSection title="Actions">
-                        <DropdownItem
-                          key="copy"
-                          startContent={
-                            <Icon icon="solar:copy-outline" width={18} />
-                          }
-                          onPress={() => copyRunnerIDtoClipboard(runner.id)}
-                        >
-                          Copy ID
-                        </DropdownItem>
-                      </DropdownSection>
-                    </DropdownMenu>
-                  </Dropdown>
-                </div>
-              </CardHeader>
-              <CardBody className="flex flex-col">
-                {runner.auto_runner ? (
-                  <p className="text-md font-bold">Auto Runner</p>
-                ) : (
-                  <p className="text-md font-bold">{runner.name}</p>
-                )}
-                {runner.disabled && (
-                  <p className="mb-4 text-center text-lg font-bold text-danger">
-                    {runner.disabled_reason}
-                  </p>
-                )}
-                {!runner.registered && (
-                  <div className="flex flex-wrap items-center justify-center text-center">
-                    <Spinner label="Waiting for connection..." size="md" />
-                  </div>
-                )}
-              </CardBody>
-              <CardFooter className="flex flex-cols items-center justify-between">
-                <div className="flex flex-wrap items-start gap-2">
-                  <Chip
-                    color={runner.disabled ? "danger" : "success"}
-                    radius="sm"
-                    size="sm"
-                    variant="flat"
-                  >
-                    {runner.disabled ? "Disabled" : "Enabled"}
-                  </Chip>
-                  <Chip
-                    color={runner.registered ? "success" : "warning"}
-                    radius="sm"
-                    size="sm"
-                    variant="flat"
-                  >
-                    {runner.registered ? "Registered" : "Unregistered"}
-                  </Chip>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Icon
-                    className="text-default-500"
-                    icon="hugeicons:activity-03"
-                    width={22}
-                  />
-                  <TimeAgo
-                    className={`text-sm text-${heartbeatColor(runner)}`}
-                    date={runner.last_heartbeat}
-                  />
-                </div>
-              </CardFooter>
-            </Card>
-          ))}
-      </div>
-
-      <Spacer y={4} />
-      <p className="text-lg font-bold">Shared</p>
-      <Spacer y={2} />
+      <p className="text-lg font-bold mb-2">Shared</p>
+      <Divider className="mb-4 max-w-[70px]" />
       <div>
         {runners.filter((runner: any) => runner.shared_runner === true)
           .length === 0 && (
@@ -322,6 +212,175 @@ export default function RunnersList({ runners, projects }: any) {
           )}
         </div>
       </div>
+
+      <Spacer y={4} />
+
+      <p className="text-lg font-bold mb-2">Project Bound</p>
+      <Divider className="mb-4 max-w-[130px]" />
+      {projects.length === 0 && (
+        <p className="text-default-500">
+          No projects found. Please create a project to use runners.
+        </p>
+      )}
+
+      {projects.map((project: any) => (
+        <div key={project.id} className="mb-4">
+          {!singleProject && (
+            <div className="flex flex-cols items-center justify-start gap-2 mb-4">
+              <Icon
+                icon={
+                  project.icon ? project.icon : "solar:question-square-outline"
+                }
+                style={{ color: project.color }}
+                width={24}
+              />
+              <p className="text-lg font-bold">{project.name}</p>
+            </div>
+          )}
+          {runners.filter((runner: any) => runner.project_id === project.id)
+            .length === 0 ? (
+            <p className="text-default-500">No runners found</p>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {runners
+                .filter(
+                  (runner: any) =>
+                    runner.project_id === project.id &&
+                    runner.shared_runner === false,
+                )
+                .sort((a: any, b: any) => {
+                  const aStatus = heartbeatStatus(a) ? 1 : 0;
+                  const bStatus = heartbeatStatus(b) ? 1 : 0;
+
+                  return bStatus - aStatus;
+                })
+                .map((runner: any) => (
+                  <Card
+                    key={runner.id}
+                    fullWidth
+                    isHoverable
+                    isPressable
+                    onPress={() => {
+                      setTargetRunner(runner);
+                      showRunnerDrawer.onOpen();
+                    }}
+                  >
+                    <CardHeader className="flex flex-cols items-center justify-between">
+                      {runner.auto_runner ? (
+                        <p className="text-md font-bold">Auto Runner</p>
+                      ) : (
+                        <p className="text-md font-bold">{runner.name}</p>
+                      )}
+                      <Dropdown backdrop="opaque">
+                        <DropdownTrigger>
+                          <Icon
+                            className="m-1 hover:text-primary"
+                            icon="solar:menu-dots-bold"
+                            width={24}
+                          />
+                        </DropdownTrigger>
+                        <DropdownMenu>
+                          <DropdownSection title="Actions">
+                            <DropdownItem
+                              key="copy"
+                              startContent={
+                                <Icon icon="solar:copy-outline" width={18} />
+                              }
+                              onPress={() => copyRunnerIDtoClipboard(runner.id)}
+                            >
+                              Copy ID
+                            </DropdownItem>
+                          </DropdownSection>
+                          <DropdownSection title="Danger zone">
+                            <DropdownItem
+                              key="delete"
+                              className="text-danger"
+                              color="danger"
+                              isDisabled={
+                                project.members.length > 0 &&
+                                project.members.find(
+                                  (m: any) => m.user_id === user.id,
+                                ) &&
+                                project.members.filter(
+                                  (m: any) => m.user_id === user.id,
+                                )[0].role === "Viewer"
+                              }
+                              startContent={
+                                <Icon icon="hugeicons:delete-02" width={18} />
+                              }
+                              onPress={() => {
+                                setTargetRunner(runner);
+                                deleteRunnerModal.onOpen();
+                              }}
+                            >
+                              Delete
+                            </DropdownItem>
+                          </DropdownSection>
+                        </DropdownMenu>
+                      </Dropdown>
+                    </CardHeader>
+                    <CardBody className="flex flex-col">
+                      {runner.disabled && (
+                        <p className="mb-4 text-center text-lg font-bold text-danger">
+                          {runner.disabled_reason}
+                        </p>
+                      )}
+                      {!runner.registered && (
+                        <div className="flex flex-wrap items-center justify-center text-center">
+                          <Spinner
+                            label="Waiting for connection..."
+                            size="sm"
+                            variant="dots"
+                          />
+                        </div>
+                      )}
+                    </CardBody>
+                    <CardFooter className="flex flex-cols items-center justify-between">
+                      <div className="flex flex-wrap items-start gap-2">
+                        <Chip
+                          color={heartbeatColor(runner)}
+                          radius="sm"
+                          size="sm"
+                          variant="flat"
+                        >
+                          {heartbeatStatus(runner) ? "Healthy" : "Unhealthy"}
+                        </Chip>
+                        <Chip
+                          color={runner.disabled ? "danger" : "success"}
+                          radius="sm"
+                          size="sm"
+                          variant="flat"
+                        >
+                          {runner.disabled ? "Disabled" : "Enabled"}
+                        </Chip>
+                        <Chip
+                          color={runner.registered ? "success" : "warning"}
+                          radius="sm"
+                          size="sm"
+                          variant="flat"
+                        >
+                          {runner.registered ? "Registered" : "Unregistered"}
+                        </Chip>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Icon
+                          className="text-default-500"
+                          icon="hugeicons:activity-03"
+                          width={22}
+                        />
+                        <TimeAgo
+                          className={`text-sm text-${heartbeatColor(runner)}`}
+                          date={runner.last_heartbeat}
+                        />
+                      </div>
+                    </CardFooter>
+                  </Card>
+                ))}
+            </div>
+          )}
+        </div>
+      ))}
+
       <RunnerDetails disclosure={showRunnerDrawer} runner={targetRunner} />
       <DeleteRunnerModal disclosure={deleteRunnerModal} runner={targetRunner} />
     </main>
