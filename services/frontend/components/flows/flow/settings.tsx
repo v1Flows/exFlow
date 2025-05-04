@@ -12,8 +12,17 @@ import { Icon } from "@iconify/react";
 
 import UpdateFlow from "@/lib/fetch/flow/PUT/UpdateFlow";
 import ErrorCard from "@/components/error/ErrorCard";
+import canEditProject from "@/lib/functions/canEditProject";
 
-export default function FlowSettings({ flow }: { flow: any }) {
+export default function FlowSettings({
+  flow,
+  project,
+  user,
+}: {
+  flow: any;
+  project: any;
+  user: any;
+}) {
   const router = useRouter();
 
   const [encryptExecutions, setEncryptExecutions] = useState(
@@ -82,6 +91,7 @@ export default function FlowSettings({ flow }: { flow: any }) {
                     </p>
                   </div>
                   <Switch
+                    isDisabled={!canEditProject(user.id, project.members)}
                     isSelected={encryptActionParams}
                     size="sm"
                     onValueChange={(value) => {
@@ -103,6 +113,7 @@ export default function FlowSettings({ flow }: { flow: any }) {
                     </p>
                   </div>
                   <Switch
+                    isDisabled={!canEditProject(user.id, project.members)}
                     isSelected={encryptExecutions}
                     size="sm"
                     onValueChange={(value) => {
@@ -119,6 +130,7 @@ export default function FlowSettings({ flow }: { flow: any }) {
       <Button
         fullWidth
         color="primary"
+        isDisabled={!canEditProject(user.id, project.members)}
         startContent={<Icon icon="hugeicons:floppy-disk" width={20} />}
         onPress={updateFlow}
       >

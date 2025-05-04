@@ -14,8 +14,15 @@ import { Icon } from "@iconify/react";
 
 import CreateRunnerModal from "@/components/modals/runner/create";
 import UpdateProject from "@/lib/fetch/project/PUT/UpdateProject";
+import canEditProject from "@/lib/functions/canEditProject";
 
-export default function ProjectRunnerDetails({ project }: { project: any }) {
+export default function ProjectRunnerDetails({
+  project,
+  user,
+}: {
+  project: any;
+  user: any;
+}) {
   const router = useRouter();
 
   const addRunnerModal = useDisclosure();
@@ -105,6 +112,7 @@ export default function ProjectRunnerDetails({ project }: { project: any }) {
             </div>
             <Spacer y={2} />
             <Switch
+              isDisabled={!canEditProject(user.id, project.members)}
               isSelected={sharedRunners}
               size="sm"
               onValueChange={(value) => {
@@ -129,6 +137,7 @@ export default function ProjectRunnerDetails({ project }: { project: any }) {
             </div>
             <Spacer y={2} />
             <Switch
+              isDisabled={!canEditProject(user.id, project.members)}
               isSelected={autoJoin}
               size="sm"
               onValueChange={setAutoJoin}
@@ -147,6 +156,7 @@ export default function ProjectRunnerDetails({ project }: { project: any }) {
             <Spacer y={2} />
             <Switch
               color="danger"
+              isDisabled={!canEditProject(user.id, project.members)}
               isSelected={disableJoin}
               size="sm"
               onValueChange={setDisableJoin}
@@ -187,6 +197,7 @@ export default function ProjectRunnerDetails({ project }: { project: any }) {
             <Button
               isIconOnly
               color="primary"
+              isDisabled={!canEditProject(user.id, project.members)}
               size="sm"
               variant="flat"
               onPress={addRunnerModal.onOpen}

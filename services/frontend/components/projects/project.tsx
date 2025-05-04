@@ -14,6 +14,7 @@ import React from "react";
 
 import Reloader from "@/components/reloader/Reloader";
 import EditProjectModal from "@/components/modals/projects/edit";
+import canEditProject from "@/lib/functions/canEditProject";
 
 import ProjectTabs from "./project/tabs";
 
@@ -27,22 +28,6 @@ export default function Project({
   flows,
 }: any) {
   const editProjectModal = useDisclosure();
-
-  function checkEditDisabled() {
-    if (project.disabled) {
-      return true;
-    } else if (user.role === "admin") {
-      return false;
-    } else if (
-      project.members.find((m: any) => m.user_id === user.id) &&
-      project.members.filter((m: any) => m.user_id === user.id)[0].role ===
-        "Viewer"
-    ) {
-      return true;
-    }
-
-    return false;
-  }
 
   return (
     <main>
@@ -61,7 +46,9 @@ export default function Project({
         <div className="flex flex-cols items-center gap-4">
           <Button
             color="warning"
-            isDisabled={checkEditDisabled()}
+            isDisabled={
+              project.disabled || !canEditProject(user.id, project.members)
+            }
             startContent={<Icon icon="hugeicons:pencil-edit-02" width={20} />}
             variant="flat"
             onPress={() => editProjectModal.onOpen()}
