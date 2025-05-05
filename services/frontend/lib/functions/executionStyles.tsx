@@ -1,8 +1,25 @@
 import { CircularProgress, Tooltip } from "@heroui/react";
 import { Icon } from "@iconify/react";
 
+export function executionStatuses(): string[] {
+  return [
+    "scheduled",
+    "pending",
+    "running",
+    "paused",
+    "canceled",
+    "noPatternMatch",
+    "noResult",
+    "interactionWaiting",
+    "error",
+    "success",
+  ];
+}
+
 export function executionStatusName(step: any): any {
-  if (step.status === "pending") {
+  if (step.status === "scheduled") {
+    return "Scheduled";
+  } else if (step.status === "pending") {
     return "Pending";
   } else if (step.status === "running") {
     return "Running";
@@ -20,8 +37,6 @@ export function executionStatusName(step: any): any {
     return "Error";
   } else if (step.status === "success") {
     return "Success";
-  } else if (step.status === "scheduled") {
-    return "Scheduled";
   } else {
     return "N/A";
   }
@@ -29,7 +44,7 @@ export function executionStatusName(step: any): any {
 
 export function executionStatusColor(step: any) {
   if (step.status === "pending") {
-    return "default";
+    return "default-400";
   } else if (step.status === "scheduled") {
     return "secondary";
   } else if (step.status === "running") {
@@ -41,7 +56,7 @@ export function executionStatusColor(step: any) {
   } else if (step.status === "noPatternMatch") {
     return "secondary";
   } else if (step.status === "noResult") {
-    return "default";
+    return "default-400";
   } else if (step.status === "interactionWaiting") {
     return "primary";
   } else if (step.status === "error") {
@@ -49,7 +64,33 @@ export function executionStatusColor(step: any) {
   } else if (step.status === "success") {
     return "success";
   } else {
-    return "default";
+    return "default-400";
+  }
+}
+
+export function executionStatusCardBackgroundColor(step: any) {
+  if (step.status === "pending") {
+    return "default/50";
+  } else if (step.status === "scheduled") {
+    return "secondary/30";
+  } else if (step.status === "running") {
+    return "primary/30";
+  } else if (step.status === "paused") {
+    return "warning/30";
+  } else if (step.status === "canceled") {
+    return "danger/30";
+  } else if (step.status === "noPatternMatch") {
+    return "secondary/30";
+  } else if (step.status === "noResult") {
+    return "default/50";
+  } else if (step.status === "interactionWaiting") {
+    return "primary/30";
+  } else if (step.status === "error") {
+    return "danger/30";
+  } else if (step.status === "success") {
+    return "success/30";
+  } else {
+    return "default/50";
   }
 }
 

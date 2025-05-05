@@ -23,7 +23,9 @@ import ReactTimeago from "react-timeago";
 
 import DeleteExecutionModal from "@/components/modals/executions/delete";
 import {
+  executionStatusCardBackgroundColor,
   executionStatusColor,
+  executionStatuses,
   executionStatusIcon,
   executionStatusName,
   executionStatusWrapper,
@@ -266,443 +268,61 @@ export default function Executions({
   const topContent = React.useMemo(() => {
     return (
       <div className="flex flex-wrap items-stretch gap-4">
-        {executions.filter((e: any) => executionStatusName(e) == "Scheduled")
-          .length > 0 && (
-          <Card
-            isHoverable
-            isPressable
-            className={
-              statusFilter.has("scheduled")
-                ? "w-[240px] grow bg-secondary/50"
-                : "w-[240px] grow"
-            }
-            onPress={() => {
-              if (statusFilter.has("scheduled")) {
-                statusFilter.delete("scheduled");
-                setStatusFilter(new Set(statusFilter));
-                setPage(1);
-              } else {
-                statusFilter.add("scheduled");
-                setStatusFilter(new Set(statusFilter));
-                setPage(1);
-              }
-            }}
-          >
-            <CardBody>
-              <div className="flex items-center gap-2">
-                <div className="flex size-10 items-center justify-center rounded-small bg-secondary/10 text-secondary-500">
-                  <Icon
-                    icon={executionStatusIcon({ status: "scheduled" })}
-                    width={20}
-                  />
-                </div>
-                <div>
-                  <p className="text-md font-bold">
-                    <NumberFlow
-                      locales="en-US" // Intl.NumberFormat locales
-                      value={
-                        executions.filter(
-                          (e: any) => executionStatusName(e) == "Scheduled",
-                        ).length
-                      }
-                    />
-                  </p>
-                  <p className="text-sm text-default-500">Scheduled</p>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-        )}
+        {executionStatuses().map((status: any) => {
+          const count = executions.filter(
+            (e: any) => e.status === status,
+          ).length;
 
-        {executions.filter((e: any) => executionStatusName(e) == "Pending")
-          .length > 0 && (
-          <Card
-            isHoverable
-            isPressable
-            className={
-              statusFilter.has("pending")
-                ? "w-[240px] grow bg-default/50"
-                : "w-[240px] grow"
-            }
-            onPress={() => {
-              if (statusFilter.has("pending")) {
-                statusFilter.delete("pending");
-                setStatusFilter(new Set(statusFilter));
-                setPage(1);
-              } else {
-                statusFilter.add("pending");
-                setStatusFilter(new Set(statusFilter));
-                setPage(1);
-              }
-            }}
-          >
-            <CardBody>
-              <div className="flex items-center gap-2">
-                <div className="flex size-10 items-center justify-center rounded-small bg-default/30 text-default-500">
-                  <Icon
-                    icon={executionStatusIcon({ status: "pending" })}
-                    width={20}
-                  />
-                </div>
-                <div>
-                  <p className="text-md font-bold">
-                    <NumberFlow
-                      locales="en-US" // Intl.NumberFormat locales
-                      value={
-                        executions.filter(
-                          (e: any) => executionStatusName(e) == "Pending",
-                        ).length
-                      }
-                    />
-                  </p>
-                  <p className="text-sm text-default-500">Pending</p>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-        )}
+          if (count === 0) return null;
 
-        {executions.filter((e: any) => executionStatusName(e) == "Success")
-          .length > 0 && (
-          <Card
-            isHoverable
-            isPressable
-            className={
-              statusFilter.has("success")
-                ? "w-[240px] grow bg-success/30"
-                : "w-[240px] grow"
-            }
-            onPress={() => {
-              if (statusFilter.has("success")) {
-                statusFilter.delete("success");
-                setStatusFilter(new Set(statusFilter));
-                setPage(1);
-              } else {
-                statusFilter.add("success");
-                setStatusFilter(new Set(statusFilter));
-                setPage(1);
+          return (
+            <Card
+              key={status}
+              isHoverable
+              isPressable
+              className={
+                statusFilter.has(status)
+                  ? `w-[240px] grow bg-${executionStatusCardBackgroundColor({ status: status })}`
+                  : "w-[240px] grow"
               }
-            }}
-          >
-            <CardBody>
-              <div className="flex items-center gap-2">
-                <div className="flex size-10 items-center justify-center rounded-small bg-success/10 text-success">
-                  <Icon
-                    icon={executionStatusIcon({ status: "success" })}
-                    width={20}
-                  />
-                </div>
-                <div>
-                  <p className="text-md font-bold">
-                    <NumberFlow
-                      locales="en-US" // Intl.NumberFormat locales
-                      value={
-                        executions.filter(
-                          (e: any) => executionStatusName(e) == "Success",
-                        ).length
-                      }
+              onPress={() => {
+                if (statusFilter.has(status)) {
+                  statusFilter.delete(status);
+                  setStatusFilter(new Set(statusFilter));
+                  setPage(1);
+                } else {
+                  statusFilter.add(status);
+                  setStatusFilter(new Set(statusFilter));
+                  setPage(1);
+                }
+              }}
+            >
+              <CardBody>
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`flex size-10 items-center justify-center rounded-small bg-${executionStatusColor({ status: status })}/10 text-${executionStatusColor({ status: status })}`}
+                  >
+                    <Icon
+                      icon={executionStatusIcon({ status: status })}
+                      width={20}
                     />
-                  </p>
-                  <p className="text-sm text-default-500">Success</p>
+                  </div>
+                  <div>
+                    <p className="text-md font-bold">
+                      <NumberFlow
+                        locales="en-US" // Intl.NumberFormat locales
+                        value={count}
+                      />
+                    </p>
+                    <p className="text-sm text-default-500">
+                      {executionStatusName({ status: status })}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </CardBody>
-          </Card>
-        )}
-
-        {executions.filter((e: any) => executionStatusName(e) == "Running")
-          .length > 0 && (
-          <Card
-            isHoverable
-            isPressable
-            className={
-              statusFilter.has("running")
-                ? "w-[240px] grow bg-primary/30"
-                : "w-[240px] grow"
-            }
-            onPress={() => {
-              if (statusFilter.has("running")) {
-                statusFilter.delete("running");
-                setStatusFilter(new Set(statusFilter));
-                setPage(1);
-              } else {
-                statusFilter.add("running");
-                setStatusFilter(new Set(statusFilter));
-                setPage(1);
-              }
-            }}
-          >
-            <CardBody>
-              <div className="flex items-center gap-2">
-                <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
-                  <Icon
-                    icon={executionStatusIcon({ status: "running" })}
-                    width={20}
-                  />
-                </div>
-                <div>
-                  <p className="text-md font-bold">
-                    <NumberFlow
-                      locales="en-US" // Intl.NumberFormat locales
-                      value={
-                        executions.filter(
-                          (e: any) => executionStatusName(e) == "Running",
-                        ).length
-                      }
-                    />
-                  </p>
-                  <p className="text-sm text-default-500">Running</p>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-        )}
-
-        {executions.filter((e: any) => executionStatusName(e) == "Paused")
-          .length > 0 && (
-          <Card
-            isHoverable
-            isPressable
-            className={
-              statusFilter.has("paused")
-                ? "w-[240px] grow bg-warning/30"
-                : "w-[240px] grow"
-            }
-            onPress={() => {
-              if (statusFilter.has("paused")) {
-                statusFilter.delete("paused");
-                setStatusFilter(new Set(statusFilter));
-                setPage(1);
-              } else {
-                statusFilter.add("paused");
-                setStatusFilter(new Set(statusFilter));
-                setPage(1);
-              }
-            }}
-          >
-            <CardBody>
-              <div className="flex items-center gap-2">
-                <div className="flex size-10 items-center justify-center rounded-small bg-warning/10 text-warning">
-                  <Icon
-                    icon={executionStatusIcon({ status: "paused" })}
-                    width={20}
-                  />
-                </div>
-                <div>
-                  <p className="text-md font-bold">
-                    <NumberFlow
-                      locales="en-US" // Intl.NumberFormat locales
-                      value={
-                        executions.filter(
-                          (e: any) => executionStatusName(e) == "Paused",
-                        ).length
-                      }
-                    />
-                  </p>
-                  <p className="text-sm text-default-500">Paused</p>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-        )}
-
-        {executions.filter(
-          (e: any) => executionStatusName(e) == "Interaction Required",
-        ).length > 0 && (
-          <Card
-            isHoverable
-            isPressable
-            className={
-              statusFilter.has("interaction_waiting")
-                ? "w-[240px] grow bg-primary/30"
-                : "w-[240px] grow"
-            }
-            onPress={() => {
-              if (statusFilter.has("interaction_waiting")) {
-                statusFilter.delete("interaction_waiting");
-                setStatusFilter(new Set(statusFilter));
-                setPage(1);
-              } else {
-                statusFilter.add("interaction_waiting");
-                setStatusFilter(new Set(statusFilter));
-                setPage(1);
-              }
-            }}
-          >
-            <CardBody>
-              <div className="flex items-center gap-2">
-                <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
-                  <Icon
-                    icon={executionStatusIcon({ status: "interactionWaiting" })}
-                    width={20}
-                  />
-                </div>
-                <div>
-                  <p className="text-md font-bold">
-                    <NumberFlow
-                      locales="en-US" // Intl.NumberFormat locales
-                      value={
-                        executions.filter(
-                          (e: any) =>
-                            executionStatusName(e) == "Interaction Required",
-                        ).length
-                      }
-                    />
-                  </p>
-                  <p className="text-sm text-default-500">
-                    Interaction Required
-                  </p>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-        )}
-
-        {executions.filter(
-          (e: any) => executionStatusName(e) == "No Pattern Match",
-        ).length > 0 && (
-          <Card
-            isHoverable
-            isPressable
-            className={
-              statusFilter.has("no_pattern_match")
-                ? "w-[240px] grow bg-secondary/30"
-                : "w-[240px] grow"
-            }
-            onPress={() => {
-              if (statusFilter.has("no_pattern_match")) {
-                statusFilter.delete("no_pattern_match");
-                setStatusFilter(new Set(statusFilter));
-                setPage(1);
-              } else {
-                statusFilter.add("no_pattern_match");
-                setStatusFilter(new Set(statusFilter));
-                setPage(1);
-              }
-            }}
-          >
-            <CardBody>
-              <div className="flex items-center gap-2">
-                <div className="flex size-10 items-center justify-center rounded-small bg-secondary/10 text-secondary">
-                  <Icon
-                    icon={executionStatusIcon({ status: "noPatternMatch" })}
-                    width={20}
-                  />
-                </div>
-                <div>
-                  <p className="text-md font-bold">
-                    <NumberFlow
-                      locales="en-US" // Intl.NumberFormat locales
-                      value={
-                        executions.filter(
-                          (e: any) =>
-                            executionStatusName(e) == "No Pattern Match",
-                        ).length
-                      }
-                    />
-                  </p>
-                  <p className="text-sm text-default-500">No Pattern Match</p>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-        )}
-
-        {executions.filter((e: any) => executionStatusName(e) == "Canceled")
-          .length > 0 && (
-          <Card
-            isHoverable
-            isPressable
-            className={
-              statusFilter.has("canceled")
-                ? "w-[240px] grow bg-danger/30"
-                : "w-[240px] grow"
-            }
-            onPress={() => {
-              if (statusFilter.has("canceled")) {
-                statusFilter.delete("canceled");
-                setStatusFilter(new Set(statusFilter));
-                setPage(1);
-              } else {
-                statusFilter.add("canceled");
-                setStatusFilter(new Set(statusFilter));
-                setPage(1);
-              }
-            }}
-          >
-            <CardBody>
-              <div className="flex items-center gap-2">
-                <div className="flex size-10 items-center justify-center rounded-small bg-danger/10 text-danger">
-                  <Icon
-                    icon={executionStatusIcon({ status: "canceled" })}
-                    width={20}
-                  />
-                </div>
-                <div>
-                  <p className="text-md font-bold">
-                    <NumberFlow
-                      locales="en-US" // Intl.NumberFormat locales
-                      value={
-                        executions.filter(
-                          (e: any) => executionStatusName(e) == "Canceled",
-                        ).length
-                      }
-                    />
-                  </p>
-                  <p className="text-sm text-default-500">Canceled</p>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-        )}
-
-        {executions.filter((e: any) => executionStatusName(e) == "Error")
-          .length > 0 && (
-          <Card
-            isHoverable
-            isPressable
-            className={
-              statusFilter.has("error")
-                ? "w-[240px] grow bg-danger/30"
-                : "w-[240px] grow"
-            }
-            onPress={() => {
-              if (statusFilter.has("error")) {
-                statusFilter.delete("error");
-                setStatusFilter(new Set(statusFilter));
-                setPage(1);
-              } else {
-                statusFilter.add("error");
-                setStatusFilter(new Set(statusFilter));
-                setPage(1);
-              }
-            }}
-          >
-            <CardBody>
-              <div className="flex items-center gap-2">
-                <div className="flex size-10 items-center justify-center rounded-small bg-danger/10 text-danger">
-                  <Icon
-                    icon={executionStatusIcon({ status: "error" })}
-                    width={20}
-                  />
-                </div>
-                <div>
-                  <p className="text-md font-bold">
-                    <NumberFlow
-                      locales="en-US" // Intl.NumberFormat locales
-                      value={
-                        executions.filter(
-                          (e: any) => executionStatusName(e) == "Error",
-                        ).length
-                      }
-                    />
-                  </p>
-                  <p className="text-sm text-default-500">Error</p>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-        )}
+              </CardBody>
+            </Card>
+          );
+        })}
       </div>
     );
   }, [executions, statusFilter]);
