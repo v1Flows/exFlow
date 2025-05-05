@@ -24,7 +24,7 @@ import NextLink from "next/link";
 import clsx from "clsx";
 import { Icon } from "@iconify/react";
 import { useTheme } from "next-themes";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { siteConfig } from "@/config/site";
@@ -58,6 +58,7 @@ export const Navbar = ({ userDetails, session }) => {
     await Logout();
   }
 
+  const router = useRouter();
   const { theme, setTheme } = useTheme();
   const pathname = usePathname();
   const currentPath = pathname.split("/")?.[1];
@@ -145,7 +146,16 @@ export const Navbar = ({ userDetails, session }) => {
               <DropdownItem
                 key="projects"
                 description="Manage all projects"
-                startContent={<Icon icon="hugeicons:ai-folder-01" width={22} />}
+                startContent={
+                  <Icon
+                    className="text-danger"
+                    icon="hugeicons:ai-folder-01"
+                    width={24}
+                  />
+                }
+                onPress={() => {
+                  router.push("/admin/projects");
+                }}
               >
                 Projects
               </DropdownItem>
@@ -153,22 +163,47 @@ export const Navbar = ({ userDetails, session }) => {
                 key="flows"
                 description="Manage all flows"
                 startContent={
-                  <Icon icon="hugeicons:workflow-square-10" width={22} />
+                  <Icon
+                    className="text-danger"
+                    icon="hugeicons:workflow-square-10"
+                    width={24}
+                  />
                 }
+                onPress={() => {
+                  router.push("/admin/flows");
+                }}
               >
                 Flows
               </DropdownItem>
               <DropdownItem
                 key="executions"
                 description="Manage all executions"
-                startContent={<Icon icon="hugeicons:rocket-02" width={22} />}
+                startContent={
+                  <Icon
+                    className="text-danger"
+                    icon="hugeicons:rocket-02"
+                    width={24}
+                  />
+                }
+                onPress={() => {
+                  router.push("/admin/executions");
+                }}
               >
                 Executions
               </DropdownItem>
               <DropdownItem
                 key="runners"
                 description="Manage all runners"
-                startContent={<Icon icon="hugeicons:ai-brain-04" width={22} />}
+                startContent={
+                  <Icon
+                    className="text-danger"
+                    icon="hugeicons:ai-brain-04"
+                    width={24}
+                  />
+                }
+                onPress={() => {
+                  router.push("/admin/runners");
+                }}
               >
                 Runners
               </DropdownItem>
@@ -176,15 +211,31 @@ export const Navbar = ({ userDetails, session }) => {
                 key="users"
                 description="Manage all users"
                 startContent={
-                  <Icon icon="hugeicons:location-user-02" width={22} />
+                  <Icon
+                    className="text-danger"
+                    icon="hugeicons:location-user-02"
+                    width={24}
+                  />
                 }
+                onPress={() => {
+                  router.push("/admin/users");
+                }}
               >
                 Users
               </DropdownItem>
               <DropdownItem
                 key="page_settings"
                 description="Manage the page settings"
-                startContent={<Icon icon="hugeicons:settings-05" width={22} />}
+                startContent={
+                  <Icon
+                    className="text-danger"
+                    icon="hugeicons:settings-05"
+                    width={24}
+                  />
+                }
+                onPress={() => {
+                  router.push("/admin/page-settings");
+                }}
               >
                 Page Settings
               </DropdownItem>
