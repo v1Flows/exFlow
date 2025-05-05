@@ -52,7 +52,7 @@ func GetRunningExecutions(context *gin.Context, db *bun.DB) {
 
 	executions := make([]models.Executions, 0)
 	err = db.NewSelect().Model(&executions).
-		Where("flow_id IN (?) AND status IN ('running', 'scheduled', 'paused')", bun.In(flowsArray)).
+		Where("flow_id IN (?) AND status NOT IN ('canceled', 'noPatternMatch', 'error', 'success')", bun.In(flowsArray)).
 		Scan(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error collecting executions from db", err)

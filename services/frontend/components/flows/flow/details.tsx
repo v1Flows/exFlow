@@ -6,10 +6,12 @@ export default function FlowDetails({
   flow,
   project,
   executions,
+  runners,
 }: {
   flow: any;
   project: any;
   executions: any;
+  runners: any;
 }) {
   return (
     <main>
@@ -56,7 +58,10 @@ export default function FlowDetails({
                   <Icon icon="hugeicons:ai-brain-04" width={24} />
                 </div>
                 <div>
-                  <p className="text-md font-bold">{flow.runner_id}</p>
+                  <p className="text-md font-bold">
+                    {runners.find((r: any) => r.id === flow.runner_id)?.name ||
+                      flow.runner_id}
+                  </p>
                   <p className="text-sm text-default-500">Runner</p>
                 </div>
               </div>

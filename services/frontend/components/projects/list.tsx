@@ -66,7 +66,7 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
           <Spacer y={4} />
         </>
       )}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         {projects.map((project: any) => (
           <Card
             key={project.id}
@@ -108,23 +108,18 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
                 </div>
                 <Dropdown placement="bottom-end">
                   <DropdownTrigger>
-                    <Button
-                      isIconOnly
-                      className="text-default-500"
-                      size="sm"
-                      variant="light"
-                    >
+                    <Button isIconOnly size="sm" variant="light">
                       <Icon
                         className="text-lg"
                         icon="hugeicons:more-vertical-circle-01"
                       />
                     </Button>
                   </DropdownTrigger>
-                  <DropdownMenu aria-label="Project actions">
+                  <DropdownMenu aria-label="Project actions" variant="flat">
                     <DropdownItem
                       key="copy"
                       startContent={
-                        <Icon icon="solar:copy-outline" width={18} />
+                        <Icon icon="hugeicons:copy-01" width={18} />
                       }
                       onPress={() => copyProjectIDtoClipboard(project.id)}
                     >
