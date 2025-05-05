@@ -73,7 +73,7 @@ export function executionStatusIcon(step: any) {
   } else if (step.status === "error") {
     return "hugeicons:alert-02";
   } else if (step.status === "success") {
-    return "hugeicons:tick-double-01";
+    return "hugeicons:tick-double-03";
   } else {
     return "solar:question-square-linear";
   }
@@ -245,7 +245,7 @@ export function executionStatusWrapper(step: any) {
           valueLabel={
             <Icon
               className="text-success"
-              icon="hugeicons:tick-double-01"
+              icon="hugeicons:tick-double-03"
               width={22}
             />
           }

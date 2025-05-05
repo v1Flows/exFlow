@@ -24,6 +24,7 @@ import ReactTimeago from "react-timeago";
 import DeleteExecutionModal from "@/components/modals/executions/delete";
 import {
   executionStatusColor,
+  executionStatusIcon,
   executionStatusName,
   executionStatusWrapper,
 } from "@/lib/functions/executionStyles";
@@ -290,7 +291,10 @@ export default function Executions({
             <CardBody>
               <div className="flex items-center gap-2">
                 <div className="flex size-10 items-center justify-center rounded-small bg-secondary/10 text-secondary-500">
-                  <Icon icon="hugeicons:time-schedule" width={20} />
+                  <Icon
+                    icon={executionStatusIcon({ status: "scheduled" })}
+                    width={20}
+                  />
                 </div>
                 <div>
                   <p className="text-md font-bold">
@@ -335,7 +339,10 @@ export default function Executions({
             <CardBody>
               <div className="flex items-center gap-2">
                 <div className="flex size-10 items-center justify-center rounded-small bg-default/30 text-default-500">
-                  <Icon icon="hugeicons:time-quarter-pass" width={20} />
+                  <Icon
+                    icon={executionStatusIcon({ status: "pending" })}
+                    width={20}
+                  />
                 </div>
                 <div>
                   <p className="text-md font-bold">
@@ -380,7 +387,10 @@ export default function Executions({
             <CardBody>
               <div className="flex items-center gap-2">
                 <div className="flex size-10 items-center justify-center rounded-small bg-success/10 text-success">
-                  <Icon icon="hugeicons:tick-double-01" width={20} />
+                  <Icon
+                    icon={executionStatusIcon({ status: "success" })}
+                    width={20}
+                  />
                 </div>
                 <div>
                   <p className="text-md font-bold">
@@ -425,7 +435,10 @@ export default function Executions({
             <CardBody>
               <div className="flex items-center gap-2">
                 <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
-                  <Icon icon="hugeicons:play" width={20} />
+                  <Icon
+                    icon={executionStatusIcon({ status: "running" })}
+                    width={20}
+                  />
                 </div>
                 <div>
                   <p className="text-md font-bold">
@@ -470,7 +483,10 @@ export default function Executions({
             <CardBody>
               <div className="flex items-center gap-2">
                 <div className="flex size-10 items-center justify-center rounded-small bg-warning/10 text-warning">
-                  <Icon icon="hugeicons:pause" width={20} />
+                  <Icon
+                    icon={executionStatusIcon({ status: "paused" })}
+                    width={20}
+                  />
                 </div>
                 <div>
                   <p className="text-md font-bold">
@@ -516,7 +532,10 @@ export default function Executions({
             <CardBody>
               <div className="flex items-center gap-2">
                 <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
-                  <Icon icon="hugeicons:waving-hand-01" width={20} />
+                  <Icon
+                    icon={executionStatusIcon({ status: "interactionWaiting" })}
+                    width={20}
+                  />
                 </div>
                 <div>
                   <p className="text-md font-bold">
@@ -565,7 +584,10 @@ export default function Executions({
             <CardBody>
               <div className="flex items-center gap-2">
                 <div className="flex size-10 items-center justify-center rounded-small bg-secondary/10 text-secondary">
-                  <Icon icon="hugeicons:note-remove" width={20} />
+                  <Icon
+                    icon={executionStatusIcon({ status: "noPatternMatch" })}
+                    width={20}
+                  />
                 </div>
                 <div>
                   <p className="text-md font-bold">
@@ -611,7 +633,10 @@ export default function Executions({
             <CardBody>
               <div className="flex items-center gap-2">
                 <div className="flex size-10 items-center justify-center rounded-small bg-danger/10 text-danger">
-                  <Icon icon="hugeicons:cancel-01" width={20} />
+                  <Icon
+                    icon={executionStatusIcon({ status: "canceled" })}
+                    width={20}
+                  />
                 </div>
                 <div>
                   <p className="text-md font-bold">
@@ -656,7 +681,10 @@ export default function Executions({
             <CardBody>
               <div className="flex items-center gap-2">
                 <div className="flex size-10 items-center justify-center rounded-small bg-danger/10 text-danger">
-                  <Icon icon="hugeicons:alert-02" width={20} />
+                  <Icon
+                    icon={executionStatusIcon({ status: "error" })}
+                    width={20}
+                  />
                 </div>
                 <div>
                   <p className="text-md font-bold">
