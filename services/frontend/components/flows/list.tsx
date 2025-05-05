@@ -14,27 +14,40 @@ import {
   Chip,
   Badge,
   Tooltip,
-  CircularProgress,
+  Button,
+  addToast,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import ReactTimeago from "react-timeago";
 
+import {
+  executionStatusColor,
+  executionStatusIcon,
+  executionStatusName,
+  executionStatusWrapper,
+} from "@/lib/functions/executionStyles";
+import canEditProject from "@/lib/functions/canEditProject";
+
 import DeleteFolderModal from "../modals/folders/delete";
 import UpdateFolderModal from "../modals/folders/update";
 import ScheduleExecutionModal from "../modals/executions/schedule";
+import EditFlowModal from "../modals/flows/edit";
+import DeleteFlowModal from "../modals/flows/delete";
 
 export default function FlowList({
   flows,
   folders,
   projects,
   runningExecutions,
+  user,
 }: {
   flows: any;
   folders: any;
   projects: any;
   runningExecutions: any;
+  user: any;
 }) {
   const router = useRouter();
 
@@ -46,6 +59,9 @@ export default function FlowList({
   const scheduleExecutionModal = useDisclosure();
   const updateFolderModal = useDisclosure();
   const deleteFolderModal = useDisclosure();
+
+  const editFlowModal = useDisclosure();
+  const deleteFlowModal = useDisclosure();
 
   // get folder id from query params
   const searchParams = useSearchParams();
@@ -64,248 +80,6 @@ export default function FlowList({
       setFilteredFlows(flows.filter((f: any) => f.folder_id === ""));
     }
   }, [searchFolderID, folders, flows]);
-
-  function status(execution: any) {
-    if (execution.status === "scheduled") {
-      return "Scheduled";
-    } else if (execution.status === "pending") {
-      return "Pending";
-    } else if (execution.status === "running") {
-      return "Running";
-    } else if (execution.status === "paused") {
-      return "Paused";
-    } else if (execution.status === "canceled") {
-      return "Canceled";
-    } else if (execution.status === "noPatternMatch") {
-      return "No Pattern Match";
-    } else if (execution.status === "interactionWaiting") {
-      return "Interaction Required";
-    } else if (execution.status === "error") {
-      return "Error";
-    } else if (execution.status === "success") {
-      return "Success";
-    } else {
-      return "Unknown";
-    }
-  }
-
-  function statusColor(execution: any) {
-    if (execution.status === "scheduled") {
-      return "secondary";
-    } else if (execution.status === "pending") {
-      return "default-500";
-    } else if (execution.status === "running") {
-      return "primary";
-    } else if (execution.status === "paused") {
-      return "warning";
-    } else if (execution.status === "canceled") {
-      return "danger";
-    } else if (execution.status === "noPatternMatch") {
-      return "secondary";
-    } else if (execution.status === "interactionWaiting") {
-      return "primary";
-    } else if (execution.status === "error") {
-      return "danger";
-    } else if (execution.status === "success") {
-      return "success";
-    } else {
-      return "default";
-    }
-  }
-
-  function statusIconPlain(execution: any) {
-    if (execution.status === "scheduled") {
-      return "hugeicons:time-schedule";
-    } else if (execution.status === "pending") {
-      return "hugeicons:time-quarter-pass";
-    } else if (execution.status === "running") {
-      return "hugeicons:play";
-    } else if (execution.status === "paused") {
-      return "hugeicons:pause";
-    } else if (execution.status === "interactionWaiting") {
-      return "hugeicons:waving-hand-01";
-    } else {
-      return "solar:question-square-linear";
-    }
-  }
-
-  function statusIcon(execution: any) {
-    if (execution.status === "scheduled") {
-      return (
-        <CircularProgress
-          showValueLabel
-          aria-label="Step"
-          color="secondary"
-          size="md"
-          value={100}
-          valueLabel={
-            <Icon
-              className="text-secondary-500"
-              icon="hugeicons:time-schedule"
-              width={20}
-            />
-          }
-        />
-      );
-    } else if (execution.status === "pending") {
-      return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="default"
-            size="md"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-default-500"
-                icon="hugeicons:time-quarter-pass"
-                width={20}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    } else if (execution.status === "running") {
-      return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress aria-label="Step" color="primary" size="lg" />
-        </Tooltip>
-      );
-    } else if (execution.status === "paused") {
-      return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="warning"
-            size="lg"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-warning"
-                icon="hugeicons:pause"
-                width={16}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    } else if (execution.status === "canceled") {
-      return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="danger"
-            size="lg"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-danger"
-                icon="hugeicons:cancel-01"
-                width={20}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    } else if (execution.status === "noPatternMatch") {
-      return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            color="secondary"
-            size="lg"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-secondary"
-                icon="hugeicons:note-remove"
-                width={20}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    } else if (execution.status === "interactionWaiting") {
-      return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="primary"
-            size="lg"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-primary"
-                icon="hugeicons:waving-hand-01"
-                width={22}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    } else if (execution.status === "error") {
-      return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="danger"
-            size="lg"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-danger"
-                icon="hugeicons:alert-02"
-                width={20}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    } else if (execution.status === "success") {
-      return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="success"
-            size="lg"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-success"
-                icon="hugeicons:tick-double-01"
-                width={22}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    } else {
-      return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="success"
-            size="lg"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-success"
-                icon="solar:question-square-linear"
-                width={22}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    }
-  }
 
   function getDuration(execution: any) {
     let calFinished = new Date().toISOString();
@@ -337,6 +111,25 @@ export default function FlowList({
     }
   }
 
+  const copyFlowIDtoClipboard = (key: string) => {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(key);
+      addToast({
+        title: "Flow",
+        description: "Flow ID copied to clipboard!",
+        color: "success",
+        variant: "flat",
+      });
+    } else {
+      addToast({
+        title: "Flow",
+        description: "Failed to copy Flow ID to clipboard",
+        color: "danger",
+        variant: "flat",
+      });
+    }
+  };
+
   return (
     <main>
       <p className="text-xl font-bold mb-2">Folders</p>
@@ -364,13 +157,14 @@ export default function FlowList({
           >
             <CardBody>
               <div className="flex items-start justify-end">
-                <Dropdown backdrop="opaque">
+                <Dropdown placement="bottom-end">
                   <DropdownTrigger>
-                    <Icon
-                      className="m-1 hover:text-primary"
-                      icon="solar:menu-dots-bold"
-                      width={24}
-                    />
+                    <Button isIconOnly size="sm" variant="light">
+                      <Icon
+                        className="text-lg"
+                        icon="hugeicons:more-vertical-circle-01"
+                      />
+                    </Button>
                   </DropdownTrigger>
                   <DropdownMenu variant="flat">
                     <DropdownSection title="Actions">
@@ -442,7 +236,6 @@ export default function FlowList({
               key={flow.id}
               isHoverable
               isPressable
-              className="bg-default-200 bg-opacity-20 border-1 border-default-300"
               onPress={() => router.push("/flows/" + flow.id)}
             >
               <CardHeader className="flex flex-cols items-center justify-between">
@@ -450,130 +243,193 @@ export default function FlowList({
                   <p className="font-bold text-lg">{flow.name}</p>
                   <p className="text-sm text-default-500">{flow.description}</p>
                 </div>
-                {runningExecutions.executions.length > 0 && (
-                  <div>
-                    <Tooltip
-                      content={
-                        <>
-                          {runningExecutions.executions
+                <div className="flex items-center justify-center gap-3">
+                  {runningExecutions.executions.length > 0 && (
+                    <div>
+                      <Tooltip
+                        content={
+                          <>
+                            {runningExecutions.executions
+                              .filter(
+                                (execution: any) =>
+                                  execution.flow_id === flow.id,
+                              )
+                              .map((execution: any) => {
+                                return (
+                                  <Card
+                                    key={execution.id}
+                                    fullWidth
+                                    isHoverable
+                                    isPressable
+                                    className="border-1 border-default-300 mb-2"
+                                    onPress={() => {
+                                      router.push(
+                                        `/flows/${flow.id}/execution/${execution.id}`,
+                                      );
+                                    }}
+                                  >
+                                    <CardBody>
+                                      <div className="flex flex-wrap items-center justify-start gap-4">
+                                        <div className="flex items-center justify-start gap-2">
+                                          <div className="flex size-10 items-center justify-center">
+                                            {executionStatusWrapper(execution)}
+                                          </div>
+                                          <div>
+                                            <p
+                                              className={`text-sm text- font-bold text-${executionStatusColor(execution)}`}
+                                            >
+                                              {executionStatusName(execution)}
+                                            </p>
+                                            <p className="text-sm text-default-500">
+                                              Status
+                                            </p>
+                                          </div>
+                                        </div>
+                                        {execution.status === "scheduled" && (
+                                          <div className="flex items-center justify-start gap-4">
+                                            <div className="flex size-10 items-center justify-center rounded-large bg-default text-secondary bg-opacity-40">
+                                              <Icon
+                                                icon="hugeicons:date-time"
+                                                width={22}
+                                              />
+                                            </div>
+                                            <div>
+                                              <p className="text-sm font-bold text-secondary">
+                                                {execution.scheduled_at ===
+                                                "0001-01-01T00:00:00Z" ? (
+                                                  "N/A"
+                                                ) : (
+                                                  <ReactTimeago
+                                                    date={
+                                                      execution.scheduled_at
+                                                    }
+                                                  />
+                                                )}
+                                              </p>
+                                              <p className="text-sm text-default-500">
+                                                Scheduled At
+                                              </p>
+                                            </div>
+                                          </div>
+                                        )}
+                                        {execution.status !== "scheduled" && (
+                                          <div className="flex items-center justify-start gap-4">
+                                            <div className="flex size-10 items-center justify-center rounded-large bg-default bg-opacity-40">
+                                              <Icon
+                                                icon="hugeicons:timer-02"
+                                                width={22}
+                                              />
+                                            </div>
+                                            <div>
+                                              <p className="text-sm font-bold">
+                                                {getDuration(execution)}
+                                              </p>
+                                              <p className="text-sm text-default-500">
+                                                Duration
+                                              </p>
+                                            </div>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </CardBody>
+                                  </Card>
+                                );
+                              })}
+                          </>
+                        }
+                      >
+                        <div className="flex items-center justify-center gap-3">
+                          {runningExecutions.summary
                             .filter(
                               (execution: any) => execution.flow_id === flow.id,
                             )
-                            .map((execution: any) => {
+                            .map((e: any) => {
                               return (
-                                <Card
-                                  key={execution.id}
-                                  fullWidth
-                                  isPressable
-                                  className="border-1 border-default-300 mb-2"
-                                  onPress={() => {
-                                    router.push(
-                                      `/flows/${flow.id}/execution/${execution.id}`,
-                                    );
-                                  }}
+                                <Badge
+                                  key={e.status}
+                                  color="default"
+                                  content={e.count}
+                                  size="sm"
+                                  variant="faded"
                                 >
-                                  <CardBody className="grid grid-cols-3 items-center justify-start gap-4">
-                                    <div className="flex items-center justify-start gap-2">
-                                      <div className="flex size-10 items-center justify-center">
-                                        {statusIcon(execution)}
-                                      </div>
-                                      <div>
-                                        <p
-                                          className={`text-sm text- font-bold text-${statusColor(execution)}`}
-                                        >
-                                          {status(execution)}
-                                        </p>
-                                        <p className="text-sm text-default-500">
-                                          Status
-                                        </p>
-                                      </div>
-                                    </div>
-                                    {execution.status === "scheduled" && (
-                                      <div className="flex items-center justify-start gap-4">
-                                        <div className="flex size-10 items-center justify-center rounded-large bg-default text-secondary bg-opacity-40">
-                                          <Icon
-                                            icon="hugeicons:time-schedule"
-                                            width={22}
-                                          />
-                                        </div>
-                                        <div>
-                                          <p className="text-sm font-bold text-secondary">
-                                            {execution.scheduled_at ===
-                                            "0001-01-01T00:00:00Z" ? (
-                                              "N/A"
-                                            ) : (
-                                              <ReactTimeago
-                                                date={execution.scheduled_at}
-                                              />
-                                            )}
-                                          </p>
-                                          <p className="text-sm text-default-500">
-                                            Scheduled At
-                                          </p>
-                                        </div>
-                                      </div>
-                                    )}
-                                    {execution.status !== "scheduled" && (
-                                      <div className="flex items-center justify-start gap-4">
-                                        <div className="flex size-10 items-center justify-center rounded-large bg-default bg-opacity-40">
-                                          <Icon
-                                            icon="hugeicons:timer-02"
-                                            width={22}
-                                          />
-                                        </div>
-                                        <div>
-                                          <p className="text-sm font-bold">
-                                            {getDuration(execution)}
-                                          </p>
-                                          <p className="text-sm text-default-500">
-                                            Duration
-                                          </p>
-                                        </div>
-                                      </div>
-                                    )}
-                                  </CardBody>
-                                  <CardFooter>
-                                    <p className="text-sm text-default-500">
-                                      ID: {execution.id}
-                                    </p>
-                                  </CardFooter>
-                                </Card>
+                                  <Icon
+                                    className={`text-${executionStatusColor(e)}-500`}
+                                    icon={executionStatusIcon(e)}
+                                    width={24}
+                                  />
+                                </Badge>
                               );
                             })}
+                        </div>
+                      </Tooltip>
+                    </div>
+                  )}
+                  <Dropdown placement="bottom-end">
+                    <DropdownTrigger>
+                      <Button isIconOnly size="sm" variant="light">
+                        <Icon
+                          className="text-lg"
+                          icon="hugeicons:more-vertical-circle-01"
+                        />
+                      </Button>
+                    </DropdownTrigger>
+                    <DropdownMenu aria-label="Flow actions">
+                      {canEditProject(user.id, project.members) && (
+                        <>
+                          <DropdownItem
+                            key="copy"
+                            startContent={
+                              <Icon icon="hugeicons:copy-01" width={18} />
+                            }
+                            onPress={() => copyFlowIDtoClipboard(flow.id)}
+                          >
+                            Copy Flow ID
+                          </DropdownItem>
+                          <DropdownItem
+                            key="edit"
+                            color="warning"
+                            startContent={
+                              <Icon
+                                icon="hugeicons:pencil-edit-02"
+                                width={18}
+                              />
+                            }
+                            onPress={() => {
+                              setTargetFlow(flow);
+                              editFlowModal.onOpen();
+                            }}
+                          >
+                            Edit Flow
+                          </DropdownItem>
+                          <DropdownItem
+                            key="delete"
+                            className="text-danger"
+                            color="danger"
+                            startContent={
+                              <Icon icon="hugeicons:delete-02" width={18} />
+                            }
+                            onPress={() => {
+                              setTargetFlow(flow);
+                              deleteFlowModal.onOpen();
+                            }}
+                          >
+                            Delete Flow
+                          </DropdownItem>
                         </>
-                      }
-                    >
-                      <div className="flex items-center justify-center gap-3">
-                        {runningExecutions.summary
-                          .filter(
-                            (execution: any) => execution.flow_id === flow.id,
-                          )
-                          .map((e: any) => {
-                            return (
-                              <Badge
-                                key={e.status}
-                                color="default"
-                                content={e.count}
-                                size="sm"
-                                variant="faded"
-                              >
-                                <Icon
-                                  className={`text-${statusColor(e)}-500`}
-                                  icon={statusIconPlain(e)}
-                                  width={24}
-                                />
-                              </Badge>
-                            );
-                          })}
-                      </div>
-                    </Tooltip>
-                  </div>
-                )}
+                      )}
+                    </DropdownMenu>
+                  </Dropdown>
+                </div>
               </CardHeader>
               <CardFooter className="flex flex-cols items-center justify-between">
-                <p className="text-sm text-default-500">
+                <Chip
+                  className="text-sm text-default-500"
+                  radius="sm"
+                  size="sm"
+                  variant="flat"
+                >
                   Project: {project.name || "Unknown"}
-                </p>
+                </Chip>
                 <Chip
                   color={project.disabled ? "danger" : "success"}
                   radius="sm"
@@ -600,6 +456,12 @@ export default function FlowList({
         projects={projects}
       />
       <DeleteFolderModal disclosure={deleteFolderModal} folder={targetFolder} />
+      <EditFlowModal
+        disclosure={editFlowModal}
+        flow={targetFlow}
+        projects={projects}
+      />
+      <DeleteFlowModal disclosure={deleteFlowModal} flow={targetFlow} />
     </main>
   );
 }

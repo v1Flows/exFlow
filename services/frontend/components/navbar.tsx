@@ -16,6 +16,7 @@ import {
   Avatar,
   Input,
   addToast,
+  Button,
   Image,
 } from "@heroui/react";
 import { link as linkStyles } from "@heroui/theme";
@@ -23,7 +24,7 @@ import NextLink from "next/link";
 import clsx from "clsx";
 import { Icon } from "@iconify/react";
 import { useTheme } from "next-themes";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { siteConfig } from "@/config/site";
@@ -57,6 +58,7 @@ export const Navbar = ({ userDetails, session }) => {
     await Logout();
   }
 
+  const router = useRouter();
   const { theme, setTheme } = useTheme();
   const pathname = usePathname();
   const currentPath = pathname.split("/")?.[1];
@@ -119,6 +121,127 @@ export const Navbar = ({ userDetails, session }) => {
             </NavbarItem>
           ))}
         </ul>
+        {userDetails.role === "admin" && (
+          <Dropdown>
+            <NavbarItem>
+              <DropdownTrigger>
+                <Button
+                  disableRipple
+                  className="p-0 bg-transparent data-[hover=true]:bg-transparent font-bold"
+                  color="danger"
+                  endContent={<Icon icon="hugeicons:arrow-down-01" />}
+                  radius="sm"
+                  variant="light"
+                >
+                  Admin
+                </Button>
+              </DropdownTrigger>
+            </NavbarItem>
+            <DropdownMenu
+              aria-label="Admin Actions"
+              itemClasses={{
+                base: "gap-4",
+              }}
+            >
+              <DropdownItem
+                key="projects"
+                description="Manage all projects"
+                startContent={
+                  <Icon
+                    className="text-danger"
+                    icon="hugeicons:ai-folder-01"
+                    width={24}
+                  />
+                }
+                onPress={() => {
+                  router.push("/admin/projects");
+                }}
+              >
+                Projects
+              </DropdownItem>
+              <DropdownItem
+                key="flows"
+                description="Manage all flows"
+                startContent={
+                  <Icon
+                    className="text-danger"
+                    icon="hugeicons:workflow-square-10"
+                    width={24}
+                  />
+                }
+                onPress={() => {
+                  router.push("/admin/flows");
+                }}
+              >
+                Flows
+              </DropdownItem>
+              <DropdownItem
+                key="executions"
+                description="Manage all executions"
+                startContent={
+                  <Icon
+                    className="text-danger"
+                    icon="hugeicons:rocket-02"
+                    width={24}
+                  />
+                }
+                onPress={() => {
+                  router.push("/admin/executions");
+                }}
+              >
+                Executions
+              </DropdownItem>
+              <DropdownItem
+                key="runners"
+                description="Manage all runners"
+                startContent={
+                  <Icon
+                    className="text-danger"
+                    icon="hugeicons:ai-brain-04"
+                    width={24}
+                  />
+                }
+                onPress={() => {
+                  router.push("/admin/runners");
+                }}
+              >
+                Runners
+              </DropdownItem>
+              <DropdownItem
+                key="users"
+                description="Manage all users"
+                startContent={
+                  <Icon
+                    className="text-danger"
+                    icon="hugeicons:location-user-02"
+                    width={24}
+                  />
+                }
+                onPress={() => {
+                  router.push("/admin/users");
+                }}
+              >
+                Users
+              </DropdownItem>
+              <DropdownItem
+                key="page_settings"
+                description="Manage the page settings"
+                startContent={
+                  <Icon
+                    className="text-danger"
+                    icon="hugeicons:settings-05"
+                    width={24}
+                  />
+                }
+                onPress={() => {
+                  router.push("/admin/page-settings");
+                }}
+              >
+                Page Settings
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+        )}
       </NavbarContent>
 
       <NavbarContent

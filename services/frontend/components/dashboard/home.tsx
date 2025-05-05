@@ -16,7 +16,7 @@ import { useEffect, useState } from "react";
 import ReactTimeago from "react-timeago";
 
 import WelcomeModal from "@/components/modals/user/welcome";
-import Executions from "@/components/flows/flow/executions";
+import Executions from "@/components/execution/executions";
 import Stats from "@/components/dashboard/stats";
 
 export default function DashboardHome({

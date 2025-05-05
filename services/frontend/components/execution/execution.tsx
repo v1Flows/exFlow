@@ -26,6 +26,11 @@ import React, { useMemo, useState } from "react";
 import Reloader from "@/components/reloader/Reloader";
 import InteractExecutionStep from "@/lib/fetch/executions/PUT/step_interact";
 import GetExecutionSteps from "@/lib/fetch/executions/steps";
+import {
+  executionStatusColor,
+  executionStatusName,
+  executionStatusWrapper,
+} from "@/lib/functions/executionStyles";
 
 import AdminExecutionActions from "./adminExecutionActions";
 import AdminStepActions from "./adminStepActions";
@@ -53,30 +58,6 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
     });
   }, [execution]);
 
-  function status(step: any) {
-    if (step.status === "pending") {
-      return "Pending";
-    } else if (step.status === "running") {
-      return "Running";
-    } else if (step.status === "paused") {
-      return "Paused";
-    } else if (step.status === "canceled") {
-      return "Canceled";
-    } else if (step.status === "noPatternMatch") {
-      return "No Pattern Match";
-    } else if (step.status === "noResult") {
-      return "No Result";
-    } else if (step.status === "interactionWaiting") {
-      return "Interactive";
-    } else if (step.status === "error") {
-      return "Error";
-    } else if (step.status === "success") {
-      return "Success";
-    } else {
-      return "N/A";
-    }
-  }
-
   function lineColor(line: any) {
     // if line color is not set, return default
     if (!line.color) {
@@ -87,210 +68,6 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
       return "primary";
     } else {
       return line.color;
-    }
-  }
-
-  function statusColor(step: any) {
-    if (step.status === "pending") {
-      return "default";
-    } else if (step.status === "running") {
-      return "primary";
-    } else if (step.status === "paused") {
-      return "warning";
-    } else if (step.status === "canceled") {
-      return "danger";
-    } else if (step.status === "noPatternMatch") {
-      return "secondary";
-    } else if (step.status === "noResult") {
-      return "default";
-    } else if (step.status === "interactionWaiting") {
-      return "primary";
-    } else if (step.status === "error") {
-      return "danger";
-    } else if (step.status === "success") {
-      return "success";
-    } else {
-      return "default";
-    }
-  }
-
-  function statusIcon(step: any) {
-    if (step.status === "pending") {
-      return (
-        <Tooltip content={`${status(step)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="default"
-            size="md"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-default-500"
-                icon="hugeicons:time-quarter-pass"
-                width={20}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    } else if (step.status === "running") {
-      return (
-        <Tooltip content={`${status(step)}`}>
-          <CircularProgress aria-label="Step" color="primary" size="md" />
-        </Tooltip>
-      );
-    } else if (step.status === "paused") {
-      return (
-        <Tooltip content={`${status(step)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="warning"
-            size="md"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-warning"
-                icon="hugeicons:pause"
-                width={16}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    } else if (step.status === "canceled") {
-      return (
-        <Tooltip content={`${status(step)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="danger"
-            size="md"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-danger"
-                icon="hugeicons:cancel-01"
-                width={20}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    } else if (step.status === "noPatternMatch") {
-      return (
-        <Tooltip content={`${status(step)}`}>
-          <CircularProgress
-            showValueLabel
-            color="secondary"
-            size="md"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-secondary"
-                icon="hugeicons:note-remove"
-                width={20}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    } else if (step.status === "noResult") {
-      return (
-        <Tooltip content={`${status(step)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="default"
-            size="md"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-default-500"
-                icon="solar:ghost-broken"
-                width={20}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    } else if (step.status === "interactionWaiting") {
-      return (
-        <Tooltip content={`${status(step)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="primary"
-            size="md"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-primary"
-                icon="hugeicons:waving-hand-01"
-                width={22}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    } else if (step.status === "error") {
-      return (
-        <Tooltip content={`${status(step)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="danger"
-            size="md"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-danger"
-                icon="hugeicons:alert-02"
-                width={20}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    } else if (step.status === "success") {
-      return (
-        <Tooltip content={`${status(step)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="success"
-            size="md"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-success"
-                icon="hugeicons:tick-double-01"
-                width={22}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    } else {
-      return (
-        <Tooltip content={`${status(step)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="success"
-            size="md"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-success"
-                icon="solar:question-square-linear"
-                width={22}
-              />
-            }
-          />
-        </Tooltip>
-      );
     }
   }
 
@@ -596,12 +373,12 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
                       </div>
                       <div className="flex items-start justify-self-end gap-2">
                         <Chip
-                          color={statusColor(step)}
+                          color={executionStatusColor(step)}
                           radius="sm"
                           size="sm"
                           variant="flat"
                         >
-                          {status(step)}
+                          {executionStatusName(step)}
                         </Chip>
                         {step.encrypted && (
                           <Tooltip content="Encrypted">
@@ -649,7 +426,7 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
             </div>
           );
         case "status":
-          return <div>{statusIcon(step)}</div>;
+          return <div>{executionStatusWrapper(step)}</div>;
         case "admin_actions":
           return (
             <div className="flex flex-col items-center justify-center">
