@@ -108,19 +108,14 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
                 </div>
                 <Dropdown placement="bottom-end">
                   <DropdownTrigger>
-                    <Button
-                      isIconOnly
-                      className="text-default-500"
-                      size="sm"
-                      variant="light"
-                    >
+                    <Button isIconOnly size="sm" variant="light">
                       <Icon
                         className="text-lg"
                         icon="hugeicons:more-vertical-circle-01"
                       />
                     </Button>
                   </DropdownTrigger>
-                  <DropdownMenu aria-label="Project actions">
+                  <DropdownMenu aria-label="Project actions" variant="flat">
                     <DropdownItem
                       key="copy"
                       startContent={

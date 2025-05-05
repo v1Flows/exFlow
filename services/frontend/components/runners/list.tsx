@@ -290,25 +290,14 @@ export default function RunnersList({
                                 />
                               </Button>
                             </DropdownTrigger>
-                            <DropdownMenu aria-label="Runner Actions">
-                              <DropdownItem
-                                key="edit"
-                                startContent={
-                                  <Icon
-                                    icon="hugeicons:pencil-edit-02"
-                                    width={18}
-                                  />
-                                }
-                                onPress={() => {
-                                  setTargetRunner(runner);
-                                  editRunnerModal.onOpen();
-                                }}
-                              >
-                                Edit Runner
-                              </DropdownItem>
+                            <DropdownMenu
+                              aria-label="Runner Actions"
+                              variant="flat"
+                            >
                               {runner.disabled ? (
                                 <DropdownItem
                                   key="enable"
+                                  color="success"
                                   startContent={
                                     <Icon icon="hugeicons:play" width={18} />
                                   }
@@ -323,6 +312,7 @@ export default function RunnersList({
                               ) : (
                                 <DropdownItem
                                   key="disable"
+                                  color="danger"
                                   startContent={
                                     <Icon icon="hugeicons:pause" width={18} />
                                   }
@@ -335,6 +325,22 @@ export default function RunnersList({
                                   Disable Runner
                                 </DropdownItem>
                               )}
+                              <DropdownItem
+                                key="edit"
+                                color="warning"
+                                startContent={
+                                  <Icon
+                                    icon="hugeicons:pencil-edit-02"
+                                    width={18}
+                                  />
+                                }
+                                onPress={() => {
+                                  setTargetRunner(runner);
+                                  editRunnerModal.onOpen();
+                                }}
+                              >
+                                Edit Runner
+                              </DropdownItem>
                               <DropdownItem
                                 key="delete"
                                 className="text-danger"

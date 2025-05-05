@@ -139,12 +139,7 @@ export default function FlowList({
               <div className="flex items-start justify-end">
                 <Dropdown placement="bottom-end">
                   <DropdownTrigger>
-                    <Button
-                      isIconOnly
-                      className="text-default-500"
-                      size="sm"
-                      variant="light"
-                    >
+                    <Button isIconOnly size="sm" variant="light">
                       <Icon
                         className="text-lg"
                         icon="hugeicons:more-vertical-circle-01"
@@ -351,12 +346,7 @@ export default function FlowList({
                   )}
                   <Dropdown placement="bottom-end">
                     <DropdownTrigger>
-                      <Button
-                        isIconOnly
-                        className="text-default-500"
-                        size="sm"
-                        variant="light"
-                      >
+                      <Button isIconOnly size="sm" variant="light">
                         <Icon
                           className="text-lg"
                           icon="hugeicons:more-vertical-circle-01"
