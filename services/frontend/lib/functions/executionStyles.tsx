@@ -44,7 +44,7 @@ export function executionStatusName(step: any): any {
 
 export function executionStatusColor(step: any) {
   if (step.status === "pending") {
-    return "default-400";
+    return "default";
   } else if (step.status === "scheduled") {
     return "secondary";
   } else if (step.status === "running") {
@@ -56,7 +56,7 @@ export function executionStatusColor(step: any) {
   } else if (step.status === "noPatternMatch") {
     return "secondary";
   } else if (step.status === "noResult") {
-    return "default-400";
+    return "default";
   } else if (step.status === "interactionWaiting") {
     return "primary";
   } else if (step.status === "error") {
@@ -64,7 +64,7 @@ export function executionStatusColor(step: any) {
   } else if (step.status === "success") {
     return "success";
   } else {
-    return "default-400";
+    return "default";
   }
 }
 
