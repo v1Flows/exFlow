@@ -120,75 +120,77 @@ export const Navbar = ({ userDetails, session }) => {
             </NavbarItem>
           ))}
         </ul>
-        <Dropdown>
-          <NavbarItem>
-            <DropdownTrigger>
-              <Button
-                disableRipple
-                className="p-0 bg-transparent data-[hover=true]:bg-transparent font-bold"
-                color="danger"
-                endContent={<Icon icon="hugeicons:arrow-down-01" />}
-                radius="sm"
-                variant="light"
+        {userDetails.role === "admin" && (
+          <Dropdown>
+            <NavbarItem>
+              <DropdownTrigger>
+                <Button
+                  disableRipple
+                  className="p-0 bg-transparent data-[hover=true]:bg-transparent font-bold"
+                  color="danger"
+                  endContent={<Icon icon="hugeicons:arrow-down-01" />}
+                  radius="sm"
+                  variant="light"
+                >
+                  Admin
+                </Button>
+              </DropdownTrigger>
+            </NavbarItem>
+            <DropdownMenu
+              aria-label="Admin Actions"
+              itemClasses={{
+                base: "gap-4",
+              }}
+            >
+              <DropdownItem
+                key="projects"
+                description="Manage all projects"
+                startContent={<Icon icon="hugeicons:ai-folder-01" width={22} />}
               >
-                Admin
-              </Button>
-            </DropdownTrigger>
-          </NavbarItem>
-          <DropdownMenu
-            aria-label="Admin Actions"
-            itemClasses={{
-              base: "gap-4",
-            }}
-          >
-            <DropdownItem
-              key="projects"
-              description="Manage all projects"
-              startContent={<Icon icon="hugeicons:ai-folder-01" width={22} />}
-            >
-              Projects
-            </DropdownItem>
-            <DropdownItem
-              key="flows"
-              description="Manage all flows"
-              startContent={
-                <Icon icon="hugeicons:workflow-square-10" width={22} />
-              }
-            >
-              Flows
-            </DropdownItem>
-            <DropdownItem
-              key="executions"
-              description="Manage all executions"
-              startContent={<Icon icon="hugeicons:rocket-02" width={22} />}
-            >
-              Executions
-            </DropdownItem>
-            <DropdownItem
-              key="runners"
-              description="Manage all runners"
-              startContent={<Icon icon="hugeicons:ai-brain-04" width={22} />}
-            >
-              Runners
-            </DropdownItem>
-            <DropdownItem
-              key="users"
-              description="Manage all users"
-              startContent={
-                <Icon icon="hugeicons:location-user-02" width={22} />
-              }
-            >
-              Users
-            </DropdownItem>
-            <DropdownItem
-              key="page_settings"
-              description="Manage the page settings"
-              startContent={<Icon icon="hugeicons:settings-05" width={22} />}
-            >
-              Page Settings
-            </DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
+                Projects
+              </DropdownItem>
+              <DropdownItem
+                key="flows"
+                description="Manage all flows"
+                startContent={
+                  <Icon icon="hugeicons:workflow-square-10" width={22} />
+                }
+              >
+                Flows
+              </DropdownItem>
+              <DropdownItem
+                key="executions"
+                description="Manage all executions"
+                startContent={<Icon icon="hugeicons:rocket-02" width={22} />}
+              >
+                Executions
+              </DropdownItem>
+              <DropdownItem
+                key="runners"
+                description="Manage all runners"
+                startContent={<Icon icon="hugeicons:ai-brain-04" width={22} />}
+              >
+                Runners
+              </DropdownItem>
+              <DropdownItem
+                key="users"
+                description="Manage all users"
+                startContent={
+                  <Icon icon="hugeicons:location-user-02" width={22} />
+                }
+              >
+                Users
+              </DropdownItem>
+              <DropdownItem
+                key="page_settings"
+                description="Manage the page settings"
+                startContent={<Icon icon="hugeicons:settings-05" width={22} />}
+              >
+                Page Settings
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+        )}
       </NavbarContent>
 
       <NavbarContent

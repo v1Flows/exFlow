@@ -88,17 +88,6 @@ export default function FlowTabs({
             />
           </Tab>
           <Tab
-            key="settings"
-            title={
-              <div className="flex items-center space-x-2">
-                <Icon icon="hugeicons:settings-02" width={20} />
-                <span>Settings</span>
-              </div>
-            }
-          >
-            <FlowSettings flow={flow} project={project} user={user} />
-          </Tab>
-          <Tab
             key="stats"
             title={
               <div className="flex items-center space-x-2">
@@ -112,6 +101,17 @@ export default function FlowTabs({
             }
           >
             <FlowStats flowID={flow.id} />
+          </Tab>
+          <Tab
+            key="settings"
+            title={
+              <div className="flex items-center space-x-2">
+                <Icon icon="hugeicons:settings-02" width={20} />
+                <span>Settings</span>
+              </div>
+            }
+          >
+            <FlowSettings flow={flow} project={project} user={user} />
           </Tab>
         </Tabs>
       </div>
