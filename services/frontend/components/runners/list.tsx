@@ -264,6 +264,7 @@ export default function RunnersList({
                   <Card
                     key={runner.id}
                     isPressable
+                    isHoverable
                     className="shadow-md"
                     onPress={() => {
                       setTargetRunner(runner);

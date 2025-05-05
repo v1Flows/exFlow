@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 
 import Actions from "./actions";
-import Executions from "./executions";
+import Executions from "../../execution/executions";
 import FlowStats from "./stats";
 import FlowSettings from "./settings";
 

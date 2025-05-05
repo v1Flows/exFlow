@@ -119,7 +119,7 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
                     <DropdownItem
                       key="copy"
                       startContent={
-                        <Icon icon="solar:copy-outline" width={18} />
+                        <Icon icon="hugeicons:copy-01" width={18} />
                       }
                       onPress={() => copyProjectIDtoClipboard(project.id)}
                     >

@@ -15,6 +15,7 @@ import {
   Badge,
   Tooltip,
   Button,
+  addToast,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -109,6 +110,25 @@ export default function FlowList({
       return `${sec}s`;
     }
   }
+
+  const copyFlowIDtoClipboard = (key: string) => {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(key);
+      addToast({
+        title: "Flow",
+        description: "Flow ID copied to clipboard!",
+        color: "success",
+        variant: "flat",
+      });
+    } else {
+      addToast({
+        title: "Flow",
+        description: "Failed to copy Flow ID to clipboard",
+        color: "danger",
+        variant: "flat",
+      });
+    }
+  };
 
   return (
     <main>
@@ -239,6 +259,7 @@ export default function FlowList({
                                   <Card
                                     key={execution.id}
                                     fullWidth
+                                    isHoverable
                                     isPressable
                                     className="border-1 border-default-300 mb-2"
                                     onPress={() => {
@@ -247,71 +268,70 @@ export default function FlowList({
                                       );
                                     }}
                                   >
-                                    <CardBody className="grid grid-cols-3 items-center justify-start gap-4">
-                                      <div className="flex items-center justify-start gap-2">
-                                        <div className="flex size-10 items-center justify-center">
-                                          {executionStatusWrapper(execution)}
+                                    <CardBody>
+                                      <div className="flex flex-wrap items-center justify-start gap-4">
+                                        <div className="flex items-center justify-start gap-2">
+                                          <div className="flex size-10 items-center justify-center">
+                                            {executionStatusWrapper(execution)}
+                                          </div>
+                                          <div>
+                                            <p
+                                              className={`text-sm text- font-bold text-${executionStatusColor(execution)}`}
+                                            >
+                                              {executionStatusName(execution)}
+                                            </p>
+                                            <p className="text-sm text-default-500">
+                                              Status
+                                            </p>
+                                          </div>
                                         </div>
-                                        <div>
-                                          <p
-                                            className={`text-sm text- font-bold text-${executionStatusColor(execution)}`}
-                                          >
-                                            {executionStatusName(execution)}
-                                          </p>
-                                          <p className="text-sm text-default-500">
-                                            Status
-                                          </p>
-                                        </div>
+                                        {execution.status === "scheduled" && (
+                                          <div className="flex items-center justify-start gap-4">
+                                            <div className="flex size-10 items-center justify-center rounded-large bg-default text-secondary bg-opacity-40">
+                                              <Icon
+                                                icon="hugeicons:date-time"
+                                                width={22}
+                                              />
+                                            </div>
+                                            <div>
+                                              <p className="text-sm font-bold text-secondary">
+                                                {execution.scheduled_at ===
+                                                "0001-01-01T00:00:00Z" ? (
+                                                  "N/A"
+                                                ) : (
+                                                  <ReactTimeago
+                                                    date={
+                                                      execution.scheduled_at
+                                                    }
+                                                  />
+                                                )}
+                                              </p>
+                                              <p className="text-sm text-default-500">
+                                                Scheduled At
+                                              </p>
+                                            </div>
+                                          </div>
+                                        )}
+                                        {execution.status !== "scheduled" && (
+                                          <div className="flex items-center justify-start gap-4">
+                                            <div className="flex size-10 items-center justify-center rounded-large bg-default bg-opacity-40">
+                                              <Icon
+                                                icon="hugeicons:timer-02"
+                                                width={22}
+                                              />
+                                            </div>
+                                            <div>
+                                              <p className="text-sm font-bold">
+                                                {getDuration(execution)}
+                                              </p>
+                                              <p className="text-sm text-default-500">
+                                                Duration
+                                              </p>
+                                            </div>
+                                          </div>
+                                        )}
                                       </div>
-                                      {execution.status === "scheduled" && (
-                                        <div className="flex items-center justify-start gap-4">
-                                          <div className="flex size-10 items-center justify-center rounded-large bg-default text-secondary bg-opacity-40">
-                                            <Icon
-                                              icon="hugeicons:date-time"
-                                              width={22}
-                                            />
-                                          </div>
-                                          <div>
-                                            <p className="text-sm font-bold text-secondary">
-                                              {execution.scheduled_at ===
-                                              "0001-01-01T00:00:00Z" ? (
-                                                "N/A"
-                                              ) : (
-                                                <ReactTimeago
-                                                  date={execution.scheduled_at}
-                                                />
-                                              )}
-                                            </p>
-                                            <p className="text-sm text-default-500">
-                                              Scheduled At
-                                            </p>
-                                          </div>
-                                        </div>
-                                      )}
-                                      {execution.status !== "scheduled" && (
-                                        <div className="flex items-center justify-start gap-4">
-                                          <div className="flex size-10 items-center justify-center rounded-large bg-default bg-opacity-40">
-                                            <Icon
-                                              icon="hugeicons:timer-02"
-                                              width={22}
-                                            />
-                                          </div>
-                                          <div>
-                                            <p className="text-sm font-bold">
-                                              {getDuration(execution)}
-                                            </p>
-                                            <p className="text-sm text-default-500">
-                                              Duration
-                                            </p>
-                                          </div>
-                                        </div>
-                                      )}
                                     </CardBody>
-                                    <CardFooter>
-                                      <p className="text-sm text-default-500">
-                                        ID: {execution.id}
-                                      </p>
-                                    </CardFooter>
                                   </Card>
                                 );
                               })}
@@ -356,6 +376,15 @@ export default function FlowList({
                     <DropdownMenu aria-label="Flow actions">
                       {canEditProject(user.id, project.members) && (
                         <>
+                          <DropdownItem
+                            key="copy"
+                            startContent={
+                              <Icon icon="hugeicons:copy-01" width={18} />
+                            }
+                            onPress={() => copyFlowIDtoClipboard(flow.id)}
+                          >
+                            Copy Flow ID
+                          </DropdownItem>
                           <DropdownItem
                             key="edit"
                             color="warning"

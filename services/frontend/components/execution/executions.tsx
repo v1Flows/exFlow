@@ -243,7 +243,7 @@ export default function Executions({
               <Icon icon="hugeicons:navigation-03" width={20} />
               View
             </Button>
-            <Tooltip color="danger" content="Delete execution">
+            <Tooltip color="danger" content="Delete Execution">
               <Button
                 isIconOnly
                 isDisabled={!canEdit}
@@ -381,6 +381,7 @@ export default function Executions({
           )}
         </TableBody>
       </Table>
+
       <DeleteExecutionModal
         disclosure={deleteExecutionModal}
         execution={targetExecution}

@@ -1,7 +1,6 @@
 package executions
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/v1Flows/exFlow/services/backend/functions/auth"
@@ -42,9 +41,28 @@ func GetPendingExecutions(context *gin.Context, db *bun.DB) {
 		err = tx.NewSelect().Model(&executions).Where("flow_id::text IN (SELECT id::text FROM flows WHERE project_id = ?)", projectID).Where("(status = 'pending' OR (status = 'scheduled' AND scheduled_at <= NOW())) AND runner_id = ''").For("UPDATE").Limit(1).Scan(context)
 		if err != nil {
 			httperror.InternalServerError(context, "Error collecting executions from db", err)
-			fmt.Println(err.Error())
 			return
 		}
+
+		// check if the flow where the execution is assigned to has an exclusive runner assigned
+		for _, execution := range executions {
+			var flow models.Flows
+			err = tx.NewSelect().Model(&flow).Where("id = ?", execution.FlowID).Scan(context)
+			if err != nil {
+				httperror.InternalServerError(context, "Error collecting flow data on db", err)
+				return
+			}
+
+			if flow.RunnerID != "any" {
+				// if the flow has an exclusive runner assigned, check if it is the same as the current one and if not, remove it from the executions list
+				if flow.RunnerID != runnerID {
+					executions = removeExecution(executions, execution.ID.String())
+				}
+			} else {
+				continue
+			}
+		}
+
 	} else {
 		err = tx.NewSelect().Model(&executions).Where("(status = 'pending' OR (status = 'scheduled' AND scheduled_at <= NOW())) AND runner_id = ''").For("UPDATE").Limit(1).Scan(context)
 		if err != nil {
@@ -69,4 +87,18 @@ func GetPendingExecutions(context *gin.Context, db *bun.DB) {
 	}
 
 	context.JSON(http.StatusOK, gin.H{"executions": executions})
+}
+
+func removeExecution(executions []models.Executions, executionID string) []models.Executions {
+	// Create a new slice to hold the filtered executions
+	filteredExecutions := make([]models.Executions, 0)
+
+	// Iterate through the executions and exclude the one with the matching ID
+	for _, execution := range executions {
+		if execution.ID.String() != executionID {
+			filteredExecutions = append(filteredExecutions, execution)
+		}
+	}
+
+	return filteredExecutions
 }

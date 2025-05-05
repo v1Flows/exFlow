@@ -72,23 +72,23 @@ export function executionStatusCardBackgroundColor(step: any) {
   if (step.status === "pending") {
     return "default/50";
   } else if (step.status === "scheduled") {
-    return "secondary/30";
+    return "secondary/20";
   } else if (step.status === "running") {
-    return "primary/30";
+    return "primary/20";
   } else if (step.status === "paused") {
-    return "warning/30";
+    return "warning/20";
   } else if (step.status === "canceled") {
-    return "danger/30";
+    return "danger/20";
   } else if (step.status === "noPatternMatch") {
-    return "secondary/30";
+    return "secondary/20";
   } else if (step.status === "noResult") {
     return "default/50";
   } else if (step.status === "interactionWaiting") {
-    return "primary/30";
+    return "primary/20";
   } else if (step.status === "error") {
-    return "danger/30";
+    return "danger/20";
   } else if (step.status === "success") {
-    return "success/30";
+    return "success/20";
   } else {
     return "default/50";
   }
@@ -114,7 +114,7 @@ export function executionStatusIcon(step: any) {
   } else if (step.status === "error") {
     return "hugeicons:alert-02";
   } else if (step.status === "success") {
-    return "hugeicons:tick-double-03";
+    return "hugeicons:tick-double-01";
   } else {
     return "solar:question-square-linear";
   }
@@ -286,7 +286,7 @@ export function executionStatusWrapper(step: any) {
           valueLabel={
             <Icon
               className="text-success"
-              icon="hugeicons:tick-double-03"
+              icon="hugeicons:tick-double-01"
               width={22}
             />
           }

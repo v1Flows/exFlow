@@ -64,6 +64,7 @@ export default async function FlowPage({
                   )
                 : null
             }
+            runners={runners.data.runners}
           />
           <Spacer y={4} />
           <FlowTabs
