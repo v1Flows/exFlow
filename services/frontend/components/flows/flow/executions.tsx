@@ -5,7 +5,6 @@ import {
   Button,
   Card,
   CardBody,
-  CircularProgress,
   Pagination,
   Snippet,
   Table,
@@ -23,6 +22,11 @@ import React, { useState } from "react";
 import ReactTimeago from "react-timeago";
 
 import DeleteExecutionModal from "@/components/modals/executions/delete";
+import {
+  executionStatusColor,
+  executionStatusName,
+  executionStatusWrapper,
+} from "@/lib/functions/executionStyles";
 
 export default function Executions({
   runners,
@@ -71,30 +75,6 @@ export default function Executions({
     return Math.ceil(length);
   }
 
-  function status(execution: any) {
-    if (execution.status === "scheduled") {
-      return "Scheduled";
-    } else if (execution.status === "pending") {
-      return "Pending";
-    } else if (execution.status === "running") {
-      return "Running";
-    } else if (execution.status === "paused") {
-      return "Paused";
-    } else if (execution.status === "canceled") {
-      return "Canceled";
-    } else if (execution.status === "noPatternMatch") {
-      return "No Pattern Match";
-    } else if (execution.status === "interactionWaiting") {
-      return "Interaction Required";
-    } else if (execution.status === "error") {
-      return "Error";
-    } else if (execution.status === "success") {
-      return "Success";
-    } else {
-      return "Unknown";
-    }
-  }
-
   function statusFilterReturn(execution: any) {
     if (execution.status === "scheduled") {
       return "scheduled";
@@ -116,184 +96,6 @@ export default function Executions({
       return "success";
     } else {
       return "unknown";
-    }
-  }
-
-  function statusColor(execution: any) {
-    if (execution.status === "scheduled") {
-      return "secondary";
-    } else if (execution.status === "pending") {
-      return "default-500";
-    } else if (execution.status === "running") {
-      return "primary";
-    } else if (execution.status === "paused") {
-      return "warning";
-    } else if (execution.status === "canceled") {
-      return "danger";
-    } else if (execution.status === "noPatternMatch") {
-      return "secondary";
-    } else if (execution.status === "interactionWaiting") {
-      return "primary";
-    } else if (execution.status === "error") {
-      return "danger";
-    } else if (execution.status === "success") {
-      return "success";
-    } else {
-      return "default";
-    }
-  }
-
-  function statusIcon(execution: any) {
-    if (execution.status === "scheduled") {
-      return (
-        <CircularProgress
-          showValueLabel
-          aria-label="Step"
-          color="secondary"
-          size="md"
-          value={100}
-          valueLabel={
-            <Icon
-              className="text-secondary-500"
-              icon="hugeicons:time-schedule"
-              width={20}
-            />
-          }
-        />
-      );
-    } else if (execution.status === "pending") {
-      return (
-        <CircularProgress
-          showValueLabel
-          aria-label="Step"
-          color="default"
-          size="md"
-          value={100}
-          valueLabel={
-            <Icon
-              className="text-default-500"
-              icon="hugeicons:time-quarter-pass"
-              width={20}
-            />
-          }
-        />
-      );
-    } else if (execution.status === "running") {
-      return <CircularProgress aria-label="Step" color="primary" size="md" />;
-    } else if (execution.status === "paused") {
-      return (
-        <CircularProgress
-          showValueLabel
-          aria-label="Step"
-          color="warning"
-          size="md"
-          value={100}
-          valueLabel={
-            <Icon className="text-warning" icon="hugeicons:pause" width={20} />
-          }
-        />
-      );
-    } else if (execution.status === "canceled") {
-      return (
-        <CircularProgress
-          showValueLabel
-          aria-label="Step"
-          color="danger"
-          size="md"
-          value={100}
-          valueLabel={
-            <Icon
-              className="text-danger"
-              icon="hugeicons:cancel-01"
-              width={20}
-            />
-          }
-        />
-      );
-    } else if (execution.status === "noPatternMatch") {
-      return (
-        <CircularProgress
-          showValueLabel
-          color="secondary"
-          size="md"
-          value={100}
-          valueLabel={
-            <Icon
-              className="text-secondary"
-              icon="hugeicons:note-remove"
-              width={20}
-            />
-          }
-        />
-      );
-    } else if (execution.status === "interactionWaiting") {
-      return (
-        <CircularProgress
-          showValueLabel
-          aria-label="Step"
-          color="primary"
-          size="md"
-          value={100}
-          valueLabel={
-            <Icon
-              className="text-primary"
-              icon="hugeicons:waving-hand-01"
-              width={20}
-            />
-          }
-        />
-      );
-    } else if (execution.status === "error") {
-      return (
-        <CircularProgress
-          showValueLabel
-          aria-label="Step"
-          color="danger"
-          size="md"
-          value={100}
-          valueLabel={
-            <Icon
-              className="text-danger"
-              icon="hugeicons:alert-02"
-              width={20}
-            />
-          }
-        />
-      );
-    } else if (execution.status === "success") {
-      return (
-        <CircularProgress
-          showValueLabel
-          aria-label="Step"
-          color="success"
-          size="md"
-          value={100}
-          valueLabel={
-            <Icon
-              className="text-success"
-              icon="hugeicons:tick-double-01"
-              width={20}
-            />
-          }
-        />
-      );
-    } else {
-      return (
-        <CircularProgress
-          showValueLabel
-          aria-label="Step"
-          color="success"
-          size="md"
-          value={100}
-          valueLabel={
-            <Icon
-              className="text-success"
-              icon="solar:question-square-linear"
-              width={22}
-            />
-          }
-        />
-      );
     }
   }
 
@@ -346,10 +148,12 @@ export default function Executions({
       case "status":
         return (
           <div className="flex flex-cols items-center gap-2">
-            {statusIcon(execution)}
+            {executionStatusWrapper(execution)}
             <div className="flex flex-col items-start">
-              <p className={`font-bold text-${statusColor(execution)}`}>
-                {status(execution)}
+              <p
+                className={`font-bold text-${executionStatusColor(execution)}`}
+              >
+                {executionStatusName(execution)}
               </p>
               {execution.status !== "scheduled" && (
                 <p className="text-sm text-default-500">
@@ -461,7 +265,8 @@ export default function Executions({
   const topContent = React.useMemo(() => {
     return (
       <div className="flex flex-wrap items-stretch gap-4">
-        {executions.filter((e: any) => status(e) == "Scheduled").length > 0 && (
+        {executions.filter((e: any) => executionStatusName(e) == "Scheduled")
+          .length > 0 && (
           <Card
             isHoverable
             isPressable
@@ -492,8 +297,9 @@ export default function Executions({
                     <NumberFlow
                       locales="en-US" // Intl.NumberFormat locales
                       value={
-                        executions.filter((e: any) => status(e) == "Scheduled")
-                          .length
+                        executions.filter(
+                          (e: any) => executionStatusName(e) == "Scheduled",
+                        ).length
                       }
                     />
                   </p>
@@ -504,7 +310,8 @@ export default function Executions({
           </Card>
         )}
 
-        {executions.filter((e: any) => status(e) == "Pending").length > 0 && (
+        {executions.filter((e: any) => executionStatusName(e) == "Pending")
+          .length > 0 && (
           <Card
             isHoverable
             isPressable
@@ -535,8 +342,9 @@ export default function Executions({
                     <NumberFlow
                       locales="en-US" // Intl.NumberFormat locales
                       value={
-                        executions.filter((e: any) => status(e) == "Pending")
-                          .length
+                        executions.filter(
+                          (e: any) => executionStatusName(e) == "Pending",
+                        ).length
                       }
                     />
                   </p>
@@ -547,7 +355,8 @@ export default function Executions({
           </Card>
         )}
 
-        {executions.filter((e: any) => status(e) == "Success").length > 0 && (
+        {executions.filter((e: any) => executionStatusName(e) == "Success")
+          .length > 0 && (
           <Card
             isHoverable
             isPressable
@@ -578,8 +387,9 @@ export default function Executions({
                     <NumberFlow
                       locales="en-US" // Intl.NumberFormat locales
                       value={
-                        executions.filter((e: any) => status(e) == "Success")
-                          .length
+                        executions.filter(
+                          (e: any) => executionStatusName(e) == "Success",
+                        ).length
                       }
                     />
                   </p>
@@ -590,7 +400,8 @@ export default function Executions({
           </Card>
         )}
 
-        {executions.filter((e: any) => status(e) == "Running").length > 0 && (
+        {executions.filter((e: any) => executionStatusName(e) == "Running")
+          .length > 0 && (
           <Card
             isHoverable
             isPressable
@@ -621,8 +432,9 @@ export default function Executions({
                     <NumberFlow
                       locales="en-US" // Intl.NumberFormat locales
                       value={
-                        executions.filter((e: any) => status(e) == "Running")
-                          .length
+                        executions.filter(
+                          (e: any) => executionStatusName(e) == "Running",
+                        ).length
                       }
                     />
                   </p>
@@ -633,7 +445,8 @@ export default function Executions({
           </Card>
         )}
 
-        {executions.filter((e: any) => status(e) == "Paused").length > 0 && (
+        {executions.filter((e: any) => executionStatusName(e) == "Paused")
+          .length > 0 && (
           <Card
             isHoverable
             isPressable
@@ -664,8 +477,9 @@ export default function Executions({
                     <NumberFlow
                       locales="en-US" // Intl.NumberFormat locales
                       value={
-                        executions.filter((e: any) => status(e) == "Paused")
-                          .length
+                        executions.filter(
+                          (e: any) => executionStatusName(e) == "Paused",
+                        ).length
                       }
                     />
                   </p>
@@ -676,8 +490,9 @@ export default function Executions({
           </Card>
         )}
 
-        {executions.filter((e: any) => status(e) == "Interaction Required")
-          .length > 0 && (
+        {executions.filter(
+          (e: any) => executionStatusName(e) == "Interaction Required",
+        ).length > 0 && (
           <Card
             isHoverable
             isPressable
@@ -709,7 +524,8 @@ export default function Executions({
                       locales="en-US" // Intl.NumberFormat locales
                       value={
                         executions.filter(
-                          (e: any) => status(e) == "Interaction Required",
+                          (e: any) =>
+                            executionStatusName(e) == "Interaction Required",
                         ).length
                       }
                     />
@@ -723,8 +539,9 @@ export default function Executions({
           </Card>
         )}
 
-        {executions.filter((e: any) => status(e) == "No Pattern Match").length >
-          0 && (
+        {executions.filter(
+          (e: any) => executionStatusName(e) == "No Pattern Match",
+        ).length > 0 && (
           <Card
             isHoverable
             isPressable
@@ -756,7 +573,8 @@ export default function Executions({
                       locales="en-US" // Intl.NumberFormat locales
                       value={
                         executions.filter(
-                          (e: any) => status(e) == "No Pattern Match",
+                          (e: any) =>
+                            executionStatusName(e) == "No Pattern Match",
                         ).length
                       }
                     />
@@ -768,7 +586,8 @@ export default function Executions({
           </Card>
         )}
 
-        {executions.filter((e: any) => status(e) == "Canceled").length > 0 && (
+        {executions.filter((e: any) => executionStatusName(e) == "Canceled")
+          .length > 0 && (
           <Card
             isHoverable
             isPressable
@@ -799,8 +618,9 @@ export default function Executions({
                     <NumberFlow
                       locales="en-US" // Intl.NumberFormat locales
                       value={
-                        executions.filter((e: any) => status(e) == "Canceled")
-                          .length
+                        executions.filter(
+                          (e: any) => executionStatusName(e) == "Canceled",
+                        ).length
                       }
                     />
                   </p>
@@ -811,7 +631,8 @@ export default function Executions({
           </Card>
         )}
 
-        {executions.filter((e: any) => status(e) == "Error").length > 0 && (
+        {executions.filter((e: any) => executionStatusName(e) == "Error")
+          .length > 0 && (
           <Card
             isHoverable
             isPressable
@@ -842,8 +663,9 @@ export default function Executions({
                     <NumberFlow
                       locales="en-US" // Intl.NumberFormat locales
                       value={
-                        executions.filter((e: any) => status(e) == "Error")
-                          .length
+                        executions.filter(
+                          (e: any) => executionStatusName(e) == "Error",
+                        ).length
                       }
                     />
                   </p>

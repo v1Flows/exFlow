@@ -1,235 +1,15 @@
 import { Icon } from "@iconify/react";
-import { Card, CardBody, CircularProgress, Tooltip } from "@heroui/react";
+import { Card, CardBody, Tooltip } from "@heroui/react";
 import NumberFlow from "@number-flow/react";
 import ReactTimeago from "react-timeago";
 
+import {
+  executionStatusColor,
+  executionStatusName,
+  executionStatusWrapper,
+} from "@/lib/functions/executionStyles";
+
 export default function ExecutionDetails({ runners, execution, steps }: any) {
-  function status(execution: any) {
-    if (execution.status === "scheduled") {
-      return "Scheduled";
-    } else if (execution.status === "pending") {
-      return "Pending";
-    } else if (execution.status === "running") {
-      return "Running";
-    } else if (execution.status === "paused") {
-      return "Paused";
-    } else if (execution.status === "canceled") {
-      return "Canceled";
-    } else if (execution.status === "noPatternMatch") {
-      return "No Pattern Match";
-    } else if (execution.status === "interactionWaiting") {
-      return "Interaction Required";
-    } else if (execution.status === "error") {
-      return "Error";
-    } else if (execution.status === "success") {
-      return "Success";
-    } else {
-      return "Unknown";
-    }
-  }
-
-  function statusColor(execution: any) {
-    if (execution.status === "scheduled") {
-      return "secondary";
-    } else if (execution.status === "pending") {
-      return "default-500";
-    } else if (execution.status === "running") {
-      return "primary";
-    } else if (execution.status === "paused") {
-      return "warning";
-    } else if (execution.status === "canceled") {
-      return "danger";
-    } else if (execution.status === "noPatternMatch") {
-      return "secondary";
-    } else if (execution.status === "interactionWaiting") {
-      return "primary";
-    } else if (execution.status === "error") {
-      return "danger";
-    } else if (execution.status === "success") {
-      return "success";
-    } else {
-      return "default";
-    }
-  }
-
-  function statusIcon(execution: any) {
-    if (execution.status === "scheduled") {
-      return (
-        <CircularProgress
-          showValueLabel
-          aria-label="Step"
-          color="secondary"
-          size="md"
-          value={100}
-          valueLabel={
-            <Icon
-              className="text-secondary-500"
-              icon="hugeicons:time-schedule"
-              width={20}
-            />
-          }
-        />
-      );
-    } else if (execution.status === "pending") {
-      return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="default"
-            size="md"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-default-500"
-                icon="hugeicons:time-quarter-pass"
-                width={20}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    } else if (execution.status === "running") {
-      return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress aria-label="Step" color="primary" size="lg" />
-        </Tooltip>
-      );
-    } else if (execution.status === "paused") {
-      return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="warning"
-            size="lg"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-warning"
-                icon="hugeicons:pause"
-                width={16}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    } else if (execution.status === "canceled") {
-      return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="danger"
-            size="lg"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-danger"
-                icon="hugeicons:cancel-01"
-                width={20}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    } else if (execution.status === "noPatternMatch") {
-      return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            color="secondary"
-            size="lg"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-secondary"
-                icon="hugeicons:note-remove"
-                width={20}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    } else if (execution.status === "interactionWaiting") {
-      return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="primary"
-            size="lg"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-primary"
-                icon="hugeicons:waving-hand-01"
-                width={22}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    } else if (execution.status === "error") {
-      return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="danger"
-            size="lg"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-danger"
-                icon="hugeicons:alert-02"
-                width={20}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    } else if (execution.status === "success") {
-      return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="success"
-            size="lg"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-success"
-                icon="hugeicons:tick-double-01"
-                width={22}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    } else {
-      return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="success"
-            size="lg"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-success"
-                icon="solar:question-square-linear"
-                width={22}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    }
-  }
-
   function getDuration() {
     let calFinished = new Date().toISOString();
 
@@ -267,13 +47,13 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
           <CardBody>
             <div className="flex items-center justify-start gap-2">
               <div className="flex size-12 items-center justify-center">
-                {statusIcon(execution)}
+                {executionStatusWrapper(execution)}
               </div>
               <div>
                 <p
-                  className={`text-sm text- font-bold text-${statusColor(execution)}`}
+                  className={`text-sm text- font-bold text-${executionStatusColor(execution)}`}
                 >
-                  {status(execution)}
+                  {executionStatusName(execution)}
                 </p>
                 <p className="text-sm text-default-500">Status</p>
               </div>
@@ -285,7 +65,7 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
             <CardBody>
               <div className="flex items-center justify-start gap-4">
                 <div className="flex size-12 items-center justify-center rounded-large bg-default text-secondary bg-opacity-40">
-                  <Icon icon="hugeicons:time-schedule" width={28} />
+                  <Icon icon="hugeicons:date-time" width={28} />
                 </div>
                 <div>
                   <p className="text-sm font-bold text-secondary">

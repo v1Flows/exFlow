@@ -14,12 +14,18 @@ import {
   Chip,
   Badge,
   Tooltip,
-  CircularProgress,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import ReactTimeago from "react-timeago";
+
+import {
+  executionStatusColor,
+  executionStatusIcon,
+  executionStatusName,
+  executionStatusWrapper,
+} from "@/lib/functions/executionStyles";
 
 import DeleteFolderModal from "../modals/folders/delete";
 import UpdateFolderModal from "../modals/folders/update";
@@ -64,248 +70,6 @@ export default function FlowList({
       setFilteredFlows(flows.filter((f: any) => f.folder_id === ""));
     }
   }, [searchFolderID, folders, flows]);
-
-  function status(execution: any) {
-    if (execution.status === "scheduled") {
-      return "Scheduled";
-    } else if (execution.status === "pending") {
-      return "Pending";
-    } else if (execution.status === "running") {
-      return "Running";
-    } else if (execution.status === "paused") {
-      return "Paused";
-    } else if (execution.status === "canceled") {
-      return "Canceled";
-    } else if (execution.status === "noPatternMatch") {
-      return "No Pattern Match";
-    } else if (execution.status === "interactionWaiting") {
-      return "Interaction Required";
-    } else if (execution.status === "error") {
-      return "Error";
-    } else if (execution.status === "success") {
-      return "Success";
-    } else {
-      return "Unknown";
-    }
-  }
-
-  function statusColor(execution: any) {
-    if (execution.status === "scheduled") {
-      return "secondary";
-    } else if (execution.status === "pending") {
-      return "default-500";
-    } else if (execution.status === "running") {
-      return "primary";
-    } else if (execution.status === "paused") {
-      return "warning";
-    } else if (execution.status === "canceled") {
-      return "danger";
-    } else if (execution.status === "noPatternMatch") {
-      return "secondary";
-    } else if (execution.status === "interactionWaiting") {
-      return "primary";
-    } else if (execution.status === "error") {
-      return "danger";
-    } else if (execution.status === "success") {
-      return "success";
-    } else {
-      return "default";
-    }
-  }
-
-  function statusIconPlain(execution: any) {
-    if (execution.status === "scheduled") {
-      return "hugeicons:time-schedule";
-    } else if (execution.status === "pending") {
-      return "hugeicons:time-quarter-pass";
-    } else if (execution.status === "running") {
-      return "hugeicons:play";
-    } else if (execution.status === "paused") {
-      return "hugeicons:pause";
-    } else if (execution.status === "interactionWaiting") {
-      return "hugeicons:waving-hand-01";
-    } else {
-      return "solar:question-square-linear";
-    }
-  }
-
-  function statusIcon(execution: any) {
-    if (execution.status === "scheduled") {
-      return (
-        <CircularProgress
-          showValueLabel
-          aria-label="Step"
-          color="secondary"
-          size="md"
-          value={100}
-          valueLabel={
-            <Icon
-              className="text-secondary-500"
-              icon="hugeicons:time-schedule"
-              width={20}
-            />
-          }
-        />
-      );
-    } else if (execution.status === "pending") {
-      return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="default"
-            size="md"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-default-500"
-                icon="hugeicons:time-quarter-pass"
-                width={20}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    } else if (execution.status === "running") {
-      return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress aria-label="Step" color="primary" size="lg" />
-        </Tooltip>
-      );
-    } else if (execution.status === "paused") {
-      return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="warning"
-            size="lg"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-warning"
-                icon="hugeicons:pause"
-                width={16}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    } else if (execution.status === "canceled") {
-      return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="danger"
-            size="lg"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-danger"
-                icon="hugeicons:cancel-01"
-                width={20}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    } else if (execution.status === "noPatternMatch") {
-      return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            color="secondary"
-            size="lg"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-secondary"
-                icon="hugeicons:note-remove"
-                width={20}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    } else if (execution.status === "interactionWaiting") {
-      return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="primary"
-            size="lg"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-primary"
-                icon="hugeicons:waving-hand-01"
-                width={22}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    } else if (execution.status === "error") {
-      return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="danger"
-            size="lg"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-danger"
-                icon="hugeicons:alert-02"
-                width={20}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    } else if (execution.status === "success") {
-      return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="success"
-            size="lg"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-success"
-                icon="hugeicons:tick-double-01"
-                width={22}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    } else {
-      return (
-        <Tooltip content={`${status(execution)}`}>
-          <CircularProgress
-            showValueLabel
-            aria-label="Step"
-            color="success"
-            size="lg"
-            value={100}
-            valueLabel={
-              <Icon
-                className="text-success"
-                icon="solar:question-square-linear"
-                width={22}
-              />
-            }
-          />
-        </Tooltip>
-      );
-    }
-  }
 
   function getDuration(execution: any) {
     let calFinished = new Date().toISOString();
@@ -442,7 +206,6 @@ export default function FlowList({
               key={flow.id}
               isHoverable
               isPressable
-              className="bg-default-200 bg-opacity-20 border-1 border-default-300"
               onPress={() => router.push("/flows/" + flow.id)}
             >
               <CardHeader className="flex flex-cols items-center justify-between">
@@ -475,13 +238,13 @@ export default function FlowList({
                                   <CardBody className="grid grid-cols-3 items-center justify-start gap-4">
                                     <div className="flex items-center justify-start gap-2">
                                       <div className="flex size-10 items-center justify-center">
-                                        {statusIcon(execution)}
+                                        {executionStatusWrapper(execution)}
                                       </div>
                                       <div>
                                         <p
-                                          className={`text-sm text- font-bold text-${statusColor(execution)}`}
+                                          className={`text-sm text- font-bold text-${executionStatusColor(execution)}`}
                                         >
-                                          {status(execution)}
+                                          {executionStatusName(execution)}
                                         </p>
                                         <p className="text-sm text-default-500">
                                           Status
@@ -492,7 +255,7 @@ export default function FlowList({
                                       <div className="flex items-center justify-start gap-4">
                                         <div className="flex size-10 items-center justify-center rounded-large bg-default text-secondary bg-opacity-40">
                                           <Icon
-                                            icon="hugeicons:time-schedule"
+                                            icon="hugeicons:date-time"
                                             width={22}
                                           />
                                         </div>
@@ -558,8 +321,8 @@ export default function FlowList({
                                 variant="faded"
                               >
                                 <Icon
-                                  className={`text-${statusColor(e)}-500`}
-                                  icon={statusIconPlain(e)}
+                                  className={`text-${executionStatusColor(e)}-500`}
+                                  icon={executionStatusIcon(e)}
                                   width={24}
                                 />
                               </Badge>
