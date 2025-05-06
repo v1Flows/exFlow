@@ -3,8 +3,8 @@ package flows
 import (
 	"errors"
 	"net/http"
-	"time"
 
+	"github.com/google/uuid"
 	"github.com/v1Flows/exFlow/services/backend/functions/gatekeeper"
 	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
 	functions_project "github.com/v1Flows/exFlow/services/backend/functions/project"
@@ -16,7 +16,7 @@ import (
 	"github.com/uptrace/bun"
 )
 
-func UpdateFlow(context *gin.Context, db *bun.DB) {
+func AddFlowFailurePipelines(context *gin.Context, db *bun.DB) {
 	flowID := context.Param("flowID")
 
 	var flow models.Flows
@@ -25,8 +25,15 @@ func UpdateFlow(context *gin.Context, db *bun.DB) {
 		return
 	}
 
+	var flowDB models.Flows
+	err := db.NewSelect().Model(&flowDB).Where("id = ?", flowID).Scan(context)
+	if err != nil {
+		httperror.InternalServerError(context, "Error collecting flow data from db", err)
+		return
+	}
+
 	// check if user has access to project
-	access, err := gatekeeper.CheckUserProjectAccess(flow.ProjectID, context, db)
+	access, err := gatekeeper.CheckUserProjectAccess(flowDB.ProjectID, context, db)
 	if err != nil {
 		httperror.InternalServerError(context, "Error checking for flow access", err)
 		return
@@ -37,7 +44,7 @@ func UpdateFlow(context *gin.Context, db *bun.DB) {
 	}
 
 	// check the requestors role in project
-	canModify, err := gatekeeper.CheckRequestUserProjectModifyRole(flow.ProjectID, context, db)
+	canModify, err := gatekeeper.CheckRequestUserProjectModifyRole(flowDB.ProjectID, context, db)
 	if err != nil {
 		httperror.InternalServerError(context, "Error checking your user permissions on flow", err)
 		return
@@ -47,38 +54,21 @@ func UpdateFlow(context *gin.Context, db *bun.DB) {
 		return
 	}
 
-	flow.UpdatedAt = time.Now()
-	columns := []string{}
-	if flow.Name != "" {
-		columns = append(columns, "name")
-	}
-	if flow.Description != "" {
-		columns = append(columns, "description")
-	}
-	if flow.ProjectID != "" {
-		columns = append(columns, "project_id")
-	}
-	if flow.RunnerID != "" {
-		columns = append(columns, "runner_id")
-	}
-	if flow.EncryptActionParams || !flow.EncryptActionParams {
-		columns = append(columns, "encrypt_action_params")
-	}
-	if flow.EncryptExecutions || !flow.EncryptExecutions {
-		columns = append(columns, "encrypt_executions")
-	}
-	columns = append(columns, "exec_parallel")
-	columns = append(columns, "failure_pipeline_id")
-	columns = append(columns, "updated_at")
+	// create random ID for the failure pipeline
+	flow.FailurePipelines[0].ID = uuid.New()
 
-	_, err = db.NewUpdate().Model(&flow).Column(columns...).Where("id = ?", flowID).Exec(context)
+	// merge the inconing failure pipelines with the existing ones
+	flowDB.FailurePipelines = append(flowDB.FailurePipelines, flow.FailurePipelines...)
+
+	// update flow with encrypted actions
+	_, err = db.NewUpdate().Model(&flow).Set("failure_pipelines = ?", flowDB.FailurePipelines).Where("id = ?", flowID).Exec(context)
 	if err != nil {
-		httperror.InternalServerError(context, "Error updating flow on db", err)
+		httperror.InternalServerError(context, "Error creating failure pipeline for flow on db. "+err.Error(), err)
 		return
 	}
 
 	// Audit
-	err = functions_project.CreateAuditEntry(flow.ProjectID, "update", "Flow updated: "+flow.Name, db, context)
+	err = functions_project.CreateAuditEntry(flow.ProjectID, "create", "Flow failure pipeline added", db, context)
 	if err != nil {
 		log.Error(err)
 	}

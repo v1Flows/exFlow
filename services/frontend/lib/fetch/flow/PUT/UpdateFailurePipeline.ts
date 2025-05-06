@@ -17,23 +17,24 @@ type SuccessResponse = {
   data: Result;
 };
 
-export default async function UpdateFlow(
-  id: string,
-  name: string,
-  description: string,
-  projectID: string,
-  runnerID: string,
-  encryptExecutions: boolean,
-  encryptActionParams: boolean,
-  execParallel: boolean,
-  failurePipelineID: string,
+export default async function UpdateFlowFailurePipeline(
+  flowID: string,
+  failurePipeline: any,
 ): Promise<SuccessResponse | ErrorResponse> {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get("session");
 
+    if (!token) {
+      return {
+        success: false,
+        error: "Authentication token not found",
+        message: "User is not authenticated",
+      };
+    }
+
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/flows/${id}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/flows/${flowID}/failure-pipelines`,
       {
         method: "PUT",
         headers: {
@@ -41,14 +42,7 @@ export default async function UpdateFlow(
           Authorization: token.value,
         },
         body: JSON.stringify({
-          name,
-          description,
-          project_id: projectID,
-          runner_id: runnerID,
-          encrypt_executions: encryptExecutions,
-          encrypt_action_params: encryptActionParams,
-          exec_parallel: execParallel,
-          failure_pipeline_id: failurePipelineID,
+          failure_pipelines: failurePipeline,
         }),
       },
     );
@@ -73,7 +67,7 @@ export default async function UpdateFlow(
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error occurred",
-      message: "Failed to update flow",
+      message: "Failed to update flow failure pipeline",
     };
   }
 }

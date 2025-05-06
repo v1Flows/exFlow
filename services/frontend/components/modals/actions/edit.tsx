@@ -28,6 +28,7 @@ import React, { useEffect, useState } from "react";
 import UpdateFlowActions from "@/lib/fetch/flow/PUT/UpdateActions";
 import { cn } from "@/components/cn/cn";
 import ErrorCard from "@/components/error/ErrorCard";
+import UpdateFlowFailurePipelineActions from "@/lib/fetch/flow/PUT/UpdateFailurePipelineActions";
 
 export const CustomRadio = (props: any) => {
   const { children, ...otherProps } = props;
@@ -52,11 +53,15 @@ export default function EditActionModal({
   disclosure,
   flow,
   targetAction,
+  isFailurePipeline,
+  failurePipeline,
 }: {
   disclosure: UseDisclosureReturn;
   runners: any;
   flow: any;
   targetAction: any;
+  isFailurePipeline?: boolean;
+  failurePipeline?: any;
 }) {
   const router = useRouter();
   const { isOpen, onOpenChange } = disclosure;
@@ -99,7 +104,7 @@ export default function EditActionModal({
     onOpenChange();
   }
 
-  async function updateAction() {
+  async function updateFlowAction() {
     setLoading(true);
     flow.actions.map((flowAction: any) => {
       if (flowAction.id === action.id) {
@@ -107,10 +112,68 @@ export default function EditActionModal({
         flowAction.params = action.params;
         flowAction.custom_name = action.custom_name;
         flowAction.custom_description = action.custom_description;
+        flowAction.failure_pipeline_id =
+          action.failure_pipeline_id === "none"
+            ? ""
+            : action.failure_pipeline_id;
       }
     });
 
     const res = (await UpdateFlowActions(flow.id, flow.actions)) as any;
+
+    if (!res) {
+      setError(true);
+      setErrorText("Error");
+      setErrorMessage("An error occurred while updating the action.");
+      setLoading(false);
+
+      return;
+    }
+
+    if (res.success) {
+      setError(false);
+      setErrorText("");
+      setErrorMessage("");
+      addToast({
+        title: "Flow",
+        description: "Action updated successfully",
+        color: "success",
+        variant: "flat",
+      });
+      onOpenChange();
+      router.refresh();
+    } else {
+      setError(true);
+      setErrorText(res.error);
+      setErrorMessage(res.message);
+      addToast({
+        title: "Flow",
+        description: "An error occurred while updating the action.",
+        color: "danger",
+        variant: "flat",
+      });
+    }
+
+    setLoading(false);
+  }
+
+  async function updateFlowFailurePipelineAction() {
+    setLoading(true);
+
+    failurePipeline.actions.map((pipelineAction: any) => {
+      if (pipelineAction.id === action.id) {
+        pipelineAction.active = action.active;
+        pipelineAction.params = action.params;
+        pipelineAction.custom_name = action.custom_name;
+        pipelineAction.custom_description = action.custom_description;
+      }
+    });
+
+    const res = (await UpdateFlowFailurePipelineActions(
+      flow.id,
+      failurePipeline.id,
+      failurePipeline.actions,
+    )) as any;
 
     if (!res) {
       setError(true);
@@ -209,7 +272,7 @@ export default function EditActionModal({
                   {/* Status */}
                   <div className="flex flex-col">
                     <div className="flex-cols flex items-center gap-2">
-                      <p className="text-lg font-bold text-default-500">
+                      <p className="text-lg font-bold text-default-600">
                         Status
                       </p>
                     </div>
@@ -269,7 +332,28 @@ export default function EditActionModal({
                           setAction({ ...action, custom_description: e })
                         }
                       />
+                      {!isFailurePipeline && (
+                        <Select
+                          label="Failure Pipeline"
+                          placeholder="Select an failure pipeline"
+                          selectedKeys={[action.failure_pipeline_id || "none"]}
+                          onSelectionChange={(e) => {
+                            setAction({
+                              ...action,
+                              failure_pipeline_id: e.currentKey,
+                            });
+                          }}
+                        >
+                          <SelectItem key="none">None</SelectItem>
+                          {flow.failure_pipelines.map((pipeline: any) => (
+                            <SelectItem key={pipeline.id}>
+                              {pipeline.name}
+                            </SelectItem>
+                          ))}
+                        </Select>
+                      )}
                     </div>
+                    <Spacer y={2} />
                     <p className="text-lg font-bold text-default-600">
                       Parameters
                     </p>
@@ -409,7 +493,11 @@ export default function EditActionModal({
                   color="warning"
                   isLoading={isLoading}
                   variant="flat"
-                  onPress={updateAction}
+                  onPress={
+                    isFailurePipeline
+                      ? updateFlowFailurePipelineAction
+                      : updateFlowAction
+                  }
                 >
                   Update Action
                 </Button>

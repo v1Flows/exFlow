@@ -3,7 +3,6 @@ package flows
 import (
 	"errors"
 	"net/http"
-	"time"
 
 	"github.com/v1Flows/exFlow/services/backend/functions/gatekeeper"
 	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
@@ -16,12 +15,15 @@ import (
 	"github.com/uptrace/bun"
 )
 
-func UpdateFlow(context *gin.Context, db *bun.DB) {
+func DeleteFlowFailurePipelines(context *gin.Context, db *bun.DB) {
 	flowID := context.Param("flowID")
+	failurePipelineID := context.Param("failurePipelineID")
 
+	// get flow
 	var flow models.Flows
-	if err := context.ShouldBindJSON(&flow); err != nil {
-		httperror.StatusBadRequest(context, "Error parsing incoming data", err)
+	err := db.NewSelect().Model(&flow).Where("id = ?", flowID).Scan(context)
+	if err != nil {
+		httperror.InternalServerError(context, "Error collecting flow data from db", err)
 		return
 	}
 
@@ -47,41 +49,25 @@ func UpdateFlow(context *gin.Context, db *bun.DB) {
 		return
 	}
 
-	flow.UpdatedAt = time.Now()
-	columns := []string{}
-	if flow.Name != "" {
-		columns = append(columns, "name")
+	// remove the failurePipelineID from the flow.FailurePipelines where id = failurePipelineID
+	for i, failurePipeline := range flow.FailurePipelines {
+		if failurePipeline.ID.String() == failurePipelineID {
+			flow.FailurePipelines = append(flow.FailurePipelines[:i], flow.FailurePipelines[i+1:]...)
+			break
+		}
 	}
-	if flow.Description != "" {
-		columns = append(columns, "description")
-	}
-	if flow.ProjectID != "" {
-		columns = append(columns, "project_id")
-	}
-	if flow.RunnerID != "" {
-		columns = append(columns, "runner_id")
-	}
-	if flow.EncryptActionParams || !flow.EncryptActionParams {
-		columns = append(columns, "encrypt_action_params")
-	}
-	if flow.EncryptExecutions || !flow.EncryptExecutions {
-		columns = append(columns, "encrypt_executions")
-	}
-	columns = append(columns, "exec_parallel")
-	columns = append(columns, "failure_pipeline_id")
-	columns = append(columns, "updated_at")
 
-	_, err = db.NewUpdate().Model(&flow).Column(columns...).Where("id = ?", flowID).Exec(context)
+	_, err = db.NewUpdate().Model(&flow).Set("failure_pipelines = ?", flow.FailurePipelines).Where("id = ?", flowID).Exec(context)
 	if err != nil {
-		httperror.InternalServerError(context, "Error updating flow on db", err)
+		httperror.InternalServerError(context, "Error removing failure pipeline from flow on db. "+err.Error(), err)
 		return
 	}
 
 	// Audit
-	err = functions_project.CreateAuditEntry(flow.ProjectID, "update", "Flow updated: "+flow.Name, db, context)
+	err = functions_project.CreateAuditEntry(flow.ProjectID, "delete", "Flow failure pipeline deleted", db, context)
 	if err != nil {
 		log.Error(err)
 	}
 
-	context.JSON(http.StatusCreated, gin.H{"result": "success"})
+	context.JSON(http.StatusOK, gin.H{"result": "success"})
 }

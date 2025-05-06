@@ -32,7 +32,7 @@ export function executionStatusName(step: any): any {
   } else if (step.status === "noResult") {
     return "No Result";
   } else if (step.status === "interactionWaiting") {
-    return "Interactive";
+    return "Interaction Required";
   } else if (step.status === "error") {
     return "Error";
   } else if (step.status === "success") {
