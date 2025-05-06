@@ -93,6 +93,8 @@ export default function EditFlowModal({
       runnerLimit ? runnerId : "any",
       flow.encrypt_executions,
       flow.encrypt_action_params,
+      flow.exec_parallel,
+      flow.failure_pipeline_id,
     )) as any;
 
     if (!response) {
