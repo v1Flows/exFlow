@@ -8,6 +8,7 @@ import {
   Card,
   CardBody,
   Chip,
+  Code,
   Divider,
   Input,
   Modal,
@@ -31,6 +32,7 @@ import AddFlowActions from "@/lib/fetch/flow/POST/AddFlowActions";
 import { cn } from "@/components/cn/cn";
 import ErrorCard from "@/components/error/ErrorCard";
 import MinimalRowSteps from "@/components/steps/minimal-row-steps";
+import AddFlowFailurePipelineActions from "@/lib/fetch/flow/POST/AddFlowFailurePipelineActions";
 
 export const CustomRadio = (props: any) => {
   const { children, ...otherProps } = props;
@@ -55,11 +57,15 @@ export default function AddActionModal({
   disclosure,
   runners,
   flow,
+  isFailurePipeline,
+  failurePipeline,
 }: {
   disclosure: UseDisclosureReturn;
   runners: any;
   flow: any;
   user: any;
+  isFailurePipeline?: boolean;
+  failurePipeline?: any;
 }) {
   const router = useRouter();
 
@@ -120,6 +126,7 @@ export default function AddActionModal({
     params: [],
     custom_name: "",
     custom_description: "",
+    failure_pipeline_id: "",
   });
   const [actionParamsCategorys, setActionParamsCategorys] = useState([] as any);
 
@@ -248,12 +255,13 @@ export default function AddActionModal({
       params: [],
       custom_name: "",
       custom_description: "",
+      failure_pipeline_id: "",
     });
     setCurrentStep(0);
     onOpenChange();
   }
 
-  async function createAction() {
+  async function createFlowAction() {
     setLoading(true);
 
     const sendAction = {
@@ -267,6 +275,8 @@ export default function AddActionModal({
       params: action.params,
       custom_name: action.custom_name,
       custom_description: action.custom_description,
+      failure_pipeline_id:
+        action.failure_pipeline_id === "none" ? "" : action.failure_pipeline_id,
     };
 
     const updatedActions = [...flow.actions, sendAction];
@@ -303,6 +313,7 @@ export default function AddActionModal({
         params: [],
         custom_name: "",
         custom_description: "",
+        failure_pipeline_id: "",
       });
       setCurrentStep(0);
       onOpenChange();
@@ -320,6 +331,93 @@ export default function AddActionModal({
       addToast({
         title: "Flow",
         description: "Failed to add action",
+        color: "danger",
+        variant: "flat",
+      });
+    }
+
+    setLoading(false);
+  }
+
+  async function createFlowFailurePipelineAction() {
+    setLoading(true);
+
+    const sendAction = {
+      id: uuidv4(),
+      name: action.name,
+      description: action.description,
+      plugin: action.plugin,
+      version: action.version,
+      icon: action.icon,
+      active: true,
+      params: action.params,
+      custom_name: action.custom_name,
+      custom_description: action.custom_description,
+    };
+
+    if (failurePipeline.actions === null) {
+      failurePipeline.actions = [];
+    }
+
+    const updatedActions = [...failurePipeline.actions, sendAction];
+
+    const updatedFailurePipeline = {
+      ...failurePipeline,
+      actions: updatedActions,
+    };
+
+    const res = (await AddFlowFailurePipelineActions(
+      flow.id,
+      failurePipeline.id,
+      updatedFailurePipeline,
+    )) as any;
+
+    if (!res) {
+      setError(true);
+      setErrorText("Failed to add action to failure pipeline");
+      setErrorMessage(
+        "An error occurred while adding action to failure pipeline",
+      );
+      setLoading(false);
+
+      return;
+    }
+
+    if (res.success) {
+      setStatus(true);
+      setError(false);
+      setErrorText("");
+      setErrorMessage("");
+      setAction({
+        id: uuidv4(),
+        name: "",
+        description: "",
+        plugin: "",
+        version: "",
+        icon: "",
+        category: "",
+        active: true,
+        params: [],
+        custom_name: "",
+        custom_description: "",
+        failure_pipeline_id: "",
+      });
+      setCurrentStep(0);
+      onOpenChange();
+      router.refresh();
+      addToast({
+        title: "Flow",
+        description: "Action added successfully to failure pipeline",
+        color: "success",
+        variant: "flat",
+      });
+    } else {
+      setError(true);
+      setErrorText(res.error);
+      setErrorMessage(res.message);
+      addToast({
+        title: "Flow",
+        description: "Failed to add action to failure pipeline",
         color: "danger",
         variant: "flat",
       });
@@ -350,7 +448,9 @@ export default function AddActionModal({
             <>
               <ModalHeader className="flex flex-wrap items-center">
                 <div className="flex flex-col">
-                  <p className="text-lg font-bold">Add Action to Flow</p>
+                  <p className="text-lg font-bold">
+                    Add Action to Flow {isFailurePipeline && "Failure Pipeline"}
+                  </p>
                   <p className="text-sm text-default-500">
                     Actions are the building blocks of your flows. Those are the
                     steps that get executed when a flow is triggered.
@@ -537,7 +637,30 @@ export default function AddActionModal({
                             setAction({ ...action, custom_description: e })
                           }
                         />
+                        {!isFailurePipeline && (
+                          <Select
+                            label="Failure Pipeline"
+                            placeholder="Select an failure pipeline"
+                            selectedKeys={[
+                              action.failure_pipeline_id || "none",
+                            ]}
+                            onSelectionChange={(e) => {
+                              setAction({
+                                ...action,
+                                failure_pipeline_id: e.currentKey,
+                              });
+                            }}
+                          >
+                            <SelectItem key="none">None</SelectItem>
+                            {flow.failure_pipelines.map((pipeline: any) => (
+                              <SelectItem key={pipeline.id}>
+                                {pipeline.name}
+                              </SelectItem>
+                            ))}
+                          </Select>
+                        )}
                       </div>
+                      <Spacer y={2} />
                       <p className="text-lg font-bold text-default-600">
                         Parameters
                       </p>
@@ -703,7 +826,13 @@ export default function AddActionModal({
                   <Button
                     color="primary"
                     isLoading={isLoading}
-                    onPress={() => createAction()}
+                    onPress={() => {
+                      if (!isFailurePipeline) {
+                        createFlowAction();
+                      } else {
+                        createFlowFailurePipelineAction();
+                      }
+                    }}
                   >
                     Create Action
                   </Button>

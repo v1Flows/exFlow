@@ -16,12 +16,20 @@ import (
 	"github.com/uptrace/bun"
 )
 
-func UpdateFlow(context *gin.Context, db *bun.DB) {
+func UpdateFlowFailurePipelines(context *gin.Context, db *bun.DB) {
 	flowID := context.Param("flowID")
 
 	var flow models.Flows
 	if err := context.ShouldBindJSON(&flow); err != nil {
 		httperror.StatusBadRequest(context, "Error parsing incoming data", err)
+		return
+	}
+
+	// get flow from db
+	var flowDB models.Flows
+	err := db.NewSelect().Model(&flowDB).Where("id = ?", flowID).Scan(context)
+	if err != nil {
+		httperror.InternalServerError(context, "Error collecting flow data from db", err)
 		return
 	}
 
@@ -48,40 +56,18 @@ func UpdateFlow(context *gin.Context, db *bun.DB) {
 	}
 
 	flow.UpdatedAt = time.Now()
-	columns := []string{}
-	if flow.Name != "" {
-		columns = append(columns, "name")
-	}
-	if flow.Description != "" {
-		columns = append(columns, "description")
-	}
-	if flow.ProjectID != "" {
-		columns = append(columns, "project_id")
-	}
-	if flow.RunnerID != "" {
-		columns = append(columns, "runner_id")
-	}
-	if flow.EncryptActionParams || !flow.EncryptActionParams {
-		columns = append(columns, "encrypt_action_params")
-	}
-	if flow.EncryptExecutions || !flow.EncryptExecutions {
-		columns = append(columns, "encrypt_executions")
-	}
-	columns = append(columns, "exec_parallel")
-	columns = append(columns, "failure_pipeline_id")
-	columns = append(columns, "updated_at")
 
-	_, err = db.NewUpdate().Model(&flow).Column(columns...).Where("id = ?", flowID).Exec(context)
+	_, err = db.NewUpdate().Model(&flow).Column("updated_at", "failure_pipelines").Where("id = ?", flowID).Exec(context)
 	if err != nil {
-		httperror.InternalServerError(context, "Error updating flow on db", err)
+		httperror.InternalServerError(context, "Error updating flow failure pipelines on db", err)
 		return
 	}
 
 	// Audit
-	err = functions_project.CreateAuditEntry(flow.ProjectID, "update", "Flow updated: "+flow.Name, db, context)
+	err = functions_project.CreateAuditEntry(flow.ProjectID, "update", "Flow Failure Pipelines updated", db, context)
 	if err != nil {
 		log.Error(err)
 	}
 
-	context.JSON(http.StatusCreated, gin.H{"result": "success"})
+	context.JSON(http.StatusOK, gin.H{"result": "success"})
 }
