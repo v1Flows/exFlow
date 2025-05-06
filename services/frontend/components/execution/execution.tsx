@@ -137,7 +137,14 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
 
     step.interacted = true;
     step.messages = [
-      `Step interacted by ${userDetails.username} (${userDetails.id})`,
+      {
+        Title: "Interaction",
+        Lines: [
+          {
+            Content: `Step interacted by ${userDetails.username} (${userDetails.id})`,
+          },
+        ],
+      },
     ];
     step.interaced_by = userDetails.id;
     step.interacted_at = new Date().toISOString();
@@ -261,41 +268,42 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
                         )),
                       )}
                     </Snippet>
-                  </ScrollShadow>
 
-                  {step.status === "interactionWaiting" && !step.interacted && (
-                    <div className="flex-cols flex items-center gap-4">
-                      <Button
-                        fullWidth
-                        color="success"
-                        startContent={
-                          <Icon
-                            icon="hugeicons:checkmark-badge-01"
-                            width={18}
-                          />
-                        }
-                        variant="flat"
-                        onPress={() => {
-                          interactStep(step, true);
-                        }}
-                      >
-                        Approve & Continue
-                      </Button>
-                      <Button
-                        fullWidth
-                        color="danger"
-                        startContent={
-                          <Icon icon="hugeicons:cancel-01" width={18} />
-                        }
-                        variant="flat"
-                        onPress={() => {
-                          interactStep(step, false);
-                        }}
-                      >
-                        Reject & Stop
-                      </Button>
-                    </div>
-                  )}
+                    {step.status === "interactionWaiting" &&
+                      !step.interacted && (
+                        <div className="flex-cols flex items-center gap-4 pt-2">
+                          <Button
+                            fullWidth
+                            color="success"
+                            startContent={
+                              <Icon
+                                icon="hugeicons:checkmark-badge-01"
+                                width={18}
+                              />
+                            }
+                            variant="flat"
+                            onPress={() => {
+                              interactStep(step, true);
+                            }}
+                          >
+                            Approve & Continue
+                          </Button>
+                          <Button
+                            fullWidth
+                            color="danger"
+                            startContent={
+                              <Icon icon="hugeicons:cancel-01" width={18} />
+                            }
+                            variant="flat"
+                            onPress={() => {
+                              interactStep(step, false);
+                            }}
+                          >
+                            Reject & Stop
+                          </Button>
+                        </div>
+                      )}
+                  </ScrollShadow>
                 </div>
               )}
             </>
