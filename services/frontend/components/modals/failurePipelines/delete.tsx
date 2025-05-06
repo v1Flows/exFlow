@@ -13,22 +13,17 @@ import {
 import { useRouter } from "next/navigation";
 import React from "react";
 
-import DeleteAction from "@/lib/fetch/flow/DELETE/DeleteAction";
 import ErrorCard from "@/components/error/ErrorCard";
-import DeleteFailurePipelineAction from "@/lib/fetch/flow/DELETE/DeleteFailurePipelineAction";
+import DeleteFlowFailurePipeline from "@/lib/fetch/flow/DELETE/DeleteFailurePipeline";
 
-export default function DeleteActionModal({
+export default function DeleteFailurePipelineModal({
   disclosure,
   flowID,
-  actionID,
-  isFailurePipeline,
   failurePipeline,
 }: {
   disclosure: UseDisclosureReturn;
   flowID: any;
-  actionID: any;
-  isFailurePipeline?: boolean;
-  failurePipeline?: any;
+  failurePipeline: any;
 }) {
   const router = useRouter();
 
@@ -39,60 +34,17 @@ export default function DeleteActionModal({
   const [errorText, setErrorText] = React.useState("");
   const [errorMessage, setErrorMessage] = React.useState("");
 
-  async function deleteFlowAction() {
+  async function deleteFailurePipeline() {
     setIsDeleteLoading(true);
-    const res = (await DeleteAction(flowID, actionID)) as any;
-
-    if (!res) {
-      setError(true);
-      setErrorText("Failed to delete action");
-      setErrorMessage("Failed to delete action");
-      setIsDeleteLoading(false);
-
-      return;
-    }
-
-    if (res.success) {
-      onOpenChange();
-      setError(false);
-      setErrorText("");
-      setErrorMessage("");
-      addToast({
-        title: "Flow",
-        description: "Action deleted successfully",
-        color: "success",
-        variant: "flat",
-      });
-      router.refresh();
-    } else {
-      setIsDeleteLoading(false);
-      setError(true);
-      setErrorText(res.error);
-      setErrorMessage(res.message);
-      addToast({
-        title: "Flow",
-        description: "Failed to delete action",
-        color: "danger",
-        variant: "flat",
-      });
-    }
-
-    setIsDeleteLoading(false);
-  }
-
-  async function deleteFailurePipelineAction() {
-    setIsDeleteLoading(true);
-
-    const res = (await DeleteFailurePipelineAction(
+    const res = (await DeleteFlowFailurePipeline(
       flowID,
-      failurePipeline.id,
-      actionID,
+      failurePipeline,
     )) as any;
 
     if (!res) {
       setError(true);
-      setErrorText("Failed to delete action");
-      setErrorMessage("Failed to delete action");
+      setErrorText("Failed to delete failure pipeline");
+      setErrorMessage("Failed to delete failure pipeline");
       setIsDeleteLoading(false);
 
       return;
@@ -105,7 +57,7 @@ export default function DeleteActionModal({
       setErrorMessage("");
       addToast({
         title: "Flow",
-        description: "Action deleted successfully",
+        description: "Failure Pipeline deleted successfully",
         color: "success",
         variant: "flat",
       });
@@ -117,7 +69,7 @@ export default function DeleteActionModal({
       setErrorMessage(res.message);
       addToast({
         title: "Flow",
-        description: "Failed to delete action",
+        description: "Failed to delete failure pipeline",
         color: "danger",
         variant: "flat",
       });
@@ -141,7 +93,7 @@ export default function DeleteActionModal({
                 <div className="flex flex-col gap-2">
                   <p className="text-lg font-bold">Are you sure?</p>
                   <p className="text-sm text-default-500">
-                    You are about to delete the following action which{" "}
+                    You are about to delete the following failure pipeline which{" "}
                     <span className="font-bold">cannot be undone</span>
                   </p>
                 </div>
@@ -151,10 +103,7 @@ export default function DeleteActionModal({
                   <ErrorCard error={errorText} message={errorMessage} />
                 )}
                 <Snippet hideCopyButton hideSymbol>
-                  <span>
-                    ID:
-                    {actionID}
-                  </span>
+                  <span>ID: {failurePipeline}</span>
                 </Snippet>
               </ModalBody>
               <ModalFooter className="grid grid-cols-2">
@@ -165,11 +114,7 @@ export default function DeleteActionModal({
                   color="danger"
                   isLoading={isDeleteLoading}
                   variant="solid"
-                  onPress={
-                    isFailurePipeline
-                      ? deleteFailurePipelineAction
-                      : deleteFlowAction
-                  }
+                  onPress={deleteFailurePipeline}
                 >
                   Delete
                 </Button>

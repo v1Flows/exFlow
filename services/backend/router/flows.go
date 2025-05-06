@@ -50,6 +50,28 @@ func Flows(router *gin.RouterGroup, db *bun.DB) {
 			flows.DeleteFlowAction(c, db)
 		})
 
+		// failure pipelines
+		flow.POST("/:flowID/failure-pipelines", func(c *gin.Context) {
+			flows.AddFlowFailurePipelines(c, db)
+		})
+		flow.PUT("/:flowID/failure-pipelines", func(c *gin.Context) {
+			flows.UpdateFlowFailurePipelines(c, db)
+		})
+		flow.DELETE("/:flowID/failure-pipelines/:failurePipelineID", func(c *gin.Context) {
+			flows.DeleteFlowFailurePipelines(c, db)
+		})
+
+		// failure pipeline action
+		flow.POST("/:flowID/failure-pipelines/:failurePipelineID/actions", func(c *gin.Context) {
+			flows.AddFlowFailurePipelineActions(c, db)
+		})
+		flow.PUT("/:flowID/failure-pipelines/:failurePipelineID/actions", func(c *gin.Context) {
+			flows.UpdateFlowFailurePipelineActions(c, db)
+		})
+		flow.DELETE("/:flowID/failure-pipelines/:failurePipelineID/actions/:actionID", func(c *gin.Context) {
+			flows.DeleteFlowFailurePipelineAction(c, db)
+		})
+
 		// executions
 		flow.GET("/:flowID/executions", func(c *gin.Context) {
 			flows.GetFlowExecutions(c, db)

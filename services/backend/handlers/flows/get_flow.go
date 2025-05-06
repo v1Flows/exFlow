@@ -58,6 +58,17 @@ func GetFlow(context *gin.Context, db *bun.DB) {
 			httperror.InternalServerError(context, "Error decrypting action params", err)
 			return
 		}
+
+		// decrypt failure pipeline actions
+		for i, pipeline := range flow.FailurePipelines {
+			if pipeline.Actions != nil {
+				flow.FailurePipelines[i].Actions, err = encryption.DecryptParams(pipeline.Actions, decryptPasswords)
+				if err != nil {
+					httperror.InternalServerError(context, "Error decrypting action params", err)
+					return
+				}
+			}
+		}
 	}
 
 	context.JSON(http.StatusOK, gin.H{"flow": flow})
