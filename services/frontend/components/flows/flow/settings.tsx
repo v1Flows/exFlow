@@ -3,6 +3,8 @@ import {
   Button,
   Card,
   CardBody,
+  Select,
+  SelectItem,
   Spacer,
   Switch,
 } from "@heroui/react";
@@ -25,6 +27,10 @@ export default function FlowSettings({
 }) {
   const router = useRouter();
 
+  const [execParallel, setExecParallel] = useState(flow.exec_parallel);
+  const [failurePipelineID, setFailurePipelineID] = useState(
+    flow.failure_pipeline_id,
+  );
   const [encryptExecutions, setEncryptExecutions] = useState(
     flow.encrypt_executions,
   );
@@ -44,6 +50,8 @@ export default function FlowSettings({
       flow.runner_id,
       encryptExecutions,
       encryptActionParams,
+      execParallel,
+      failurePipelineID,
     )) as any;
 
     if (!response) {
@@ -77,6 +85,75 @@ export default function FlowSettings({
     <>
       {error && <ErrorCard error={error} message={errorMessage} />}
       <div className="flex flex-col gap-4">
+        <div>
+          <p className="text-lg font-bold mb-2">Actions</p>
+          <div className="grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-4">
+            <Card>
+              <CardBody>
+                <div className="flex flex-cols items-center justify-between gap-8">
+                  <div>
+                    <p className="text-md font-bold">Execution Strategy</p>
+                    <p className="text-sm text-default-500">
+                      Switch between parallel and sequential execution of
+                      actions
+                    </p>
+                  </div>
+                  <Select
+                    className="w-1/2"
+                    placeholder="Select the execution strategy"
+                    selectedKeys={[execParallel ? "parallel" : "sequential"]}
+                    onSelectionChange={(e) => {
+                      if (e.currentKey === "parallel") {
+                        setExecParallel(true);
+                      } else {
+                        setExecParallel(false);
+                      }
+                    }}
+                  >
+                    <SelectItem key="sequential">Sequential</SelectItem>
+                    <SelectItem key="parallel">Parallel</SelectItem>
+                  </Select>
+                </div>
+              </CardBody>
+            </Card>
+
+            <Card>
+              <CardBody>
+                <div className="flex flex-cols items-center justify-between gap-8">
+                  <div>
+                    <p className="text-md font-bold">Common Failure Pipeline</p>
+                    <p className="text-sm text-default-500">
+                      Execute an failure pipeline when actions during an
+                      execution fail.
+                      <span className="font-bold text-warning">
+                        <br />
+                        CAUTION! This will override the per action failure
+                        pipeline
+                      </span>
+                    </p>
+                  </div>
+                  <Select
+                    className="w-1/2"
+                    placeholder="Select an failure pipeline"
+                    selectedKeys={[failurePipelineID]}
+                    onSelectionChange={(e) => {
+                      if (e.currentKey === "none") {
+                        setFailurePipelineID("");
+                      } else {
+                        setFailurePipelineID(e.currentKey);
+                      }
+                    }}
+                  >
+                    <SelectItem key="none">None</SelectItem>
+                    {flow.failure_pipelines.map((pipeline: any) => (
+                      <SelectItem key={pipeline.id}>{pipeline.name}</SelectItem>
+                    ))}
+                  </Select>
+                </div>
+              </CardBody>
+            </Card>
+          </div>
+        </div>
         <div>
           <p className="text-lg font-bold mb-2">Encryption</p>
           <div className="grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-4">

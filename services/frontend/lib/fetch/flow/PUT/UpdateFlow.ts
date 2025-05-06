@@ -25,6 +25,8 @@ export default async function UpdateFlow(
   runnerID: string,
   encryptExecutions: boolean,
   encryptActionParams: boolean,
+  execParallel: boolean,
+  failurePipelineID: string,
 ): Promise<SuccessResponse | ErrorResponse> {
   try {
     const cookieStore = await cookies();
@@ -45,6 +47,8 @@ export default async function UpdateFlow(
           runner_id: runnerID,
           encrypt_executions: encryptExecutions,
           encrypt_action_params: encryptActionParams,
+          exec_parallel: execParallel,
+          failure_pipeline_id: failurePipelineID,
         }),
       },
     );

@@ -67,6 +67,8 @@ func UpdateFlow(context *gin.Context, db *bun.DB) {
 	if flow.EncryptExecutions || !flow.EncryptExecutions {
 		columns = append(columns, "encrypt_executions")
 	}
+	columns = append(columns, "exec_parallel")
+	columns = append(columns, "failure_pipeline_id")
 	columns = append(columns, "updated_at")
 
 	_, err = db.NewUpdate().Model(&flow).Column(columns...).Where("id = ?", flowID).Exec(context)
