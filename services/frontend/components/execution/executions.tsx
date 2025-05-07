@@ -97,6 +97,8 @@ export default function Executions({
       return "error";
     } else if (execution.status === "success") {
       return "success";
+    } else if (execution.status === "recovered") {
+      return "recovered";
     } else {
       return "unknown";
     }
