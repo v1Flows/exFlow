@@ -470,6 +470,36 @@ export default function EditActionModal({
                                           });
                                         }}
                                       />
+                                    ) : param.type === "select" ? (
+                                      <Select
+                                        key={param.key}
+                                        description={param?.description}
+                                        isRequired={param.required}
+                                        label={param.title || param.key}
+                                        selectedKeys={[param.value]}
+                                        onSelectionChange={(e) => {
+                                          const value = Array.from(e).join("");
+
+                                          setAction({
+                                            ...action,
+                                            params: action.params.map(
+                                              (x: any) => {
+                                                if (x.key === param.key) {
+                                                  return { ...x, value };
+                                                }
+
+                                                return x;
+                                              },
+                                            ),
+                                          });
+                                        }}
+                                      >
+                                        {param.options.map((option: any) => (
+                                          <SelectItem key={option.key}>
+                                            {option.value}
+                                          </SelectItem>
+                                        ))}
+                                      </Select>
                                     ) : null
                                   ) : null;
                                 })}
