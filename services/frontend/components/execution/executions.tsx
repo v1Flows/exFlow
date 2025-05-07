@@ -174,7 +174,9 @@ export default function Executions({
             {runners.find((runner: any) => runner.id === cellValue).name}
           </span>
         ) : (
-          <span className="text-default-500">Unknown</span>
+          <Tooltip content={`ID: ${cellValue}`}>
+            <span className="text-default-500">Not Found</span>
+          </Tooltip>
         );
       case "scheduled_at":
         return cellValue !== "0001-01-01T00:00:00Z" ? (

@@ -1,6 +1,9 @@
+"use client";
+
 import { Card, CardBody } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import NumberFlow from "@number-flow/react";
+import { useRouter } from "next/navigation";
 
 export default function FlowDetails({
   flow,
@@ -13,6 +16,8 @@ export default function FlowDetails({
   executions: any;
   runners: any;
 }) {
+  const router = useRouter();
+
   return (
     <main>
       <div className="grid grid-cols-2 items-stretch gap-4 lg:grid-cols-4">
@@ -36,7 +41,15 @@ export default function FlowDetails({
           </Card>
         </div>
         <div className="col-span-1">
-          <Card fullWidth className="h-full">
+          <Card
+            fullWidth
+            isHoverable
+            isPressable
+            className="h-full"
+            onPress={() => {
+              router.push(`/projects/${project.id}`);
+            }}
+          >
             <CardBody>
               <div className="flex items-center gap-2">
                 <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
