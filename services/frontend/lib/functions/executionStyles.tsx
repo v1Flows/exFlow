@@ -6,14 +6,14 @@ export function executionStatuses(): string[] {
     "scheduled",
     "pending",
     "running",
+    "interactionWaiting",
     "paused",
     "canceled",
     "noPatternMatch",
     "noResult",
-    "interactionWaiting",
+    "recovered",
     "error",
     "success",
-    "recovered",
   ];
 }
 
