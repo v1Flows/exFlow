@@ -131,9 +131,16 @@ func autoRunnerRegister(projectID string, runner models.Runners, context *gin.Co
 		return
 	}
 
+	// get number of auto runners for this project
+	autoRunnersCount, err := db.NewSelect().Model(&models.Runners{}).Where("project_id = ? and auto_runner = true", projectID).Count(context)
+	if err != nil {
+		httperror.InternalServerError(context, "Error collecting auto runners count from db", err)
+		return
+	}
+
 	// generate random id for runner
 	runner.ID = uuid.New()
-	runner.Name = runner.ID.String() + "_auto_runner"
+	runner.Name = project.Name + " Auto Runner " + strconv.Itoa(int(autoRunnersCount)+1)
 	runner.ProjectID = projectID
 	runner.AutoRunner = true
 	runner.RegisteredAt = time.Now()

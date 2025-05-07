@@ -27,7 +27,17 @@ export default function AdminStepActions({
     switch (status) {
       case "pending":
         newStep.status = "pending";
-        newStep.messages = ["Action Status changed by Admin to Pending"];
+        newStep.messages = [
+          {
+            Title: "Admin",
+            Lines: [
+              {
+                Content: `Step Status changed by Admin to Pending`,
+                Color: "primary",
+              },
+            ],
+          },
+        ];
         newStep.finished_at =
           step.finished_at !== "0001-01-01T00:00:00Z"
             ? step.finished_at
@@ -35,7 +45,17 @@ export default function AdminStepActions({
         break;
       case "running":
         newStep.status = "running";
-        newStep.messages = ["Action Status changed by Admin to Running"];
+        newStep.messages = [
+          {
+            Title: "Admin",
+            Lines: [
+              {
+                Content: `Step Status changed by Admin to Running`,
+                Color: "primary",
+              },
+            ],
+          },
+        ];
         newStep.finished_at =
           step.finished_at !== "0001-01-01T00:00:00Z"
             ? step.finished_at
@@ -43,7 +63,17 @@ export default function AdminStepActions({
         break;
       case "paused":
         newStep.status = "paused";
-        newStep.messages = ["Action Status changed by Admin to Paused"];
+        newStep.messages = [
+          {
+            Title: "Admin",
+            Lines: [
+              {
+                Content: `Step Status changed by Admin to Paused`,
+                Color: "primary",
+              },
+            ],
+          },
+        ];
         newStep.finished_at =
           step.finished_at !== "0001-01-01T00:00:00Z"
             ? step.finished_at
@@ -51,7 +81,17 @@ export default function AdminStepActions({
         break;
       case "canceled":
         newStep.status = "canceled";
-        newStep.messages = ["Action Status changed by Admin to Canceled"];
+        newStep.messages = [
+          {
+            Title: "Admin",
+            Lines: [
+              {
+                Content: `Step Status changed by Admin to Canceled`,
+                Color: "primary",
+              },
+            ],
+          },
+        ];
         newStep.canceled_by = "admin";
         newStep.canceled_at = new Date().toISOString();
         newStep.finished_at =
@@ -62,7 +102,15 @@ export default function AdminStepActions({
       case "noPatternMatch":
         newStep.status = "noPatternMatch";
         newStep.messages = [
-          "Action Status changed by Admin to No Pattern Match",
+          {
+            Title: "Admin",
+            Lines: [
+              {
+                Content: `Step Status changed by Admin to No Pattern Match`,
+                Color: "primary",
+              },
+            ],
+          },
         ];
         newStep.finished_at =
           step.finished_at !== "0001-01-01T00:00:00Z"
@@ -72,16 +120,52 @@ export default function AdminStepActions({
       case "interactionWaiting":
         newStep.status = "interactionWaiting";
         newStep.messages = [
-          "Action Status changed by Admin to Interaction Required",
+          {
+            Title: "Admin",
+            Lines: [
+              {
+                Content: `Step Status changed by Admin to Interaction Required`,
+                Color: "primary",
+              },
+            ],
+          },
         ];
         newStep.finished_at =
           step.finished_at !== "0001-01-01T00:00:00Z"
             ? step.finished_at
             : "0001-01-01T00:00:00Z";
         break;
+      case "warning":
+        newStep.status = "warning";
+        newStep.messages = [
+          {
+            Title: "Admin",
+            Lines: [
+              {
+                Content: `Step Status changed by Admin to Warning`,
+                Color: "primary",
+              },
+            ],
+          },
+        ];
+        newStep.finished_at =
+          step.finished_at !== "0001-01-01T00:00:00Z"
+            ? step.finished_at
+            : new Date().toISOString();
+        break;
       case "error":
         newStep.status = "error";
-        newStep.messages = ["Action Status changed by Admin to Error"];
+        newStep.messages = [
+          {
+            Title: "Admin",
+            Lines: [
+              {
+                Content: `Step Status changed by Admin to Error`,
+                Color: "primary",
+              },
+            ],
+          },
+        ];
         newStep.finished_at =
           step.finished_at !== "0001-01-01T00:00:00Z"
             ? step.finished_at
@@ -89,7 +173,17 @@ export default function AdminStepActions({
         break;
       case "success":
         newStep.status = "success";
-        newStep.messages = ["Action Status changed by Admin to Success"];
+        newStep.messages = [
+          {
+            Title: "Admin",
+            Lines: [
+              {
+                Content: `Step Status changed by Admin to Success`,
+                Color: "primary",
+              },
+            ],
+          },
+        ];
         newStep.finished_at =
           step.finished_at !== "0001-01-01T00:00:00Z"
             ? step.finished_at
@@ -160,6 +254,20 @@ export default function AdminStepActions({
             </div>
           </DropdownItem>
           <DropdownItem
+            key="interactionWaiting"
+            className="capitalize"
+            onPress={() => changeStepStatus("interactionWaiting")}
+          >
+            <div className="flex-cols flex gap-2">
+              <Icon
+                className="text-primary"
+                icon="hugeicons:waving-hand-01"
+                width={20}
+              />
+              Interaction Required
+            </div>
+          </DropdownItem>
+          <DropdownItem
             key="paused"
             className="capitalize"
             onPress={() => changeStepStatus("paused")}
@@ -202,17 +310,17 @@ export default function AdminStepActions({
             </div>
           </DropdownItem>
           <DropdownItem
-            key="interactionWaiting"
+            key="warning"
             className="capitalize"
-            onPress={() => changeStepStatus("interactionWaiting")}
+            onPress={() => changeStepStatus("warning")}
           >
             <div className="flex-cols flex gap-2">
               <Icon
-                className="text-primary"
-                icon="hugeicons:waving-hand-01"
+                className="text-warning"
+                icon="hugeicons:alert-02"
                 width={20}
               />
-              Interaction Required
+              Warning
             </div>
           </DropdownItem>
           <DropdownItem
@@ -223,7 +331,7 @@ export default function AdminStepActions({
             <div className="flex-cols flex gap-2">
               <Icon
                 className="text-danger"
-                icon="hugeicons:alert-02"
+                icon="hugeicons:alert-diamond"
                 width={20}
               />
               Error

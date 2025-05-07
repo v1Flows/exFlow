@@ -6,11 +6,12 @@ export function executionStatuses(): string[] {
     "scheduled",
     "pending",
     "running",
+    "interactionWaiting",
     "paused",
     "canceled",
     "noPatternMatch",
     "noResult",
-    "interactionWaiting",
+    "recovered",
     "error",
     "success",
   ];
@@ -37,6 +38,10 @@ export function executionStatusName(step: any): any {
     return "Error";
   } else if (step.status === "success") {
     return "Success";
+  } else if (step.status === "warning") {
+    return "Warning";
+  } else if (step.status === "recovered") {
+    return "Recovered";
   } else {
     return "N/A";
   }
@@ -63,6 +68,10 @@ export function executionStatusColor(step: any) {
     return "danger";
   } else if (step.status === "success") {
     return "success";
+  } else if (step.status === "warning") {
+    return "warning";
+  } else if (step.status === "recovered") {
+    return "warning";
   } else {
     return "default";
   }
@@ -89,6 +98,10 @@ export function executionStatusCardBackgroundColor(step: any) {
     return "danger/20";
   } else if (step.status === "success") {
     return "success/20";
+  } else if (step.status === "warning") {
+    return "warning/20";
+  } else if (step.status === "recovered") {
+    return "warning/20";
   } else {
     return "default/50";
   }
@@ -112,9 +125,13 @@ export function executionStatusIcon(step: any) {
   } else if (step.status === "interactionWaiting") {
     return "hugeicons:waving-hand-01";
   } else if (step.status === "error") {
-    return "hugeicons:alert-02";
+    return "hugeicons:alert-diamond";
   } else if (step.status === "success") {
     return "hugeicons:tick-double-01";
+  } else if (step.status === "warning") {
+    return "hugeicons:alert-02";
+  } else if (step.status === "recovered") {
+    return "hugeicons:first-aid-kit";
   } else {
     return "solar:question-square-linear";
   }
@@ -175,7 +192,7 @@ export function executionStatusWrapper(step: any) {
           size="md"
           value={100}
           valueLabel={
-            <Icon className="text-warning" icon="hugeicons:pause" width={16} />
+            <Icon className="text-warning" icon="hugeicons:pause" width={20} />
           }
         />
       </Tooltip>
@@ -249,7 +266,7 @@ export function executionStatusWrapper(step: any) {
             <Icon
               className="text-primary"
               icon="hugeicons:waving-hand-01"
-              width={22}
+              width={20}
             />
           }
         />
@@ -267,7 +284,7 @@ export function executionStatusWrapper(step: any) {
           valueLabel={
             <Icon
               className="text-danger"
-              icon="hugeicons:alert-02"
+              icon="hugeicons:alert-diamond"
               width={20}
             />
           }
@@ -287,7 +304,45 @@ export function executionStatusWrapper(step: any) {
             <Icon
               className="text-success"
               icon="hugeicons:tick-double-01"
-              width={22}
+              width={20}
+            />
+          }
+        />
+      </Tooltip>
+    );
+  } else if (step.status === "warning") {
+    return (
+      <Tooltip content={`${executionStatusName(step)}`}>
+        <CircularProgress
+          showValueLabel
+          aria-label="Step"
+          color="warning"
+          size="md"
+          value={100}
+          valueLabel={
+            <Icon
+              className="text-warning"
+              icon="hugeicons:alert-02"
+              width={20}
+            />
+          }
+        />
+      </Tooltip>
+    );
+  } else if (step.status === "recovered") {
+    return (
+      <Tooltip content={`${executionStatusName(step)}`}>
+        <CircularProgress
+          showValueLabel
+          aria-label="Step"
+          color="warning"
+          size="md"
+          value={100}
+          valueLabel={
+            <Icon
+              className="text-warning"
+              icon="hugeicons:first-aid-kit"
+              width={20}
             />
           }
         />
@@ -306,7 +361,7 @@ export function executionStatusWrapper(step: any) {
             <Icon
               className="text-success"
               icon="solar:question-square-linear"
-              width={22}
+              width={20}
             />
           }
         />

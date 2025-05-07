@@ -65,6 +65,13 @@ export default function AdminExecutionActions({
             ? execution.finished_at
             : "0001-01-01T00:00:00Z";
         break;
+      case "recovered":
+        newExecution.status = "recovered";
+        newExecution.finished_at =
+          execution.finished_at !== "0001-01-01T00:00:00Z"
+            ? execution.finished_at
+            : new Date().toISOString();
+        break;
       case "error":
         newExecution.status = "error";
         newExecution.finished_at =
@@ -198,6 +205,20 @@ export default function AdminExecutionActions({
                 width={20}
               />
               Interaction Required
+            </div>
+          </DropdownItem>
+          <DropdownItem
+            key="recovered"
+            className="capitalize"
+            onPress={() => changeExecutionStatus("recovered")}
+          >
+            <div className="flex-cols flex gap-2">
+              <Icon
+                className="text-warning"
+                icon="hugeicons:first-aid-kit"
+                width={20}
+              />
+              Recovered
             </div>
           </DropdownItem>
           <DropdownItem
