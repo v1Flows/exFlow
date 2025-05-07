@@ -42,7 +42,7 @@ func GetRunningExecutions(context *gin.Context, db *bun.DB) {
 		Model((*models.Executions)(nil)). // Assuming `Execution` is your model struct
 		Column("flow_id", "status").
 		ColumnExpr("COUNT(*) AS count").
-		Where("flow_id IN (?) AND status NOT IN ('canceled', 'noPatternMatch', 'error', 'success')", bun.In(flowsArray)).
+		Where("flow_id IN (?) AND status NOT IN ('canceled', 'noPatternMatch', 'error', 'success', 'recovered')", bun.In(flowsArray)).
 		Group("flow_id", "status").
 		Scan(context, &summary)
 	if err != nil {
@@ -52,7 +52,7 @@ func GetRunningExecutions(context *gin.Context, db *bun.DB) {
 
 	executions := make([]models.Executions, 0)
 	err = db.NewSelect().Model(&executions).
-		Where("flow_id IN (?) AND status NOT IN ('canceled', 'noPatternMatch', 'error', 'success')", bun.In(flowsArray)).
+		Where("flow_id IN (?) AND status NOT IN ('canceled', 'noPatternMatch', 'error', 'success', 'recovered')", bun.In(flowsArray)).
 		Scan(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error collecting executions from db", err)

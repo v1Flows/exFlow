@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/v1Flows/exFlow/services/backend/config"
+	"github.com/v1Flows/exFlow/services/backend/functions/encryption"
 	"github.com/v1Flows/exFlow/services/backend/functions/gatekeeper"
 	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
 	functions_project "github.com/v1Flows/exFlow/services/backend/functions/project"
@@ -56,6 +58,19 @@ func UpdateFlowFailurePipelines(context *gin.Context, db *bun.DB) {
 	}
 
 	flow.UpdatedAt = time.Now()
+
+	// encrypt the actions for each failure pipeline
+	if config.Config.Encryption.Enabled && flowDB.EncryptActionParams {
+		for i := range flow.FailurePipelines {
+			if flow.FailurePipelines[i].Actions != nil {
+				flow.FailurePipelines[i].Actions, err = encryption.EncryptParams(flow.FailurePipelines[i].Actions)
+				if err != nil {
+					httperror.InternalServerError(context, "Error encrypting actions", err)
+					return
+				}
+			}
+		}
+	}
 
 	_, err = db.NewUpdate().Model(&flow).Column("updated_at", "failure_pipelines").Where("id = ?", flowID).Exec(context)
 	if err != nil {

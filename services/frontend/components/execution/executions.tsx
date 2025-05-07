@@ -300,11 +300,11 @@ export default function Executions({
               <CardBody>
                 <div className="flex items-center gap-2">
                   <div
-                    className={`flex size-10 items-center justify-center rounded-small bg-${executionStatusColor({ status: status })}/10 text-${executionStatusColor({ status: status })}`}
+                    className={`flex size-10 items-center justify-center rounded-small bg-${executionStatusColor({ status: status })}/20 text-${executionStatusColor({ status: status })}`}
                   >
                     <Icon
                       icon={executionStatusIcon({ status: status })}
-                      width={20}
+                      width={24}
                     />
                   </div>
                   <div>
