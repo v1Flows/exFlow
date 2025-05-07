@@ -13,6 +13,7 @@ import {
   addToast,
   Alert,
   Button,
+  ButtonGroup,
   Card,
   CardBody,
   Chip,
@@ -41,6 +42,7 @@ import CreateFailurePipelineModal from "@/components/modals/failurePipelines/cre
 import DeleteFailurePipelineModal from "@/components/modals/failurePipelines/delete";
 import EditFailurePipelineModal from "@/components/modals/failurePipelines/edit";
 import UpdateFlowFailurePipelineActions from "@/lib/fetch/flow/PUT/UpdateFailurePipelineActions";
+import CopyActionModal from "@/components/modals/actions/copy";
 
 export default function Actions({
   flow,
@@ -69,6 +71,7 @@ export default function Actions({
   const editFlowActionsDetails = useDisclosure();
   const addFlowActionModal = useDisclosure();
   const editActionModal = useDisclosure();
+  const copyFlowActionModal = useDisclosure();
   const deleteActionModal = useDisclosure();
   const createFlowFailurePipelineModal = useDisclosure();
   const editFlowFailurePipelineModal = useDisclosure();
@@ -76,6 +79,7 @@ export default function Actions({
   const addFlowFailurePipelineActionModal = useDisclosure();
   const editFlowFailurePipelineActionModal = useDisclosure();
   const deleteFlowFailurePipelineActionModal = useDisclosure();
+  const copyFlowFailurePipelineActionModal = useDisclosure();
 
   const [expandedParams, setExpandedParams] = React.useState([] as any);
 
@@ -170,80 +174,118 @@ export default function Actions({
                     </div>
                   </Tooltip>
                   <div className="flex-cols flex items-center gap-2">
-                    <Button
-                      isIconOnly
-                      color="warning"
-                      isDisabled={!canEdit}
-                      variant="light"
-                      onPress={() => {
-                        // if action is in an failure pipeline, open the edit modal
-                        if (
-                          flow.failure_pipelines.some(
-                            (pipeline: any) =>
-                              pipeline.actions !== null &&
-                              pipeline.actions.some(
-                                (pipelineAction: any) =>
-                                  pipelineAction.id === action.id,
-                              ),
-                          )
-                        ) {
-                          setTargetAction(action);
-                          setTargetFailurePipeline(
-                            flow.failure_pipelines.filter(
+                    <ButtonGroup>
+                      <Button
+                        isIconOnly
+                        color="warning"
+                        isDisabled={!canEdit}
+                        variant="light"
+                        onPress={() => {
+                          // if action is in an failure pipeline, open the edit modal
+                          if (
+                            flow.failure_pipelines.some(
                               (pipeline: any) =>
                                 pipeline.actions !== null &&
                                 pipeline.actions.some(
                                   (pipelineAction: any) =>
                                     pipelineAction.id === action.id,
                                 ),
-                            )[0],
-                          );
-                          editFlowFailurePipelineActionModal.onOpen();
-                        } else {
-                          setTargetAction(action);
-                          editActionModal.onOpen();
-                        }
-                      }}
-                    >
-                      <Icon icon="hugeicons:pencil-edit-02" width={20} />
-                    </Button>
-                    <Button
-                      isIconOnly
-                      color="danger"
-                      isDisabled={!canEdit}
-                      variant="light"
-                      onPress={() => {
-                        // if action is in an failure pipeline, open the edit modal
-                        if (
-                          flow.failure_pipelines.some(
-                            (pipeline: any) =>
-                              pipeline.actions !== null &&
-                              pipeline.actions.some(
-                                (pipelineAction: any) =>
-                                  pipelineAction.id === action.id,
-                              ),
-                          )
-                        ) {
-                          setTargetAction(action.id);
-                          setTargetFailurePipeline(
-                            flow.failure_pipelines.filter(
+                            )
+                          ) {
+                            setTargetAction(action);
+                            setTargetFailurePipeline(
+                              flow.failure_pipelines.filter(
+                                (pipeline: any) =>
+                                  pipeline.actions !== null &&
+                                  pipeline.actions.some(
+                                    (pipelineAction: any) =>
+                                      pipelineAction.id === action.id,
+                                  ),
+                              )[0],
+                            );
+                            editFlowFailurePipelineActionModal.onOpen();
+                          } else {
+                            setTargetAction(action);
+                            editActionModal.onOpen();
+                          }
+                        }}
+                      >
+                        <Icon icon="hugeicons:pencil-edit-02" width={20} />
+                      </Button>
+                      <Button
+                        isIconOnly
+                        isDisabled={!canEdit}
+                        variant="light"
+                        onPress={() => {
+                          // if action is in an failure pipeline, open the edit modal
+                          if (
+                            flow.failure_pipelines.some(
                               (pipeline: any) =>
                                 pipeline.actions !== null &&
                                 pipeline.actions.some(
                                   (pipelineAction: any) =>
                                     pipelineAction.id === action.id,
                                 ),
-                            )[0],
-                          );
-                          deleteFlowFailurePipelineActionModal.onOpen();
-                        } else {
-                          setTargetAction(action.id);
-                          deleteActionModal.onOpen();
-                        }
-                      }}
-                    >
-                      <Icon icon="hugeicons:delete-02" width={20} />
-                    </Button>
+                            )
+                          ) {
+                            setTargetAction(action);
+                            setTargetFailurePipeline(
+                              flow.failure_pipelines.filter(
+                                (pipeline: any) =>
+                                  pipeline.actions !== null &&
+                                  pipeline.actions.some(
+                                    (pipelineAction: any) =>
+                                      pipelineAction.id === action.id,
+                                  ),
+                              )[0],
+                            );
+                            copyFlowFailurePipelineActionModal.onOpen();
+                          } else {
+                            setTargetAction(action);
+                            copyFlowActionModal.onOpen();
+                          }
+                        }}
+                      >
+                        <Icon icon="hugeicons:copy-02" width={20} />
+                      </Button>
+                      <Button
+                        isIconOnly
+                        color="danger"
+                        isDisabled={!canEdit}
+                        variant="light"
+                        onPress={() => {
+                          // if action is in an failure pipeline, open the edit modal
+                          if (
+                            flow.failure_pipelines.some(
+                              (pipeline: any) =>
+                                pipeline.actions !== null &&
+                                pipeline.actions.some(
+                                  (pipelineAction: any) =>
+                                    pipelineAction.id === action.id,
+                                ),
+                            )
+                          ) {
+                            setTargetAction(action.id);
+                            setTargetFailurePipeline(
+                              flow.failure_pipelines.filter(
+                                (pipeline: any) =>
+                                  pipeline.actions !== null &&
+                                  pipeline.actions.some(
+                                    (pipelineAction: any) =>
+                                      pipelineAction.id === action.id,
+                                  ),
+                              )[0],
+                            );
+                            deleteFlowFailurePipelineActionModal.onOpen();
+                          } else {
+                            setTargetAction(action.id);
+                            deleteActionModal.onOpen();
+                          }
+                        }}
+                      >
+                        <Icon icon="hugeicons:delete-02" width={20} />
+                      </Button>
+                    </ButtonGroup>
                     <Tooltip content="Reorder action by dragging">
                       <Button
                         isIconOnly
@@ -715,6 +757,12 @@ export default function Actions({
         runners={runners}
         targetAction={targetAction}
       />
+      <CopyActionModal
+        copyAction={targetAction}
+        disclosure={copyFlowActionModal}
+        flow={flow}
+        runners={runners}
+      />
       <DeleteActionModal
         actionID={targetAction}
         disclosure={deleteActionModal}
@@ -751,6 +799,14 @@ export default function Actions({
         flow={flow}
         runners={runners}
         targetAction={targetAction}
+      />
+      <CopyActionModal
+        isFailurePipeline
+        copyAction={targetAction}
+        disclosure={copyFlowFailurePipelineActionModal}
+        failurePipeline={targetFailurePipeline}
+        flow={flow}
+        runners={runners}
       />
       <DeleteActionModal
         isFailurePipeline
