@@ -84,7 +84,10 @@ export default function Actions({
 
     if (flow.failure_pipelines !== null) {
       setFailurePipelines(flow.failure_pipelines);
-      setFailurePipelineTab(flow.failure_pipelines[0]?.id || "add-pipeline");
+
+      if (failurePipelineTab === "add-pipeline") {
+        setFailurePipelineTab(flow.failure_pipelines[0]?.id || "add-pipeline");
+      }
     }
   }, [flow]);
 
@@ -274,24 +277,27 @@ export default function Actions({
                     Vers. {action.version}
                   </Chip>
                 </div>
-                <Alert
-                  hideIconWrapper
-                  className="mt-2"
-                  color="warning"
-                  isVisible={
-                    !flow.failure_pipelines.some(
-                      (pipeline: any) =>
-                        pipeline.id === action.failure_pipeline_id ||
-                        (pipeline.actions !== null &&
-                          pipeline.actions.some(
-                            (pipelineAction: any) =>
-                              pipelineAction.id === action.id,
-                          )),
-                    )
-                  }
-                  title="Action has no failure pipeline assigned"
-                  variant="faded"
-                />
+                {flow.failure_pipeline_id !== "" ||
+                  (flow.failure_pipeline_id !== null && (
+                    <Alert
+                      hideIconWrapper
+                      className="mt-2"
+                      color="warning"
+                      isVisible={
+                        !flow.failure_pipelines.some(
+                          (pipeline: any) =>
+                            pipeline.id === action.failure_pipeline_id ||
+                            (pipeline.actions !== null &&
+                              pipeline.actions.some(
+                                (pipelineAction: any) =>
+                                  pipelineAction.id === action.id,
+                              )),
+                        )
+                      }
+                      title="Action has no failure pipeline assigned"
+                      variant="faded"
+                    />
+                  ))}
                 <Accordion
                   isCompact
                   selectedKeys={expandedParams}
@@ -322,12 +328,19 @@ export default function Actions({
                         <TableRow>
                           <TableCell>Failure Pipeline</TableCell>
                           <TableCell>
-                            {flow.failure_pipelines.filter(
-                              (pipeline: any) =>
-                                pipeline.id === action.failure_pipeline_id,
-                            )[0]?.name ||
+                            {flow.failure_pipeline_id === "" ||
+                            flow.failure_pipeline_id === null ? (
+                              flow.failure_pipelines.filter(
+                                (pipeline: any) =>
+                                  pipeline.id === action.failure_pipeline_id,
+                              )[0]?.name ||
                               action.failure_pipeline_id ||
-                              "None"}
+                              "None"
+                            ) : (
+                              <span className="text-warning">
+                                Overwritten by Flow Setting
+                              </span>
+                            )}
                           </TableCell>
                         </TableRow>
                       </TableBody>
@@ -548,24 +561,29 @@ export default function Actions({
                               </Chip>
                               <Chip
                                 color={
-                                  flow.actions.filter(
-                                    (action: any) =>
-                                      action.failure_pipeline_id ===
-                                      pipeline.id,
-                                  ).length > 0
+                                  flow.failure_pipeline_id === pipeline.id
                                     ? "success"
-                                    : "danger"
+                                    : flow.actions.filter(
+                                          (action: any) =>
+                                            action.failure_pipeline_id ===
+                                            pipeline.id,
+                                        ).length > 0
+                                      ? "success"
+                                      : "danger"
                                 }
                                 radius="sm"
                                 size="sm"
                                 variant="flat"
                               >
-                                {flow.actions.filter(
-                                  (action: any) =>
-                                    action.failure_pipeline_id === pipeline.id,
-                                ).length > 0
-                                  ? "Assigned"
-                                  : "Not Assigned"}
+                                {flow.failure_pipeline_id === pipeline.id
+                                  ? "Assigned to Flow"
+                                  : flow.actions.filter(
+                                        (action: any) =>
+                                          action.failure_pipeline_id ===
+                                          pipeline.id,
+                                      ).length > 0
+                                    ? "Assigned on Step"
+                                    : "Not Assigned"}
                               </Chip>
                             </div>
                           </div>
