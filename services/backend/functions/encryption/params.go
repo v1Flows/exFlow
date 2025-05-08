@@ -65,6 +65,39 @@ func EncryptParams(actions []shared_models.Action) ([]shared_models.Action, erro
 			param.Value = hex.EncodeToString(ciphertext)
 			actions[i].Params[j] = param
 		}
+
+		// if action has an updated action, encrypt the params of the updated action
+		if action.UpdatedAction != nil {
+			for j, param := range action.UpdatedAction.Params {
+				// Skip encryption if the value is empty
+				if param.Value == "" {
+					continue
+				}
+
+				// if param is a password and is encrypted, skip encryption
+				if param.Type == "password" && IsEncrypted(param.Value) {
+					continue
+				}
+
+				// Convert the param value to JSON
+				jsonValue, err := json.Marshal(param.Value)
+				if err != nil {
+					return nil, err
+				}
+
+				// Generate a nonce for GCM
+				nonce := make([]byte, gcm.NonceSize())
+				if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
+					return nil, err
+				}
+
+				// Encrypt the JSON value
+				ciphertext := gcm.Seal(nonce, nonce, jsonValue, nil)
+
+				param.Value = hex.EncodeToString(ciphertext)
+				action.UpdatedAction.Params[j] = param
+			}
+		}
 	}
 
 	return actions, nil
@@ -121,7 +154,130 @@ func DecryptParams(actions []shared_models.Action, decryptPasswords bool) ([]sha
 			param.Value = fmt.Sprintf("%v", originalValue)
 			actions[i].Params[j] = param
 		}
+
+		// if action has an updated action, decrypt the params of the updated action
+		if action.UpdatedAction != nil {
+			for j, param := range action.UpdatedAction.Params {
+				// skip if value is not encrypted
+				if !IsEncrypted(param.Value) {
+					continue
+				}
+
+				// Skip decryption if the value is empty
+				if param.Value == "" {
+					continue
+				}
+
+				if param.Type == "password" && !decryptPasswords {
+					continue
+				}
+
+				// Decode the hex string
+				ciphertext, err := hex.DecodeString(param.Value)
+				if err != nil {
+					return nil, errors.New("failed to decode hex string: " + err.Error())
+				}
+
+				if len(ciphertext) < gcm.NonceSize() {
+					return nil, errors.New("ciphertext too short")
+				}
+
+				// Extract the nonce and ciphertext
+				nonce := ciphertext[:gcm.NonceSize()]
+				ciphertext = ciphertext[gcm.NonceSize():]
+
+				// Decrypt the ciphertext
+				plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
+				if err != nil {
+					return nil, errors.New("failed to decrypt: " + err.Error())
+				}
+
+				// Convert the decrypted JSON value back to the original type
+				var originalValue interface{}
+				if err := json.Unmarshal(plaintext, &originalValue); err != nil {
+					return nil, err
+				}
+
+				param.Value = fmt.Sprintf("%v", originalValue)
+				action.UpdatedAction.Params[j] = param
+			}
+		}
 	}
 
 	return actions, nil
+}
+
+func EncryptParam(param shared_models.Params) (shared_models.Params, error) {
+	block, err := aes.NewCipher([]byte(config.Config.Encryption.Key))
+	if err != nil {
+		return param, err
+	}
+
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return param, err
+	}
+
+	// Skip encryption if the value is empty
+	if param.Value == "" {
+		return param, nil
+	}
+
+	// if param is a password and is encrypted, skip encryption
+	if param.Type == "password" && IsEncrypted(param.Value) {
+		return param, nil
+	}
+
+	// Convert the param value to JSON
+	jsonValue, err := json.Marshal(param.Value)
+	if err != nil {
+		return param, err
+	}
+
+	// Generate a nonce for GCM
+	nonce := make([]byte, gcm.NonceSize())
+	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
+		return param, err
+	}
+
+	// Encrypt the JSON value
+	ciphertext := gcm.Seal(nonce, nonce, jsonValue, nil)
+
+	param.Value = hex.EncodeToString(ciphertext)
+
+	return param, nil
+}
+
+func DecryptString(value string) (string, error) {
+	block, err := aes.NewCipher([]byte(config.Config.Encryption.Key))
+	if err != nil {
+		return "", err
+	}
+
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", err
+	}
+
+	// Decode the hex string
+	ciphertext, err := hex.DecodeString(value)
+	if err != nil {
+		return "", errors.New("failed to decode hex string: " + err.Error())
+	}
+
+	if len(ciphertext) < gcm.NonceSize() {
+		return "", errors.New("ciphertext too short")
+	}
+
+	// Extract the nonce and ciphertext
+	nonce := ciphertext[:gcm.NonceSize()]
+	ciphertext = ciphertext[gcm.NonceSize():]
+
+	// Decrypt the ciphertext
+	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
+	if err != nil {
+		return "", errors.New("failed to decrypt: " + err.Error())
+	}
+
+	return string(plaintext), nil
 }

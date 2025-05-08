@@ -24,11 +24,12 @@ import {
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 
-import UpdateFlowActions from "@/lib/fetch/flow/PUT/UpdateActions";
 import { cn } from "@/components/cn/cn";
 import ErrorCard from "@/components/error/ErrorCard";
-import UpdateFlowFailurePipelineActions from "@/lib/fetch/flow/PUT/UpdateFailurePipelineActions";
+import AddFlowActions from "@/lib/fetch/flow/POST/AddFlowActions";
+import AddFlowFailurePipelineActions from "@/lib/fetch/flow/POST/AddFlowFailurePipelineActions";
 
 export const CustomRadio = (props: any) => {
   const { children, ...otherProps } = props;
@@ -49,17 +50,17 @@ export const CustomRadio = (props: any) => {
   );
 };
 
-export default function EditActionModal({
+export default function CopyActionModal({
   disclosure,
   flow,
-  targetAction,
+  copyAction,
   isFailurePipeline,
   failurePipeline,
 }: {
   disclosure: UseDisclosureReturn;
   runners: any;
   flow: any;
-  targetAction: any;
+  copyAction: any;
   isFailurePipeline?: boolean;
   failurePipeline?: any;
 }) {
@@ -74,13 +75,13 @@ export default function EditActionModal({
   const [errorMessage, setErrorMessage] = React.useState("");
 
   useEffect(() => {
-    if (!targetAction) {
+    if (!copyAction) {
       return;
     }
 
-    setAction(targetAction);
-    getParamsCategorys(targetAction.params);
-  }, [targetAction]);
+    setAction(copyAction);
+    getParamsCategorys(copyAction.params);
+  }, [copyAction]);
 
   function getParamsCategorys(params: any) {
     const categories = new Set();
@@ -104,27 +105,36 @@ export default function EditActionModal({
     onOpenChange();
   }
 
-  async function updateFlowAction() {
+  async function copyFlowAction() {
     setLoading(true);
-    flow.actions.map((flowAction: any) => {
-      if (flowAction.id === action.id) {
-        flowAction.active = action.active;
-        flowAction.params = action.params;
-        flowAction.custom_name = action.custom_name;
-        flowAction.custom_description = action.custom_description;
-        flowAction.failure_pipeline_id =
-          action.failure_pipeline_id === "none"
-            ? ""
-            : action.failure_pipeline_id;
-      }
-    });
 
-    const res = (await UpdateFlowActions(flow.id, flow.actions)) as any;
+    const sendAction = {
+      id: uuidv4(),
+      name: action.name,
+      description: action.description,
+      plugin: action.plugin,
+      version: action.version,
+      icon: action.icon,
+      active: true,
+      params: action.params,
+      custom_name: action.custom_name,
+      custom_description: action.custom_description,
+      failure_pipeline_id:
+        action.failure_pipeline_id === "none" ? "" : action.failure_pipeline_id,
+    };
+
+    const newActions = [...flow.actions, sendAction];
+
+    const res = (await AddFlowActions(
+      flow.id,
+      flow.project_id,
+      newActions,
+    )) as any;
 
     if (!res) {
       setError(true);
       setErrorText("Error");
-      setErrorMessage("An error occurred while updating the action.");
+      setErrorMessage("An error occurred while adding the action.");
       setLoading(false);
 
       return;
@@ -136,7 +146,7 @@ export default function EditActionModal({
       setErrorMessage("");
       addToast({
         title: "Flow",
-        description: "Action updated successfully",
+        description: "Action copied successfully",
         color: "success",
         variant: "flat",
       });
@@ -148,7 +158,7 @@ export default function EditActionModal({
       setErrorMessage(res.message);
       addToast({
         title: "Flow",
-        description: "An error occurred while updating the action.",
+        description: "An error occurred while copying the action.",
         color: "danger",
         variant: "flat",
       });
@@ -157,28 +167,39 @@ export default function EditActionModal({
     setLoading(false);
   }
 
-  async function updateFlowFailurePipelineAction() {
+  async function copyFlowFailurePipelineAction() {
     setLoading(true);
 
-    failurePipeline.actions.map((pipelineAction: any) => {
-      if (pipelineAction.id === action.id) {
-        pipelineAction.active = action.active;
-        pipelineAction.params = action.params;
-        pipelineAction.custom_name = action.custom_name;
-        pipelineAction.custom_description = action.custom_description;
-      }
-    });
+    const sendAction = {
+      id: uuidv4(),
+      name: action.name,
+      description: action.description,
+      plugin: action.plugin,
+      version: action.version,
+      icon: action.icon,
+      active: true,
+      params: action.params,
+      custom_name: action.custom_name,
+      custom_description: action.custom_description,
+    };
 
-    const res = (await UpdateFlowFailurePipelineActions(
+    const newActions = [...failurePipeline.actions, sendAction];
+
+    const newFailurePipeline = {
+      ...failurePipeline,
+      actions: newActions,
+    };
+
+    const res = (await AddFlowFailurePipelineActions(
       flow.id,
       failurePipeline.id,
-      failurePipeline.actions,
+      newFailurePipeline,
     )) as any;
 
     if (!res) {
       setError(true);
       setErrorText("Error");
-      setErrorMessage("An error occurred while updating the action.");
+      setErrorMessage("An error occurred while copying the action.");
       setLoading(false);
 
       return;
@@ -190,7 +211,7 @@ export default function EditActionModal({
       setErrorMessage("");
       addToast({
         title: "Flow",
-        description: "Action updated successfully",
+        description: "Action copied successfully",
         color: "success",
         variant: "flat",
       });
@@ -202,7 +223,7 @@ export default function EditActionModal({
       setErrorMessage(res.message);
       addToast({
         title: "Flow",
-        description: "An error occurred while updating the action.",
+        description: "An error occurred while copying the action.",
         color: "danger",
         variant: "flat",
       });
@@ -224,7 +245,7 @@ export default function EditActionModal({
           {() => (
             <>
               <ModalHeader className="flex flex-wrap items-center">
-                <p className="text-lg font-bold">Edit Action</p>
+                <p className="text-lg font-bold">Copy Action</p>
               </ModalHeader>
               <ModalBody>
                 {error && (
@@ -251,14 +272,6 @@ export default function EditActionModal({
                             variant="flat"
                           >
                             Ver. {action.version}
-                          </Chip>
-                          <Chip
-                            color="default"
-                            radius="sm"
-                            size="sm"
-                            variant="flat"
-                          >
-                            ID. {action.id}
                           </Chip>
                         </div>
                         <p className="text-sm text-default-500">
@@ -520,16 +533,16 @@ export default function EditActionModal({
                   Cancel
                 </Button>
                 <Button
-                  color="warning"
+                  color="primary"
                   isLoading={isLoading}
                   variant="flat"
                   onPress={
                     isFailurePipeline
-                      ? updateFlowFailurePipelineAction
-                      : updateFlowAction
+                      ? copyFlowFailurePipelineAction
+                      : copyFlowAction
                   }
                 >
-                  Update Action
+                  Copy Action
                 </Button>
               </ModalFooter>
             </>
