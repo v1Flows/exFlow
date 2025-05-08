@@ -43,6 +43,7 @@ import DeleteFailurePipelineModal from "@/components/modals/failurePipelines/del
 import EditFailurePipelineModal from "@/components/modals/failurePipelines/edit";
 import UpdateFlowFailurePipelineActions from "@/lib/fetch/flow/PUT/UpdateFailurePipelineActions";
 import CopyActionModal from "@/components/modals/actions/copy";
+import UpgradeActionModal from "@/components/modals/actions/upgrade";
 
 export default function Actions({
   flow,
@@ -59,6 +60,7 @@ export default function Actions({
 
   const [actions, setActions] = React.useState([] as any);
   const [targetAction, setTargetAction] = React.useState({} as any);
+  const [updatedAction, setUpdatedAction] = React.useState({} as any);
 
   const [failurePipelines, setFailurePipelines] = React.useState([] as any);
   const [targetFailurePipeline, setTargetFailurePipeline] = React.useState(
@@ -72,6 +74,7 @@ export default function Actions({
   const addFlowActionModal = useDisclosure();
   const editActionModal = useDisclosure();
   const copyFlowActionModal = useDisclosure();
+  const upgradeFlowActionModal = useDisclosure();
   const deleteActionModal = useDisclosure();
   const createFlowFailurePipelineModal = useDisclosure();
   const editFlowFailurePipelineModal = useDisclosure();
@@ -80,6 +83,7 @@ export default function Actions({
   const editFlowFailurePipelineActionModal = useDisclosure();
   const deleteFlowFailurePipelineActionModal = useDisclosure();
   const copyFlowFailurePipelineActionModal = useDisclosure();
+  const upgradeFlowFailurePipelineActionModal = useDisclosure();
 
   const [expandedParams, setExpandedParams] = React.useState([] as any);
 
@@ -110,69 +114,56 @@ export default function Actions({
 
     return (
       <div ref={setNodeRef} style={style} {...attributes}>
-        <Card key={action.type} fullWidth>
+        <Card key={action.id} fullWidth>
           <CardBody>
             <div className="flex items-center justify-between gap-4">
               <div className="w-full">
                 <div className="flex-cols flex items-center justify-between gap-2">
-                  <Tooltip
-                    content={
-                      <div>
-                        <p className="text-md font-bold">{action.name}</p>
-                        <p className="text-sm text-default-500">
-                          {action.description}
-                        </p>
-                      </div>
-                    }
-                    placement="top"
-                    size="lg"
-                  >
-                    <div className="flex items-center gap-2">
-                      <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
-                        <Icon icon={action.icon} width={26} />
-                      </div>
-                      <div>
-                        <div className="flex-cols flex gap-2">
-                          <p className="text-md font-bold">
-                            {action.custom_name
-                              ? action.custom_name
-                              : action.name}
-                          </p>
-                          <Chip
-                            className="max-lg:hidden"
-                            color="default"
-                            radius="sm"
-                            size="sm"
-                            variant="flat"
-                          >
-                            ID: {action.id}
-                          </Chip>
-                          <Chip
-                            className="max-lg:hidden"
-                            color="primary"
-                            radius="sm"
-                            size="sm"
-                            variant="flat"
-                          >
-                            Vers. {action.version}
-                          </Chip>
-                          <Chip
-                            color={action.active ? "success" : "danger"}
-                            radius="sm"
-                            size="sm"
-                            variant="flat"
-                          >
-                            {action.active ? "Active" : "Disabled"}
-                          </Chip>
-                        </div>
-                        <p className="text-sm text-default-500">
-                          {action.custom_description
-                            ? action.custom_description
-                            : action.description}
-                        </p>
-                      </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
+                      <Icon icon={action.icon} width={26} />
                     </div>
-                  </Tooltip>
+                    <div>
+                      <div className="flex-cols flex gap-2">
+                        <p className="text-md font-bold">
+                          {action.custom_name
+                            ? action.custom_name
+                            : action.name}
+                        </p>
+                        <Chip
+                          className="max-lg:hidden"
+                          color="default"
+                          radius="sm"
+                          size="sm"
+                          variant="flat"
+                        >
+                          ID: {action.id}
+                        </Chip>
+                        <Chip
+                          className="max-lg:hidden"
+                          color="primary"
+                          radius="sm"
+                          size="sm"
+                          variant="flat"
+                        >
+                          Vers. {action.version}
+                        </Chip>
+                        <Chip
+                          color={action.active ? "success" : "danger"}
+                          radius="sm"
+                          size="sm"
+                          variant="flat"
+                        >
+                          {action.active ? "Active" : "Disabled"}
+                        </Chip>
+                      </div>
+                      <p className="text-sm text-default-500">
+                        {action.custom_description
+                          ? action.custom_description
+                          : action.description}
+                      </p>
+                    </div>
+                  </div>
                   <div className="flex-cols flex items-center gap-2">
                     <ButtonGroup>
                       <Button
@@ -325,6 +316,7 @@ export default function Actions({
                       hideIconWrapper
                       className="mt-2"
                       color="warning"
+                      description="Action has no failure pipeline assigned"
                       isVisible={
                         !flow.failure_pipelines.some(
                           (pipeline: any) =>
@@ -336,10 +328,62 @@ export default function Actions({
                               )),
                         )
                       }
-                      title="Action has no failure pipeline assigned"
                       variant="faded"
                     />
                   ))}
+                {action.update_available && (
+                  <Alert
+                    hideIconWrapper
+                    className="mt-2"
+                    color="primary"
+                    description="Newer plugin version was found on one of the runners. Do you want to update the action?"
+                    endContent={
+                      <Button
+                        color="primary"
+                        isDisabled={!canEdit}
+                        startContent={
+                          <Icon icon="hugeicons:system-update-02" width={20} />
+                        }
+                        variant="flat"
+                        onPress={() => {
+                          // if action is in an failure pipeline, open the edit modal
+                          if (
+                            flow.failure_pipelines.some(
+                              (pipeline: any) =>
+                                pipeline.actions !== null &&
+                                pipeline.actions.some(
+                                  (pipelineAction: any) =>
+                                    pipelineAction.id === action.id,
+                                ),
+                            )
+                          ) {
+                            setTargetAction(action);
+                            setUpdatedAction(action.updated_action);
+                            setTargetFailurePipeline(
+                              flow.failure_pipelines.filter(
+                                (pipeline: any) =>
+                                  pipeline.actions !== null &&
+                                  pipeline.actions.some(
+                                    (pipelineAction: any) =>
+                                      pipelineAction.id === action.id,
+                                  ),
+                              )[0],
+                            );
+                            upgradeFlowFailurePipelineActionModal.onOpen();
+                          } else {
+                            setTargetAction(action);
+                            setUpdatedAction(action.updated_action);
+                            upgradeFlowActionModal.onOpen();
+                          }
+                        }}
+                      >
+                        Update
+                      </Button>
+                    }
+                    title={`Update to version ${action.update_version} available`}
+                    variant="faded"
+                  />
+                )}
                 <Accordion
                   isCompact
                   selectedKeys={expandedParams}
@@ -366,6 +410,14 @@ export default function Actions({
                         <TableRow>
                           <TableCell>Plugin</TableCell>
                           <TableCell>{action.plugin}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>Plugin Name</TableCell>
+                          <TableCell>{action.name}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>Plugin Description</TableCell>
+                          <TableCell>{action.description}</TableCell>
                         </TableRow>
                         <TableRow>
                           <TableCell>Failure Pipeline</TableCell>
@@ -509,15 +561,9 @@ export default function Actions({
 
   return (
     <div>
-      <Alert
-        hideIconWrapper
-        isClosable
-        className="p-2"
-        color="primary"
-        description="Common action settings can be found on the settings tab"
-        title="Information"
-        variant="faded"
-      />
+      <p className="text-sm text-default-500">
+        Info: Common action settings can be found on the settings tab
+      </p>
       <Spacer y={2} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
         <div className="flex flex-col gap-2">
@@ -763,6 +809,13 @@ export default function Actions({
         flow={flow}
         runners={runners}
       />
+      <UpgradeActionModal
+        disclosure={upgradeFlowActionModal}
+        flow={flow}
+        runners={runners}
+        targetAction={targetAction}
+        updatedAction={updatedAction}
+      />
       <DeleteActionModal
         actionID={targetAction}
         disclosure={deleteActionModal}
@@ -807,6 +860,15 @@ export default function Actions({
         failurePipeline={targetFailurePipeline}
         flow={flow}
         runners={runners}
+      />
+      <UpgradeActionModal
+        isFailurePipeline
+        disclosure={upgradeFlowFailurePipelineActionModal}
+        failurePipeline={targetFailurePipeline}
+        flow={flow}
+        runners={runners}
+        targetAction={targetAction}
+        updatedAction={updatedAction}
       />
       <DeleteActionModal
         isFailurePipeline

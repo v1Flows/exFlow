@@ -16,6 +16,7 @@ func Init(db *bun.DB) {
 			case <-ticker.C:
 				checkHangingExecutions(db)
 				checkDisconnectedAutoRunners(db)
+				checkForFlowActionUpdates(db)
 			case <-quit:
 				ticker.Stop()
 				return
