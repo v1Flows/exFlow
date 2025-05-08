@@ -67,6 +67,16 @@ func UpdateFlowFailurePipelineActions(context *gin.Context, db *bun.DB) {
 		}
 	}
 
+	for a, action := range failurePipeline.Actions {
+		if action.UpdateAvailable && action.Version == action.UpdateVersion {
+			action.UpdateAvailable = false
+			action.UpdateVersion = ""
+			action.UpdatedAction = nil
+
+			failurePipeline.Actions[a] = action
+		}
+	}
+
 	// set the updated actions
 	for i, pipeline := range flowDB.FailurePipelines {
 		if pipeline.ID.String() == failurePipelineID {

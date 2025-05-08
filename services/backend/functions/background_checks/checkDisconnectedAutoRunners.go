@@ -1,9 +1,10 @@
 package background_checks
 
 import (
-	"github.com/v1Flows/exFlow/services/backend/pkg/models"
 	"context"
 	"fmt"
+
+	"github.com/v1Flows/exFlow/services/backend/pkg/models"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/uptrace/bun"
@@ -16,7 +17,7 @@ func checkDisconnectedAutoRunners(db *bun.DB) {
 
 	// get all executions that are not finished
 	var runners []models.Runners
-	err := db.NewSelect().Model(&runners).Where("last_heartbeat < NOW() - INTERVAL '30 minutes'").Scan(context)
+	err := db.NewSelect().Model(&runners).Where("last_heartbeat < NOW() - INTERVAL '5 minutes'").Scan(context)
 	if err != nil {
 		log.Error("Bot: Error getting running runners. ", err)
 	}
