@@ -138,15 +138,20 @@ export default function UpgradeActionModal({
   async function updateFlowAction() {
     setLoading(true);
     flow.actions.map((flowAction: any) => {
-      if (flowAction.id === actionNewVersion.id) {
-        flowAction.active = actionNewVersion.active;
+      if (flowAction.id === actionOldVersion.id) {
+        flowAction.active = actionOldVersion.active;
+        flowAction.icon = actionNewVersion.icon;
         flowAction.params = actionNewVersion.params;
-        flowAction.custom_name = actionNewVersion.custom_name;
-        flowAction.custom_description = actionNewVersion.custom_description;
+        flowAction.version = actionNewVersion.version;
+        flowAction.custom_name = actionOldVersion.custom_name;
+        flowAction.custom_description = actionOldVersion.custom_description;
         flowAction.failure_pipeline_id =
-          actionNewVersion.failure_pipeline_id === "none"
+          actionOldVersion.failure_pipeline_id === "none"
             ? ""
-            : actionNewVersion.failure_pipeline_id;
+            : actionOldVersion.failure_pipeline_id;
+        flowAction.update_available = false;
+        flowAction.update_version = "";
+        flowAction.updated_action = null;
       }
     });
 
@@ -155,7 +160,7 @@ export default function UpgradeActionModal({
     if (!res) {
       setError(true);
       setErrorText("Error");
-      setErrorMessage("An error occurred while updating the action.");
+      setErrorMessage("An error occurred while upgrading the action.");
       setLoading(false);
 
       return;
@@ -167,7 +172,7 @@ export default function UpgradeActionModal({
       setErrorMessage("");
       addToast({
         title: "Flow",
-        description: "Action updated successfully",
+        description: "Action upgraded successfully",
         color: "success",
         variant: "flat",
       });
@@ -179,7 +184,7 @@ export default function UpgradeActionModal({
       setErrorMessage(res.message);
       addToast({
         title: "Flow",
-        description: "An error occurred while updating the action.",
+        description: "An error occurred while upgrading the action.",
         color: "danger",
         variant: "flat",
       });
@@ -194,10 +199,14 @@ export default function UpgradeActionModal({
     failurePipeline.actions.map((pipelineAction: any) => {
       if (pipelineAction.id === actionOldVersion.id) {
         pipelineAction.active = actionOldVersion.active;
+        pipelineAction.icon = actionNewVersion.icon;
         pipelineAction.params = actionNewVersion.params;
         pipelineAction.version = actionNewVersion.version;
         pipelineAction.custom_name = actionOldVersion.custom_name;
         pipelineAction.custom_description = actionOldVersion.custom_description;
+        pipelineAction.update_available = false;
+        pipelineAction.update_version = "";
+        pipelineAction.updated_action = null;
       }
     });
 
@@ -210,7 +219,7 @@ export default function UpgradeActionModal({
     if (!res) {
       setError(true);
       setErrorText("Error");
-      setErrorMessage("An error occurred while updating the action.");
+      setErrorMessage("An error occurred while upgrading the action.");
       setLoading(false);
 
       return;
@@ -306,7 +315,7 @@ export default function UpgradeActionModal({
                         </div>
                       </CardBody>
                     </Card>
-                    <div className="flex w-full flex-col gap-4">
+                    <div className="flex w-full flex-col gap-4 mt-2">
                       {/* Status */}
                       <div className="flex flex-col">
                         <div className="flex-cols flex items-center gap-2">
@@ -522,7 +531,7 @@ export default function UpgradeActionModal({
                         </div>
                       </CardBody>
                     </Card>
-                    <div className="flex w-full flex-col gap-4">
+                    <div className="flex w-full flex-col gap-4 mt-2">
                       {/* Status */}
                       <div className="flex flex-col">
                         <div className="flex-cols flex items-center gap-2">
@@ -572,9 +581,14 @@ export default function UpgradeActionModal({
                         <p className="text-lg font-bold text-default-600">
                           Details
                         </p>
+                        <p className="text-sm text-default-500">
+                          You are currently not able to edit Action Details
+                          during upgrades.
+                        </p>
                         <Spacer y={2} />
                         <div className="grid grid-cols-2 gap-2">
                           <Input
+                            isDisabled
                             description="Custom name for this action (optional)"
                             label="Custom Name"
                             type="text"
@@ -587,6 +601,7 @@ export default function UpgradeActionModal({
                             }
                           />
                           <Input
+                            isDisabled
                             description="Custom description for this action (optional)"
                             label="Custom Description"
                             type="text"
@@ -600,6 +615,7 @@ export default function UpgradeActionModal({
                           />
                           {!isFailurePipeline && (
                             <Select
+                              isDisabled
                               label="Failure Pipeline"
                               placeholder="Select an failure pipeline"
                               selectedKeys={[
