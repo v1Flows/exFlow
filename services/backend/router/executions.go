@@ -35,6 +35,9 @@ func Executions(router *gin.RouterGroup, db *bun.DB) {
 		execution.DELETE("/:executionID", func(c *gin.Context) {
 			executions.DeleteExecution(c, db)
 		})
+		execution.PUT("/:executionID/heartbeat", func(c *gin.Context) {
+			executions.Hearbeat(c, db)
+		})
 
 		// steps
 		execution.GET("/:executionID/steps", func(c *gin.Context) {

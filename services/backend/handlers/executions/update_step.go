@@ -3,6 +3,7 @@ package executions
 import (
 	"net/http"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/v1Flows/exFlow/services/backend/functions/encryption"
 	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
 	"github.com/v1Flows/exFlow/services/backend/pkg/models"
@@ -18,6 +19,7 @@ func UpdateStep(context *gin.Context, db *bun.DB) {
 	var step shared_models.ExecutionSteps
 	if err := context.ShouldBindJSON(&step); err != nil {
 		httperror.StatusBadRequest(context, "Error parsing incoming data", err)
+		log.Error("Error parsing incoming data", err)
 		return
 	}
 
@@ -26,6 +28,7 @@ func UpdateStep(context *gin.Context, db *bun.DB) {
 	err := db.NewSelect().Model(&dbStep).Where("id = ?", stepID).Scan(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error collecting current step messages from db", err)
+		log.Error("Error collecting current step messages from db", err)
 		return
 	}
 
@@ -34,6 +37,7 @@ func UpdateStep(context *gin.Context, db *bun.DB) {
 	err = db.NewSelect().Model(&execution).Column("flow_id").Where("id = ?", dbStep.ExecutionID).Scan(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error fetching parent execution data", err)
+		log.Error("Error fetching parent execution data", err)
 		return
 	}
 	// get flow data
@@ -41,6 +45,7 @@ func UpdateStep(context *gin.Context, db *bun.DB) {
 	err = db.NewSelect().Model(&flow).Where("id = ?", execution.FlowID).Scan(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error fetching flow data", err)
+		log.Error("Error fetching flow data", err)
 		return
 	}
 
@@ -49,6 +54,7 @@ func UpdateStep(context *gin.Context, db *bun.DB) {
 		dbStep.Messages, err = encryption.DecryptExecutionStepActionMessage(dbStep.Messages)
 		if err != nil {
 			httperror.InternalServerError(context, "Error decrypting execution step action messages", err)
+			log.Error("Error decrypting execution step action messages", err)
 			return
 		}
 	}
@@ -69,6 +75,7 @@ func UpdateStep(context *gin.Context, db *bun.DB) {
 		step.Messages, err = encryption.EncryptExecutionStepActionMessage(step.Messages)
 		if err != nil {
 			httperror.InternalServerError(context, "Error encrypting execution step action messages", err)
+			log.Error("Error encrypting execution step action messages", err)
 			return
 		}
 
@@ -78,6 +85,7 @@ func UpdateStep(context *gin.Context, db *bun.DB) {
 	_, err = db.NewUpdate().Model(&step).ExcludeColumn("id", "execution_id", "action", "created_at").Where("id = ?", stepID).Exec(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error updating step on db", err)
+		log.Error("Error updating step on db", err)
 		return
 	}
 
