@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/v1Flows/exFlow/services/backend/functions/encryption"
 	"github.com/v1Flows/exFlow/services/backend/pkg/models"
 	shared_models "github.com/v1Flows/shared-library/pkg/models"
 
@@ -18,74 +19,116 @@ func checkHangingExecutions(db *bun.DB) {
 
 	// get all executions that are not finished
 	var executions []models.Executions
-	err := db.NewSelect().Model(&executions).Where("status = 'running' AND executed_at < NOW() - INTERVAL '15 minutes'").Scan(context)
+	err := db.NewSelect().Model(&executions).Where("status NOT IN ('pending', 'canceled', 'noPatternMatch', 'error', 'success', 'recovered')").Scan(context)
 	if err != nil {
 		log.Error("Bot: Error getting running executions. ", err)
 	}
 
 	// get steps for each execution
 	for _, execution := range executions {
-		var steps []models.ExecutionSteps
-		err := db.NewSelect().Model(&steps).Where("execution_id = ?", execution.ID).Scan(context)
-		if err != nil {
-			log.Error("Bot: Error getting steps for execution", err)
-		}
 
-		// check if all steps are finished
-		allFinished := true
-		for _, step := range steps {
-			if step.Status != "finished" {
-				allFinished = false
-				break
-			}
-		}
-
-		// check if the last finished step has been finished for at least 15 minutes
-		if allFinished {
-			lastFinishedStep := steps[len(steps)-1]
-			finishedAt := lastFinishedStep.FinishedAt
-			if time.Since(finishedAt) < 15*time.Minute {
-				allFinished = false
-			}
-		}
-
-		// if all steps are finished, mark execution as Error
-		if allFinished {
+		// check if the last heartbeat is older than 15 seconds
+		if time.Since(execution.LastHeartbeat) > 15*time.Second {
 			log.Info("Bot: Execution is hanging, marking as error", execution.ID)
 
-			// add an error step
-			var executionStep models.ExecutionSteps
-
-			executionStep.ExecutionID = execution.ID.String()
-			executionStep.Action = shared_models.Action{
-				Name: "Automated Check",
+			// get flow data
+			var flow models.Flows
+			err = db.NewSelect().Model(&flow).Where("id = ?", execution.FlowID).Scan(context)
+			if err != nil {
+				log.Error("Bot: Error getting flow data", err)
 			}
-			executionStep.Messages = []shared_models.Message{
-				{
-					Title: "Automated Check",
-					Lines: []shared_models.Line{
-						{
-							Content: "All steps finished since 15 minutes but execution is still running",
-							Color:   "danger",
-						},
-						{
-							Content: "Marking as error",
-							Color:   "danger",
+
+			step := shared_models.ExecutionSteps{
+				ExecutionID: execution.ID.String(),
+				Action: shared_models.Action{
+					Name: "Automated Check",
+					Icon: "hugeicons:robotic",
+				},
+				Messages: []shared_models.Message{
+					{
+						Title: "Automated Check",
+						Lines: []shared_models.Line{
+							{
+								Content:   "Last execution heartbeat was more than 15 seconds ago",
+								Color:     "danger",
+								Timestamp: time.Now(),
+							},
+							{
+								Content:   "Execution will be marked as error and all remaining steps will be canceled",
+								Color:     "danger",
+								Timestamp: time.Now(),
+							},
 						},
 					},
 				},
+				Status:     "warning",
+				CreatedAt:  time.Now(),
+				StartedAt:  time.Now(),
+				FinishedAt: time.Now(),
 			}
-			executionStep.Status = "error"
-			executionStep.FinishedAt = time.Now()
 
-			_, err := db.NewInsert().Model(&executionStep).Exec(context)
+			// check for encryption
+			if flow.EncryptExecutions && step.Messages != nil && len(step.Messages) > 0 {
+				step.Messages, err = encryption.EncryptExecutionStepActionMessage(step.Messages)
+				if err != nil {
+					log.Error("Bot: Error encrypting execution step action messages", err)
+				}
+
+				step.Encrypted = true
+			}
+
+			_, err := db.NewInsert().Model(&step).Exec(context)
 			if err != nil {
 				log.Error("Bot: Error adding error step", err)
 			}
 
-			_, err = db.NewUpdate().Model(&execution).Set("status = 'running'").Set("error = ?", true).Set("finished_at = ?", time.Now()).Where("id = ?", execution.ID).Exec(context)
+			_, err = db.NewUpdate().Model(&execution).Set("status = 'error'").Set("finished_at = ?", time.Now()).Where("id = ?", execution.ID).Exec(context)
 			if err != nil {
 				log.Error("Bot: Error updating execution", err)
+			}
+
+			var steps []models.ExecutionSteps
+			err = db.NewSelect().Model(&steps).Where("execution_id = ?", execution.ID).Scan(context)
+			if err != nil {
+				log.Error("Bot: Error getting steps for execution", err)
+			}
+
+			// mark all steps as canceled if they are not finished
+			for _, step := range steps {
+				if step.FinishedAt.IsZero() {
+					step.Status = "canceled"
+					step.StartedAt = time.Now()
+					step.FinishedAt = time.Now()
+					step.CanceledAt = time.Now()
+					step.CanceledBy = "Automated Check"
+					step.Messages = []shared_models.Message{
+						{
+							Title: "Automated Check",
+							Lines: []shared_models.Line{
+								{
+									Content:   "Execution was marked as error, step will be canceled",
+									Color:     "danger",
+									Timestamp: time.Now(),
+								},
+							},
+						},
+					}
+
+					// check for encryption
+					if flow.EncryptExecutions && step.Messages != nil && len(step.Messages) > 0 {
+						step.Messages, err = encryption.EncryptExecutionStepActionMessage(step.Messages)
+						if err != nil {
+							log.Error("Bot: Error encrypting execution step action messages", err)
+						}
+
+						step.Encrypted = true
+					}
+
+					_, err := db.NewUpdate().Model(&step).Column("status", "encrypted", "messages", "started_at", "finished_at", "canceled_at", "canceled_by").Where("id = ?", step.ID).Exec(context)
+					if err != nil {
+						log.Error("Bot: Error updating step", err)
+					}
+				}
 			}
 		}
 	}

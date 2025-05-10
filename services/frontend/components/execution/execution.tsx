@@ -261,9 +261,14 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
                         data.lines.map((line: any, index: any) => (
                           <div
                             key={index}
-                            className={`container flex-cols font-semibold flex items-center gap-1 text-${lineColor(line)}`}
+                            className={`container flex-cols font-semibold flex items-center gap-2`}
                           >
-                            <p>{line.content}</p>
+                            <p className="text-default-500 text-opacity-70">
+                              {new Date(line.timestamp).toLocaleString()}
+                            </p>
+                            <p className={`text-${lineColor(line)}`}>
+                              {line.content}
+                            </p>
                           </div>
                         )),
                       )}
