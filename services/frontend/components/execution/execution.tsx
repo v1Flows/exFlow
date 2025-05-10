@@ -31,6 +31,7 @@ import {
   executionStatusName,
   executionStatusWrapper,
 } from "@/lib/functions/executionStyles";
+import APICancelExecution from "@/lib/fetch/executions/cancel";
 
 import AdminExecutionActions from "./adminExecutionActions";
 import AdminStepActions from "./adminStepActions";
@@ -489,6 +490,29 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
           Back
         </Button>
         <div className="flex-wrap mt-2 flex items-center gap-4 lg:mt-0 lg:justify-end">
+          <Button
+            color="danger"
+            startContent={<Icon icon="hugeicons:cancel-01" width={20} />}
+            variant="shadow"
+            onPress={() => {
+              APICancelExecution(execution.id)
+                .then(() => {
+                  addToast({
+                    title: "Request to cancel execution sent",
+                    color: "success",
+                  });
+                })
+                .catch((err) => {
+                  addToast({
+                    title: "Execution cancel failed",
+                    description: err.message,
+                    color: "danger",
+                  });
+                });
+            }}
+          >
+            Cancel Execution
+          </Button>
           {userDetails.role === "admin" && (
             <AdminExecutionActions execution={execution} />
           )}
