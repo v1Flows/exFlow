@@ -31,7 +31,7 @@
     "@react-aria/ssr": "3.9.8",
     "@react-aria/utils": "^3.28.1",
     "@react-aria/visually-hidden": "3.8.22",
-    "@react-stately/data": "^3.12.2",
+    "@react-stately/data": "^3.12.3",
     "@react-stately/utils": "^3.10.5",
     "@serwist/next": "^9.0.12",
     "@tabler/icons-react": "^3.31.0",

@@ -72,8 +72,8 @@ importers:
         specifier: 3.8.22
         version: 3.8.22(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@react-stately/data':
-        specifier: ^3.12.2
-        version: 3.12.2(react@19.0.0)
+        specifier: ^3.12.3
+        version: 3.12.3(react@19.0.0)
       '@react-stately/utils':
         specifier: ^3.10.5
         version: 3.10.5(react@19.0.0)
@@ -451,8 +451,8 @@ packages:
     engines: {node: '>=6.0.0'}
     hasBin: true
 
-  '@babel/parser@7.27.1':
-    resolution: {integrity: sha512-I0dZ3ZpCrJ1c04OqlNsQcKiZlsrXf/kkE4FXzID9rIOYICsAbA8mMDzhW/luRNAHdCNt7os/u8wenklZDlUVUQ==}
+  '@babel/parser@7.27.2':
+    resolution: {integrity: sha512-QYLs8299NA7WM/bZAdp+CviYYkVoYXlDW2rzliy3chxd1PQjej7JORuMJDJXJUb9g0TT+B99EwaVLKmX+sPXWw==}
     engines: {node: '>=6.0.0'}
     hasBin: true
 
@@ -2525,8 +2525,8 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
-  '@react-stately/data@3.12.2':
-    resolution: {integrity: sha512-u0yQkISnPyR5RjpNJCSxyC28bx/UvUKtVYRH5yx/MtXbP+2Byn7ItQ+evRqpJB5XsWFlyohGebgbXvL3JSBVsg==}
+  '@react-stately/data@3.12.3':
+    resolution: {integrity: sha512-JYPNV1gd9OZm8xPay0exx5okFNgiwESNvdBHsfDC+f8BifRyFLdrvoaUGF0enKIeSQMB1oReFAxTAXtDZd27rA==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
@@ -7133,7 +7133,7 @@ snapshots:
     dependencies:
       '@babel/types': 7.26.10
 
-  '@babel/parser@7.27.1':
+  '@babel/parser@7.27.2':
     dependencies:
       '@babel/types': 7.27.1
 
@@ -10415,10 +10415,10 @@ snapshots:
       '@swc/helpers': 0.5.17
       react: 19.0.0
 
-  '@react-stately/data@3.12.2(react@19.0.0)':
+  '@react-stately/data@3.12.3(react@19.0.0)':
     dependencies:
-      '@react-types/shared': 3.28.0(react@19.0.0)
-      '@swc/helpers': 0.5.15
+      '@react-types/shared': 3.29.0(react@19.0.0)
+      '@swc/helpers': 0.5.17
       react: 19.0.0
 
   '@react-stately/datepicker@3.13.0(react@19.0.0)':
@@ -10435,7 +10435,7 @@ snapshots:
 
   '@react-stately/flags@3.1.0':
     dependencies:
-      '@swc/helpers': 0.5.17
+      '@swc/helpers': 0.5.15
 
   '@react-stately/flags@3.1.1':
     dependencies:
@@ -11549,7 +11549,7 @@ snapshots:
 
   '@vue/compiler-core@3.5.13':
     dependencies:
-      '@babel/parser': 7.27.1
+      '@babel/parser': 7.27.2
       '@vue/shared': 3.5.13
       entities: 4.5.0
       estree-walker: 2.0.2
@@ -11562,7 +11562,7 @@ snapshots:
 
   '@vue/compiler-sfc@3.5.13':
     dependencies:
-      '@babel/parser': 7.27.1
+      '@babel/parser': 7.27.2
       '@vue/compiler-core': 3.5.13
       '@vue/compiler-dom': 3.5.13
       '@vue/compiler-ssr': 3.5.13
