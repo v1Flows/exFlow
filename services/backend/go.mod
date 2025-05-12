@@ -66,7 +66,7 @@ require (
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826
 	github.com/sirupsen/logrus v1.9.3
 	github.com/uptrace/bun/dialect/pgdialect v1.2.11
-	github.com/v1Flows/shared-library v1.0.19
+	github.com/v1Flows/shared-library v1.0.21
 	github.com/zeromicro/go-zero v1.8.3
 	golang.org/x/sys v0.33.0 // indirect
 )
