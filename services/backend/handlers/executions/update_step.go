@@ -82,6 +82,10 @@ func UpdateStep(context *gin.Context, db *bun.DB) {
 		step.Encrypted = true
 	}
 
+	if step.Status == "" {
+		step.Status = dbStep.Status
+	}
+
 	_, err = db.NewUpdate().Model(&step).ExcludeColumn("id", "execution_id", "action", "created_at").Where("id = ?", stepID).Exec(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error updating step on db", err)
