@@ -389,7 +389,7 @@ export default function UpgradeActionModal({
                           Parameters
                         </p>
                         <Spacer y={2} />
-                        <ScrollShadow className="max-h-[600px]">
+                        <ScrollShadow className="max-h-[350px]">
                           {actionOldVersionParamsCategorys.length > 0 ? (
                             <div className="flex flex-col w-full gap-2">
                               {actionOldVersionParamsCategorys.map(
@@ -642,7 +642,7 @@ export default function UpgradeActionModal({
                           Parameters
                         </p>
                         <Spacer y={2} />
-                        <ScrollShadow className="max-h-[600px]">
+                        <ScrollShadow className="max-h-[350px]">
                           {actionNewVersionParamsCategorys.length > 0 ? (
                             <div className="flex flex-col w-full gap-2">
                               {actionNewVersionParamsCategorys.map(

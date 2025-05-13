@@ -490,29 +490,33 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
           Back
         </Button>
         <div className="flex-wrap mt-2 flex items-center gap-4 lg:mt-0 lg:justify-end">
-          <Button
-            color="danger"
-            startContent={<Icon icon="hugeicons:cancel-01" width={20} />}
-            variant="shadow"
-            onPress={() => {
-              APICancelExecution(execution.id)
-                .then(() => {
-                  addToast({
-                    title: "Request to cancel execution sent",
-                    color: "success",
+          {(execution.status === "running" ||
+            execution.status === "paused" ||
+            execution.status === "interactionWaiting") && (
+            <Button
+              color="danger"
+              startContent={<Icon icon="hugeicons:cancel-01" width={20} />}
+              variant="shadow"
+              onPress={() => {
+                APICancelExecution(execution.id)
+                  .then(() => {
+                    addToast({
+                      title: "Request to cancel execution sent",
+                      color: "success",
+                    });
+                  })
+                  .catch((err) => {
+                    addToast({
+                      title: "Execution cancel failed",
+                      description: err.message,
+                      color: "danger",
+                    });
                   });
-                })
-                .catch((err) => {
-                  addToast({
-                    title: "Execution cancel failed",
-                    description: err.message,
-                    color: "danger",
-                  });
-                });
-            }}
-          >
-            Cancel Execution
-          </Button>
+              }}
+            >
+              Cancel Execution
+            </Button>
+          )}
           {userDetails.role === "admin" && (
             <AdminExecutionActions execution={execution} />
           )}
