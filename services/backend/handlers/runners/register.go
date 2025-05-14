@@ -40,6 +40,8 @@ func RegisterRunner(context *gin.Context, db *bun.DB) {
 		runner.Mode = autoRunner.Mode
 		runner.Plugins = autoRunner.Plugins
 		runner.Actions = autoRunner.Actions
+		runner.ApiURL = autoRunner.ApiURL
+		runner.ApiToken = autoRunner.ApiToken
 
 		autoRunnerRegister(projectID, runner, context, db)
 	} else if runnerType == "shared_auto_runner" {
@@ -54,6 +56,8 @@ func RegisterRunner(context *gin.Context, db *bun.DB) {
 		runner.Mode = autoRunner.Mode
 		runner.Plugins = autoRunner.Plugins
 		runner.Actions = autoRunner.Actions
+		runner.ApiURL = autoRunner.ApiURL
+		runner.ApiToken = autoRunner.ApiToken
 
 		sharedAutoRunnerRegister(runner, context, db)
 	} else {
@@ -102,7 +106,7 @@ func runnerRegister(runnerID string, projectID string, runner models.Runners, co
 
 	runner.RegisteredAt = time.Now()
 
-	_, err = db.NewUpdate().Model(&runner).Column("registered", "last_heartbeat", "version", "mode", "plugins", "actions", "registered_at").Where("id = ?", runnerID).Exec(context)
+	_, err = db.NewUpdate().Model(&runner).Column("registered", "last_heartbeat", "version", "mode", "plugins", "actions", "registered_at", "api_url", "api_token").Where("id = ?", runnerID).Exec(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error updating runner informations on db", err)
 		return

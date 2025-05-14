@@ -16,7 +16,6 @@ import {
   ModalFooter,
   ModalHeader,
   Radio,
-  ScrollShadow,
   Select,
   SelectItem,
   Spacer,
@@ -269,11 +268,11 @@ export default function UpgradeActionModal({
                   Upgrade Action to newer Version
                 </p>
               </ModalHeader>
-              <ModalBody>
+              <ModalBody className="overflow-y-auto max-w-fit">
                 {error && (
                   <ErrorCard error={errorText} message={errorMessage} />
                 )}
-                <div className="grid grid-cols-9 gap-4">
+                <div className="grid lg:grid-cols-9 gap-4">
                   <div className="col-span-4">
                     <Card
                       className="border-2 border-default-200 border-primary-200"
@@ -354,7 +353,7 @@ export default function UpgradeActionModal({
                           Details
                         </p>
                         <Spacer y={2} />
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="grid lg:grid-cols-2 gap-2">
                           <Input
                             description="Custom name for this action (optional)"
                             label="Custom Name"
@@ -389,96 +388,92 @@ export default function UpgradeActionModal({
                           Parameters
                         </p>
                         <Spacer y={2} />
-                        <ScrollShadow className="max-h-[600px]">
-                          {actionOldVersionParamsCategorys.length > 0 ? (
-                            <div className="flex flex-col w-full gap-2">
-                              {actionOldVersionParamsCategorys.map(
-                                (category: any) => (
-                                  <div key={category}>
-                                    <p className="font-semibold text-default-500 mb-2">
-                                      {category}
-                                    </p>
-                                    <div className="grid grid-cols-2 gap-2">
-                                      {actionOldVersion.params.map(
-                                        (param: any) => {
-                                          return (param.category ||
-                                            "Uncategorized") === category ? (
-                                            param.type === "text" ||
-                                            param.type === "number" ? (
-                                              <Input
-                                                key={param.key}
-                                                description={param?.description}
-                                                isRequired={param.required}
-                                                label={param.title || param.key}
-                                                type={param.type}
-                                                value={param.value}
-                                              />
-                                            ) : param.type === "boolean" ? (
-                                              <Select
-                                                key={param.key}
-                                                description={param?.description}
-                                                isRequired={param.required}
-                                                label={param.title || param.key}
-                                                selectedKeys={[param.value]}
-                                              >
-                                                <SelectItem key="true">
-                                                  true
-                                                </SelectItem>
-                                                <SelectItem key="false">
-                                                  false
-                                                </SelectItem>
-                                              </Select>
-                                            ) : param.type === "textarea" ? (
-                                              <Textarea
-                                                key={param.key}
-                                                className="col-span-2"
-                                                description={param?.description}
-                                                isRequired={param.required}
-                                                label={param.title || param.key}
-                                                type={param.type}
-                                                value={param.value}
-                                              />
-                                            ) : param.type === "password" ? (
-                                              <Input
-                                                key={param.key}
-                                                description={param?.description}
-                                                isRequired={param.required}
-                                                label={param.title || param.key}
-                                                type={param.type}
-                                                value={param.value}
-                                              />
-                                            ) : param.type === "select" ? (
-                                              <Select
-                                                key={param.key}
-                                                description={param?.description}
-                                                isRequired={param.required}
-                                                label={param.title || param.key}
-                                                selectedKeys={[param.value]}
-                                              >
-                                                {param.options.map(
-                                                  (option: any) => (
-                                                    <SelectItem
-                                                      key={option.key}
-                                                    >
-                                                      {option.value}
-                                                    </SelectItem>
-                                                  ),
-                                                )}
-                                              </Select>
-                                            ) : null
-                                          ) : null;
-                                        },
-                                      )}
-                                    </div>
-                                    <Divider className="mb-2 mt-2" />
+                        {actionOldVersionParamsCategorys.length > 0 ? (
+                          <div className="flex flex-col w-full gap-2">
+                            {actionOldVersionParamsCategorys.map(
+                              (category: any) => (
+                                <div key={category}>
+                                  <p className="font-semibold text-default-500 mb-2">
+                                    {category}
+                                  </p>
+                                  <div className="grid lg:grid-cols-2 gap-2">
+                                    {actionOldVersion.params.map(
+                                      (param: any) => {
+                                        return (param.category ||
+                                          "Uncategorized") === category ? (
+                                          param.type === "text" ||
+                                          param.type === "number" ? (
+                                            <Input
+                                              key={param.key}
+                                              description={param?.description}
+                                              isRequired={param.required}
+                                              label={param.title || param.key}
+                                              type={param.type}
+                                              value={param.value}
+                                            />
+                                          ) : param.type === "boolean" ? (
+                                            <Select
+                                              key={param.key}
+                                              description={param?.description}
+                                              isRequired={param.required}
+                                              label={param.title || param.key}
+                                              selectedKeys={[param.value]}
+                                            >
+                                              <SelectItem key="true">
+                                                true
+                                              </SelectItem>
+                                              <SelectItem key="false">
+                                                false
+                                              </SelectItem>
+                                            </Select>
+                                          ) : param.type === "textarea" ? (
+                                            <Textarea
+                                              key={param.key}
+                                              className="col-span-2"
+                                              description={param?.description}
+                                              isRequired={param.required}
+                                              label={param.title || param.key}
+                                              type={param.type}
+                                              value={param.value}
+                                            />
+                                          ) : param.type === "password" ? (
+                                            <Input
+                                              key={param.key}
+                                              description={param?.description}
+                                              isRequired={param.required}
+                                              label={param.title || param.key}
+                                              type={param.type}
+                                              value={param.value}
+                                            />
+                                          ) : param.type === "select" ? (
+                                            <Select
+                                              key={param.key}
+                                              description={param?.description}
+                                              isRequired={param.required}
+                                              label={param.title || param.key}
+                                              selectedKeys={[param.value]}
+                                            >
+                                              {param.options.map(
+                                                (option: any) => (
+                                                  <SelectItem key={option.key}>
+                                                    {option.value}
+                                                  </SelectItem>
+                                                ),
+                                              )}
+                                            </Select>
+                                          ) : null
+                                        ) : null;
+                                      },
+                                    )}
                                   </div>
-                                ),
-                              )}
-                            </div>
-                          ) : (
-                            <p>No parameters for this action found.</p>
-                          )}
-                        </ScrollShadow>
+                                  <Divider className="mb-2 mt-2" />
+                                </div>
+                              ),
+                            )}
+                          </div>
+                        ) : (
+                          <p>No parameters for this action found.</p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -586,7 +581,7 @@ export default function UpgradeActionModal({
                           during upgrades.
                         </p>
                         <Spacer y={2} />
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="grid lg:grid-cols-2 gap-2">
                           <Input
                             isDisabled
                             description="Custom name for this action (optional)"
@@ -642,202 +637,198 @@ export default function UpgradeActionModal({
                           Parameters
                         </p>
                         <Spacer y={2} />
-                        <ScrollShadow className="max-h-[600px]">
-                          {actionNewVersionParamsCategorys.length > 0 ? (
-                            <div className="flex flex-col w-full gap-2">
-                              {actionNewVersionParamsCategorys.map(
-                                (category: any) => (
-                                  <div key={category}>
-                                    <p className="font-semibold text-default-500 mb-2">
-                                      {category}
-                                    </p>
-                                    <div className="grid grid-cols-2 gap-2">
-                                      {actionNewVersion.params.map(
-                                        (param: any) => {
-                                          return (param.category ||
-                                            "Uncategorized") === category ? (
-                                            param.type === "text" ||
-                                            param.type === "number" ? (
-                                              <Input
-                                                key={param.key}
-                                                description={param?.description}
-                                                isRequired={param.required}
-                                                label={param.title || param.key}
-                                                type={param.type}
-                                                value={param.value}
-                                                onValueChange={(e) => {
-                                                  setActionNewVersion({
-                                                    ...actionNewVersion,
-                                                    params:
-                                                      actionNewVersion.params.map(
-                                                        (x: any) => {
-                                                          if (
-                                                            x.key === param.key
-                                                          ) {
-                                                            return {
-                                                              ...x,
-                                                              value: e,
-                                                            };
-                                                          }
+                        {actionNewVersionParamsCategorys.length > 0 ? (
+                          <div className="flex flex-col w-full gap-2">
+                            {actionNewVersionParamsCategorys.map(
+                              (category: any) => (
+                                <div key={category}>
+                                  <p className="font-semibold text-default-500 mb-2">
+                                    {category}
+                                  </p>
+                                  <div className="grid lg:grid-cols-2 gap-2">
+                                    {actionNewVersion.params.map(
+                                      (param: any) => {
+                                        return (param.category ||
+                                          "Uncategorized") === category ? (
+                                          param.type === "text" ||
+                                          param.type === "number" ? (
+                                            <Input
+                                              key={param.key}
+                                              description={param?.description}
+                                              isRequired={param.required}
+                                              label={param.title || param.key}
+                                              type={param.type}
+                                              value={param.value}
+                                              onValueChange={(e) => {
+                                                setActionNewVersion({
+                                                  ...actionNewVersion,
+                                                  params:
+                                                    actionNewVersion.params.map(
+                                                      (x: any) => {
+                                                        if (
+                                                          x.key === param.key
+                                                        ) {
+                                                          return {
+                                                            ...x,
+                                                            value: e,
+                                                          };
+                                                        }
 
-                                                          return x;
-                                                        },
-                                                      ),
-                                                  });
-                                                }}
-                                              />
-                                            ) : param.type === "boolean" ? (
-                                              <Select
-                                                key={param.key}
-                                                description={param?.description}
-                                                isRequired={param.required}
-                                                label={param.title || param.key}
-                                                selectedKeys={[param.value]}
-                                                onSelectionChange={(e) => {
-                                                  const value =
-                                                    Array.from(e).join("");
+                                                        return x;
+                                                      },
+                                                    ),
+                                                });
+                                              }}
+                                            />
+                                          ) : param.type === "boolean" ? (
+                                            <Select
+                                              key={param.key}
+                                              description={param?.description}
+                                              isRequired={param.required}
+                                              label={param.title || param.key}
+                                              selectedKeys={[param.value]}
+                                              onSelectionChange={(e) => {
+                                                const value =
+                                                  Array.from(e).join("");
 
-                                                  setActionNewVersion({
-                                                    ...actionNewVersion,
-                                                    params:
-                                                      actionNewVersion.params.map(
-                                                        (x: any) => {
-                                                          if (
-                                                            x.key === param.key
-                                                          ) {
-                                                            return {
-                                                              ...x,
-                                                              value,
-                                                            };
-                                                          }
+                                                setActionNewVersion({
+                                                  ...actionNewVersion,
+                                                  params:
+                                                    actionNewVersion.params.map(
+                                                      (x: any) => {
+                                                        if (
+                                                          x.key === param.key
+                                                        ) {
+                                                          return {
+                                                            ...x,
+                                                            value,
+                                                          };
+                                                        }
 
-                                                          return x;
-                                                        },
-                                                      ),
-                                                  });
-                                                }}
-                                              >
-                                                <SelectItem key="true">
-                                                  true
-                                                </SelectItem>
-                                                <SelectItem key="false">
-                                                  false
-                                                </SelectItem>
-                                              </Select>
-                                            ) : param.type === "textarea" ? (
-                                              <Textarea
-                                                key={param.key}
-                                                className="col-span-2"
-                                                description={param?.description}
-                                                isRequired={param.required}
-                                                label={param.title || param.key}
-                                                type={param.type}
-                                                value={param.value}
-                                                onValueChange={(e) => {
-                                                  setActionNewVersion({
-                                                    ...actionNewVersion,
-                                                    params:
-                                                      actionNewVersion.params.map(
-                                                        (x: any) => {
-                                                          if (
-                                                            x.key === param.key
-                                                          ) {
-                                                            return {
-                                                              ...x,
-                                                              value: e,
-                                                            };
-                                                          }
+                                                        return x;
+                                                      },
+                                                    ),
+                                                });
+                                              }}
+                                            >
+                                              <SelectItem key="true">
+                                                true
+                                              </SelectItem>
+                                              <SelectItem key="false">
+                                                false
+                                              </SelectItem>
+                                            </Select>
+                                          ) : param.type === "textarea" ? (
+                                            <Textarea
+                                              key={param.key}
+                                              className="col-span-2"
+                                              description={param?.description}
+                                              isRequired={param.required}
+                                              label={param.title || param.key}
+                                              type={param.type}
+                                              value={param.value}
+                                              onValueChange={(e) => {
+                                                setActionNewVersion({
+                                                  ...actionNewVersion,
+                                                  params:
+                                                    actionNewVersion.params.map(
+                                                      (x: any) => {
+                                                        if (
+                                                          x.key === param.key
+                                                        ) {
+                                                          return {
+                                                            ...x,
+                                                            value: e,
+                                                          };
+                                                        }
 
-                                                          return x;
-                                                        },
-                                                      ),
-                                                  });
-                                                }}
-                                              />
-                                            ) : param.type === "password" ? (
-                                              <Input
-                                                key={param.key}
-                                                description={param?.description}
-                                                isRequired={param.required}
-                                                label={param.title || param.key}
-                                                type={param.type}
-                                                value={param.value}
-                                                onValueChange={(e) => {
-                                                  setActionNewVersion({
-                                                    ...actionNewVersion,
-                                                    params:
-                                                      actionNewVersion.params.map(
-                                                        (x: any) => {
-                                                          if (
-                                                            x.key === param.key
-                                                          ) {
-                                                            return {
-                                                              ...x,
-                                                              value: e,
-                                                            };
-                                                          }
+                                                        return x;
+                                                      },
+                                                    ),
+                                                });
+                                              }}
+                                            />
+                                          ) : param.type === "password" ? (
+                                            <Input
+                                              key={param.key}
+                                              description={param?.description}
+                                              isRequired={param.required}
+                                              label={param.title || param.key}
+                                              type={param.type}
+                                              value={param.value}
+                                              onValueChange={(e) => {
+                                                setActionNewVersion({
+                                                  ...actionNewVersion,
+                                                  params:
+                                                    actionNewVersion.params.map(
+                                                      (x: any) => {
+                                                        if (
+                                                          x.key === param.key
+                                                        ) {
+                                                          return {
+                                                            ...x,
+                                                            value: e,
+                                                          };
+                                                        }
 
-                                                          return x;
-                                                        },
-                                                      ),
-                                                  });
-                                                }}
-                                              />
-                                            ) : param.type === "select" ? (
-                                              <Select
-                                                key={param.key}
-                                                description={param?.description}
-                                                isRequired={param.required}
-                                                label={param.title || param.key}
-                                                selectedKeys={[param.value]}
-                                                onSelectionChange={(e) => {
-                                                  const value =
-                                                    Array.from(e).join("");
+                                                        return x;
+                                                      },
+                                                    ),
+                                                });
+                                              }}
+                                            />
+                                          ) : param.type === "select" ? (
+                                            <Select
+                                              key={param.key}
+                                              description={param?.description}
+                                              isRequired={param.required}
+                                              label={param.title || param.key}
+                                              selectedKeys={[param.value]}
+                                              onSelectionChange={(e) => {
+                                                const value =
+                                                  Array.from(e).join("");
 
-                                                  setActionNewVersion({
-                                                    ...actionNewVersion,
-                                                    params:
-                                                      actionNewVersion.params.map(
-                                                        (x: any) => {
-                                                          if (
-                                                            x.key === param.key
-                                                          ) {
-                                                            return {
-                                                              ...x,
-                                                              value,
-                                                            };
-                                                          }
+                                                setActionNewVersion({
+                                                  ...actionNewVersion,
+                                                  params:
+                                                    actionNewVersion.params.map(
+                                                      (x: any) => {
+                                                        if (
+                                                          x.key === param.key
+                                                        ) {
+                                                          return {
+                                                            ...x,
+                                                            value,
+                                                          };
+                                                        }
 
-                                                          return x;
-                                                        },
-                                                      ),
-                                                  });
-                                                }}
-                                              >
-                                                {param.options.map(
-                                                  (option: any) => (
-                                                    <SelectItem
-                                                      key={option.key}
-                                                    >
-                                                      {option.value}
-                                                    </SelectItem>
-                                                  ),
-                                                )}
-                                              </Select>
-                                            ) : null
-                                          ) : null;
-                                        },
-                                      )}
-                                    </div>
-                                    <Divider className="mb-2 mt-2" />
+                                                        return x;
+                                                      },
+                                                    ),
+                                                });
+                                              }}
+                                            >
+                                              {param.options.map(
+                                                (option: any) => (
+                                                  <SelectItem key={option.key}>
+                                                    {option.value}
+                                                  </SelectItem>
+                                                ),
+                                              )}
+                                            </Select>
+                                          ) : null
+                                        ) : null;
+                                      },
+                                    )}
                                   </div>
-                                ),
-                              )}
-                            </div>
-                          ) : (
-                            <p>No parameters for this action found.</p>
-                          )}
-                        </ScrollShadow>
+                                  <Divider className="mb-2 mt-2" />
+                                </div>
+                              ),
+                            )}
+                          </div>
+                        ) : (
+                          <p>No parameters for this action found.</p>
+                        )}
                       </div>
                     </div>
                   </div>

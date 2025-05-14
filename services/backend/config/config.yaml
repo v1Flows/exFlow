@@ -11,6 +11,7 @@ Database:
 
 Encryption:
   Enabled: true
+  # maximum 32 characters
   Key: null
 
 JWT:

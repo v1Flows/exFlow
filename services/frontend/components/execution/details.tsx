@@ -40,9 +40,49 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
     }
   }
 
+  function heartbeatColor() {
+    const timeAgo =
+      (new Date(execution.last_heartbeat).getTime() - Date.now()) / 1000;
+
+    if (execution.status === "pending") {
+      return "";
+    }
+
+    if (execution.status === "success") {
+      return "success";
+    }
+
+    if (timeAgo < 0 && timeAgo > -10) {
+      return "success";
+    } else if (timeAgo <= -10 && timeAgo > -20) {
+      return "warning";
+    } else if (timeAgo <= -20) {
+      return "danger";
+    }
+  }
+
+  function heartbeatStatus() {
+    const timeAgo =
+      (new Date(execution.last_heartbeat).getTime() - Date.now()) / 1000;
+
+    if (execution.status === "pending") {
+      return "N/A";
+    }
+
+    if (execution.status === "success") {
+      return "Healthy";
+    }
+
+    if (timeAgo < 0 && timeAgo > -10) {
+      return "Healthy";
+    } else if (timeAgo <= -11) {
+      return "Unhealthy";
+    }
+  }
+
   return (
     <>
-      <div className="grid grid-cols-2 items-start items-stretch gap-4 lg:grid-cols-3 xl:grid-cols-6">
+      <div className="grid grid-cols-2 items-start items-stretch gap-4 lg:grid-cols-3 xl:grid-cols-7">
         <Card>
           <CardBody>
             <div className="flex items-center justify-start gap-2">
@@ -81,6 +121,23 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
             </CardBody>
           </Card>
         )}
+        <Tooltip content={execution.last_heartbeat} placement="top">
+          <Card>
+            <CardBody>
+              <div className="flex items-center justify-start gap-4">
+                <div className="flex size-12 items-center justify-center rounded-large bg-default bg-opacity-40">
+                  <Icon icon="hugeicons:stethoscope-02" width={28} />
+                </div>
+                <div>
+                  <p className={`text-sm font-bold text-${heartbeatColor()}`}>
+                    {heartbeatStatus()}
+                  </p>
+                  <p className="text-sm text-default-500">Health</p>
+                </div>
+              </div>
+            </CardBody>
+          </Card>
+        </Tooltip>
         <Card>
           <CardBody>
             <div className="flex items-center justify-start gap-4">
@@ -90,7 +147,7 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
               <div>
                 <p className="text-sm font-bold">
                   {runners.find((r: any) => r.id === execution.runner_id)?.name
-                    .length > 10 ? (
+                    .length > 20 ? (
                     <Tooltip
                       content={
                         runners.find((r: any) => r.id === execution.runner_id)
@@ -99,7 +156,7 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
                     >
                       {runners
                         .find((r: any) => r.id === execution.runner_id)
-                        ?.name.slice(0, 10) + "..."}
+                        ?.name.slice(0, 20) + "..."}
                     </Tooltip>
                   ) : (
                     runners.find((r: any) => r.id === execution.runner_id)
@@ -129,44 +186,48 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
             </div>
           </CardBody>
         </Card>
-        <Card>
-          <CardBody>
-            <div className="flex items-center justify-start gap-4">
-              <div className="flex size-12 items-center justify-center rounded-large bg-default bg-opacity-40">
-                <Icon icon="hugeicons:time-schedule" width={28} />
+        <Tooltip content={execution.executed_at} placement="top">
+          <Card>
+            <CardBody>
+              <div className="flex items-center justify-start gap-4">
+                <div className="flex size-12 items-center justify-center rounded-large bg-default bg-opacity-40">
+                  <Icon icon="hugeicons:time-schedule" width={28} />
+                </div>
+                <div>
+                  <p className="text-sm font-bold">
+                    {execution.executed_at === "0001-01-01T00:00:00Z" ? (
+                      "N/A"
+                    ) : (
+                      <ReactTimeago date={execution.executed_at} />
+                    )}
+                  </p>
+                  <p className="text-sm text-default-500">Executed At</p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-bold">
-                  {execution.executed_at === "0001-01-01T00:00:00Z" ? (
-                    "N/A"
-                  ) : (
-                    <ReactTimeago date={execution.executed_at} />
-                  )}
-                </p>
-                <p className="text-sm text-default-500">Executed At</p>
+            </CardBody>
+          </Card>
+        </Tooltip>
+        <Tooltip content={execution.finished_at} placement="top">
+          <Card>
+            <CardBody>
+              <div className="flex items-center justify-start gap-4">
+                <div className="flex size-12 items-center justify-center rounded-large bg-default bg-opacity-40">
+                  <Icon icon="hugeicons:time-02" width={28} />
+                </div>
+                <div>
+                  <p className="text-sm font-bold">
+                    {execution.finished_at != "0001-01-01T00:00:00Z" ? (
+                      <ReactTimeago date={execution.finished_at} />
+                    ) : (
+                      "N/A"
+                    )}
+                  </p>
+                  <p className="text-sm text-default-500">Finished At</p>
+                </div>
               </div>
-            </div>
-          </CardBody>
-        </Card>
-        <Card>
-          <CardBody>
-            <div className="flex items-center justify-start gap-4">
-              <div className="flex size-12 items-center justify-center rounded-large bg-default bg-opacity-40">
-                <Icon icon="hugeicons:time-02" width={28} />
-              </div>
-              <div>
-                <p className="text-sm font-bold">
-                  {execution.finished_at != "0001-01-01T00:00:00Z" ? (
-                    <ReactTimeago date={execution.finished_at} />
-                  ) : (
-                    "N/A"
-                  )}
-                </p>
-                <p className="text-sm text-default-500">Finished At</p>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
+            </CardBody>
+          </Card>
+        </Tooltip>
         {execution.status !== "scheduled" && (
           <Card>
             <CardBody>

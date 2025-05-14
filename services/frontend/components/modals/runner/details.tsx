@@ -76,6 +76,12 @@ export default function RunnerDetails({
                 </div>
               </div>
               <div className="flex items-center justify-between">
+                <div className="text-small text-default-500">API URL</div>
+                <div className={"text-small font-medium"}>
+                  {runner.api_url || "N/A"}
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
                 <div className="text-small text-default-500">Status</div>
                 <div className="text-small font-medium">
                   {runner.executing_job ? "Executing Job" : "Idle"}

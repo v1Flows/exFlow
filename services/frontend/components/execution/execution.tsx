@@ -31,6 +31,7 @@ import {
   executionStatusName,
   executionStatusWrapper,
 } from "@/lib/functions/executionStyles";
+import APICancelExecution from "@/lib/fetch/executions/cancel";
 
 import AdminExecutionActions from "./adminExecutionActions";
 import AdminStepActions from "./adminStepActions";
@@ -261,9 +262,14 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
                         data.lines.map((line: any, index: any) => (
                           <div
                             key={index}
-                            className={`container flex-cols font-semibold flex items-center gap-1 text-${lineColor(line)}`}
+                            className={`container flex-cols font-semibold flex items-center gap-2`}
                           >
-                            <p>{line.content}</p>
+                            <p className="text-default-500 text-opacity-70">
+                              {new Date(line.timestamp).toLocaleString()}
+                            </p>
+                            <p className={`text-${lineColor(line)}`}>
+                              {line.content}
+                            </p>
                           </div>
                         )),
                       )}
@@ -484,6 +490,33 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
           Back
         </Button>
         <div className="flex-wrap mt-2 flex items-center gap-4 lg:mt-0 lg:justify-end">
+          {(execution.status === "running" ||
+            execution.status === "paused" ||
+            execution.status === "interactionWaiting") && (
+            <Button
+              color="danger"
+              startContent={<Icon icon="hugeicons:cancel-01" width={20} />}
+              variant="shadow"
+              onPress={() => {
+                APICancelExecution(execution.id)
+                  .then(() => {
+                    addToast({
+                      title: "Request to cancel execution sent",
+                      color: "success",
+                    });
+                  })
+                  .catch((err) => {
+                    addToast({
+                      title: "Execution cancel failed",
+                      description: err.message,
+                      color: "danger",
+                    });
+                  });
+              }}
+            >
+              Cancel Execution
+            </Button>
+          )}
           {userDetails.role === "admin" && (
             <AdminExecutionActions execution={execution} />
           )}
