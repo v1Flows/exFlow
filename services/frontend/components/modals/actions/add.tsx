@@ -664,7 +664,7 @@ export default function AddActionModal({
                         Parameters
                       </p>
                       <Spacer y={2} />
-                      <ScrollShadow className="max-h-[600px]">
+                      <ScrollShadow className="max-h-[350px]">
                         {actionParamsCategorys.length > 0 ? (
                           <div className="flex flex-col w-full gap-2">
                             {actionParamsCategorys.map((category: any) => (
@@ -672,7 +672,7 @@ export default function AddActionModal({
                                 <p className="font-semibold text-default-500 mb-2">
                                   {category}
                                 </p>
-                                <div className="grid grid-cols-2 gap-2">
+                                <div className="grid lg:grid-cols-2 gap-2">
                                   {action.params.map((param: any) => {
                                     return (param.category ||
                                       "Uncategorized") === category ? (

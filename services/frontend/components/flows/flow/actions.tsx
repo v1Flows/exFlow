@@ -334,7 +334,7 @@ export default function Actions({
                 {action.update_available && (
                   <Alert
                     hideIconWrapper
-                    className="mt-2"
+                    className="mt-2 flex flex-wrap gap-2"
                     color="primary"
                     description="Newer plugin version was found on one of the runners. Do you want to update the action?"
                     endContent={
@@ -377,7 +377,7 @@ export default function Actions({
                           }
                         }}
                       >
-                        Update
+                        Upgrade
                       </Button>
                     }
                     title={`Update to version ${action.update_version} available`}
