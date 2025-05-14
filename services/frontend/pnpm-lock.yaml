@@ -72,8 +72,8 @@ importers:
         specifier: 3.8.22
         version: 3.8.22(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@react-stately/data':
-        specifier: ^3.12.2
-        version: 3.12.2(react@19.0.0)
+        specifier: ^3.12.3
+        version: 3.12.3(react@19.0.0)
       '@react-stately/utils':
         specifier: ^3.10.5
         version: 3.10.5(react@19.0.0)
@@ -2525,8 +2525,8 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
-  '@react-stately/data@3.12.2':
-    resolution: {integrity: sha512-u0yQkISnPyR5RjpNJCSxyC28bx/UvUKtVYRH5yx/MtXbP+2Byn7ItQ+evRqpJB5XsWFlyohGebgbXvL3JSBVsg==}
+  '@react-stately/data@3.12.3':
+    resolution: {integrity: sha512-JYPNV1gd9OZm8xPay0exx5okFNgiwESNvdBHsfDC+f8BifRyFLdrvoaUGF0enKIeSQMB1oReFAxTAXtDZd27rA==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
@@ -10412,10 +10412,10 @@ snapshots:
       '@swc/helpers': 0.5.17
       react: 19.0.0
 
-  '@react-stately/data@3.12.2(react@19.0.0)':
+  '@react-stately/data@3.12.3(react@19.0.0)':
     dependencies:
-      '@react-types/shared': 3.28.0(react@19.0.0)
-      '@swc/helpers': 0.5.15
+      '@react-types/shared': 3.29.0(react@19.0.0)
+      '@swc/helpers': 0.5.17
       react: 19.0.0
 
   '@react-stately/datepicker@3.13.0(react@19.0.0)':
@@ -10432,7 +10432,7 @@ snapshots:
 
   '@react-stately/flags@3.1.0':
     dependencies:
-      '@swc/helpers': 0.5.17
+      '@swc/helpers': 0.5.15
 
   '@react-stately/flags@3.1.1':
     dependencies:
