@@ -35,6 +35,7 @@ import UpdateFolderModal from "../modals/folders/update";
 import ScheduleExecutionModal from "../modals/executions/schedule";
 import EditFlowModal from "../modals/flows/edit";
 import DeleteFlowModal from "../modals/flows/delete";
+import CreateFolderModal from "../modals/folders/create";
 
 export default function FlowList({
   flows,
@@ -459,6 +460,7 @@ export default function FlowList({
       <EditFlowModal
         disclosure={editFlowModal}
         flow={targetFlow}
+        folders={folders}
         projects={projects}
       />
       <DeleteFlowModal disclosure={deleteFlowModal} flow={targetFlow} />

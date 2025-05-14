@@ -58,6 +58,9 @@ func UpdateFlow(context *gin.Context, db *bun.DB) {
 	if flow.ProjectID != "" {
 		columns = append(columns, "project_id")
 	}
+	if flow.FolderID != "" {
+		columns = append(columns, "folder_id")
+	}
 	if flow.RunnerID != "" {
 		columns = append(columns, "runner_id")
 	}

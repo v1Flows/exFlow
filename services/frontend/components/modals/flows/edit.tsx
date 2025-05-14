@@ -28,9 +28,11 @@ export default function EditFlowModal({
   flow,
   projects,
   disclosure,
+  folders,
 }: {
   flow: any;
   projects: any;
+  folders: any;
   disclosure: UseDisclosureReturn;
 }) {
   const router = useRouter();
@@ -41,6 +43,7 @@ export default function EditFlowModal({
   const [name, setName] = React.useState(flow.name);
   const [description, setDescription] = React.useState(flow.description);
   const [projectId, setProjectId] = React.useState(flow.project_id);
+  const [folderId, setFolderId] = React.useState(flow.folder_id);
   const [runnerId, setRunnerId] = React.useState(flow.runner_id);
   // limit on runner?
   const [runnerLimit, setRunnerLimit] = React.useState(
@@ -55,12 +58,17 @@ export default function EditFlowModal({
   // runner select list
   const [runners, setRunners] = React.useState([]);
 
+  const folderSelected = async (e: any) => {
+    setFolderId(e.currentKey);
+  };
+
   useEffect(() => {
     getCurrentProjectRunners();
     setName(flow.name);
     setDescription(flow.description);
     setProjectId(flow.project_id);
     setRunnerId(flow.runner_id);
+    setFolderId(flow.folder_id);
     setRunnerLimit(flow.runner_id !== "any");
   }, [disclosure.isOpen, flow]);
 
@@ -90,6 +98,7 @@ export default function EditFlowModal({
       name,
       description,
       projectId,
+      folderId,
       runnerLimit ? runnerId : "any",
       flow.encrypt_executions,
       flow.encrypt_action_params,
@@ -181,6 +190,17 @@ export default function EditFlowModal({
                 >
                   {projects.map((project: any) => (
                     <SelectItem key={project.id}>{project.name}</SelectItem>
+                  ))}
+                </Select>
+                <Select
+                  label="Folder"
+                  placeholder="Select the folder to assign the flow to"
+                  selectedKeys={[folderId]}
+                  variant="bordered"
+                  onSelectionChange={folderSelected}
+                >
+                  {folders.map((folder: any) => (
+                    <SelectItem key={folder.id}>{folder.name}</SelectItem>
                   ))}
                 </Select>
                 <Divider />

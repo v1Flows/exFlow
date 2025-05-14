@@ -80,6 +80,11 @@ func Admin(router *gin.RouterGroup, db *bun.DB) {
 			admins.ChangeFlowStatus(c, db)
 		})
 
+		// folders
+		admin.GET("/folders", func(c *gin.Context) {
+			admins.GetFolders(c, db)
+		})
+
 		// executions
 		admin.GET("/executions", func(c *gin.Context) {
 			admins.GetExecutions(c, db)

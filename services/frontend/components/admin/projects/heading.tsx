@@ -1,9 +1,13 @@
 "use client";
 
-import { Button } from "@heroui/react";
+import { Button, useDisclosure } from "@heroui/react";
 import { Icon } from "@iconify/react";
 
+import CreateProjectModal from "@/components/modals/projects/create";
+
 export default function AdminProjectsHeading() {
+  const newProjectModal = useDisclosure();
+
   return (
     <main>
       <div className="grid grid-cols-2 items-center justify-between gap-2 lg:grid-cols-2">
@@ -15,6 +19,7 @@ export default function AdminProjectsHeading() {
             <Button
               color="primary"
               startContent={<Icon icon="hugeicons:ai-folder-01" width={16} />}
+              onPress={newProjectModal.onOpen}
             >
               Create Project
             </Button>
@@ -27,6 +32,7 @@ export default function AdminProjectsHeading() {
           </div>
         </div>
       </div>
+      <CreateProjectModal disclosure={newProjectModal} />
     </main>
   );
 }
