@@ -672,7 +672,7 @@ export default function AddActionModal({
                                 <p className="font-semibold text-default-500 mb-2">
                                   {category}
                                 </p>
-                                <div className="grid grid-cols-2 gap-2">
+                                <div className="grid lg:grid-cols-2 gap-2">
                                   {action.params.map((param: any) => {
                                     return (param.category ||
                                       "Uncategorized") === category ? (
