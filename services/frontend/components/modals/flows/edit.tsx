@@ -59,7 +59,11 @@ export default function EditFlowModal({
   const [runners, setRunners] = React.useState([]);
 
   const folderSelected = async (e: any) => {
-    setFolderId(e.currentKey);
+    if (e.currentKey === "none") {
+      setFolderId("");
+    } else {
+      setFolderId(e.currentKey);
+    }
   };
 
   useEffect(() => {
@@ -199,6 +203,7 @@ export default function EditFlowModal({
                   variant="bordered"
                   onSelectionChange={folderSelected}
                 >
+                  <SelectItem key="none">None</SelectItem>
                   {folders.map((folder: any) => (
                     <SelectItem key={folder.id}>{folder.name}</SelectItem>
                   ))}
