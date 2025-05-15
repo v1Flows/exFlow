@@ -150,7 +150,10 @@ export default function ProjectMembers({ project, settings, user }: any) {
             isDisabled={project.disabled}
             isIconOnly={isMobile}
             startContent={
-              <Icon icon="solar:transfer-horizontal-line-duotone" width={20} />
+              <Icon
+                icon="hugeicons:arrow-data-transfer-horizontal"
+                width={18}
+              />
             }
             variant="flat"
             onPress={() => transferOwnershipModal.onOpen()}
@@ -175,7 +178,7 @@ export default function ProjectMembers({ project, settings, user }: any) {
           color="primary"
           isDisabled={!canEditProject(user.id, project.members)}
           isIconOnly={isMobile}
-          startContent={<Icon icon="hugeicons:plus-sign" />}
+          startContent={<Icon icon="hugeicons:plus-sign" width={18} />}
           onPress={() => addProjectMemberModal.onOpen()}
         >
           {isMobile ? "" : "Add Member"}

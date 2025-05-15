@@ -30,9 +30,19 @@ func UpdateUser(context *gin.Context, db *bun.DB) {
 		return
 	}
 
+	if user.Password != "" {
+		// hash password
+		if err := user.HashPassword(user.Password); err != nil {
+			httperror.InternalServerError(context, "Error encrypting user password", err)
+			return
+		}
+	} else {
+		user.Password = userDB.Password
+	}
+
 	user.UpdatedAt = time.Now()
 	user.Role = strings.ToLower(user.Role)
-	_, err = db.NewUpdate().Model(&user).Column("username", "email", "role", "updated_at").Where("id = ?", userID).Exec(context)
+	_, err = db.NewUpdate().Model(&user).Column("username", "email", "role", "updated_at", "password").Where("id = ?", userID).Exec(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error updating user on db", err)
 		return

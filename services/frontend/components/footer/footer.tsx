@@ -13,7 +13,7 @@ const navLinks = [
   },
   {
     name: "Components",
-    href: "https://github.com/orgs/AlertFlow/repositories",
+    href: "https://github.com/orgs/v1Flows/repositories",
   },
 ];
 
@@ -46,7 +46,7 @@ export default function Footer() {
             </Link>
           ))}
         </div>
-        <Spacer y={4} />
+        <Spacer y={2} />
         <p className="mt-1 text-center text-small text-default-400">
           &copy; 2025 exFlow. All rights reserved. Version {siteConfig.version}
         </p>

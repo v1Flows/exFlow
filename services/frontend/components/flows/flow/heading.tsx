@@ -14,11 +14,13 @@ export default function FlowHeading({
   projects,
   project,
   user,
+  folders,
 }: {
   flow: any;
   projects: any;
   project: any;
   user: any;
+  folders: any;
 }) {
   const editFlowModal = useDisclosure();
   const scheduleExecutionModal = useDisclosure();
@@ -132,6 +134,7 @@ export default function FlowHeading({
       <EditFlowModal
         disclosure={editFlowModal}
         flow={flow}
+        folders={folders}
         projects={projects}
       />
     </main>

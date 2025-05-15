@@ -67,7 +67,7 @@ export default function ProjectTokens({
             <Tooltip content="Copy Token">
               <span className="cursor-pointer text-lg text-default-400 active:opacity-50">
                 <Icon
-                  icon="solar:copy-outline"
+                  icon="hugeicons:copy-02"
                   width={20}
                   onClick={() => {
                     copyTokentoClipboard(key.key);
@@ -79,7 +79,7 @@ export default function ProjectTokens({
               <Tooltip color="danger" content="Disable Token">
                 <span className="cursor-pointer text-lg text-danger active:opacity-50">
                   <Icon
-                    icon="solar:lock-linear"
+                    icon="hugeicons:square-lock-01"
                     width={20}
                     onClick={() => {
                       if (
@@ -103,7 +103,7 @@ export default function ProjectTokens({
               <Tooltip color="success" content="Enable Token">
                 <span className="cursor-pointer text-lg text-success active:opacity-50">
                   <Icon
-                    icon="solar:lock-unlocked-linear"
+                    icon="hugeicons:square-unlock-01"
                     width={20}
                     onClick={() => {
                       if (
@@ -183,7 +183,7 @@ export default function ProjectTokens({
         <Button
           color="primary"
           isDisabled={!canEditProject(user.id, project.members)}
-          startContent={<Icon icon="hugeicons:plus-sign" />}
+          startContent={<Icon icon="hugeicons:plus-sign" width={18} />}
           onPress={() => addProjectTokenModal.onOpen()}
         >
           Generate Token
@@ -218,19 +218,19 @@ export default function ProjectTokens({
           <TableColumn key="id" align="start">
             ID
           </TableColumn>
-          <TableColumn key="description" align="start">
+          <TableColumn key="description" align="center">
             Description
           </TableColumn>
-          <TableColumn key="status" align="start">
+          <TableColumn key="status" align="center">
             Status
           </TableColumn>
-          <TableColumn key="type" align="start">
+          <TableColumn key="type" align="center">
             Type
           </TableColumn>
-          <TableColumn key="expires_at" align="start">
+          <TableColumn key="expires_at" align="center">
             Expires At
           </TableColumn>
-          <TableColumn key="created_at" align="start">
+          <TableColumn key="created_at" align="center">
             Created At
           </TableColumn>
           <TableColumn key="actions" align="center">

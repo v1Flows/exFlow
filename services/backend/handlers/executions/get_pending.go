@@ -69,6 +69,38 @@ func GetPendingExecutions(context *gin.Context, db *bun.DB) {
 			httperror.InternalServerError(context, "Error collecting executions from db", err)
 			return
 		}
+
+		// check if the flow where the execution is assigned to has an exclusive runner assigned
+		for _, execution := range executions {
+			var flow models.Flows
+			err = tx.NewSelect().Model(&flow).Where("id = ?", execution.FlowID).Scan(context)
+			if err != nil {
+				httperror.InternalServerError(context, "Error collecting flow data on db", err)
+				return
+			}
+
+			if flow.RunnerID != "any" {
+				// if the flow has an exclusive runner assigned, check if it is the same as the current one and if not, remove it from the executions list
+				if flow.RunnerID != runnerID {
+					executions = removeExecution(executions, execution.ID.String())
+				}
+			}
+
+			// check if project shared_runners are enabled
+			var project models.Projects
+			err = tx.NewSelect().Model(&project).Where("id = ?", flow.ProjectID).Scan(context)
+			if err != nil {
+				httperror.InternalServerError(context, "Error collecting project data on db", err)
+				return
+			}
+
+			if project.SharedRunners {
+				continue
+			} else {
+				executions = removeExecution(executions, execution.ID.String())
+			}
+		}
+
 	}
 
 	// Update the runner_id of the fetched executions to the current runner's ID

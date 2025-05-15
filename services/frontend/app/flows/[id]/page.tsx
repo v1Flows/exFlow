@@ -10,6 +10,7 @@ import GetFlowExecutions from "@/lib/fetch/flow/executions";
 import GetUserDetails from "@/lib/fetch/user/getDetails";
 import GetProjectRunners from "@/lib/fetch/project/runners";
 import GetProject from "@/lib/fetch/project/data";
+import GetFolders from "@/lib/fetch/folder/all";
 
 export default async function FlowPage({
   params,
@@ -20,15 +21,13 @@ export default async function FlowPage({
 
   const flowData = await GetFlow(id);
   const projectsData = await GetProjects();
-  const executionsData = GetFlowExecutions(id);
+  const executionsData = await GetFlowExecutions(id);
   const userDetailsData = GetUserDetails();
+  const foldersData = await GetFolders();
 
-  const [flow, projects, executions, userDetails] = (await Promise.all([
-    flowData,
-    projectsData,
-    executionsData,
-    userDetailsData,
-  ])) as any;
+  const [flow, projects, executions, userDetails, folders] = (await Promise.all(
+    [flowData, projectsData, executionsData, userDetailsData, foldersData],
+  )) as any;
 
   let runnersData;
   let projectdata;
@@ -49,6 +48,7 @@ export default async function FlowPage({
         <>
           <FlowHeading
             flow={flow.data.flow}
+            folders={folders.data.folders}
             project={project.data.project}
             projects={projects.data.projects}
             user={userDetails.data.user}
