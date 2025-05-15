@@ -240,7 +240,10 @@ export default function RunnersList({
                 style={{ color: project.color }}
                 width={24}
               />
-              <p className="text-lg font-bold">{project.name}</p>
+              <div>
+                <p className="text-lg font-bold">{project.name}</p>
+                <p className="text-tiny text-default-500">{project.id}</p>
+              </div>
             </div>
           )}
           {runners.filter((runner: any) => runner.project_id === project.id)
@@ -263,8 +266,8 @@ export default function RunnersList({
                 .map((runner: any) => (
                   <Card
                     key={runner.id}
-                    isPressable
                     isHoverable
+                    isPressable
                     className="shadow-md"
                     onPress={() => {
                       setTargetRunner(runner);
