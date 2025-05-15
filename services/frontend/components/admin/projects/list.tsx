@@ -28,7 +28,7 @@ import DeleteProjectModal from "@/components/modals/projects/delete";
 import EditProjectModal from "@/components/modals/projects/edit";
 import ChangeProjectStatusModal from "@/components/modals/projects/changeStatus";
 
-export function AdminProjectList({ projects, members }: any) {
+export function AdminProjectList({ projects }: any) {
   const router = useRouter();
 
   const [status, setStatus] = React.useState(false);
@@ -79,30 +79,28 @@ export function AdminProjectList({ projects, members }: any) {
       case "members":
         return (
           <AvatarGroup isBordered max={5} radius="lg">
-            {members
-              .filter((member: any) => member.project_id === project.id)
-              .map((member: any) => (
-                <Tooltip
-                  key={member.email}
-                  content={
-                    <div className="px-1 py-2">
-                      <div className="text-small font-bold">{member.email}</div>
-                      <div className="text-tiny">{member.role}</div>
-                    </div>
+            {project.members.map((member: any) => (
+              <Tooltip
+                key={member.email}
+                content={
+                  <div className="px-1 py-2">
+                    <div className="text-small font-bold">{member.email}</div>
+                    <div className="text-tiny">{member.role}</div>
+                  </div>
+                }
+              >
+                <Avatar
+                  color={
+                    member.role === "Owner"
+                      ? "danger"
+                      : member.role === "Editor"
+                        ? "primary"
+                        : "default"
                   }
-                >
-                  <Avatar
-                    color={
-                      member.role === "Owner"
-                        ? "danger"
-                        : member.role === "Editor"
-                          ? "primary"
-                          : "default"
-                    }
-                    name={member.email}
-                  />
-                </Tooltip>
-              ))}
+                  name={member.email}
+                />
+              </Tooltip>
+            ))}
           </AvatarGroup>
         );
       case "shared_runners":

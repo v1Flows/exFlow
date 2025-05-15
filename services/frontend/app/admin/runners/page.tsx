@@ -26,6 +26,7 @@ export default async function AdminRunnersPage() {
       <Divider className="mt-4 mb-4" />
       {projects.success && runners.success && userDetails.success && (
         <RunnersList
+          globalView
           projects={projects.data.projects}
           runners={runners.data.runners}
           user={userDetails.data.user}

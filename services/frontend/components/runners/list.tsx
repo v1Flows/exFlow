@@ -2,18 +2,14 @@
 
 import { Icon } from "@iconify/react";
 import {
-  addToast,
   Alert,
   Button,
   Card,
   CardBody,
-  CardHeader,
-  Chip,
   Divider,
   Dropdown,
   DropdownItem,
   DropdownMenu,
-  DropdownSection,
   DropdownTrigger,
   Spacer,
   useDisclosure,
@@ -33,11 +29,13 @@ export default function RunnersList({
   projects,
   user,
   singleProject,
+  globalView,
 }: {
   runners: any;
   projects: any;
   user: any;
   singleProject?: boolean;
+  globalView?: boolean;
 }) {
   const [targetRunner, setTargetRunner] = React.useState({} as any);
   const [targetRunnerStatus, setTargetRunnerStatus] = React.useState(false);
@@ -45,25 +43,6 @@ export default function RunnersList({
   const editRunnerModal = useDisclosure();
   const changeRunnerStatusModal = useDisclosure();
   const deleteRunnerModal = useDisclosure();
-
-  const copyRunnerIDtoClipboard = (id: string) => {
-    if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText(id);
-      addToast({
-        title: "RunnerID",
-        description: "RunnerID copied to clipboard",
-        color: "success",
-        variant: "flat",
-      });
-    } else {
-      addToast({
-        title: "RunnerID",
-        description: "Failed to copy RunnerID to clipboard",
-        color: "danger",
-        variant: "flat",
-      });
-    }
-  };
 
   function heartbeatColor(runner: any) {
     const timeAgo =
@@ -93,131 +72,127 @@ export default function RunnersList({
     <main>
       <p className="text-lg font-bold mb-2">Shared</p>
       <Divider className="mb-4 max-w-[70px]" />
-      <div>
-        {runners.filter((runner: any) => runner.shared_runner === true)
-          .length === 0 && (
-          <p className="text-default-500">No shared runners found</p>
-        )}
-        <div className="grid gap-4 lg:grid-cols-2">
-          {runners.map(
-            (runner: any) =>
-              runner.shared_runner === true && (
-                <Card key={runner.id}>
-                  <CardHeader className="items-center justify-between">
-                    <div className="flex flex-col gap-1">
-                      <div className="flex gap-2">
-                        <p className="text-md">{runner.name}</p>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <Chip
-                            color={runner.disabled ? "danger" : "success"}
-                            radius="sm"
-                            size="sm"
-                            variant="flat"
-                          >
-                            {runner.disabled ? "Disabled" : "Enabled"}
-                          </Chip>
-                          <Chip
-                            color={heartbeatColor(runner)}
-                            radius="sm"
-                            size="sm"
-                            variant="flat"
-                          >
-                            {heartbeatStatus(runner) ? "Healthy" : "Unhealthy"}
-                          </Chip>
-                        </div>
-                      </div>
-                      <p className="text-sm text-default-500">{runner.id}</p>
-                    </div>
-                    <div className="relative flex items-center justify-end gap-2">
-                      <Dropdown backdrop="opaque">
-                        <DropdownTrigger>
-                          <Button isIconOnly size="sm" variant="light">
-                            <Icon
-                              className="text-default-300"
-                              icon="solar:menu-dots-bold"
-                            />
-                          </Button>
-                        </DropdownTrigger>
-                        <DropdownMenu>
-                          <DropdownSection title="Actions">
-                            <DropdownItem
-                              key="copy"
-                              startContent={
-                                <Icon icon="solar:copy-outline" width={18} />
-                              }
-                              onPress={() => copyRunnerIDtoClipboard(runner.id)}
-                            >
-                              Copy ID
-                            </DropdownItem>
-                          </DropdownSection>
-                        </DropdownMenu>
-                      </Dropdown>
-                    </div>
-                  </CardHeader>
-                  <Divider />
-                  <CardBody className="flex flex-col">
-                    {runner.disabled && (
-                      <p className="mb-4 text-center text-lg font-bold text-danger">
-                        {runner.disabled_reason}
-                      </p>
-                    )}
-                    <div className="grid gap-4 text-center sm:grid-cols-2 lg:grid-cols-3">
-                      <div className="flex flex-col items-center justify-center gap-1">
-                        <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
-                          <Icon icon="solar:heart-pulse-outline" width={20} />
-                        </div>
+      {(singleProject && projects[0].shared_runners !== false) || globalView ? (
+        <div>
+          {runners.filter((runner: any) => runner.shared_runner === true)
+            .length === 0 && (
+            <p className="text-default-500">No shared runners found</p>
+          )}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {runners.map(
+              (runner: any) =>
+                runner.shared_runner === true && (
+                  <Card
+                    key={runner.id}
+                    isHoverable
+                    isPressable
+                    className="shadow-md"
+                    onPress={() => {
+                      setTargetRunner(runner);
+                      showRunnerDrawer.onOpen();
+                    }}
+                  >
+                    <CardBody className="p-5">
+                      <div className="flex justify-between items-start">
                         <div>
-                          <p
-                            className={`text-md text-${heartbeatColor(runner)} font-bold`}
-                          >
-                            {runner.last_heartbeat !==
-                              "0001-01-01T00:00:00Z" && (
-                              <TimeAgo date={runner.last_heartbeat} />
-                            )}
-                            {runner.last_heartbeat === "0001-01-01T00:00:00Z" &&
-                              "N/A"}
-                          </p>
-                          <p className="text-sm text-default-500">
-                            Last Heartbeat
+                          <h3 className="text-lg font-semibold">
+                            {runner.name}
+                          </h3>
+                          <p className="text-small text-default-500 mt-1">
+                            ID: {runner.id}
                           </p>
                         </div>
                       </div>
 
-                      <div className="flex flex-col items-center justify-center gap-1">
-                        <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
+                      <Alert
+                        className="mt-4"
+                        color="danger"
+                        description={"Reason: " + runner.disabled_reason}
+                        isVisible={runner.disabled}
+                        title="Runner Disabled"
+                        variant="flat"
+                      />
+
+                      <div className="grid grid-cols-2 gap-4 mt-5">
+                        <div className="flex items-center gap-2">
                           <Icon
-                            icon="solar:gamepad-minimalistic-outline"
+                            className={`text-${heartbeatColor(runner)}`}
+                            icon={"hugeicons:health"}
                             width={20}
                           />
+                          <span className="text-sm">
+                            Health:{" "}
+                            <span
+                              className={`font-medium capitalize text-${heartbeatColor(runner)}`}
+                            >
+                              {heartbeatStatus(runner)
+                                ? "Healthy"
+                                : "Unhealthy"}
+                            </span>
+                          </span>
                         </div>
-                        <div>
-                          <p
-                            className={`text-md font-bold ${runner.executing_job && "text-success"}`}
-                          >
-                            {runner.executing_job ? "Executing Job" : "Idle"}
-                          </p>
-                          <p className="text-sm text-default-500">Status</p>
-                        </div>
-                      </div>
 
-                      <div className="flex flex-col items-center justify-center gap-1">
-                        <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
-                          <Icon icon="solar:sd-card-outline" width={20} />
+                        <div className="flex items-center gap-2">
+                          <Icon
+                            className={`text-${heartbeatColor(runner)}`}
+                            icon={"hugeicons:pulse-02"}
+                            width={20}
+                          />
+                          <span className="text-sm">
+                            Heartbeat:{" "}
+                            <span className="font-medium">
+                              <TimeAgo
+                                className={`text-${heartbeatColor(runner)}`}
+                                date={runner.last_heartbeat}
+                              />
+                            </span>
+                          </span>
                         </div>
-                        <div>
-                          <p className="text-md font-bold">
-                            {runner.version ? runner.version : "N/A"}
-                          </p>
-                          <p className="text-sm text-default-500">Version</p>
+
+                        <div className="flex items-center gap-2">
+                          <Icon
+                            className={`text-${runner.disabled ? "danger" : "success"}`}
+                            icon={
+                              runner.disabled
+                                ? "hugeicons:toggle-off"
+                                : "hugeicons:toggle-on"
+                            }
+                            width={20}
+                          />
+                          <span className="text-sm">
+                            <span
+                              className={`font-medium text-${runner.disabled ? "danger" : "success"}`}
+                            >
+                              {runner.disabled ? "Disabled" : "Enabled"}
+                            </span>
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <Icon
+                            className={`text-${runner.executing_job ? "success" : "default-500"}`}
+                            icon={"hugeicons:energy"}
+                            width={20}
+                          />
+                          <span className="text-sm">
+                            Status:{" "}
+                            <span className="font-medium">
+                              {runner.executing_job ? "Executing Job" : "Idle"}
+                            </span>
+                          </span>
                         </div>
                       </div>
-                    </div>
-                  </CardBody>
-                </Card>
-              ),
-          )}
+                    </CardBody>
+                  </Card>
+                ),
+            )}
+          </div>
         </div>
-      </div>
+      ) : (
+        <p className="text-default-500">
+          Shared runners are disabled for this project.
+        </p>
+      )}
 
       <Spacer y={4} />
 

@@ -11,8 +11,6 @@ import (
 	"github.com/v1Flows/exFlow/services/backend/pkg/models"
 	shared_models "github.com/v1Flows/shared-library/pkg/models"
 
-	"math/rand"
-
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/uptrace/bun"
@@ -178,9 +176,16 @@ func sharedAutoRunnerRegister(runner models.Runners, context *gin.Context, db *b
 		return
 	}
 
+	// get number of auto runners for this project
+	sharedRunnersCount, err := db.NewSelect().Model(&models.Runners{}).Where("project_id = 'admin' and auto_runner = true and shared_runner = true").Count(context)
+	if err != nil {
+		httperror.InternalServerError(context, "Error collecting auto runners count from db", err)
+		return
+	}
+
 	// generate random id for runner
 	runner.ID = uuid.New()
-	runner.Name = "ExFlow Auto Runner " + strconv.Itoa(rand.Intn(100000))
+	runner.Name = "Shared Auto Runner " + strconv.Itoa(int(sharedRunnersCount)+1)
 	runner.ProjectID = "admin"
 	runner.SharedRunner = true
 	runner.AutoRunner = true

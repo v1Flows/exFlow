@@ -24,10 +24,7 @@ export default async function AdminProjectsPage() {
         <>
           <AdminProjectsHeading />
           <Divider className="mt-4 mb-4" />
-          <AdminProjectList
-            members={projects.data.members}
-            projects={projects.data.projects}
-          />
+          <AdminProjectList projects={projects.data.projects} />
         </>
       ) : (
         <ErrorCard
