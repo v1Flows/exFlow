@@ -47,6 +47,7 @@ export default function FlowSettings({
       flow.name,
       flow.description,
       flow.project_id,
+      flow.folder_id,
       flow.runner_id,
       encryptExecutions,
       encryptActionParams,
