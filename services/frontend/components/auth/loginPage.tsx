@@ -1,8 +1,15 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { Button, Checkbox, Image, Input, Link, Alert } from "@heroui/react";
-import { useIsSSR } from "@react-aria/ssr";
+import {
+  Button,
+  Checkbox,
+  Image,
+  Input,
+  Link,
+  Alert,
+  Divider,
+} from "@heroui/react";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -12,9 +19,8 @@ import LoginAPI from "@/lib/auth/login";
 
 import Particles from "../magicui/particles";
 
-export default function LoginPageComponent() {
+export default function LoginPageComponent({ settings }: { settings: any }) {
   const { theme } = useTheme();
-  const isSSR = useIsSSR();
   const router = useRouter();
 
   const [isLoginLoading, setIsLoginLoading] = useState(false);
@@ -141,9 +147,18 @@ export default function LoginPageComponent() {
             Login
           </Button>
         </form>
+        <Divider className="my-2" />
+        {!settings.signup && (
+          <Alert
+            color="danger"
+            description="Sign up is currently disabled. Please check back later."
+            title="Sign Up Disabled"
+            variant="faded"
+          />
+        )}
         <p className="text-center text-small">
           Need to create an account?&nbsp;
-          <Link href="/auth/signup" size="sm">
+          <Link href="/auth/signup" isDisabled={!settings.signup} size="sm">
             Sign Up
           </Link>
         </p>

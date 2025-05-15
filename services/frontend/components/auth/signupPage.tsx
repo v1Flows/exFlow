@@ -10,7 +10,6 @@ import {
   Alert,
   addToast,
 } from "@heroui/react";
-import { useIsSSR } from "@react-aria/ssr";
 import { AnimatePresence, domAnimation, LazyMotion, m } from "framer-motion";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
@@ -23,10 +22,9 @@ import CheckUserTaken from "@/lib/auth/checkTaken";
 
 import Particles from "../magicui/particles";
 
-export default function SignUpPage() {
+export default function SignUpPage({ settings }: any) {
   const router = useRouter();
   const { theme } = useTheme();
-  const isSSR = useIsSSR();
 
   const [isPasswordVisible, setIsPasswordVisible] = React.useState(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
@@ -256,6 +254,14 @@ export default function SignUpPage() {
                   <Alert color="danger" description={errorText} title="Error" />
                 </AnimatePresence>
               )}
+              {!settings.signup && (
+                <Alert
+                  color="danger"
+                  description="Sign up is currently disabled. Please check back later."
+                  title="Sign Up Disabled"
+                  variant="faded"
+                />
+              )}
             </m.div>
           </m.div>
           <AnimatePresence custom={direction} initial={false} mode="wait">
@@ -274,6 +280,7 @@ export default function SignUpPage() {
                 <>
                   <Input
                     isRequired
+                    isDisabled={!settings.signup}
                     label="Username"
                     name="username"
                     type="username"
@@ -286,6 +293,7 @@ export default function SignUpPage() {
                   />
                   <Input
                     isRequired
+                    isDisabled={!settings.signup}
                     label="Email Address"
                     name="email"
                     type="email"
@@ -367,6 +375,7 @@ export default function SignUpPage() {
               <Button
                 fullWidth
                 color="primary"
+                isDisabled={isLoading || !settings.signup}
                 isLoading={isLoading}
                 type="submit"
               >
