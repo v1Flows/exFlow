@@ -2,28 +2,13 @@
 
 import { cookies } from "next/headers";
 
-type Result = {
-  result: string;
-};
-
-type ErrorResponse = {
-  success: false;
-  error: string;
-  message: string;
-};
-
-type SuccessResponse = {
-  success: true;
-  data: Result;
-};
-
-export default async function UpdateUser(
-  id: string,
-  username: string,
+export default async function AdminCreateUser(
   email: string,
-  role: string,
+  username: string,
   password: string,
-): Promise<SuccessResponse | ErrorResponse> {
+  role: string,
+) {
+  "use client";
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get("session");
@@ -37,18 +22,18 @@ export default async function UpdateUser(
     }
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/users/${id}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/users`,
       {
-        method: "PUT",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: token.value,
         },
         body: JSON.stringify({
-          username,
           email,
-          role,
+          username,
           password,
+          role,
         }),
       },
     );
@@ -65,15 +50,8 @@ export default async function UpdateUser(
 
     const data = await res.json();
 
-    return {
-      success: true,
-      data,
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Unknown error occurred",
-      message: "Failed to update user",
-    };
+    return data;
+  } catch {
+    return { error: "Failed to create user" };
   }
 }

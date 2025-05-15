@@ -38,8 +38,13 @@ export default function AdminRunnersHeading({ settings }: any) {
           </div>
 
           <div className="flex sm:hidden gap-2">
-            <Button isIconOnly color="primary">
-              <Icon icon="hugeicons:ai-brain-04" width={18} />
+            <Button
+              isIconOnly
+              color="primary"
+              variant="flat"
+              onPress={copyToken}
+            >
+              <Icon icon="hugeicons:key-02" width={18} />
             </Button>
           </div>
 

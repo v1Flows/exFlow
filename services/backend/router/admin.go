@@ -32,6 +32,9 @@ func Admin(router *gin.RouterGroup, db *bun.DB) {
 		admin.GET("/users", func(c *gin.Context) {
 			admins.GetUsers(c, db)
 		})
+		admin.POST("/users", func(c *gin.Context) {
+			admins.CreateUser(c, db)
+		})
 		admin.PUT("/users/:userID", func(c *gin.Context) {
 			admins.UpdateUser(c, db)
 		})
