@@ -22,6 +22,10 @@ export async function middleware(request: NextRequest) {
     const userCookie = cookies.get("user");
     const userData = userCookie ? JSON.parse(userCookie.value) : null;
 
+    if (request.url.includes("/admin") && userData.role !== "admin") {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+
     // ignore all those _next and favicon requests
     if (
       !request.url.includes("_next") &&

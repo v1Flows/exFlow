@@ -25,6 +25,13 @@ func UpdateFlow(context *gin.Context, db *bun.DB) {
 		return
 	}
 
+	var flowDB models.Flows
+	err := db.NewSelect().Model(&flowDB).Where("id = ?", flowID).Scan(context)
+	if err != nil {
+		httperror.InternalServerError(context, "Error collecting flow data on db", err)
+		return
+	}
+
 	// check if user has access to project
 	access, err := gatekeeper.CheckUserProjectAccess(flow.ProjectID, context, db)
 	if err != nil {
@@ -58,7 +65,10 @@ func UpdateFlow(context *gin.Context, db *bun.DB) {
 	if flow.ProjectID != "" {
 		columns = append(columns, "project_id")
 	}
-	if flow.RunnerID != "" {
+	if flow.FolderID != flowDB.FolderID {
+		columns = append(columns, "folder_id")
+	}
+	if flow.RunnerID != flowDB.RunnerID {
 		columns = append(columns, "runner_id")
 	}
 	if flow.EncryptActionParams || !flow.EncryptActionParams {

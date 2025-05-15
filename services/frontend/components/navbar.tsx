@@ -161,7 +161,7 @@ export const Navbar = ({ userDetails, session }) => {
               </DropdownItem>
               <DropdownItem
                 key="flows"
-                description="Manage all flows"
+                description="Manage all flows & folders"
                 startContent={
                   <Icon
                     className="text-danger"

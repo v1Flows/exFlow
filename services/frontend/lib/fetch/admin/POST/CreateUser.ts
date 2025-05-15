@@ -2,24 +2,13 @@
 
 import { cookies } from "next/headers";
 
-type Runners = {
-  runners: [];
-};
-
-type ErrorResponse = {
-  success: false;
-  error: string;
-  message: string;
-};
-
-type SuccessResponse = {
-  success: true;
-  data: Runners;
-};
-
-export async function AdminGetRunners(): Promise<
-  SuccessResponse | ErrorResponse
-> {
+export default async function AdminCreateUser(
+  email: string,
+  username: string,
+  password: string,
+  role: string,
+) {
+  "use client";
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get("session");
@@ -33,13 +22,19 @@ export async function AdminGetRunners(): Promise<
     }
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/runners`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/users`,
       {
-        method: "GET",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: token.value,
         },
+        body: JSON.stringify({
+          email,
+          username,
+          password,
+          role,
+        }),
       },
     );
 
@@ -55,17 +50,8 @@ export async function AdminGetRunners(): Promise<
 
     const data = await res.json();
 
-    return {
-      success: true,
-      data,
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Unknown error occurred",
-      message: "Failed to fetch runners",
-    };
+    return data;
+  } catch {
+    return { error: "Failed to create user" };
   }
 }
-
-export default AdminGetRunners;

@@ -28,3 +28,8 @@ type ProjectsWithMembers struct {
 	Projects
 	Members []ProjectMembers `json:"members"`
 }
+
+type AdminProjectsWithMembers struct {
+	Projects
+	Members []ProjectMembersWithUserData `json:"members"`
+}

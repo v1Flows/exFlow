@@ -126,19 +126,19 @@ export default function ProjectAuditLogs({ audit, project, user }: any) {
       >
         <TableHeader>
           <TableColumn key="user_id" align="start">
-            USER
+            User
           </TableColumn>
-          <TableColumn key="operation" align="start">
-            OPERATION
+          <TableColumn key="operation" align="center">
+            Operation
           </TableColumn>
-          <TableColumn key="details" align="start">
-            DETAILS
+          <TableColumn key="details" align="center">
+            Details
           </TableColumn>
-          <TableColumn key="id" align="start">
+          <TableColumn key="id" align="center">
             ID
           </TableColumn>
-          <TableColumn key="created_at" align="start">
-            CREATED AT
+          <TableColumn key="created_at" align="center">
+            Created At
           </TableColumn>
         </TableHeader>
         <TableBody emptyContent="No rows to display." items={items}>

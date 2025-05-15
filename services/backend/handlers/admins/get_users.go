@@ -1,9 +1,10 @@
 package admins
 
 import (
+	"net/http"
+
 	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
 	"github.com/v1Flows/exFlow/services/backend/pkg/models"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
@@ -12,7 +13,7 @@ import (
 
 func GetUsers(context *gin.Context, db *bun.DB) {
 	var users []models.Users
-	err := db.NewSelect().Model(&users).Scan(context)
+	err := db.NewSelect().Model(&users).ExcludeColumn("password").Scan(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error collecting users on db", err)
 		return

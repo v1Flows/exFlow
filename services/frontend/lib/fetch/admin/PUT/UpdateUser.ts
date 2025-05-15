@@ -22,6 +22,7 @@ export default async function UpdateUser(
   username: string,
   email: string,
   role: string,
+  password: string,
 ): Promise<SuccessResponse | ErrorResponse> {
   try {
     const cookieStore = await cookies();
@@ -47,6 +48,7 @@ export default async function UpdateUser(
           username,
           email,
           role,
+          password,
         }),
       },
     );

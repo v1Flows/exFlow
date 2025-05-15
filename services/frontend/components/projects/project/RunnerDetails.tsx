@@ -179,7 +179,7 @@ export default function ProjectRunnerDetails({
               variant="flat"
               onPress={copyJoinToken}
             >
-              <Icon icon="solar:copy-linear" />
+              <Icon icon="hugeicons:copy-02" width={18} />
               Copy Token
             </Button>
           </CardBody>
@@ -202,7 +202,7 @@ export default function ProjectRunnerDetails({
               variant="flat"
               onPress={addRunnerModal.onOpen}
             >
-              <Icon icon="hugeicons:plus-sign" />
+              <Icon icon="hugeicons:plus-sign" width={18} />
             </Button>
           </CardBody>
         </Card>

@@ -1,9 +1,7 @@
-"use server";
-
 import { cookies } from "next/headers";
 
-type Runners = {
-  runners: [];
+type Folders = {
+  folders: [];
 };
 
 type ErrorResponse = {
@@ -14,10 +12,10 @@ type ErrorResponse = {
 
 type SuccessResponse = {
   success: true;
-  data: Runners;
+  data: Folders;
 };
 
-export async function AdminGetRunners(): Promise<
+export async function AdminGetFolders(): Promise<
   SuccessResponse | ErrorResponse
 > {
   try {
@@ -33,7 +31,7 @@ export async function AdminGetRunners(): Promise<
     }
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/runners`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/folders`,
       {
         method: "GET",
         headers: {
@@ -63,9 +61,9 @@ export async function AdminGetRunners(): Promise<
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error occurred",
-      message: "Failed to fetch runners",
+      message: "Failed to fetch folders",
     };
   }
 }
 
-export default AdminGetRunners;
+export default AdminGetFolders;
