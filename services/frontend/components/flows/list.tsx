@@ -139,7 +139,19 @@ export default function FlowList({
             isHoverable
             isPressable
             className="bg-default-200 bg-opacity-10 border-1 border-default-300 p-3"
-            onPress={() => router.back()}
+            onPress={() => {
+              if (
+                folders.find((f: any) => f.id === searchFolderID).parent_id !==
+                ""
+              ) {
+                router.push(
+                  "/flows?folder=" +
+                    folders.find((f: any) => f.id === searchFolderID).parent_id,
+                );
+              } else {
+                router.push("/flows");
+              }
+            }}
           >
             <CardBody className="flex flex-col items-center justify-center gap-2">
               <Icon className="text-3xl" icon="hugeicons:link-backward" />
@@ -213,7 +225,7 @@ export default function FlowList({
           </Card>
         ))}
         {folders.length === 0 && (
-          <p className="text-default-500 text-center col-span-4">
+          <p className="text-default-500 text-center col-span-full">
             No folders found
           </p>
         )}
