@@ -44,7 +44,7 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
     const timeAgo =
       (new Date(execution.last_heartbeat).getTime() - Date.now()) / 1000;
 
-    if (execution.status === "pending") {
+    if (execution.status === "pending" || execution.status === "scheduled") {
       return "";
     }
 
@@ -65,7 +65,7 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
     const timeAgo =
       (new Date(execution.last_heartbeat).getTime() - Date.now()) / 1000;
 
-    if (execution.status === "pending") {
+    if (execution.status === "pending" || execution.status === "scheduled") {
       return "N/A";
     }
 
