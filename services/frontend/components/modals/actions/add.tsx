@@ -71,7 +71,7 @@ export default function AddActionModal({
 
   const { isOpen, onOpenChange } = disclosure;
 
-  const [steps] = useState(2);
+  const [steps] = useState(3);
   const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = React.useState(false);
@@ -602,9 +602,7 @@ export default function AddActionModal({
                         </CardBody>
                       </Card>
                       <Spacer y={2} />
-                      <p className="text-lg font-bold text-default-600">
-                        Details
-                      </p>
+                      <p className="text-lg font-bold">Details</p>
                       <Spacer y={2} />
                       <div className="grid grid-cols-2 gap-2">
                         <Input
@@ -627,6 +625,7 @@ export default function AddActionModal({
                         />
                         {!isFailurePipeline && (
                           <Select
+                            className="col-span-2"
                             label="Failure Pipeline"
                             placeholder="Select an failure pipeline"
                             selectedKeys={[
@@ -648,10 +647,11 @@ export default function AddActionModal({
                           </Select>
                         )}
                       </div>
-                      <Spacer y={2} />
-                      <p className="text-lg font-bold text-default-600">
-                        Parameters
-                      </p>
+                    </div>
+                  )}
+                  {currentStep === 2 && (
+                    <div className="flex flex-col w-full">
+                      <p className="text-lg font-bold">Parameters</p>
                       <Spacer y={2} />
                       <ScrollShadow className="max-h-[350px]">
                         {actionParamsCategorys.length > 0 ? (
@@ -819,6 +819,7 @@ export default function AddActionModal({
               <ModalFooter>
                 <Button
                   color="default"
+                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
                   variant="ghost"
                   onPress={() => {
                     cancel();
@@ -829,6 +830,9 @@ export default function AddActionModal({
                 {currentStep > 0 ? (
                   <Button
                     color="default"
+                    startContent={
+                      <Icon icon="hugeicons:backward-02" width={18} />
+                    }
                     variant="flat"
                     onPress={() => {
                       setCurrentStep(currentStep - 1);
@@ -838,7 +842,14 @@ export default function AddActionModal({
                     Back
                   </Button>
                 ) : (
-                  <Button isDisabled color="default" variant="flat">
+                  <Button
+                    isDisabled
+                    color="default"
+                    startContent={
+                      <Icon icon="hugeicons:backward-02" width={18} />
+                    }
+                    variant="flat"
+                  >
                     Back
                   </Button>
                 )}
@@ -846,6 +857,9 @@ export default function AddActionModal({
                   <Button
                     color="primary"
                     isLoading={isLoading}
+                    startContent={
+                      <Icon icon="hugeicons:plus-sign" width={18} />
+                    }
                     onPress={() => {
                       if (!isFailurePipeline) {
                         createFlowAction();
@@ -861,6 +875,9 @@ export default function AddActionModal({
                     color="primary"
                     isDisabled={disableNext || action.plugin == ""}
                     isLoading={isLoading}
+                    startContent={
+                      <Icon icon="hugeicons:forward-02" width={18} />
+                    }
                     onPress={() => setCurrentStep(currentStep + 1)}
                   >
                     Next Step
