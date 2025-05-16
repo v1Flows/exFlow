@@ -8,13 +8,11 @@ import {
   NavbarBrand,
   NavbarItem,
   NavbarMenuItem,
-  Kbd,
   Dropdown,
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
   Avatar,
-  Input,
   addToast,
   Button,
   Image,
@@ -29,31 +27,11 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { siteConfig } from "@/config/site";
-import { SearchIcon } from "@/components/icons";
 import { Logout } from "@/lib/logout";
 
-export const Navbar = ({ userDetails, session, settings }) => {
-  const searchInput = (
-    <Input
-      aria-label="Search"
-      classNames={{
-        inputWrapper: "bg-default-100",
-        input: "text-sm",
-      }}
-      endContent={
-        <Kbd className="hidden lg:inline-block" keys={["command"]}>
-          K
-        </Kbd>
-      }
-      labelPlacement="outside"
-      placeholder="Search..."
-      startContent={
-        <SearchIcon className="text-base text-default-400 pointer-events-none flex-shrink-0" />
-      }
-      type="search"
-    />
-  );
+import Search from "./search/search";
 
+export const Navbar = ({ userDetails, session, settings, flows, projects }) => {
   async function LogoutHandler() {
     await Logout();
   }
@@ -258,7 +236,9 @@ export const Navbar = ({ userDetails, session, settings }) => {
             variant="solid"
           />
         </NavbarItem>
-        <NavbarItem className="hidden lg:flex">{searchInput}</NavbarItem>
+        <NavbarItem className="hidden lg:flex">
+          <Search flows={flows} projects={projects} />
+        </NavbarItem>
 
         <Dropdown placement="bottom-end">
           <DropdownTrigger>
@@ -405,7 +385,7 @@ export const Navbar = ({ userDetails, session, settings }) => {
       </NavbarContent>
 
       <NavbarMenu>
-        {searchInput}
+        <Search flows={flows} projects={projects} />
         <div className="mx-4 mt-2 flex flex-col gap-2">
           {siteConfig.navMenuItems.map((item, index) => (
             <NavbarMenuItem key={`${item}-${index}`}>

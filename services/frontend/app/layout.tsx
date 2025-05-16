@@ -11,9 +11,12 @@ import GetUserDetails from "@/lib/fetch/user/getDetails";
 import Footer from "@/components/footer/footer";
 import PageGetSettings from "@/lib/fetch/page/settings";
 
-import { Providers } from "./providers";
-
 import Favicon from "/public/favicon.ico";
+
+import GetFlows from "@/lib/fetch/flow/all";
+import GetProjects from "@/lib/fetch/project/all";
+
+import { Providers } from "./providers";
 
 const APP_NAME = siteConfig.name;
 const APP_DEFAULT_TITLE = siteConfig.name;
@@ -70,10 +73,14 @@ export default async function RootLayout({
 }) {
   const userDetailsData = GetUserDetails();
   const settingsData = PageGetSettings();
+  const flowsData = GetFlows();
+  const projectsData = GetProjects();
 
-  const [userDetails, settings] = await Promise.all([
+  const [userDetails, settings, flows, projects] = await Promise.all([
     userDetailsData,
     settingsData,
+    flowsData,
+    projectsData,
   ]);
 
   const c = await cookies();
@@ -93,6 +100,8 @@ export default async function RootLayout({
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
           <div className="relative flex h-screen flex-col">
             <Navbar
+              flows={flows.success ? flows.data.flows : []}
+              projects={projects.success ? projects.data.projects : []}
               session={session}
               settings={settings.success ? settings.data.settings : {}}
               userDetails={userDetails.success ? userDetails.data.user : {}}
