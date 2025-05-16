@@ -108,18 +108,9 @@ export default function DeleteUserModal({
                   <ErrorCard error={errorText} message={errorMessage} />
                 )}
                 <Snippet hideCopyButton hideSymbol>
-                  <span>
-                    Name:
-                    {user.username}
-                  </span>
-                  <span>
-                    Email:
-                    {user.email}
-                  </span>
-                  <span>
-                    ID:
-                    {user.id}
-                  </span>
+                  <span>Name: {user.username}</span>
+                  <span>Email: {user.email}</span>
+                  <span>ID: {user.id}</span>
                 </Snippet>
               </ModalBody>
               <ModalFooter className="grid grid-cols-2">
