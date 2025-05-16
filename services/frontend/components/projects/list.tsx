@@ -192,7 +192,7 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
                       key="edit"
                       color="warning"
                       isDisabled={
-                        (canEditProject(user.id, project.members) ||
+                        (!canEditProject(user.id, project.members) ||
                           project.disabled) &&
                         user.role !== "admin"
                       }
@@ -211,7 +211,7 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
                       className="text-danger"
                       color="danger"
                       isDisabled={
-                        (canEditProject(user.id, project.members) ||
+                        (!canEditProject(user.id, project.members) ||
                           project.disabled) &&
                         user.role !== "admin"
                       }
