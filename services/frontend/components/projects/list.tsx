@@ -3,17 +3,15 @@ import { Icon } from "@iconify/react";
 import {
   addToast,
   Button,
+  ButtonGroup,
   Card,
   CardBody,
-  CardFooter,
   Chip,
-  Divider,
   Dropdown,
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
   Spacer,
-  Tooltip,
   useDisclosure,
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
@@ -24,7 +22,6 @@ import DeleteProjectModal from "@/components/modals/projects/delete";
 import EditProjectModal from "@/components/modals/projects/edit";
 import AcceptProjectInvite from "@/lib/fetch/project/PUT/AcceptProjectInvite";
 import DeclineProjectInvite from "@/lib/fetch/project/PUT/DeclineProjectInvite";
-import SparklesText from "@/components/magicui/sparkles-text";
 import canEditProject from "@/lib/functions/canEditProject";
 
 export function ProjectsList({ projects, pending_projects, user }: any) {
@@ -54,6 +51,72 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
     }
   };
 
+  async function declineProjectInvite(projectId: string) {
+    const res = (await DeclineProjectInvite(projectId)) as any;
+
+    if (!res) {
+      addToast({
+        title: "Project Invite",
+        description: "Failed to decline project invite",
+        color: "danger",
+        variant: "flat",
+      });
+
+      return;
+    }
+
+    if (res.success) {
+      addToast({
+        title: "Project Invite",
+        description: "Project invite declined",
+        color: "success",
+        variant: "flat",
+      });
+    } else {
+      addToast({
+        title: "Project Invite",
+        description: res.message,
+        color: "danger",
+        variant: "flat",
+      });
+    }
+
+    router.refresh();
+  }
+
+  async function acceptProjectInvite(projectId: string) {
+    const res = (await AcceptProjectInvite(projectId)) as any;
+
+    if (!res) {
+      addToast({
+        title: "Project Invite",
+        description: "Failed to accept project invite",
+        color: "danger",
+        variant: "flat",
+      });
+
+      return;
+    }
+
+    if (res.success) {
+      addToast({
+        title: "Project Invite",
+        description: "Project invite accepted",
+        color: "success",
+        variant: "flat",
+      });
+    } else {
+      addToast({
+        title: "Project Invite",
+        description: res.message,
+        color: "danger",
+        variant: "flat",
+      });
+    }
+
+    router.refresh();
+  }
+
   return (
     <main>
       {projects.length === 0 && (
@@ -82,7 +145,7 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
               <div className="flex items-start justify-between">
                 <div className="flex gap-4">
                   <div
-                    className="flex-shrink-0 w-12 h-12 rounded-md flex items-center justify-center"
+                    className="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center"
                     style={{
                       backgroundImage: `linear-gradient(45deg, ${project.color} 0%, ${project.color} 100%)`,
                     }}
@@ -90,7 +153,7 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
                     <Icon className="text-2xl" icon={project.icon} />
                   </div>
                   <div className="flex-grow">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex items-center gap-2">
                       <h3 className="font-semibold text-lg">{project.name}</h3>
                       <Chip
                         color={project.disabled ? "danger" : "success"}
@@ -125,37 +188,43 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
                     >
                       Copy Project ID
                     </DropdownItem>
-                    {canEditProject(user.id, project.members) && (
-                      <>
-                        <DropdownItem
-                          key="edit"
-                          color="warning"
-                          startContent={
-                            <Icon icon="hugeicons:pencil-edit-02" width={18} />
-                          }
-                          onPress={() => {
-                            setTargetProject(project);
-                            editProjectModal.onOpen();
-                          }}
-                        >
-                          Edit Project
-                        </DropdownItem>
-                        <DropdownItem
-                          key="delete"
-                          className="text-danger"
-                          color="danger"
-                          startContent={
-                            <Icon icon="hugeicons:delete-02" width={18} />
-                          }
-                          onPress={() => {
-                            setTargetProject(project);
-                            deleteProjectModal.onOpen();
-                          }}
-                        >
-                          Delete Project
-                        </DropdownItem>
-                      </>
-                    )}
+                    <DropdownItem
+                      key="edit"
+                      color="warning"
+                      isDisabled={
+                        (canEditProject(user.id, project.members) ||
+                          project.disabled) &&
+                        user.role !== "admin"
+                      }
+                      startContent={
+                        <Icon icon="hugeicons:pencil-edit-02" width={18} />
+                      }
+                      onPress={() => {
+                        setTargetProject(project);
+                        editProjectModal.onOpen();
+                      }}
+                    >
+                      Edit Project
+                    </DropdownItem>
+                    <DropdownItem
+                      key="delete"
+                      className="text-danger"
+                      color="danger"
+                      isDisabled={
+                        (canEditProject(user.id, project.members) ||
+                          project.disabled) &&
+                        user.role !== "admin"
+                      }
+                      startContent={
+                        <Icon icon="hugeicons:delete-02" width={18} />
+                      }
+                      onPress={() => {
+                        setTargetProject(project);
+                        deleteProjectModal.onOpen();
+                      }}
+                    >
+                      Delete Project
+                    </DropdownItem>
                   </DropdownMenu>
                 </Dropdown>
               </div>
@@ -166,75 +235,56 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
       {pending_projects.length > 0 && (
         <>
           <Spacer y={4} />
-          <SparklesText
-            className="text-lg"
-            text="Pending Project Invitations"
-          />
-          <Spacer y={4} />
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <p className="text-xl font-semibold">
+            Project <span className="text-primary">Invitations</span>
+          </p>
+          <Spacer y={2} />
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
             {pending_projects.map((project: any) => (
-              <div key={project.id} className="col-span-1">
-                <Card fullWidth>
-                  <CardBody>
-                    <div className="flex items-center gap-2">
-                      <Icon
-                        icon={
-                          project.icon
-                            ? project.icon
-                            : "solar:question-square-outline"
-                        }
-                        style={{ color: project.color }}
-                        width={32}
-                      />
-                      <p className="text-lg font-bold">{project.name}</p>
+              <Card key={project.id}>
+                <CardBody className="p-5">
+                  <div className="flex flex-wrap gap-4 items-center justify-between">
+                    <div className="flex gap-4">
+                      <div
+                        className="flex-shrink-0 w-12 h-12 rounded-md flex items-center justify-center"
+                        style={{
+                          backgroundImage: `linear-gradient(45deg, ${project.color} 0%, ${project.color} 100%)`,
+                        }}
+                      >
+                        <Icon className="text-2xl" icon={project.icon} />
+                      </div>
+                      <div className="flex-grow">
+                        <h3 className="font-semibold text-lg">
+                          {project.name}
+                        </h3>
+                        <p className="text-default-500 text-sm line-clamp-2">
+                          {project.description}
+                        </p>
+                      </div>
                     </div>
-                    <Spacer y={2} />
-                    <p className="text-sm text-default-500">
-                      {project.description.length > 50 ? (
-                        <Tooltip
-                          content={project.description}
-                          style={{ maxWidth: "450px" }}
-                        >
-                          <span>
-                            {project.description.slice(0, 50)}
-                            ...
-                          </span>
-                        </Tooltip>
-                      ) : (
-                        project.description
-                      )}
-                    </p>
-                    <Spacer y={3} />
-                    <Divider />
-                  </CardBody>
-                  <CardFooter className="flex items-center gap-2">
-                    <Button
-                      fullWidth
-                      color="danger"
-                      variant="flat"
-                      onPress={() => {
-                        DeclineProjectInvite(project.id);
-                        router.refresh();
-                      }}
-                    >
-                      <Icon icon="solar:danger-triangle-outline" width={24} />
-                      Decline
-                    </Button>
-                    <Button
-                      fullWidth
-                      color="success"
-                      variant="flat"
-                      onPress={() => {
-                        AcceptProjectInvite(project.id);
-                        router.refresh();
-                      }}
-                    >
-                      <Icon icon="solar:check-read-outline" width={24} />
-                      Accept
-                    </Button>
-                  </CardFooter>
-                </Card>
-              </div>
+                    <ButtonGroup variant="bordered">
+                      <Button
+                        color="danger"
+                        onPress={() => {
+                          declineProjectInvite(project.id);
+                        }}
+                      >
+                        <Icon icon="hugeicons:cancel-01" width={20} />
+                        Decline Invite
+                      </Button>
+                      <Button
+                        color="success"
+                        onPress={() => {
+                          acceptProjectInvite(project.id);
+                        }}
+                      >
+                        <Icon icon="hugeicons:tick-double-01" width={20} />
+                        Accept Invite
+                      </Button>
+                    </ButtonGroup>
+                  </div>
+                </CardBody>
+              </Card>
             ))}
           </div>
         </>
