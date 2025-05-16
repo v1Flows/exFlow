@@ -17,7 +17,7 @@ Use the following details:
 
 - [Features](#features)
 - [Self Hosting](#self-hosting)
-- [Runner](#runner)
+- [Runners](#runners)
 - [Project Structure](#project-structure)
 - [Local Development](#local-development)
 - [Contributing](#contributing)
@@ -26,10 +26,11 @@ Use the following details:
 ## Features
 
 - **Project Management**: Projects combine a number of Flows and add the option to invite members and control their access.
-- **Flows**: Create flows to design workflows / automations for your incoming alarms.
-- **Runners**: Runners execute your workflows. They can also be self-hosted and expanded with plugins.
+- **Flows**: Create flows to design workflows / automations.
+- **Failure Pipelines**: Trigger separate pipelines in case your flows fail and recover in case needed.
+- **Runners**: Runners execute your flows. They can also be self-hosted and expanded with plugins.
 - **Shared Runners**: Create runners which can be used for all projects across the platform.
-- **Scalable to your Needs**: Runners can be scaled with the Auto Join option.
+- **Scalable to your Needs**: Scale exFlow and the runners according to your workload.
 - **Team Collaboration**: Invite team members, assign roles, and manage permissions.
 - **Audit Logs**: Track changes and activities within projects and flows.
 
@@ -64,10 +65,10 @@ docker run -p 80:3000 -e NEXT_PUBLIC_API_URL=https://api-url.com justnz/exflow:f
 docker run -p 8080:8080 -v /your/config/path/config.yaml:/etc/exflow/backend_config.yaml justnz/exflow:backend-latest
 ```
 
-## Runner
-The execution engine of exFlow is the v1Flows Runner. This component provides the functionality as a workflow engine so called Executions.
+## Runners
+The execution engine of exFlow is the v1Flows Runner. This component provides the functionality as a workflow engine and will execute your flows.
 
-To create / run your own runners you require to have a fully set up exFlow instance.
+To create / run your own runners you're require to have a fully set up exFlow instance.
 
 Please see the repo [Runner](https://github.com/v1Flows/runner) for more informations.
 
