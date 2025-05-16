@@ -3,7 +3,7 @@ export type SiteConfig = typeof siteConfig;
 export const siteConfig = {
   name: "exFlow",
   description: "exFlow is an workflow automation tool",
-  version: "1.0.0-beta12",
+  version: "1.0.0-beta13",
   navItems: [
     {
       label: "Dashboard",

@@ -4,7 +4,6 @@ import {
   BreadcrumbItem,
   Breadcrumbs,
   Button,
-  Divider,
   useDisclosure,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
@@ -55,12 +54,6 @@ export default function FlowsHeading({
           )}
         </div>
         <div className="flex flex-cols justify-end gap-2">
-          <Button isIconOnly variant="ghost">
-            <Icon icon="line-md:filter" width={16} />
-          </Button>
-
-          <Divider className="h-10 mr-2 ml-2" orientation="vertical" />
-
           <div className="hidden sm:flex gap-2">
             <Button
               color="primary"

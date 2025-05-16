@@ -1,6 +1,10 @@
 "use server";
 
-export default async function CheckUserTaken(email: string, username: string) {
+export default async function CheckUserTaken(
+  id: string,
+  email: string,
+  username: string,
+) {
   "use client";
   try {
     const headers = new Headers();
@@ -12,6 +16,7 @@ export default async function CheckUserTaken(email: string, username: string) {
         method: "POST",
         headers,
         body: JSON.stringify({
+          id,
           email,
           username,
         }),
