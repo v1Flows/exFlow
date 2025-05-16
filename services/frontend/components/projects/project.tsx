@@ -73,7 +73,7 @@ export default function Project({
             color="danger"
             description={project.disabled_reason}
             title="Project is currently disabled"
-            variant="flat"
+            variant="faded"
           />
         </div>
       )}

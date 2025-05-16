@@ -50,11 +50,13 @@ export default function Actions({
   runners,
   user,
   canEdit,
+  settings,
 }: {
   flow: any;
   runners: any;
   user: any;
   canEdit: boolean;
+  settings: any;
 }) {
   const router = useRouter();
 
@@ -169,7 +171,9 @@ export default function Actions({
                       <Button
                         isIconOnly
                         color="warning"
-                        isDisabled={!canEdit}
+                        isDisabled={
+                          (!canEdit || flow.disabled) && user.role !== "admin"
+                        }
                         variant="light"
                         onPress={() => {
                           // if action is in an failure pipeline, open the edit modal
@@ -205,7 +209,9 @@ export default function Actions({
                       </Button>
                       <Button
                         isIconOnly
-                        isDisabled={!canEdit}
+                        isDisabled={
+                          (!canEdit || flow.disabled) && user.role !== "admin"
+                        }
                         variant="light"
                         onPress={() => {
                           // if action is in an failure pipeline, open the edit modal
@@ -242,7 +248,9 @@ export default function Actions({
                       <Button
                         isIconOnly
                         color="danger"
-                        isDisabled={!canEdit}
+                        isDisabled={
+                          (!canEdit || flow.disabled) && user.role !== "admin"
+                        }
                         variant="light"
                         onPress={() => {
                           // if action is in an failure pipeline, open the edit modal
@@ -280,6 +288,9 @@ export default function Actions({
                     <Tooltip content="Reorder action by dragging">
                       <Button
                         isIconOnly
+                        isDisabled={
+                          (!canEdit || flow.disabled) && user.role !== "admin"
+                        }
                         variant="flat"
                         {...listeners}
                         style={{ cursor: "grab", touchAction: "none" }}
@@ -340,7 +351,9 @@ export default function Actions({
                     endContent={
                       <Button
                         color="primary"
-                        isDisabled={!canEdit}
+                        isDisabled={
+                          (!canEdit || flow.disabled) && user.role !== "admin"
+                        }
                         startContent={
                           <Icon icon="hugeicons:system-update-02" width={20} />
                         }
@@ -585,8 +598,14 @@ export default function Actions({
           <Card
             fullWidth
             className="border border-dashed border-default-200 bg-opacity-60 hover:border-primary"
-            isDisabled={!canEdit}
-            isPressable={canEdit}
+            isDisabled={
+              (!canEdit || !settings.add_flow_actions || flow.disabled) &&
+              user.role !== "admin"
+            }
+            isPressable={
+              (canEdit && settings.add_flow_actions && !flow.disabled) ||
+              user.role === "admin"
+            }
             onPress={addFlowActionModal.onOpen}
           >
             <CardBody>
@@ -682,7 +701,10 @@ export default function Actions({
                         <div className="flex flex-wrap items-center gap-2">
                           <Button
                             color="warning"
-                            isDisabled={!canEdit}
+                            isDisabled={
+                              (!canEdit || flow.disabled) &&
+                              user.role !== "admin"
+                            }
                             startContent={
                               <Icon
                                 icon="hugeicons:pencil-edit-02"
@@ -699,7 +721,10 @@ export default function Actions({
                           </Button>
                           <Button
                             color="danger"
-                            isDisabled={!canEdit}
+                            isDisabled={
+                              (!canEdit || flow.disabled) &&
+                              user.role !== "admin"
+                            }
                             startContent={
                               <Icon icon="hugeicons:delete-02" width={20} />
                             }
@@ -737,8 +762,18 @@ export default function Actions({
                   <Card
                     fullWidth
                     className="border border-dashed border-default-200 bg-opacity-60 hover:border-primary"
-                    isDisabled={!canEdit}
-                    isPressable={canEdit}
+                    isDisabled={
+                      (!canEdit ||
+                        !settings.add_flow_actions ||
+                        flow.disabled) &&
+                      user.role !== "admin"
+                    }
+                    isPressable={
+                      (canEdit &&
+                        settings.add_flow_actions &&
+                        !flow.disabled) ||
+                      user.role === "admin"
+                    }
                     onPress={() => {
                       setTargetFailurePipeline(pipeline);
                       addFlowFailurePipelineActionModal.onOpen();
@@ -770,6 +805,9 @@ export default function Actions({
                   disableRipple
                   isIconOnly
                   color="primary"
+                  isDisabled={
+                    (!canEdit || flow.disabled) && user.role !== "admin"
+                  }
                   variant="light"
                   onPress={() => {
                     createFlowFailurePipelineModal.onOpen();

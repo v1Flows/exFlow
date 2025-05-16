@@ -126,23 +126,29 @@ export default function Executions({
       } else {
         return "0s";
       }
-    }
-    const ms =
-      new Date(execution.finished_at).getTime() -
-      new Date(execution.executed_at).getTime();
-    const sec = Math.floor(ms / 1000);
-    const min = Math.floor(sec / 60);
-    const hr = Math.floor(min / 60);
-    const day = Math.floor(hr / 24);
-
-    if (day > 0) {
-      return `${day}d ${hr % 24}h ${min % 60}m ${sec % 60}s`;
-    } else if (hr > 0) {
-      return `${hr}h ${min % 60}m ${sec % 60}s`;
-    } else if (min > 0) {
-      return `${min}m ${sec % 60}s`;
+    } else if (
+      execution.finished_at !== "0001-01-01T00:00:00Z" &&
+      execution.executed_at === "0001-01-01T00:00:00Z"
+    ) {
+      return "N/A";
     } else {
-      return `${sec}s`;
+      const ms =
+        new Date(execution.finished_at).getTime() -
+        new Date(execution.executed_at).getTime();
+      const sec = Math.floor(ms / 1000);
+      const min = Math.floor(sec / 60);
+      const hr = Math.floor(min / 60);
+      const day = Math.floor(hr / 24);
+
+      if (day > 0) {
+        return `${day}d ${hr % 24}h ${min % 60}m ${sec % 60}s`;
+      } else if (hr > 0) {
+        return `${hr}h ${min % 60}m ${sec % 60}s`;
+      } else if (min > 0) {
+        return `${min}m ${sec % 60}s`;
+      } else {
+        return `${sec}s`;
+      }
     }
   }
 

@@ -2,6 +2,7 @@ import { Icon } from "@iconify/react";
 import {
   addToast,
   Button,
+  ButtonGroup,
   Chip,
   Pagination,
   Table,
@@ -63,91 +64,84 @@ export default function ProjectTokens({
     switch (columnKey) {
       case "actions":
         return (
-          <div className="relative flex items-center justify-center gap-4">
+          <ButtonGroup variant="light">
             <Tooltip content="Copy Token">
-              <span className="cursor-pointer text-lg text-default-400 active:opacity-50">
-                <Icon
-                  icon="hugeicons:copy-02"
-                  width={20}
-                  onClick={() => {
-                    copyTokentoClipboard(key.key);
-                  }}
-                />
-              </span>
+              <Button
+                isIconOnly
+                isDisabled={
+                  (!canEditProject(user.id, project.members) ||
+                    project.disabled) &&
+                  user.role !== "admin"
+                }
+                onPress={() => {
+                  copyTokentoClipboard(key.key);
+                }}
+              >
+                <Icon icon="hugeicons:copy-02" width={20} />
+              </Button>
             </Tooltip>
             {!key.disabled && (
-              <Tooltip color="danger" content="Disable Token">
-                <span className="cursor-pointer text-lg text-danger active:opacity-50">
-                  <Icon
-                    icon="hugeicons:square-lock-01"
-                    width={20}
-                    onClick={() => {
-                      if (
-                        project.members.find(
-                          (m: any) => m.user_id === user.id,
-                        ) &&
-                        project.members.filter(
-                          (m: any) => m.user_id === user.id,
-                        )[0].role !== "Viewer"
-                      ) {
-                        key.disabled = true;
-                        setTargetToken(key);
-                        changeProjectTokenStatusModal.onOpen();
-                      }
-                    }}
-                  />
-                </span>
+              <Tooltip content="Disable Token">
+                <Button
+                  isIconOnly
+                  color="danger"
+                  isDisabled={
+                    (!canEditProject(user.id, project.members) ||
+                      project.disabled) &&
+                    user.role !== "admin"
+                  }
+                  onPress={() => {
+                    key.disabled = true;
+                    setTargetToken(key);
+                    changeProjectTokenStatusModal.onOpen();
+                  }}
+                >
+                  <Icon icon="hugeicons:square-lock-01" width={20} />
+                </Button>
               </Tooltip>
             )}
             {key.disabled && (
-              <Tooltip color="success" content="Enable Token">
-                <span className="cursor-pointer text-lg text-success active:opacity-50">
-                  <Icon
-                    icon="hugeicons:square-unlock-01"
-                    width={20}
-                    onClick={() => {
-                      if (
-                        project.members.find(
-                          (m: any) => m.user_id === user.id,
-                        ) &&
-                        project.members.filter(
-                          (m: any) => m.user_id === user.id,
-                        )[0].role !== "Viewer"
-                      ) {
-                        key.disabled = false;
-                        setTargetToken(key);
-                        changeProjectTokenStatusModal.onOpen();
-                      }
-                    }}
-                  />
-                </span>
+              <Tooltip content="Enable Token">
+                <Button
+                  isIconOnly
+                  color="success"
+                  isDisabled={
+                    (!canEditProject(user.id, project.members) ||
+                      project.disabled) &&
+                    user.role !== "admin"
+                  }
+                  onPress={() => {
+                    key.disabled = false;
+                    setTargetToken(key);
+                    changeProjectTokenStatusModal.onOpen();
+                  }}
+                >
+                  <Icon icon="hugeicons:square-unlock-01" width={20} />
+                </Button>
               </Tooltip>
             )}
             <Tooltip color="danger" content="Delete Token">
-              <span className="cursor-pointer text-lg text-danger active:opacity-50">
-                <Icon
-                  icon="hugeicons:delete-02"
-                  width={20}
-                  onClick={() => {
-                    if (
-                      project.members.find((m: any) => m.user_id === user.id) &&
-                      project.members.filter(
-                        (m: any) => m.user_id === user.id,
-                      )[0].role !== "Viewer"
-                    ) {
-                      setTargetToken(key);
-
-                      if (key.type === "project") {
-                        deleteProjectTokenModal.onOpen();
-                      } else if (key.type === "runner") {
-                        deleteTokenModal.onOpen();
-                      }
-                    }
-                  }}
-                />
-              </span>
+              <Button
+                isIconOnly
+                color="danger"
+                isDisabled={
+                  (!canEditProject(user.id, project.members) ||
+                    project.disabled) &&
+                  user.role !== "admin"
+                }
+                onPress={() => {
+                  setTargetToken(key);
+                  if (key.type === "project") {
+                    deleteProjectTokenModal.onOpen();
+                  } else if (key.type === "runner") {
+                    deleteTokenModal.onOpen();
+                  }
+                }}
+              >
+                <Icon icon="hugeicons:delete-02" width={20} />
+              </Button>
             </Tooltip>
-          </div>
+          </ButtonGroup>
         );
       case "expires_at":
         return new Date(key.expires_at).toLocaleString();
@@ -182,7 +176,12 @@ export default function ProjectTokens({
       <div className="flex flex-col items-end justify-center gap-4">
         <Button
           color="primary"
-          isDisabled={!canEditProject(user.id, project.members)}
+          isDisabled={
+            (!canEditProject(user.id, project.members) ||
+              !settings.create_api_keys ||
+              project.disabled) &&
+            user.role !== "admin"
+          }
           startContent={<Icon icon="hugeicons:plus-sign" width={18} />}
           onPress={() => addProjectTokenModal.onOpen()}
         >
@@ -199,9 +198,7 @@ export default function ProjectTokens({
         bottomContent={
           <div className="flex w-full justify-center">
             <Pagination
-              isCompact
               showControls
-              showShadow
               color="primary"
               page={page}
               total={pages}
