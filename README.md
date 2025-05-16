@@ -41,6 +41,10 @@ To run your own version of exFlow we provide various docker images available at
 - **justnz/exflow:frontend-latest** - Only frontend
 - **justnz/exflow:backend-latest** - Only backend
 
+### Helm Chart
+We also offer an Helm Chart for exFlow which includes exFlow itself, an postgres and the option for project/shared runners. <br />
+Visit our [Helm Repo](https://github.com/v1Flows/helm-charts/tree/main) for more details
+
 ### Full Version
 
 Config example: [config.yaml](https://github.com/v1Flows/exFlow/blob/main/services/backend/config/config.yaml)
