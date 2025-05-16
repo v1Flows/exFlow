@@ -16,9 +16,13 @@ import CreateFlowModal from "../modals/flows/create";
 export default function FlowsHeading({
   projects,
   folders,
+  settings,
+  user,
 }: {
   projects: any;
   folders: any;
+  settings: any;
+  user: any;
 }) {
   const createFolderModal = useDisclosure();
   const createFlowModal = useDisclosure();
@@ -60,6 +64,7 @@ export default function FlowsHeading({
           <div className="hidden sm:flex gap-2">
             <Button
               color="primary"
+              isDisabled={!settings.create_flows && user.role !== "admin"}
               startContent={
                 <Icon icon="hugeicons:workflow-square-10" width={16} />
               }

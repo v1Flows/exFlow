@@ -112,7 +112,6 @@ export default function ProjectAuditLogs({ audit, project, user }: any) {
           <div className="flex w-full justify-center">
             <Pagination
               showControls
-              showShadow
               color="primary"
               page={page}
               total={pages}

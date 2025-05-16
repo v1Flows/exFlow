@@ -14,16 +14,15 @@ import { Icon } from "@iconify/react";
 
 import UpdateFlow from "@/lib/fetch/flow/PUT/UpdateFlow";
 import ErrorCard from "@/components/error/ErrorCard";
-import canEditProject from "@/lib/functions/canEditProject";
 
 export default function FlowSettings({
   flow,
-  project,
   user,
+  canEdit,
 }: {
   flow: any;
-  project: any;
   user: any;
+  canEdit: boolean;
 }) {
   const router = useRouter();
 
@@ -101,6 +100,9 @@ export default function FlowSettings({
                   </div>
                   <Select
                     className="w-1/2"
+                    isDisabled={
+                      (!canEdit || flow.disabled) && user.role !== "admin"
+                    }
                     placeholder="Select the execution strategy"
                     selectedKeys={[execParallel ? "parallel" : "sequential"]}
                     onSelectionChange={(e) => {
@@ -135,6 +137,9 @@ export default function FlowSettings({
                   </div>
                   <Select
                     className="w-1/2"
+                    isDisabled={
+                      (!canEdit || flow.disabled) && user.role !== "admin"
+                    }
                     placeholder="Select an failure pipeline"
                     selectedKeys={[failurePipelineID]}
                     onSelectionChange={(e) => {
@@ -169,7 +174,9 @@ export default function FlowSettings({
                     </p>
                   </div>
                   <Switch
-                    isDisabled={!canEditProject(user.id, project.members)}
+                    isDisabled={
+                      (!canEdit || flow.disabled) && user.role !== "admin"
+                    }
                     isSelected={encryptActionParams}
                     size="sm"
                     onValueChange={(value) => {
@@ -191,7 +198,9 @@ export default function FlowSettings({
                     </p>
                   </div>
                   <Switch
-                    isDisabled={!canEditProject(user.id, project.members)}
+                    isDisabled={
+                      (!canEdit || flow.disabled) && user.role !== "admin"
+                    }
                     isSelected={encryptExecutions}
                     size="sm"
                     onValueChange={(value) => {
@@ -208,7 +217,7 @@ export default function FlowSettings({
       <Button
         fullWidth
         color="primary"
-        isDisabled={!canEditProject(user.id, project.members)}
+        isDisabled={(!canEdit || flow.disabled) && user.role !== "admin"}
         startContent={<Icon icon="hugeicons:floppy-disk" width={20} />}
         onPress={updateFlow}
       >

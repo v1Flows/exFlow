@@ -105,7 +105,11 @@ export default function ProjectMembers({ project, settings, user }: any) {
             <Tooltip content="Edit User">
               <Button
                 isIconOnly
-                isDisabled={!canEditProject(user.id, project.members)}
+                isDisabled={
+                  (!canEditProject(user.id, project.members) ||
+                    project.disabled) &&
+                  user.role !== "admin"
+                }
                 onPress={() => {
                   setTargetUser(tableUser);
                   editProjectMemberModal.onOpen();
@@ -123,8 +127,10 @@ export default function ProjectMembers({ project, settings, user }: any) {
                 isIconOnly
                 color="danger"
                 isDisabled={
-                  !canEditProject(user.id, project.members) ||
-                  tableUser.user_id === user.id
+                  (!canEditProject(user.id, project.members) ||
+                    tableUser.user_id === user.id ||
+                    project.disabled) &&
+                  user.role !== "admin"
                 }
                 onPress={() => {
                   setTargetUser(tableUser);
@@ -176,7 +182,12 @@ export default function ProjectMembers({ project, settings, user }: any) {
         )}
         <Button
           color="primary"
-          isDisabled={!canEditProject(user.id, project.members)}
+          isDisabled={
+            (!canEditProject(user.id, project.members) ||
+              !settings.add_project_members ||
+              project.disabled) &&
+            user.role !== "admin"
+          }
           isIconOnly={isMobile}
           startContent={<Icon icon="hugeicons:plus-sign" width={18} />}
           onPress={() => addProjectMemberModal.onOpen()}
@@ -196,6 +207,10 @@ export default function ProjectMembers({ project, settings, user }: any) {
       return true;
     }
 
+    if (project.disabled) {
+      return true;
+    }
+
     return false;
   }
 
@@ -207,7 +222,6 @@ export default function ProjectMembers({ project, settings, user }: any) {
           <div className="flex w-full justify-center">
             <Pagination
               showControls
-              showShadow
               color="primary"
               page={page}
               total={pages}

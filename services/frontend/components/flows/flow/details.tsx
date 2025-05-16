@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardBody } from "@heroui/react";
+import { Alert, Card, CardBody } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import NumberFlow from "@number-flow/react";
 import { useRouter } from "next/navigation";
@@ -30,7 +30,7 @@ export default function FlowDetails({
                 </div>
                 <div>
                   <p
-                    className={`text-md font-bold ${flow.disabled ? "text-error" : "text-success"}`}
+                    className={`text-md font-bold ${flow.disabled ? "text-danger" : "text-success"}`}
                   >
                     {flow.disabled ? "Disabled" : "Active"}
                   </p>
@@ -97,6 +97,16 @@ export default function FlowDetails({
           </Card>
         </div>
       </div>
+      {flow.disabled && (
+        <div className="mt-4 mb-4">
+          <Alert
+            color="danger"
+            description={flow.disabled_reason}
+            title="Flow is currently disabled"
+            variant="faded"
+          />
+        </div>
+      )}
     </main>
   );
 }

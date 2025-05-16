@@ -11,6 +11,7 @@ import GetUserDetails from "@/lib/fetch/user/getDetails";
 import GetProjectRunners from "@/lib/fetch/project/runners";
 import GetProject from "@/lib/fetch/project/data";
 import GetFolders from "@/lib/fetch/folder/all";
+import PageGetSettings from "@/lib/fetch/page/settings";
 
 export default async function FlowPage({
   params,
@@ -19,15 +20,22 @@ export default async function FlowPage({
 }) {
   const { id } = await params;
 
-  const flowData = await GetFlow(id);
-  const projectsData = await GetProjects();
-  const executionsData = await GetFlowExecutions(id);
+  const flowData = GetFlow(id);
+  const projectsData = GetProjects();
+  const executionsData = GetFlowExecutions(id);
   const userDetailsData = GetUserDetails();
-  const foldersData = await GetFolders();
+  const foldersData = GetFolders();
+  const settingsData = PageGetSettings();
 
-  const [flow, projects, executions, userDetails, folders] = (await Promise.all(
-    [flowData, projectsData, executionsData, userDetailsData, foldersData],
-  )) as any;
+  const [flow, projects, executions, userDetails, folders, settings] =
+    (await Promise.all([
+      flowData,
+      projectsData,
+      executionsData,
+      userDetailsData,
+      foldersData,
+      settingsData,
+    ])) as any;
 
   let runnersData;
   let projectdata;
@@ -51,19 +59,14 @@ export default async function FlowPage({
             folders={folders.data.folders}
             project={project.data.project}
             projects={projects.data.projects}
+            settings={settings.data.settings}
             user={userDetails.data.user}
           />
           <Divider className="mt-4 mb-4" />
           <FlowDetails
             executions={executions.data.executions}
             flow={flow.data.flow}
-            project={
-              projects.success
-                ? projects.data.projects.find(
-                    (project: any) => project.id === flow.data.flow.project_id,
-                  )
-                : null
-            }
+            project={project.data.project}
             runners={runners.data.runners}
           />
           <Spacer y={4} />
@@ -71,8 +74,8 @@ export default async function FlowPage({
             executions={executions.data.executions}
             flow={flow.data.flow}
             members={project.data.project.members}
-            project={project.data.project}
             runners={runners.data.runners}
+            settings={settings.data.settings}
             user={userDetails.data.user}
           />
         </>

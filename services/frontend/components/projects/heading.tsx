@@ -5,11 +5,11 @@ import { Icon } from "@iconify/react";
 
 import CreateProjectModal from "../modals/projects/create";
 
-export default function ProjectsHeading({ settings, userDetails }: any) {
+export default function ProjectsHeading({ settings, user }: any) {
   const newProjectModal = useDisclosure();
 
   function createButtonIsDisabled() {
-    if (!settings.create_projects && userDetails.data.user.role !== "admin") {
+    if (!settings.create_projects && user.role !== "admin") {
       return true;
     }
 

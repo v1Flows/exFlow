@@ -35,7 +35,6 @@ import UpdateFolderModal from "../modals/folders/update";
 import ScheduleExecutionModal from "../modals/executions/schedule";
 import EditFlowModal from "../modals/flows/edit";
 import DeleteFlowModal from "../modals/flows/delete";
-import CreateFolderModal from "../modals/folders/create";
 
 export default function FlowList({
   flows,
@@ -236,7 +235,8 @@ export default function FlowList({
             <Card
               key={flow.id}
               isHoverable
-              isPressable
+              isDisabled={flow.disabled}
+              isPressable={!flow.disabled}
               onPress={() => router.push("/flows/" + flow.id)}
             >
               <CardHeader className="flex flex-cols items-center justify-between">
@@ -374,50 +374,45 @@ export default function FlowList({
                         />
                       </Button>
                     </DropdownTrigger>
-                    <DropdownMenu aria-label="Flow actions">
-                      {canEditProject(user.id, project.members) && (
-                        <>
-                          <DropdownItem
-                            key="copy"
-                            startContent={
-                              <Icon icon="hugeicons:copy-01" width={18} />
-                            }
-                            onPress={() => copyFlowIDtoClipboard(flow.id)}
-                          >
-                            Copy Flow ID
-                          </DropdownItem>
-                          <DropdownItem
-                            key="edit"
-                            color="warning"
-                            startContent={
-                              <Icon
-                                icon="hugeicons:pencil-edit-02"
-                                width={18}
-                              />
-                            }
-                            onPress={() => {
-                              setTargetFlow(flow);
-                              editFlowModal.onOpen();
-                            }}
-                          >
-                            Edit Flow
-                          </DropdownItem>
-                          <DropdownItem
-                            key="delete"
-                            className="text-danger"
-                            color="danger"
-                            startContent={
-                              <Icon icon="hugeicons:delete-02" width={18} />
-                            }
-                            onPress={() => {
-                              setTargetFlow(flow);
-                              deleteFlowModal.onOpen();
-                            }}
-                          >
-                            Delete Flow
-                          </DropdownItem>
-                        </>
-                      )}
+                    <DropdownMenu aria-label="Flow actions" variant="flat">
+                      <DropdownItem
+                        key="copy"
+                        startContent={
+                          <Icon icon="hugeicons:copy-01" width={18} />
+                        }
+                        onPress={() => copyFlowIDtoClipboard(flow.id)}
+                      >
+                        Copy Flow ID
+                      </DropdownItem>
+                      <DropdownItem
+                        key="edit"
+                        color="warning"
+                        isDisabled={!canEditProject(user.id, project.members)}
+                        startContent={
+                          <Icon icon="hugeicons:pencil-edit-02" width={18} />
+                        }
+                        onPress={() => {
+                          setTargetFlow(flow);
+                          editFlowModal.onOpen();
+                        }}
+                      >
+                        Edit Flow
+                      </DropdownItem>
+                      <DropdownItem
+                        key="delete"
+                        className="text-danger"
+                        color="danger"
+                        isDisabled={!canEditProject(user.id, project.members)}
+                        startContent={
+                          <Icon icon="hugeicons:delete-02" width={18} />
+                        }
+                        onPress={() => {
+                          setTargetFlow(flow);
+                          deleteFlowModal.onOpen();
+                        }}
+                      >
+                        Delete Flow
+                      </DropdownItem>
                     </DropdownMenu>
                   </Dropdown>
                 </div>
@@ -432,13 +427,13 @@ export default function FlowList({
                   Project: {project.name || "Unknown"}
                 </Chip>
                 <Chip
-                  color={project.disabled ? "danger" : "success"}
+                  color={flow.disabled ? "danger" : "success"}
                   radius="sm"
                   size="md"
                   variant="light"
                 >
                   <p className="font-bold">
-                    {project.disabled ? "Disabled" : "Active"}
+                    {flow.disabled ? "Disabled" : "Active"}
                   </p>
                 </Chip>
               </CardFooter>

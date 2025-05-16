@@ -106,7 +106,7 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
                     </p>
                   </div>
                 </div>
-                <Dropdown placement="bottom-end">
+                <Dropdown isDisabled={project.disabled} placement="bottom-end">
                   <DropdownTrigger>
                     <Button isIconOnly size="sm" variant="light">
                       <Icon

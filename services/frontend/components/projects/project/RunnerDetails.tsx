@@ -19,9 +19,11 @@ import canEditProject from "@/lib/functions/canEditProject";
 export default function ProjectRunnerDetails({
   project,
   user,
+  settings,
 }: {
   project: any;
   user: any;
+  settings: any;
 }) {
   const router = useRouter();
 
@@ -112,7 +114,11 @@ export default function ProjectRunnerDetails({
             </div>
             <Spacer y={2} />
             <Switch
-              isDisabled={!canEditProject(user.id, project.members)}
+              isDisabled={
+                (!canEditProject(user.id, project.members) ||
+                  project.disabled) &&
+                user.role !== "admin"
+              }
               isSelected={sharedRunners}
               size="sm"
               onValueChange={(value) => {
@@ -137,7 +143,11 @@ export default function ProjectRunnerDetails({
             </div>
             <Spacer y={2} />
             <Switch
-              isDisabled={!canEditProject(user.id, project.members)}
+              isDisabled={
+                (!canEditProject(user.id, project.members) ||
+                  project.disabled) &&
+                user.role !== "admin"
+              }
               isSelected={autoJoin}
               size="sm"
               onValueChange={setAutoJoin}
@@ -156,7 +166,11 @@ export default function ProjectRunnerDetails({
             <Spacer y={2} />
             <Switch
               color="danger"
-              isDisabled={!canEditProject(user.id, project.members)}
+              isDisabled={
+                (!canEditProject(user.id, project.members) ||
+                  project.disabled) &&
+                user.role !== "admin"
+              }
               isSelected={disableJoin}
               size="sm"
               onValueChange={setDisableJoin}
@@ -175,6 +189,7 @@ export default function ProjectRunnerDetails({
             <Spacer y={2} />
             <Button
               color="primary"
+              isDisabled={project.disabled && user.role !== "admin"}
               size="sm"
               variant="flat"
               onPress={copyJoinToken}
@@ -197,7 +212,12 @@ export default function ProjectRunnerDetails({
             <Button
               isIconOnly
               color="primary"
-              isDisabled={!canEditProject(user.id, project.members)}
+              isDisabled={
+                (!canEditProject(user.id, project.members) ||
+                  !settings.create_runners ||
+                  project.disabled) &&
+                user.role !== "admin"
+              }
               size="sm"
               variant="flat"
               onPress={addRunnerModal.onOpen}
