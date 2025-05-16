@@ -77,6 +77,7 @@ export default function CreateFolderModal({
 
     if (response.success) {
       setName("");
+      setDescription("");
       onOpenChange();
       setError(false);
       setErrorText("");
