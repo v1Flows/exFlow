@@ -5,7 +5,6 @@ import type { UseDisclosureReturn } from "@heroui/use-disclosure";
 import {
   addToast,
   Button,
-  Divider,
   Input,
   Modal,
   ModalBody,
@@ -14,14 +13,10 @@ import {
   ModalHeader,
   Select,
   SelectItem,
-  Snippet,
   Switch,
-  useDisclosure,
 } from "@heroui/react";
-import { LibraryIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-import { Icon } from "@iconify/react";
 
 import GetProjectRunners from "@/lib/fetch/project/runners";
 import CreateFlow from "@/lib/fetch/flow/POST/CreateFlow";
@@ -42,9 +37,6 @@ export default function CreateFlowModal({
 
   // create modal
   const { isOpen, onOpenChange } = disclosure;
-  // instructions modal
-  const { isOpen: isOpenInstructions, onOpenChange: onOpenChangeInstructions } =
-    useDisclosure();
 
   // stepper
   const [steps] = useState([
@@ -128,7 +120,14 @@ export default function CreateFlowModal({
       setError(false);
       setErrorText("");
       setErrorMessage("");
-      onOpenChangeInstructions();
+      setCurrentStep(0);
+      setDisableNext(false);
+      addToast({
+        title: "Flow",
+        description: "Flow created successfully",
+        color: "success",
+        variant: "flat",
+      });
     } else {
       setError(true);
       setErrorText(response.error);
@@ -334,72 +333,6 @@ export default function CreateFlowModal({
                     Next Step
                   </Button>
                 )}
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
-
-      {/* Instructions Modal */}
-
-      <Modal
-        backdrop="blur"
-        isOpen={isOpenInstructions}
-        placement="center"
-        onOpenChange={onOpenChangeInstructions}
-      >
-        <ModalContent className="w-full">
-          {(onInstructionsClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1 text-success">
-                Flow created successfully
-              </ModalHeader>
-              <ModalBody>
-                <p>
-                  Your new flow has been created successfully and is ready to be
-                  used. You only have to use the Flow-ID and the API-URL which
-                  can be found below.
-                </p>
-                <p>
-                  If you need help with that please click on the documentation
-                  link below.
-                </p>
-                <Divider />
-                <div>
-                  <p className="text-sm font-bold text-default-400">
-                    Alert URL
-                  </p>
-                  <Snippet hideSymbol className="w-full">
-                    {`${process.env.NEXT_PUBLIC_API_URL}/payloads`}
-                  </Snippet>
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-default-400">Method</p>
-                  <Snippet hideSymbol className="w-full">
-                    POST
-                  </Snippet>
-                </div>
-                <p className="text-sm font-bold text-default-400">
-                  The Flow-ID can be found on the Flows page
-                </p>
-              </ModalBody>
-              <ModalFooter>
-                <Button
-                  color="default"
-                  variant="bordered"
-                  onPress={onInstructionsClose}
-                >
-                  <LibraryIcon />
-                  Show Documentation
-                </Button>
-                <Button
-                  color="primary"
-                  variant="solid"
-                  onPress={onInstructionsClose}
-                >
-                  <Icon icon="hugeicons:checkmark-badge-01" />
-                  Understood
-                </Button>
               </ModalFooter>
             </>
           )}

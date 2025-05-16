@@ -9,6 +9,7 @@ import { fontSans } from "@/config/fonts";
 import { Navbar } from "@/components/navbar";
 import GetUserDetails from "@/lib/fetch/user/getDetails";
 import Footer from "@/components/footer/footer";
+import PageGetSettings from "@/lib/fetch/page/settings";
 
 import { Providers } from "./providers";
 
@@ -68,8 +69,12 @@ export default async function RootLayout({
   children: ReactNode;
 }) {
   const userDetailsData = GetUserDetails();
+  const settingsData = PageGetSettings();
 
-  const [userDetails] = await Promise.all([userDetailsData]);
+  const [userDetails, settings] = await Promise.all([
+    userDetailsData,
+    settingsData,
+  ]);
 
   const c = await cookies();
   const session = c.get("session")?.value;
@@ -89,6 +94,7 @@ export default async function RootLayout({
           <div className="relative flex h-screen flex-col">
             <Navbar
               session={session}
+              settings={settings.success ? settings.data.settings : {}}
               userDetails={userDetails.success ? userDetails.data.user : {}}
             />
             <main className="pt-4 px-6 flex-grow">{children}</main>

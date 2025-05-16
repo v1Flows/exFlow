@@ -8,6 +8,7 @@ import GetProjects from "@/lib/fetch/project/all";
 import GetRunningExecutions from "@/lib/fetch/executions/running";
 import GetUserDetails from "@/lib/fetch/user/getDetails";
 import ErrorCard from "@/components/error/ErrorCard";
+import PageGetSettings from "@/lib/fetch/page/settings";
 
 export default async function FlowsPage() {
   const flowsData = GetFlows();
@@ -15,14 +16,16 @@ export default async function FlowsPage() {
   const projectsData = GetProjects();
   const runningExecutionsData = GetRunningExecutions();
   const userDetailsData = GetUserDetails();
+  const settingsData = PageGetSettings();
 
-  const [flows, folders, projects, runningExecutions, userDetails] =
+  const [flows, folders, projects, runningExecutions, userDetails, settings] =
     (await Promise.all([
       flowsData,
       foldersData,
       projectsData,
       runningExecutionsData,
       userDetailsData,
+      settingsData,
     ])) as any;
 
   return (
@@ -30,11 +33,14 @@ export default async function FlowsPage() {
       {projects.success &&
       folders.success &&
       flows.success &&
-      userDetails.success ? (
+      userDetails.success &&
+      settings.success ? (
         <>
           <FlowsHeading
             folders={folders.data.folders}
             projects={projects.data.projects}
+            settings={settings.data.settings}
+            user={userDetails.data.user}
           />
           <Divider className="mt-4 mb-4" />
           <FlowList
@@ -50,13 +56,18 @@ export default async function FlowsPage() {
       ) : (
         <ErrorCard
           error={
-            projects.error || folders.error || flows.error || userDetails.error
+            projects.error ||
+            folders.error ||
+            flows.error ||
+            userDetails.error ||
+            settings.error
           }
           message={
             projects.message ||
             folders.message ||
             flows.message ||
-            userDetails.message
+            userDetails.message ||
+            settings.message
           }
         />
       )}

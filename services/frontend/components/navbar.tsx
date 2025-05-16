@@ -18,6 +18,7 @@ import {
   addToast,
   Button,
   Image,
+  Alert,
 } from "@heroui/react";
 import { link as linkStyles } from "@heroui/theme";
 import NextLink from "next/link";
@@ -32,7 +33,7 @@ import { ThemeSwitch } from "@/components/theme-switch";
 import { SearchIcon } from "@/components/icons";
 import { Logout } from "@/lib/logout";
 
-export const Navbar = ({ userDetails, session }) => {
+export const Navbar = ({ userDetails, session, settings }) => {
   const searchInput = (
     <Input
       aria-label="Search"
@@ -248,6 +249,14 @@ export const Navbar = ({ userDetails, session }) => {
         className="hidden sm:flex basis-1/5 sm:basis-full"
         justify="end"
       >
+        <NavbarItem className="hidden lg:flex">
+          <Alert
+            color="danger"
+            isVisible={settings.maintenance && userDetails.role === "admin"}
+            title="Maintenance Active"
+            variant="solid"
+          />
+        </NavbarItem>
         <NavbarItem className="hidden lg:flex">{searchInput}</NavbarItem>
 
         <Dropdown placement="bottom-end">

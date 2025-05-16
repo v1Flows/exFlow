@@ -290,7 +290,6 @@ export function AdminUsersList({ users }: any) {
           <div className="flex w-full justify-center">
             <Pagination
               showControls
-              showShadow
               page={page}
               total={pages}
               onChange={(page) => setPage(page)}

@@ -34,6 +34,15 @@ func Cancel(context *gin.Context, db *bun.DB) {
 			httperror.InternalServerError(context, "Error updating execution on db", err)
 			return
 		}
+
+		// update the pending steps to canceled
+		_, err = db.NewUpdate().Model(&models.ExecutionSteps{}).Where("execution_id = ?", executionID).Set("status = ?", "canceled").Exec(context)
+		if err != nil {
+			log.Error(err)
+			httperror.InternalServerError(context, "Error updating execution steps on db", err)
+			return
+		}
+
 	} else {
 		// get the runner api_url
 		var runner models.Runners

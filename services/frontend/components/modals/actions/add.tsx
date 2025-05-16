@@ -4,6 +4,7 @@ import { isMobile } from "react-device-detect";
 import { Icon } from "@iconify/react";
 import {
   addToast,
+  Alert,
   Button,
   Card,
   CardBody,
@@ -473,27 +474,16 @@ export default function AddActionModal({
                 <div className="flex-cols flex w-full gap-4">
                   {currentStep === 0 &&
                     (countTotalAvailableActions() === 0 ? (
-                      <div>
-                        <Card className="border border-danger">
-                          <CardBody>
-                            <p className="font-bold text-danger">
-                              😕 Seems like there are no Actions available.
-                            </p>
-                            <p className="text-default-500">
-                              Please check if you have a dedicated runner assign
-                              to your flow and if that runner exposes any
-                              actions
-                            </p>
-                          </CardBody>
-                        </Card>
-                      </div>
+                      <Alert
+                        color="danger"
+                        description="Please check if there are healthy and registered runners available for this flow."
+                        icon={<Icon icon="hugeicons:alert-02" width={25} />}
+                        title="No Actions Available"
+                        variant="solid"
+                      />
                     ) : (
                       <div className="w-full">
-                        <p className="text-lg font-bold text-default-500">
-                          Available Actions
-                        </p>
-                        <Spacer y={2} />
-                        <p className="text-sm text-default-500">Categories</p>
+                        <p className="text-md text-default-500">Categories</p>
                         <Spacer y={1} />
                         <div className="flex gap-2 overflow-x-auto">
                           {availableCategories.map((category: any) => (
@@ -520,9 +510,8 @@ export default function AddActionModal({
                         </div>
                         <Spacer y={4} />
                         <Input
-                          description="Search for an action"
-                          label="Search"
-                          size="sm"
+                          placeholder="Search..."
+                          size="md"
                           startContent={<Icon icon="hugeicons:search-01" />}
                           type="text"
                           value={search}

@@ -11,12 +11,12 @@ import FlowStats from "./stats";
 import FlowSettings from "./settings";
 
 export default function FlowTabs({
-  project,
   flow,
   executions,
   runners,
   user,
   members,
+  settings,
 }: any) {
   const [selected, setSelected] = React.useState("actions");
 
@@ -70,6 +70,7 @@ export default function FlowTabs({
               canEdit={checkUserCanEdit()}
               flow={flow}
               runners={runners}
+              settings={settings}
               user={user}
             />
           </Tab>
@@ -112,7 +113,11 @@ export default function FlowTabs({
               </div>
             }
           >
-            <FlowSettings flow={flow} project={project} user={user} />
+            <FlowSettings
+              canEdit={checkUserCanEdit()}
+              flow={flow}
+              user={user}
+            />
           </Tab>
         </Tabs>
       </div>

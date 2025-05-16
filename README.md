@@ -4,11 +4,20 @@ exFlow is a workflow automation platform like Jenkins but beautiful. This reposi
 
 ![Dashboard Image](https://github.com/v1Flows/exFlow/blob/develop/services/frontend/public/images/full_dashboard.png?raw=true)
 
+## Demo
+There is an demo of exFlow available where you can test things out and get yourself an picture of this project. <br />
+**Please do not use this for real life cases nor put any sensitive informations in there.**
+
+Use the following details: 
+- URL: [exFlow](https://exflow.org)
+- Username: Demo
+- Password: demo123
+
 ## Table of Contents
 
 - [Features](#features)
 - [Self Hosting](#self-hosting)
-- [Runner](#runner)
+- [Runners](#runners)
 - [Project Structure](#project-structure)
 - [Local Development](#local-development)
 - [Contributing](#contributing)
@@ -17,10 +26,11 @@ exFlow is a workflow automation platform like Jenkins but beautiful. This reposi
 ## Features
 
 - **Project Management**: Projects combine a number of Flows and add the option to invite members and control their access.
-- **Flows**: Create flows to design workflows / automations for your incoming alarms.
-- **Runners**: Runners execute your workflows. They can also be self-hosted and expanded with plugins.
+- **Flows**: Create flows to design workflows / automations.
+- **Failure Pipelines**: Trigger separate pipelines in case your flows fail and recover in case needed.
+- **Runners**: Runners execute your flows. They can also be self-hosted and expanded with plugins.
 - **Shared Runners**: Create runners which can be used for all projects across the platform.
-- **Scalable to your Needs**: Runners can be scaled with the Auto Join option.
+- **Scalable to your Needs**: Scale exFlow and the runners according to your workload.
 - **Team Collaboration**: Invite team members, assign roles, and manage permissions.
 - **Audit Logs**: Track changes and activities within projects and flows.
 
@@ -31,6 +41,10 @@ To run your own version of exFlow we provide various docker images available at
 - **justnz/exflow:vx.x.x** - Versioned release. Also available for the single frontend and backend images
 - **justnz/exflow:frontend-latest** - Only frontend
 - **justnz/exflow:backend-latest** - Only backend
+
+### Helm Chart
+We also offer an Helm Chart for exFlow which includes exFlow itself, an postgres and the option for project/shared runners. <br />
+Visit our [Helm Repo](https://github.com/v1Flows/helm-charts/tree/main) for more details
 
 ### Full Version
 
@@ -51,10 +65,10 @@ docker run -p 80:3000 -e NEXT_PUBLIC_API_URL=https://api-url.com justnz/exflow:f
 docker run -p 8080:8080 -v /your/config/path/config.yaml:/etc/exflow/backend_config.yaml justnz/exflow:backend-latest
 ```
 
-## Runner
-The execution engine of exFlow is the v1Flows Runner. This component provides the functionality as a workflow engine so called Executions.
+## Runners
+The execution engine of exFlow is the v1Flows Runner. This component provides the functionality as a workflow engine and will execute your flows.
 
-To create / run your own runners you require to have a fully set up exFlow instance.
+To create / run your own runners you're require to have a fully set up exFlow instance.
 
 Please see the repo [Runner](https://github.com/v1Flows/runner) for more informations.
 
@@ -95,6 +109,7 @@ To get started with the exFlow project, follow these steps:
 
     Encryption:
       Enabled: true
+      # max length 32
       Key: your-encryption-key
 
     JWT:

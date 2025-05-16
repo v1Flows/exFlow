@@ -24,7 +24,7 @@ export default async function ProjectsPage() {
         <>
           <ProjectsHeading
             settings={settings.data.settings}
-            userDetails={userDetails.data.user}
+            user={userDetails.data.user}
           />
           <Divider className="mt-4 mb-4" />
           <ProjectsList

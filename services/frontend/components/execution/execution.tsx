@@ -492,6 +492,7 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
         <div className="flex-wrap mt-2 flex items-center gap-4 lg:mt-0 lg:justify-end">
           {(execution.status === "running" ||
             execution.status === "paused" ||
+            execution.status === "pending" ||
             execution.status === "interactionWaiting") && (
             <Button
               color="danger"

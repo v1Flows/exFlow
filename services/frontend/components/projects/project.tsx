@@ -47,7 +47,8 @@ export default function Project({
           <Button
             color="warning"
             isDisabled={
-              project.disabled || !canEditProject(user.id, project.members)
+              (project.disabled || !canEditProject(user.id, project.members)) &&
+              user.role !== "admin"
             }
             startContent={<Icon icon="hugeicons:pencil-edit-02" width={20} />}
             variant="flat"
@@ -73,7 +74,7 @@ export default function Project({
             color="danger"
             description={project.disabled_reason}
             title="Project is currently disabled"
-            variant="flat"
+            variant="faded"
           />
         </div>
       )}

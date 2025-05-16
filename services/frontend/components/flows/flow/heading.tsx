@@ -15,12 +15,14 @@ export default function FlowHeading({
   project,
   user,
   folders,
+  settings,
 }: {
   flow: any;
   projects: any;
   project: any;
   user: any;
   folders: any;
+  settings: any;
 }) {
   const editFlowModal = useDisclosure();
   const scheduleExecutionModal = useDisclosure();
@@ -36,8 +38,12 @@ export default function FlowHeading({
           <div className="hidden sm:flex items-center gap-2">
             <Button
               color="secondary"
-              startContent={<Icon icon="hugeicons:time-schedule" width={18} />}
-              variant="flat"
+              isDisabled={
+                (flow.disabled || !settings.start_executions) &&
+                user.role !== "admin"
+              }
+              startContent={<Icon icon="hugeicons:time-schedule" width={20} />}
+              variant="solid"
               onPress={() => {
                 scheduleExecutionModal.onOpen();
               }}
@@ -46,7 +52,11 @@ export default function FlowHeading({
             </Button>
             <Button
               color="primary"
-              startContent={<Icon icon="solar:play-linear" width={18} />}
+              isDisabled={
+                (flow.disabled || !settings.start_executions) &&
+                user.role !== "admin"
+              }
+              startContent={<Icon icon="hugeicons:play" width={20} />}
               variant="solid"
               onPress={() => {
                 APIStartExecution(flow.id)
@@ -70,8 +80,11 @@ export default function FlowHeading({
             <Divider className="h-10 mr-1 ml-1" orientation="vertical" />
             <Button
               color="warning"
-              isDisabled={!canEditProject(user.id, project.members)}
-              startContent={<Icon icon="hugeicons:pencil-edit-02" width={18} />}
+              isDisabled={
+                (!canEditProject(user.id, project.members) || flow.disabled) &&
+                user.role !== "admin"
+              }
+              startContent={<Icon icon="hugeicons:pencil-edit-02" width={20} />}
               variant="flat"
               onPress={() => {
                 editFlowModal.onOpen();

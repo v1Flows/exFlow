@@ -19,7 +19,7 @@ func checkHangingExecutions(db *bun.DB) {
 
 	// get all executions that are not finished
 	var executions []models.Executions
-	err := db.NewSelect().Model(&executions).Where("status NOT IN ('pending', 'canceled', 'noPatternMatch', 'error', 'success', 'recovered')").Scan(context)
+	err := db.NewSelect().Model(&executions).Where("status NOT IN ('pending', 'scheduled', 'canceled', 'noPatternMatch', 'error', 'success', 'recovered')").Scan(context)
 	if err != nil {
 		log.Error("Bot: Error getting running executions. ", err)
 	}

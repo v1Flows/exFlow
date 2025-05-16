@@ -28,7 +28,6 @@ import CreateFlowModal from "@/components/modals/flows/create";
 import DeleteFlowModal from "@/components/modals/flows/delete";
 import DeleteFolderModal from "@/components/modals/folders/delete";
 import UpdateFolderModal from "@/components/modals/folders/update";
-import CreateFolderModal from "@/components/modals/folders/create";
 
 export function AdminFlowsList({ flows, folders, projects, runners }: any) {
   const router = useRouter();
@@ -190,6 +189,7 @@ export function AdminFlowsList({ flows, folders, projects, runners }: any) {
                   {flow.maintenance ? (
                     <DropdownItem
                       key="disable"
+                      isDisabled
                       color="warning"
                       startContent={
                         <Icon icon="hugeicons:wrench-01" width={20} />
@@ -205,6 +205,7 @@ export function AdminFlowsList({ flows, folders, projects, runners }: any) {
                   ) : (
                     <DropdownItem
                       key="disable"
+                      isDisabled
                       color="warning"
                       startContent={
                         <Icon icon="hugeicons:wrench-01" width={20} />
@@ -380,7 +381,6 @@ export function AdminFlowsList({ flows, folders, projects, runners }: any) {
           <div className="flex w-full justify-center">
             <Pagination
               showControls
-              showShadow
               page={flowPage}
               total={flowPages}
               onChange={(page) => setFlowPage(page)}
@@ -438,7 +438,6 @@ export function AdminFlowsList({ flows, folders, projects, runners }: any) {
           <div className="flex w-full justify-center">
             <Pagination
               showControls
-              showShadow
               page={folderPage}
               total={folderPages}
               onChange={(page) => setFolderPage(page)}
