@@ -5,7 +5,6 @@ import {
   CardBody,
   Dropdown,
   DropdownMenu,
-  DropdownSection,
   DropdownItem,
   DropdownTrigger,
   useDisclosure,
@@ -179,38 +178,33 @@ export default function FlowList({
                     </Button>
                   </DropdownTrigger>
                   <DropdownMenu variant="flat">
-                    <DropdownSection title="Actions">
-                      <DropdownItem
-                        key="edit"
-                        showDivider
-                        color="warning"
-                        startContent={
-                          <Icon icon="hugeicons:pencil-edit-02" width={18} />
-                        }
-                        onPress={() => {
-                          setTargetFolder(f);
-                          updateFolderModal.onOpen();
-                        }}
-                      >
-                        Edit
-                      </DropdownItem>
-                    </DropdownSection>
-                    <DropdownSection title="Danger Zone">
-                      <DropdownItem
-                        key="delete"
-                        className="text-danger"
-                        color="danger"
-                        startContent={
-                          <Icon icon="hugeicons:delete-02" width={18} />
-                        }
-                        onPress={() => {
-                          setTargetFolder(f);
-                          deleteFolderModal.onOpen();
-                        }}
-                      >
-                        Delete
-                      </DropdownItem>
-                    </DropdownSection>
+                    <DropdownItem
+                      key="edit"
+                      color="warning"
+                      startContent={
+                        <Icon icon="hugeicons:pencil-edit-02" width={18} />
+                      }
+                      onPress={() => {
+                        setTargetFolder(f);
+                        updateFolderModal.onOpen();
+                      }}
+                    >
+                      Edit Folder
+                    </DropdownItem>
+                    <DropdownItem
+                      key="delete"
+                      className="text-danger"
+                      color="danger"
+                      startContent={
+                        <Icon icon="hugeicons:delete-02" width={18} />
+                      }
+                      onPress={() => {
+                        setTargetFolder(f);
+                        deleteFolderModal.onOpen();
+                      }}
+                    >
+                      Delete Folder
+                    </DropdownItem>
                   </DropdownMenu>
                 </Dropdown>
               </div>
