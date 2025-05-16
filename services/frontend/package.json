@@ -19,12 +19,12 @@
     "@eslint/eslintrc": "^3.3.0",
     "@eslint/js": "^9.26.0",
     "@heroui/framer-utils": "2.1.12",
-    "@heroui/react": "2.7.6",
+    "@heroui/react": "2.7.8",
     "@heroui/system": "2.4.12",
     "@heroui/theme": "2.4.12",
     "@heroui/use-disclosure": "2.2.8",
     "@iconify/react": "^6.0.0",
-    "@internationalized/date": "^3.7.0",
+    "@internationalized/date": "^3.8.0",
     "@number-flow/react": "^0.5.7",
     "@radix-ui/react-popover": "^1.1.13",
     "@react-aria/i18n": "^3.12.7",
@@ -104,7 +104,8 @@
     "onlyBuiltDependencies": [
       "@heroui/shared-utils",
       "@tsparticles/engine",
-      "sharp"
+      "sharp",
+      "unrs-resolver"
     ]
   }
 }
