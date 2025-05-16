@@ -399,7 +399,11 @@ export default function FlowList({
                       <DropdownItem
                         key="edit"
                         color="warning"
-                        isDisabled={!canEditProject(user.id, project.members)}
+                        isDisabled={
+                          (!canEditProject(user.id, project.members) ||
+                            flow.disabled) &&
+                          user.role !== "admin"
+                        }
                         startContent={
                           <Icon icon="hugeicons:pencil-edit-02" width={18} />
                         }
@@ -414,7 +418,11 @@ export default function FlowList({
                         key="delete"
                         className="text-danger"
                         color="danger"
-                        isDisabled={!canEditProject(user.id, project.members)}
+                        isDisabled={
+                          (!canEditProject(user.id, project.members) ||
+                            flow.disabled) &&
+                          user.role !== "admin"
+                        }
                         startContent={
                           <Icon icon="hugeicons:delete-02" width={18} />
                         }

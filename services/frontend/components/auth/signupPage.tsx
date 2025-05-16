@@ -104,7 +104,7 @@ export default function SignUpPage({ settings }: any) {
       return;
     }
 
-    const res = await CheckUserTaken(email, username);
+    const res = await CheckUserTaken(null, email, username);
 
     if (res.result === "success") {
       setError(false);
