@@ -31,7 +31,14 @@ import { Logout } from "@/lib/logout";
 
 import Search from "./search/search";
 
-export const Navbar = ({ userDetails, session, settings, flows, projects }) => {
+export const Navbar = ({
+  userDetails,
+  session,
+  settings,
+  flows,
+  projects,
+  folders,
+}) => {
   async function LogoutHandler() {
     await Logout();
   }
@@ -237,7 +244,7 @@ export const Navbar = ({ userDetails, session, settings, flows, projects }) => {
           />
         </NavbarItem>
         <NavbarItem className="hidden lg:flex">
-          <Search flows={flows} projects={projects} />
+          <Search flows={flows} folders={folders} projects={projects} />
         </NavbarItem>
 
         <Dropdown placement="bottom-end">
@@ -385,7 +392,7 @@ export const Navbar = ({ userDetails, session, settings, flows, projects }) => {
       </NavbarContent>
 
       <NavbarMenu>
-        <Search flows={flows} projects={projects} />
+        <Search flows={flows} folders={folders} projects={projects} />
         <div className="mx-4 mt-2 flex flex-col gap-2">
           {siteConfig.navMenuItems.map((item, index) => (
             <NavbarMenuItem key={`${item}-${index}`}>
