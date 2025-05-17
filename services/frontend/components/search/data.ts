@@ -7,6 +7,7 @@ export enum CategoryEnum {
   COMMON = "common",
   PROJECTS = "projects",
   FLOWS = "flows",
+  FOLDERS = "folders",
 }
 
 export type Attributes = {

@@ -15,6 +15,7 @@ import Favicon from "/public/favicon.ico";
 
 import GetFlows from "@/lib/fetch/flow/all";
 import GetProjects from "@/lib/fetch/project/all";
+import GetFolders from "@/lib/fetch/folder/all";
 
 import { Providers } from "./providers";
 
@@ -75,12 +76,14 @@ export default async function RootLayout({
   const settingsData = PageGetSettings();
   const flowsData = GetFlows();
   const projectsData = GetProjects();
+  const foldersData = GetFolders();
 
-  const [userDetails, settings, flows, projects] = await Promise.all([
+  const [userDetails, settings, flows, projects, folders] = await Promise.all([
     userDetailsData,
     settingsData,
     flowsData,
     projectsData,
+    foldersData,
   ]);
 
   const c = await cookies();
@@ -101,6 +104,7 @@ export default async function RootLayout({
           <div className="relative flex h-screen flex-col">
             <Navbar
               flows={flows.success ? flows.data.flows : []}
+              folders={folders.success ? folders.data.folders : []}
               projects={projects.success ? projects.data.projects : []}
               session={session}
               settings={settings.success ? settings.data.settings : {}}

@@ -113,6 +113,7 @@ const searchData = {
   ],
   projects: [],
   flows: [],
+  folders: [],
 };
 
 export { searchData };
