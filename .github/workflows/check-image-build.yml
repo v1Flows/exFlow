@@ -6,6 +6,7 @@ on:
     branches: [ "release/**", "develop" ]
     paths-ignore:
       - '.github/**'
+      - '*.md'
 
 jobs:
   frontend:
