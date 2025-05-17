@@ -32,8 +32,17 @@ export default function AdminStepActions({
             Title: "Admin",
             Lines: [
               {
+                Content: `********** CAUTION **********`,
+                Timestamp: new Date().toISOString(),
+              },
+              {
                 Content: `Step Status changed by Admin to Pending`,
-                Color: "primary",
+                Color: "warning",
+                Timestamp: new Date().toISOString(),
+              },
+              {
+                Content: `********************`,
+                Timestamp: new Date().toISOString(),
               },
             ],
           },
@@ -50,8 +59,17 @@ export default function AdminStepActions({
             Title: "Admin",
             Lines: [
               {
+                Content: `********** CAUTION **********`,
+                Timestamp: new Date().toISOString(),
+              },
+              {
                 Content: `Step Status changed by Admin to Running`,
-                Color: "primary",
+                Color: "warning",
+                Timestamp: new Date().toISOString(),
+              },
+              {
+                Content: `********************`,
+                Timestamp: new Date().toISOString(),
               },
             ],
           },
@@ -68,8 +86,17 @@ export default function AdminStepActions({
             Title: "Admin",
             Lines: [
               {
+                Content: `********** CAUTION **********`,
+                Timestamp: new Date().toISOString(),
+              },
+              {
                 Content: `Step Status changed by Admin to Paused`,
-                Color: "primary",
+                Color: "warning",
+                Timestamp: new Date().toISOString(),
+              },
+              {
+                Content: `********************`,
+                Timestamp: new Date().toISOString(),
               },
             ],
           },
@@ -86,8 +113,17 @@ export default function AdminStepActions({
             Title: "Admin",
             Lines: [
               {
+                Content: `********** CAUTION **********`,
+                Timestamp: new Date().toISOString(),
+              },
+              {
                 Content: `Step Status changed by Admin to Canceled`,
-                Color: "primary",
+                Color: "warning",
+                Timestamp: new Date().toISOString(),
+              },
+              {
+                Content: `********************`,
+                Timestamp: new Date().toISOString(),
               },
             ],
           },
@@ -106,8 +142,17 @@ export default function AdminStepActions({
             Title: "Admin",
             Lines: [
               {
+                Content: `********** CAUTION **********`,
+                Timestamp: new Date().toISOString(),
+              },
+              {
                 Content: `Step Status changed by Admin to No Pattern Match`,
-                Color: "primary",
+                Color: "warning",
+                Timestamp: new Date().toISOString(),
+              },
+              {
+                Content: `********************`,
+                Timestamp: new Date().toISOString(),
               },
             ],
           },
@@ -124,8 +169,17 @@ export default function AdminStepActions({
             Title: "Admin",
             Lines: [
               {
+                Content: `********** CAUTION **********`,
+                Timestamp: new Date().toISOString(),
+              },
+              {
                 Content: `Step Status changed by Admin to Interaction Required`,
-                Color: "primary",
+                Color: "warning",
+                Timestamp: new Date().toISOString(),
+              },
+              {
+                Content: `********************`,
+                Timestamp: new Date().toISOString(),
               },
             ],
           },
@@ -142,8 +196,17 @@ export default function AdminStepActions({
             Title: "Admin",
             Lines: [
               {
+                Content: `********** CAUTION **********`,
+                Timestamp: new Date().toISOString(),
+              },
+              {
                 Content: `Step Status changed by Admin to Warning`,
-                Color: "primary",
+                Color: "warning",
+                Timestamp: new Date().toISOString(),
+              },
+              {
+                Content: `********************`,
+                Timestamp: new Date().toISOString(),
               },
             ],
           },
@@ -160,8 +223,17 @@ export default function AdminStepActions({
             Title: "Admin",
             Lines: [
               {
+                Content: `********** CAUTION **********`,
+                Timestamp: new Date().toISOString(),
+              },
+              {
                 Content: `Step Status changed by Admin to Error`,
-                Color: "primary",
+                Color: "warning",
+                Timestamp: new Date().toISOString(),
+              },
+              {
+                Content: `********************`,
+                Timestamp: new Date().toISOString(),
               },
             ],
           },
@@ -178,8 +250,17 @@ export default function AdminStepActions({
             Title: "Admin",
             Lines: [
               {
+                Content: `********** CAUTION **********`,
+                Timestamp: new Date().toISOString(),
+              },
+              {
                 Content: `Step Status changed by Admin to Success`,
-                Color: "primary",
+                Color: "warning",
+                Timestamp: new Date().toISOString(),
+              },
+              {
+                Content: `********************`,
+                Timestamp: new Date().toISOString(),
               },
             ],
           },

@@ -143,6 +143,7 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
         Lines: [
           {
             Content: `Step interacted by ${userDetails.username} (${userDetails.id})`,
+            Timestamp: new Date().toISOString(),
           },
         ],
       },
@@ -493,6 +494,7 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
           {(execution.status === "running" ||
             execution.status === "paused" ||
             execution.status === "pending" ||
+            execution.status === "scheduled" ||
             execution.status === "interactionWaiting") && (
             <Button
               color="danger"

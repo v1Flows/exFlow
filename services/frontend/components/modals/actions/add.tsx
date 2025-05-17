@@ -653,7 +653,7 @@ export default function AddActionModal({
                     <div className="flex flex-col w-full">
                       <p className="text-lg font-bold">Parameters</p>
                       <Spacer y={2} />
-                      <ScrollShadow className="max-h-[350px]">
+                      <ScrollShadow className="max-h-[60vh]">
                         {actionParamsCategorys.length > 0 ? (
                           <div className="flex flex-col w-full gap-2">
                             {actionParamsCategorys.map((category: any) => (
