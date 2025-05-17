@@ -143,6 +143,7 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
         Lines: [
           {
             Content: `Step interacted by ${userDetails.username} (${userDetails.id})`,
+            Timestamp: new Date().toISOString(),
           },
         ],
       },

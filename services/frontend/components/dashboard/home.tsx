@@ -147,18 +147,20 @@ export default function DashboardHome({
                     <div>
                       {executions.filter(
                         (e: any) =>
-                          (e.error || e.interaction_required) &&
+                          (e.status === "error" ||
+                            e.status === "interactionWaiting") &&
                           new Date(e.created_at).getTime() >
                             Date.now() - 24 * 60 * 60 * 1000,
                       ).length > 0 ? (
                         <div className="flex-cols flex items-center gap-1">
-                          {executions.filter((e: any) => e.interaction_required)
-                            .length > 0 && (
+                          {executions.filter(
+                            (e: any) => e.status === "interactionWaiting",
+                          ).length > 0 && (
                             <p className="text-md font-bold text-primary">
                               {
                                 executions.filter(
                                   (e: any) =>
-                                    e.interaction_required &&
+                                    e.status === "interactionWaiting" &&
                                     new Date(e.created_at).getTime() >
                                       Date.now() - 24 * 60 * 60 * 1000,
                                 ).length
@@ -166,19 +168,20 @@ export default function DashboardHome({
                               Interaction Required
                             </p>
                           )}
-                          {executions.filter((e: any) => e.error).length > 0 &&
+                          {executions.filter((e: any) => e.status === "error")
+                            .length > 0 &&
                             executions.filter(
-                              (e: any) => e.interaction_required,
+                              (e: any) => e.status === "interactionWaiting",
                             ).length > 0 && (
                               <p className="text-md font-bold">&</p>
                             )}
-                          {executions.filter((e: any) => e.error).length >
-                            0 && (
+                          {executions.filter((e: any) => e.status === "error")
+                            .length > 0 && (
                             <p className="text-md font-bold text-danger">
                               {
                                 executions.filter(
                                   (e: any) =>
-                                    e.error &&
+                                    e.status === "error" &&
                                     new Date(e.created_at).getTime() >
                                       Date.now() - 24 * 60 * 60 * 1000,
                                 ).length
@@ -202,7 +205,7 @@ export default function DashboardHome({
               {executions
                 .filter(
                   (e: any) =>
-                    e.interaction_required &&
+                    e.status === "interactionWaiting" &&
                     new Date(e.created_at).getTime() >
                       Date.now() - 24 * 60 * 60 * 1000,
                 )
@@ -250,7 +253,7 @@ export default function DashboardHome({
               {executions
                 .filter(
                   (e: any) =>
-                    e.error &&
+                    e.status === "error" &&
                     new Date(e.created_at).getTime() >
                       Date.now() - 24 * 60 * 60 * 1000,
                 )

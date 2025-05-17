@@ -371,7 +371,7 @@ export default function CopyActionModal({
                       Parameters
                     </p>
                     <Spacer y={2} />
-                    <ScrollShadow className="max-h-[350px]">
+                    <ScrollShadow className="max-h-[40vh]">
                       {actionParamsCategorys.length > 0 ? (
                         <div className="flex flex-col w-full gap-2">
                           {actionParamsCategorys.map((category: any) => (

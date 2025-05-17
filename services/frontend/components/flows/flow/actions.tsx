@@ -158,6 +158,26 @@ export default function Actions({
                         >
                           {action.active ? "Active" : "Disabled"}
                         </Chip>
+                        {flow.failure_pipeline_id !== "" ||
+                          (flow.failure_pipeline_id !== null &&
+                            !flow.failure_pipelines.some(
+                              (pipeline: any) =>
+                                pipeline.id === action.failure_pipeline_id ||
+                                (pipeline.actions !== null &&
+                                  pipeline.actions.some(
+                                    (pipelineAction: any) =>
+                                      pipelineAction.id === action.id,
+                                  )),
+                            ) && (
+                              <Chip
+                                color="warning"
+                                radius="sm"
+                                size="sm"
+                                variant="flat"
+                              >
+                                No Failure Pipeline Assigned
+                              </Chip>
+                            ))}
                       </div>
                       <p className="text-sm text-default-500">
                         {action.custom_description
@@ -321,27 +341,6 @@ export default function Actions({
                     Vers. {action.version}
                   </Chip>
                 </div>
-                {flow.failure_pipeline_id !== "" ||
-                  (flow.failure_pipeline_id !== null && (
-                    <Alert
-                      hideIconWrapper
-                      className="mt-2"
-                      color="warning"
-                      description="Action has no failure pipeline assigned"
-                      isVisible={
-                        !flow.failure_pipelines.some(
-                          (pipeline: any) =>
-                            pipeline.id === action.failure_pipeline_id ||
-                            (pipeline.actions !== null &&
-                              pipeline.actions.some(
-                                (pipelineAction: any) =>
-                                  pipelineAction.id === action.id,
-                              )),
-                        )
-                      }
-                      variant="faded"
-                    />
-                  ))}
                 {action.update_available && (
                   <Alert
                     hideIconWrapper

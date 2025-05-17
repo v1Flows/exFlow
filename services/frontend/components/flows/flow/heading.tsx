@@ -43,7 +43,7 @@ export default function FlowHeading({
                 user.role !== "admin"
               }
               startContent={<Icon icon="hugeicons:time-schedule" width={20} />}
-              variant="solid"
+              variant="flat"
               onPress={() => {
                 scheduleExecutionModal.onOpen();
               }}
