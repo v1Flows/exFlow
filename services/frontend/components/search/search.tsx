@@ -154,6 +154,7 @@ const CATEGORY_ICON_MAP = {
   [CategoryEnum.COMMON]: "hugeicons:dashboard-square-02",
   [CategoryEnum.PROJECTS]: "hugeicons:ai-folder-01",
   [CategoryEnum.FLOWS]: "hugeicons:workflow-square-10",
+  [CategoryEnum.FOLDERS]: "hugeicons:folder-01",
 };
 const CATEGORIES = [
   {
@@ -171,9 +172,14 @@ const CATEGORIES = [
     icon: CATEGORY_ICON_MAP[CategoryEnum.FLOWS],
     label: "Flows",
   },
+  {
+    key: CategoryEnum.FOLDERS,
+    icon: CATEGORY_ICON_MAP[CategoryEnum.FOLDERS],
+    label: "Folders",
+  },
 ] as const;
 
-function flattenSearchData(projects: any, flows: any) {
+function flattenSearchData(projects: any, flows: any, folders: any) {
   let flattened: SearchResultItem[] = [];
 
   Object.keys(searchData).forEach((key) => {
@@ -227,7 +233,7 @@ function flattenSearchData(projects: any, flows: any) {
         component: {
           name: flow.name,
           slug: flow.id,
-          icon: "solar:book-2-outline",
+          icon: "hugeicons:workflow-square-10",
           attributes: {
             group: flow.project_id,
             groupOrder: 1,
@@ -247,6 +253,35 @@ function flattenSearchData(projects: any, flows: any) {
     });
   }
 
+  // Include folders data
+  if (folders) {
+    folders.forEach((folder: any) => {
+      flattened.push({
+        category: CategoryEnum.FOLDERS,
+        slug: folder.name,
+        component: {
+          name: folder.name,
+          slug: folder.id,
+          icon: "hugeicons:folder-01",
+          attributes: {
+            group: folder.project_id,
+            groupOrder: 3,
+            iframe: {
+              initialHeight: 220,
+              initialMobileHeight: 220,
+            },
+          },
+        },
+        url: `/flows?folder=${folder.id}`,
+        group: {
+          key: folder.project_id,
+          name: folder.name,
+        },
+        content: folder.name,
+      });
+    });
+  }
+
   return flattened;
 }
 
@@ -255,6 +290,7 @@ function groupedSearchData(data: SearchResultItem[]) {
     [CategoryEnum.COMMON]: [] as SearchResultItem[],
     [CategoryEnum.PROJECTS]: [] as SearchResultItem[],
     [CategoryEnum.FLOWS]: [] as SearchResultItem[],
+    [CategoryEnum.FOLDERS]: [] as SearchResultItem[],
   };
 
   data.forEach((item) => {
@@ -277,9 +313,11 @@ function groupedSearchData(data: SearchResultItem[]) {
 export default function Search({
   projects,
   flows,
+  folders,
 }: {
   projects: any;
   flows: any;
+  folders: any;
 }) {
   const router = useRouter();
 
@@ -293,7 +331,7 @@ export default function Search({
   );
   const slots = useMemo(() => cmdk(), []);
   const flattenedData = useMemo(
-    () => flattenSearchData(projects, flows),
+    () => flattenSearchData(projects, flows, folders),
     [projects, flows],
   );
   const groupedData = useMemo(
