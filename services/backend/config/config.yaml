@@ -2,6 +2,8 @@
 
 LogLevel: info
 
+Port: 8080
+
 Database:
   Server: localhost
   Port: 5432
