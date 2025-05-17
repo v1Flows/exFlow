@@ -104,6 +104,8 @@ To get started with the exFlow project, follow these steps:
     ```yaml
     LogLevel: info
 
+    Port: 8080
+
     Database:
       Server: localhost
       Port: 5432
