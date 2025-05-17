@@ -8,6 +8,7 @@ import (
 
 func Init(db *bun.DB) {
 	ticker := time.NewTicker(1 * time.Minute)
+	ticker2 := time.NewTicker(10 * time.Second)
 	quit := make(chan struct{})
 
 	go func() {
@@ -19,6 +20,18 @@ func Init(db *bun.DB) {
 				checkForFlowActionUpdates(db)
 			case <-quit:
 				ticker.Stop()
+				return
+			}
+		}
+	}()
+
+	go func() {
+		for {
+			select {
+			case <-ticker2.C:
+				checkScheduledExecutions(db)
+			case <-quit:
+				ticker2.Stop()
 				return
 			}
 		}

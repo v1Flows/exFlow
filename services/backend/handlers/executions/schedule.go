@@ -45,21 +45,25 @@ func ScheduleExecution(context *gin.Context, db *bun.DB) {
 	step := shared_models.ExecutionSteps{
 		ExecutionID: execution.ID.String(),
 		Action: shared_models.Action{
-			Name: "Pick Up",
-			Icon: "hugeicons:rocket",
+			Name: "Scheduled",
+			Icon: "hugeicons:time-schedule",
 		},
 		Messages: []shared_models.Message{
 			{
-				Title: "Pick Up",
+				Title: "Scheduled",
 				Lines: []shared_models.Line{
 					{
-						Content:   "Execution is registered and waiting for runner to pick it up",
+						Content:   "Execution is registered and is waiting for the scheduled time to start",
+						Timestamp: time.Now(),
+					},
+					{
+						Content:   "Scheduled time: " + execution.ScheduledAt.Format(time.RFC3339),
 						Timestamp: time.Now(),
 					},
 				},
 			},
 		},
-		Status:    "running",
+		Status:    "paused",
 		CreatedAt: time.Now(),
 		StartedAt: time.Now(),
 	}

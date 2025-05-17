@@ -494,6 +494,7 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
           {(execution.status === "running" ||
             execution.status === "paused" ||
             execution.status === "pending" ||
+            execution.status === "scheduled" ||
             execution.status === "interactionWaiting") && (
             <Button
               color="danger"
