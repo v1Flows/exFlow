@@ -21,8 +21,8 @@ Use the following details:
 
 - [Features](#features)
 - [Self Hosting](#self-hosting)
-    - [Helm Chart](#helm-chart)
     - [Docker Compose](#docker-compose)
+    - [Helm Chart](#helm-chart)
     - [Docker run](#docker-run)
 - [Runners](#runners)
 - [Project Structure](#project-structure)
