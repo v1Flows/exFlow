@@ -95,40 +95,12 @@ export default function WelcomeModal({
                     <span className="font-semibold text-primary">exFlow</span>!
                     We&apos;re thrilled to have you on board.
                   </p>
-                  <p className="text-md text-center">
-                    Click on the{" "}
-                    <span className="font-bold">&quot;Documentation&quot;</span>{" "}
-                    button below to dive in and learn how to make the most out
-                    of{" "}
-                    <span className="font-semibold text-primary">
-                      AlertFlow
-                    </span>
-                    .
-                  </p>
-                  <p className="text-md text-center">
-                    Or explore it on your own by clicking the{" "}
-                    <span className="font-bold">&quot;Understood&quot;</span>{" "}
-                    button.
-                  </p>
-
                   <p className="text-sm text-default-500">
                     This dialog will not be shown to you again.
                   </p>
                 </div>
               </ModalBody>
               <ModalFooter>
-                <Button
-                  color="default"
-                  variant="bordered"
-                  onPress={() => {
-                    handleSetWelcomed();
-                    router.push("/docs");
-                    onClose();
-                  }}
-                >
-                  <LibraryIcon />
-                  Documentation
-                </Button>
                 <Button
                   color="primary"
                   variant="solid"
