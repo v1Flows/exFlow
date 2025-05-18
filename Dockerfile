@@ -28,7 +28,8 @@ WORKDIR /app
 # Install necessary packages
 RUN apk update && apk add --no-cache \
     ca-certificates \
-    tini
+    tini \
+    postgresql-client
 
 # Create user and group
 RUN addgroup --system --gid 1001 nodejs \
