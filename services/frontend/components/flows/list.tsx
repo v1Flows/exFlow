@@ -468,9 +468,9 @@ export default function FlowList({
       <DeleteFolderModal disclosure={deleteFolderModal} folder={targetFolder} />
       <EditFlowModal
         disclosure={editFlowModal}
-        flow={targetFlow}
         folders={folders}
         projects={projects}
+        targetFlow={targetFlow}
       />
       <DeleteFlowModal disclosure={deleteFlowModal} flow={targetFlow} />
     </main>

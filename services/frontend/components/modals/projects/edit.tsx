@@ -22,6 +22,7 @@ import {
 import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 import { ColorPicker, useColor } from "react-color-palette";
+import tinycolor from "tinycolor2";
 
 import UpdateProject from "@/lib/fetch/project/PUT/UpdateProject";
 import ErrorCard from "@/components/error/ErrorCard";
@@ -38,25 +39,32 @@ export default function EditProjectModal({
   const { isOpen, onOpenChange } = disclosure;
   const [icons, setIcons] = React.useState<string[]>([]);
 
-  const [color, setColor] = useColor(project.color ? project.color : "#5213d7");
-  const [projectIcon, setProjectIcon] = React.useState(project.icon);
-  const [name, setName] = React.useState(project.name);
-  const [description, setDescription] = React.useState(project.description);
-  const [sharedRunners, setSharedRunners] = React.useState(
-    project.shared_runners,
-  );
+  const [color, setColor] = useColor("");
+  const [projectIcon, setProjectIcon] = React.useState("");
+  const [name, setName] = React.useState("");
+  const [description, setDescription] = React.useState("");
+  const [sharedRunners, setSharedRunners] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState(false);
   const [errorText, setErrorText] = React.useState("");
   const [errorMessage, setErrorMessage] = React.useState("");
 
   useEffect(() => {
+    if (project === undefined) return;
+
     loadAllHugeIcons();
-    setProjectIcon(project.icon);
     setName(project.name);
     setDescription(project.description);
+    setProjectIcon(project.icon);
+    const colorObj = tinycolor(project.color);
+
+    setColor({
+      hex: colorObj.toHexString(),
+      rgb: colorObj.toRgb(),
+      hsv: colorObj.toHsv(),
+    });
     setSharedRunners(project.shared_runners);
-  }, [disclosure.isOpen, project]);
+  }, [disclosure.isOpen]);
 
   async function loadAllHugeIcons() {
     await loadIcons(["hugeicons:home-01", "hugeicons:ai-folder-02"]);
