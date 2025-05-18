@@ -53,3 +53,4 @@ jobs:
           skipIfReleaseExists: true
           generateReleaseNotes: true
           token: ${{ secrets.ACCESS_TOKEN }}
+          bodyFile: release-notes.md
