@@ -41,6 +41,9 @@ Use the following details:
 ## Self Hosting
 To run your own version of exFlow we provide various docker images available at 
 [Docker Hub](https://hub.docker.com/repository/docker/justnz/exflow/general).
+
+**!CAUTION! Currently exFlow requires an separately hosted PostgreSQL Database to connect to. So if you are not using the Helm Chart keep in mind to also create an PostgreSQL instance.**
+
 - **justnz/exflow:latest** - Full version including frontend and backend
 - **justnz/exflow:vx.x.x** - Versioned release. Also available for the single frontend and backend images
 - **justnz/exflow:frontend-latest** - Only frontend
@@ -56,6 +59,11 @@ Config example: [config.yaml](https://github.com/v1Flows/exFlow/blob/main/servic
 
 ```sh
 docker run -p 80:3000 -v /your/config/path/config.yaml:/etc/exflow/backend_config.yaml justnz/exflow:latest
+```
+
+If your Database runs on the same machine like exFlow and you set `Server: localhost` in the backend config - please use the following command if you run into database connection issues:
+```sh
+docker run -p 80:3000 --net=host -v /your/config/path/config.yaml:/etc/exflow/backend_config.yaml justnz/exflow:latest
 ```
 
 ### Frontend Only
@@ -102,22 +110,26 @@ To get started with the exFlow project, follow these steps:
 
 3. Create a [config.yaml](https://github.com/v1Flows/exFlow/blob/main/services/backend/config/config.yaml) file and add the necessary configuration:
     ```yaml
-    LogLevel: info
+    ---
 
-    Database:
-      Server: localhost
-      Port: 5432
-      Name: postgres
-      User: postgres
-      Password: postgres
+    log_level: info
 
-    Encryption:
-      Enabled: true
-      # max length 32
-      Key: your-encryption-key
+    port: 8080
 
-    JWT:
-      Secret: your-jwt-secret
+    database:
+      server: localhost
+      port: 5432
+      name: postgres
+      user: postgres
+      password: postgres
+
+    encryption:
+      enabled: true
+      # maximum 32 characters
+      key: null
+
+    jwt:
+      secret: null
     ```
 
 4. Build and run the backend server:

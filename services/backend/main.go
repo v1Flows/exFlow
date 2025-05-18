@@ -12,7 +12,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const version string = "1.0.1"
+const version string = "1.1.0"
 
 var (
 	configFile = kingpin.Flag("config", "Config file").Short('c').Default("config.yaml").String()
@@ -42,15 +42,23 @@ func main() {
 	log.Info("Starting exFlow API. Version: ", version)
 
 	log.Info("Loading Config File: ", *configFile)
-	config, err := config.ReadConfig(*configFile)
+	err := config.GetInstance().LoadConfig(*configFile)
 	if err != nil {
-		log.Fatal("Error loading config file: ", err)
+		panic(err)
 	}
 
-	logging(config.LogLevel)
+	cfg := config.Config
+	log.Info("Config loaded successfully")
 
-	database := database.StartPostgres(config.Database.Server, config.Database.Port, config.Database.User, config.Database.Password, config.Database.Name)
+	log.Info(cfg.LogLevel)
 
-	go background_checks.Init(database)
-	router.StartRouter(database, config.Port)
+	logging(cfg.LogLevel)
+
+	db := database.StartDatabase(cfg.Database.Driver, cfg.Database.Server, cfg.Database.Port, cfg.Database.User, cfg.Database.Password, cfg.Database.Name)
+	if db == nil {
+		log.Fatal("Failed to connect to the database")
+	}
+
+	go background_checks.Init(db)
+	router.StartRouter(db, cfg.Port)
 }

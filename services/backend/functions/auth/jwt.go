@@ -1,18 +1,19 @@
 package auth
 
 import (
-	"github.com/v1Flows/exFlow/services/backend/config"
-	"github.com/v1Flows/exFlow/services/backend/pkg/models"
 	"errors"
 	"time"
+
+	"github.com/v1Flows/exFlow/services/backend/config"
+	"github.com/v1Flows/exFlow/services/backend/pkg/models"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
 
-var jwtKey = []byte(config.Config.JWT.Secret)
-
 func ValidateToken(signedToken string) (err error) {
+	var jwtKey = []byte(config.Config.JWT.Secret)
+
 	token, err := jwt.ParseWithClaims(
 		signedToken,
 		&models.JWTClaim{},
@@ -36,6 +37,8 @@ func ValidateToken(signedToken string) (err error) {
 }
 
 func GetTypeFromToken(signedToken string) (tokenType string, err error) {
+	var jwtKey = []byte(config.Config.JWT.Secret)
+
 	token, err := jwt.ParseWithClaims(
 		signedToken,
 		&models.JWTClaim{},
@@ -56,6 +59,8 @@ func GetTypeFromToken(signedToken string) (tokenType string, err error) {
 }
 
 func GetIDFromToken(signedToken string) (tokenID string, err error) {
+	var jwtKey = []byte(config.Config.JWT.Secret)
+
 	token, err := jwt.ParseWithClaims(
 		signedToken,
 		&models.JWTClaim{},
@@ -76,6 +81,8 @@ func GetIDFromToken(signedToken string) (tokenID string, err error) {
 }
 
 func GetProjectIDFromToken(signedToken string) (tokenType string, err error) {
+	var jwtKey = []byte(config.Config.JWT.Secret)
+
 	token, err := jwt.ParseWithClaims(
 		signedToken,
 		&models.JWTProjectRunnerClaim{},
@@ -96,6 +103,8 @@ func GetProjectIDFromToken(signedToken string) (tokenType string, err error) {
 }
 
 func GetUserIDFromToken(signedToken string) (id uuid.UUID, err error) {
+	var jwtKey = []byte(config.Config.JWT.Secret)
+
 	token, err := jwt.ParseWithClaims(
 		signedToken,
 		&models.JWTClaim{},
@@ -116,6 +125,8 @@ func GetUserIDFromToken(signedToken string) (id uuid.UUID, err error) {
 }
 
 func GetRunnerDataFromToken(signedToken string) (runnerID string, projectID string, runnerType string, err error) {
+	var jwtKey = []byte(config.Config.JWT.Secret)
+
 	token, err := jwt.ParseWithClaims(
 		signedToken,
 		&models.JWTProjectRunnerClaim{},
@@ -138,6 +149,8 @@ func GetRunnerDataFromToken(signedToken string) (runnerID string, projectID stri
 }
 
 func RefreshToken(signedToken string) (newToken string, ExpiresAt int64, err error) {
+	var jwtKey = []byte(config.Config.JWT.Secret)
+
 	token, err := jwt.ParseWithClaims(
 		signedToken,
 		&models.JWTClaim{},

@@ -25,12 +25,12 @@ import UpdateFlow from "@/lib/fetch/flow/PUT/UpdateFlow";
 import ErrorCard from "@/components/error/ErrorCard";
 
 export default function EditFlowModal({
-  flow,
+  targetFlow,
   projects,
   disclosure,
   folders,
 }: {
-  flow: any;
+  targetFlow: any;
   projects: any;
   folders: any;
   disclosure: UseDisclosureReturn;
@@ -40,15 +40,12 @@ export default function EditFlowModal({
   // create modal
   const { isOpen, onOpenChange, onClose } = disclosure;
 
-  const [name, setName] = React.useState(flow.name);
-  const [description, setDescription] = React.useState(flow.description);
-  const [projectId, setProjectId] = React.useState(flow.project_id);
-  const [folderId, setFolderId] = React.useState(flow.folder_id);
-  const [runnerId, setRunnerId] = React.useState(flow.runner_id);
-  // limit on runner?
-  const [runnerLimit, setRunnerLimit] = React.useState(
-    flow.runner_id !== "any",
-  );
+  const [name, setName] = React.useState("");
+  const [description, setDescription] = React.useState("");
+  const [projectId, setProjectId] = React.useState("");
+  const [folderId, setFolderId] = React.useState("");
+  const [runnerId, setRunnerId] = React.useState("");
+  const [runnerLimit, setRunnerLimit] = React.useState(false);
 
   // loading
   const [isLoading, setIsLoading] = React.useState(false);
@@ -67,17 +64,19 @@ export default function EditFlowModal({
   };
 
   useEffect(() => {
+    if (targetFlow === undefined) return;
+
     getCurrentProjectRunners();
-    setName(flow.name);
-    setDescription(flow.description);
-    setProjectId(flow.project_id);
-    setRunnerId(flow.runner_id);
-    setFolderId(flow.folder_id);
-    setRunnerLimit(flow.runner_id !== "any");
-  }, [disclosure.isOpen, flow]);
+    setName(targetFlow.name);
+    setDescription(targetFlow.description);
+    setProjectId(targetFlow.project_id);
+    setRunnerId(targetFlow.runner_id);
+    setFolderId(targetFlow.folder_id);
+    setRunnerLimit(targetFlow.runner_id !== "any");
+  }, [disclosure.isOpen]);
 
   async function getCurrentProjectRunners() {
-    const runners = await GetProjectRunners(flow.project_id);
+    const runners = await GetProjectRunners(targetFlow.project_id);
 
     setRunners(runners.success ? runners.data.runners : []);
   }
@@ -98,16 +97,16 @@ export default function EditFlowModal({
     setIsLoading(true);
 
     const response = (await UpdateFlow(
-      flow.id,
+      targetFlow.id,
       name,
       description,
       projectId,
       folderId,
       runnerLimit ? runnerId : "any",
-      flow.encrypt_executions,
-      flow.encrypt_action_params,
-      flow.exec_parallel,
-      flow.failure_pipeline_id,
+      targetFlow.encrypt_executions,
+      targetFlow.encrypt_action_params,
+      targetFlow.exec_parallel,
+      targetFlow.failure_pipeline_id,
     )) as any;
 
     if (!response) {

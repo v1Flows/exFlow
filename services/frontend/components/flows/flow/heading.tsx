@@ -146,9 +146,9 @@ export default function FlowHeading({
       <ScheduleExecutionModal disclosure={scheduleExecutionModal} flow={flow} />
       <EditFlowModal
         disclosure={editFlowModal}
-        flow={flow}
         folders={folders}
         projects={projects}
+        targetFlow={flow}
       />
     </main>
   );

@@ -485,9 +485,9 @@ export function AdminFlowsList({ flows, folders, projects, runners }: any) {
       />
       <EditFlowModal
         disclosure={editModal}
-        flow={targetFlow}
         folders={folders}
         projects={projects}
+        targetFlow={targetFlow}
       />
       <ChangeFlowStatusModal
         disclosure={changeStatusModal}

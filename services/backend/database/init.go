@@ -12,12 +12,16 @@ import (
 	"github.com/uptrace/bun/extra/bunotel"
 	"github.com/uptrace/bun/migrate"
 
+	_ "github.com/mattn/go-sqlite3"
+
 	"github.com/v1Flows/exFlow/services/backend/database/migrations"
 
 	log "github.com/sirupsen/logrus"
 )
 
 func StartPostgres(dbServer string, dbPort int, dbUser string, dbPass string, dbName string) *bun.DB {
+	log.Info("Connecting to PostgreSQL database...")
+
 	pgconn := pgdriver.NewConnector(
 		pgdriver.WithAddr(dbServer+":"+strconv.Itoa(dbPort)),
 		pgdriver.WithUser(dbUser),
@@ -54,6 +58,8 @@ func StartPostgres(dbServer string, dbPort int, dbUser string, dbPass string, db
 		log.Fatal(err)
 	}
 
+	log.Info("Database connected successfully")
+
 	if group.ID == 0 {
 		log.Info("No migrations to run.")
 	} else {
@@ -63,4 +69,15 @@ func StartPostgres(dbServer string, dbPort int, dbUser string, dbPass string, db
 	createDefaultSettings(db)
 
 	return db
+}
+
+func StartDatabase(dbDriver string, dbServer string, dbPort int, dbUser, dbPass, dbName string) *bun.DB {
+	log.Info("Starting database connection...")
+	switch dbDriver {
+	case "postgres":
+		return StartPostgres(dbServer, dbPort, dbUser, dbPass, dbName)
+	default:
+		log.Fatalf("Unsupported database type: %s", dbDriver)
+		return nil
+	}
 }
