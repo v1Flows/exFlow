@@ -6,6 +6,7 @@ import {
   Button,
   Card,
   CardBody,
+  Chip,
   Divider,
   Dropdown,
   DropdownItem,
@@ -252,9 +253,21 @@ export default function RunnersList({
                     <CardBody className="p-5">
                       <div className="flex justify-between items-start">
                         <div>
-                          <h3 className="text-lg font-semibold">
-                            {runner.name}
-                          </h3>
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-lg font-semibold">
+                              {runner.name}
+                            </h3>
+                            {!runner.auto_runner && (
+                              <Chip
+                                color="primary"
+                                radius="sm"
+                                size="sm"
+                                variant="flat"
+                              >
+                                Persistent
+                              </Chip>
+                            )}
+                          </div>
                           <p className="text-small text-default-500 mt-1">
                             ID: {runner.id}
                           </p>
