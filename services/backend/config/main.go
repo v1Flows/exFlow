@@ -66,9 +66,29 @@ func (cm *ConfigurationManager) LoadConfig(configFile string) error {
 
 	// Set up Viper
 	cm.viper.SetConfigFile(configFile)
-	cm.viper.SetEnvPrefix("RUNNER")
+	cm.viper.SetEnvPrefix("BACKEND")
 	cm.viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	cm.viper.AutomaticEnv()
+
+	// Bind specific environment variables
+	envBindings := map[string]string{
+		"log_level":          "BACKEND_LOG_LEVEL",
+		"port":               "BACKEND_PORT",
+		"database.server":    "BACKEND_DATABASE_SERVER",
+		"database.port":      "BACKEND_DATABASE_PORT",
+		"database.name":      "BACKEND_DATABASE_NAME",
+		"database.user":      "BACKEND_DATABASE_USER",
+		"database.password":  "BACKEND_DATABASE_PASSWORD",
+		"encryption.enabled": "BACKEND_ENCRYPTION_ENABLED",
+		"encryption.key":     "BACKEND_ENCRYPTION_KEY",
+		"jwt.secret":         "BACKEND_JWT_SECRET",
+	}
+
+	for configKey, envVar := range envBindings {
+		if err := cm.viper.BindEnv(configKey, envVar); err != nil {
+			return fmt.Errorf("failed to bind env var %s: %w", envVar, err)
+		}
+	}
 
 	// Read configuration file
 	if err := cm.viper.ReadInConfig(); err != nil {
@@ -109,6 +129,21 @@ func (cm *ConfigurationManager) setDefaults(config *RestfulConf) {
 	}
 	if config.Database.Driver == "" {
 		config.Database.Driver = "postgres"
+	}
+	if config.Database.Server == "" {
+		config.Database.Server = "localhost"
+	}
+	if config.Database.Port == 0 {
+		config.Database.Port = 5432
+	}
+	if config.Database.Name == "" {
+		config.Database.Name = "postgres"
+	}
+	if config.Database.User == "" {
+		config.Database.User = "postgres"
+	}
+	if config.Database.Password == "" {
+		config.Database.Password = "postgres"
 	}
 }
 
