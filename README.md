@@ -21,6 +21,9 @@ Use the following details:
 
 - [Features](#features)
 - [Self Hosting](#self-hosting)
+    - [Helm Chart](#helm-chart)
+    - [Docker Compose](#docker-compose)
+    - [Docker run](#docker-run)
 - [Runners](#runners)
 - [Project Structure](#project-structure)
 - [Local Development](#local-development)
@@ -42,18 +45,22 @@ Use the following details:
 To run your own version of exFlow we provide various docker images available at 
 [Docker Hub](https://hub.docker.com/repository/docker/justnz/exflow/general).
 
-**!CAUTION! Currently exFlow requires an separately hosted PostgreSQL Database to connect to. So if you are not using the Helm Chart keep in mind to also create an PostgreSQL instance.**
+**!CAUTION! exFlow requires an separately hosted PostgreSQL Database to connect to. There is no built-in database in the full version exFlow image.**
 
 - **justnz/exflow:latest** - Full version including frontend and backend
 - **justnz/exflow:vx.x.x** - Versioned release. Also available for the single frontend and backend images
 - **justnz/exflow:frontend-latest** - Only frontend
 - **justnz/exflow:backend-latest** - Only backend
 
+### Docker Compose
+Use our [docker-compose.yaml](https://github.com/v1Flows/exFlow/blob/develop/docker-compose.yaml) to get started with exFlow. This contains an postgres database and the full version image of exFlow.
+
 ### Helm Chart
 We also offer an Helm Chart for exFlow which includes exFlow itself, an postgres and the option for project/shared runners. <br />
 Visit our [Helm Repo](https://github.com/v1Flows/helm-charts/tree/main) for more details
 
-### Full Version
+### Docker run
+#### Full Version
 
 Config example: [config.yaml](https://github.com/v1Flows/exFlow/blob/main/services/backend/config/config.yaml)
 
@@ -61,18 +68,13 @@ Config example: [config.yaml](https://github.com/v1Flows/exFlow/blob/main/servic
 docker run -p 80:3000 -v /your/config/path/config.yaml:/etc/exflow/backend_config.yaml justnz/exflow:latest
 ```
 
-If your Database runs on the same machine like exFlow and you set `Server: localhost` in the backend config - please use the following command if you run into database connection issues:
-```sh
-docker run -p 80:3000 --net=host -v /your/config/path/config.yaml:/etc/exflow/backend_config.yaml justnz/exflow:latest
-```
-
-### Frontend Only
+#### Frontend Only
 If you want to run only the frontend of exFlow, please provide the backend endpoint via the below env flag.
 ```sh
 docker run -p 80:3000 -e NEXT_PUBLIC_API_URL=https://api-url.com justnz/exflow:frontend-latest
 ```
 
-### Backend Only
+#### Backend Only
 ```sh
 docker run -p 8080:8080 -v /your/config/path/config.yaml:/etc/exflow/backend_config.yaml justnz/exflow:backend-latest
 ```
@@ -80,9 +82,9 @@ docker run -p 8080:8080 -v /your/config/path/config.yaml:/etc/exflow/backend_con
 ## Runners
 The execution engine of exFlow is the v1Flows Runner. This component provides the functionality as a workflow engine and will execute your flows.
 
-To create / run your own runners you're require to have a fully set up exFlow instance.
+exFlow can only run flows when at least one runner is connected. After you created your exFlow instance either create an project and add an persistent/auto runner or as an admin visit the admin runner page.
 
-Please see the repo [Runner](https://github.com/v1Flows/runner) for more informations.
+Please see the [Runner](https://github.com/v1Flows/runner) Repo for more informations.
 
 ## Project Structure
 
