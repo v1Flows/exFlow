@@ -151,6 +151,7 @@ export default function Actions({
                           Vers. {action.version}
                         </Chip>
                         <Chip
+                          className="max-lg:hidden"
                           color={action.active ? "success" : "danger"}
                           radius="sm"
                           size="sm"
@@ -170,6 +171,7 @@ export default function Actions({
                                   )),
                             ) && (
                               <Chip
+                                className="max-lg:hidden"
                                 color="warning"
                                 radius="sm"
                                 size="sm"
@@ -324,6 +326,15 @@ export default function Actions({
                 <div className="flex-wrap flex gap-2">
                   <Chip
                     className="lg:hidden"
+                    color={action.active ? "success" : "danger"}
+                    radius="sm"
+                    size="sm"
+                    variant="flat"
+                  >
+                    {action.active ? "Active" : "Disabled"}
+                  </Chip>
+                  <Chip
+                    className="lg:hidden"
                     color="default"
                     radius="sm"
                     size="sm"
@@ -340,6 +351,27 @@ export default function Actions({
                   >
                     Vers. {action.version}
                   </Chip>
+                  {flow.failure_pipeline_id !== "" ||
+                    (flow.failure_pipeline_id !== null &&
+                      !flow.failure_pipelines.some(
+                        (pipeline: any) =>
+                          pipeline.id === action.failure_pipeline_id ||
+                          (pipeline.actions !== null &&
+                            pipeline.actions.some(
+                              (pipelineAction: any) =>
+                                pipelineAction.id === action.id,
+                            )),
+                      ) && (
+                        <Chip
+                          className="lg:hidden"
+                          color="warning"
+                          radius="sm"
+                          size="sm"
+                          variant="flat"
+                        >
+                          No Failure Pipeline Assigned
+                        </Chip>
+                      ))}
                 </div>
                 {action.update_available && (
                   <Alert
