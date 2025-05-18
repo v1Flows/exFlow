@@ -110,24 +110,26 @@ To get started with the exFlow project, follow these steps:
 
 3. Create a [config.yaml](https://github.com/v1Flows/exFlow/blob/main/services/backend/config/config.yaml) file and add the necessary configuration:
     ```yaml
-    LogLevel: info
+    ---
 
-    Port: 8080
+    log_level: info
 
-    Database:
-      Server: localhost
-      Port: 5432
-      Name: postgres
-      User: postgres
-      Password: postgres
+    port: 8080
 
-    Encryption:
-      Enabled: true
-      # max length 32
-      Key: your-encryption-key
+    database:
+      server: localhost
+      port: 5432
+      name: postgres
+      user: postgres
+      password: postgres
 
-    JWT:
-      Secret: your-jwt-secret
+    encryption:
+      enabled: true
+      # maximum 32 characters
+      key: null
+
+    jwt:
+      secret: null
     ```
 
 4. Build and run the backend server:
