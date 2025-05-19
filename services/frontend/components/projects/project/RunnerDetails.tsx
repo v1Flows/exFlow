@@ -15,6 +15,7 @@ import { Icon } from "@iconify/react";
 import CreateRunnerModal from "@/components/modals/runner/create";
 import UpdateProject from "@/lib/fetch/project/PUT/UpdateProject";
 import canEditProject from "@/lib/functions/canEditProject";
+import RotateAutoJoinTokenModal from "@/components/modals/projects/rotateAutoJoinToken";
 
 export default function ProjectRunnerDetails({
   project,
@@ -28,6 +29,7 @@ export default function ProjectRunnerDetails({
   const router = useRouter();
 
   const addRunnerModal = useDisclosure();
+  const rotateAutoJoinTokenModal = useDisclosure();
 
   const [sharedRunners, setSharedRunners] = useState(project.shared_runners);
   const [autoJoin, setAutoJoin] = useState(project.enable_auto_runners);
@@ -187,16 +189,30 @@ export default function ProjectRunnerDetails({
               </p>
             </div>
             <Spacer y={2} />
-            <Button
-              color="primary"
-              isDisabled={project.disabled && user.role !== "admin"}
-              size="sm"
-              variant="flat"
-              onPress={copyJoinToken}
-            >
-              <Icon icon="hugeicons:copy-02" width={18} />
-              Copy Token
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                color="primary"
+                isDisabled={project.disabled && user.role !== "admin"}
+                size="sm"
+                variant="flat"
+                onPress={copyJoinToken}
+              >
+                <Icon icon="hugeicons:copy-02" width={18} />
+                Copy Token
+              </Button>
+              <Tooltip content="Rotate Token">
+                <Button
+                  isIconOnly
+                  color="warning"
+                  isDisabled={project.disabled && user.role !== "admin"}
+                  size="sm"
+                  variant="flat"
+                  onPress={rotateAutoJoinTokenModal.onOpen}
+                >
+                  <Icon icon="hugeicons:rotate-clockwise" width={18} />
+                </Button>
+              </Tooltip>
+            </div>
           </CardBody>
         </Card>
 
@@ -231,6 +247,10 @@ export default function ProjectRunnerDetails({
         disclosure={addRunnerModal}
         project={project}
         shared_runner={false}
+      />
+      <RotateAutoJoinTokenModal
+        disclosure={rotateAutoJoinTokenModal}
+        projectID={project.id}
       />
     </>
   );
