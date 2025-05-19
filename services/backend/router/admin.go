@@ -70,6 +70,11 @@ func Admin(router *gin.RouterGroup, db *bun.DB) {
 			admins.DeleteToken(c, db)
 		})
 
+		// auto-join-token
+		admin.PUT("/auto-join-token/rotate", func(c *gin.Context) {
+			admins.RotateAutoJoinToken(c, db)
+		})
+
 		// projects
 		admin.PUT("/projects/:projectID/status", func(c *gin.Context) {
 			admins.ChangeProjectStatus(c, db)

@@ -53,6 +53,11 @@ func Projects(router *gin.RouterGroup, db *bun.DB) {
 			projects.DeleteToken(c, db)
 		})
 
+		// auto-join-token
+		project.PUT("/:projectID/auto-join-token/rotate", func(c *gin.Context) {
+			projects.RotateAutoJoinToken(c, db)
+		})
+
 		// project members
 		project.POST("/:projectID/member", func(c *gin.Context) {
 			projects.AddProjectMember(c, db)

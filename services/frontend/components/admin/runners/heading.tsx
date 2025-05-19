@@ -5,9 +5,11 @@ import { Icon } from "@iconify/react";
 
 import CreateProjectModal from "@/components/modals/projects/create";
 import Reloader from "@/components/reloader/Reloader";
+import RotateSharedAutoJoinTokenModal from "@/components/modals/admin/rotateSharedAutoJoinToken";
 
 export default function AdminRunnersHeading({ settings }: any) {
   const newProjectModal = useDisclosure();
+  const rotateSharedAutoJoinTokenModal = useDisclosure();
 
   const copyToken = () => {
     navigator.clipboard.writeText(settings.shared_runner_auto_join_token);
@@ -35,6 +37,16 @@ export default function AdminRunnersHeading({ settings }: any) {
             >
               Copy Shared Runner Token
             </Button>
+            <Button
+              color="warning"
+              startContent={
+                <Icon icon="hugeicons:rotate-clockwise" width={18} />
+              }
+              variant="flat"
+              onPress={rotateSharedAutoJoinTokenModal.onOpen}
+            >
+              Rotate Shared Runner Token
+            </Button>
           </div>
 
           <div className="flex sm:hidden gap-2">
@@ -52,6 +64,9 @@ export default function AdminRunnersHeading({ settings }: any) {
         </div>
       </div>
       <CreateProjectModal disclosure={newProjectModal} />
+      <RotateSharedAutoJoinTokenModal
+        disclosure={rotateSharedAutoJoinTokenModal}
+      />
     </main>
   );
 }
