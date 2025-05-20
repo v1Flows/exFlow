@@ -3,6 +3,7 @@ import {
   Button,
   Card,
   CardBody,
+  NumberInput,
   Select,
   SelectItem,
   Spacer,
@@ -36,6 +37,12 @@ export default function FlowSettings({
   const [encryptActionParams, setEncryptActionParams] = useState(
     flow.encrypt_action_params,
   );
+  const [scheduleEveryValue, setScheduleEveryValue] = useState(
+    flow.schedule_every_value,
+  );
+  const [scheduleEveryUnit, setScheduleEveryUnit] = useState(
+    flow.schedule_every_unit,
+  );
 
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -52,6 +59,8 @@ export default function FlowSettings({
       encryptActionParams,
       execParallel,
       failurePipelineID,
+      scheduleEveryValue,
+      scheduleEveryUnit,
     )) as any;
 
     if (!response) {
@@ -155,6 +164,51 @@ export default function FlowSettings({
                       <SelectItem key={pipeline.id}>{pipeline.name}</SelectItem>
                     ))}
                   </Select>
+                </div>
+              </CardBody>
+            </Card>
+          </div>
+        </div>
+        <div>
+          <p className="text-lg font-bold mb-2">Executions</p>
+          <div className="grid grid-cols-1 gap-4">
+            <Card>
+              <CardBody>
+                <div className="flex flex-cols items-center justify-between gap-8">
+                  <div>
+                    <p className="text-md font-bold">Schedule Every</p>
+                    <p className="text-sm text-default-500">
+                      Schedule the flow to run every X minutes/hours/days.{" "}
+                      <br />
+                      The system will always schedule two executions at the
+                      time. The second one will be scheduled base on the
+                      scheduled time of the first one.
+                      <br />
+                      <span className="font-bold text-warning">
+                        Enter 0 to disable the schedule.
+                      </span>
+                    </p>
+                  </div>
+                  <div className="flex flex-cols w-1/2 gap-2">
+                    <NumberInput
+                      defaultValue={scheduleEveryValue}
+                      minValue={0}
+                      placeholder="Enter a number"
+                      onValueChange={setScheduleEveryValue}
+                    />
+                    <Select
+                      label="Select an unit"
+                      selectedKeys={[scheduleEveryUnit]}
+                      onSelectionChange={(e) => {
+                        setScheduleEveryUnit(e.currentKey);
+                      }}
+                    >
+                      <SelectItem key="minutes">Minutes</SelectItem>
+                      <SelectItem key="hours">Hours</SelectItem>
+                      <SelectItem key="days">Days</SelectItem>
+                      <SelectItem key="weeks">Weeks</SelectItem>
+                    </Select>
+                  </div>
                 </div>
               </CardBody>
             </Card>

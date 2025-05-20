@@ -108,6 +108,8 @@ export default function EditFlowModal({
       targetFlow.encrypt_action_params,
       targetFlow.exec_parallel,
       targetFlow.failure_pipeline_id,
+      targetFlow.schedule_every_value,
+      targetFlow.schedule_every_unit,
     )) as any;
 
     if (!response) {

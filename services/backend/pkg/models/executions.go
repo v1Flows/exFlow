@@ -10,4 +10,5 @@ type Executions struct {
 	shared_models.Executions
 
 	ScheduledAt time.Time `bun:"scheduled_at,type:timestamptz" json:"scheduled_at"`
+	TriggeredBy string    `bun:"triggered_by,type:text,default:'user'" json:"triggered_by"`
 }

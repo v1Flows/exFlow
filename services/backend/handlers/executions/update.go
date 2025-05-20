@@ -19,7 +19,7 @@ func Update(context *gin.Context, db *bun.DB) {
 		return
 	}
 
-	_, err := db.NewUpdate().Model(&execution).Where("id = ?", executionID).ExcludeColumn("scheduled_at", "last_heartbeat").Exec(context)
+	_, err := db.NewUpdate().Model(&execution).Where("id = ?", executionID).ExcludeColumn("scheduled_at", "last_heartbeat", "triggered_by").Exec(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error updating execution data on db", err)
 		return
