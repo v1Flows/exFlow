@@ -11,6 +11,7 @@ import FlowStats from "./stats";
 import FlowSettings from "./settings";
 
 export default function FlowTabs({
+  flows,
   flow,
   executions,
   runners,
@@ -69,6 +70,7 @@ export default function FlowTabs({
             <Actions
               canEdit={checkUserCanEdit()}
               flow={flow}
+              flows={flows}
               runners={runners}
               settings={settings}
               user={user}
