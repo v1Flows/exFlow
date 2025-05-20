@@ -33,6 +33,7 @@ services:
       # BACKEND_ENCRYPTION_ENABLED: "true"
       # BACKEND_ENCRYPTION_KEY: "change-me"
       # BACKEND_JWT_SECRET: "change-me"
+    entrypoint: ["/bin/sh", "-c", "until pg_isready -h db -p 5432 -U postgres; do sleep 1; done; exec ./exflow-backend --config /etc/exflow/backend_config.yaml & exec node /app/server.js"]
 
 volumes:
   db_data:
