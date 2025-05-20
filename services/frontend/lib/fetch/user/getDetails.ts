@@ -3,7 +3,7 @@
 import { cookies } from "next/headers";
 
 type UserDetails = {
-  user: object;
+  user: any;
 };
 
 type ErrorResponse = {

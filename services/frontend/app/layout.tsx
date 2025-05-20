@@ -72,6 +72,9 @@ export default async function RootLayout({
 }: {
   children: ReactNode;
 }) {
+  const cookieStore = await cookies();
+  const sessionCookie = cookieStore.get("session");
+
   const userDetailsData = GetUserDetails();
   const settingsData = PageGetSettings();
   const flowsData = GetFlows();
@@ -102,14 +105,16 @@ export default async function RootLayout({
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
           <div className="relative flex h-screen flex-col">
-            <Navbar
-              flows={flows.success ? flows.data.flows : []}
-              folders={folders.success ? folders.data.folders : []}
-              projects={projects.success ? projects.data.projects : []}
-              session={session}
-              settings={settings.success ? settings.data.settings : {}}
-              userDetails={userDetails.success ? userDetails.data.user : {}}
-            />
+            {sessionCookie && (
+              <Navbar
+                flows={flows.success ? flows.data.flows : []}
+                folders={folders.success ? folders.data.folders : []}
+                projects={projects.success ? projects.data.projects : []}
+                session={session}
+                settings={settings.success ? settings.data.settings : {}}
+                userDetails={userDetails.success ? userDetails.data.user : {}}
+              />
+            )}
             <main className="pt-4 px-6 flex-grow">{children}</main>
             <Footer />
           </div>
