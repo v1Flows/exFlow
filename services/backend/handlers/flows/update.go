@@ -71,11 +71,17 @@ func UpdateFlow(context *gin.Context, db *bun.DB) {
 	if flow.RunnerID != flowDB.RunnerID {
 		columns = append(columns, "runner_id")
 	}
-	if flow.EncryptActionParams || !flow.EncryptActionParams {
+	if flow.EncryptActionParams != flowDB.EncryptActionParams {
 		columns = append(columns, "encrypt_action_params")
 	}
-	if flow.EncryptExecutions || !flow.EncryptExecutions {
+	if flow.EncryptExecutions != flowDB.EncryptExecutions {
 		columns = append(columns, "encrypt_executions")
+	}
+	if flow.ScheduleEveryValue != flowDB.ScheduleEveryValue {
+		columns = append(columns, "schedule_every_value")
+	}
+	if flow.ScheduleEveryUnit != flowDB.ScheduleEveryUnit {
+		columns = append(columns, "schedule_every_unit")
 	}
 	columns = append(columns, "exec_parallel")
 	columns = append(columns, "failure_pipeline_id")

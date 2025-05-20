@@ -35,6 +35,7 @@ func ScheduleExecution(context *gin.Context, db *bun.DB) {
 
 	execution.CreatedAt = time.Now()
 	execution.Status = "scheduled"
+	execution.TriggeredBy = "user"
 	_, err := db.NewInsert().Model(&execution).Exec(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error creating execution on db", err)

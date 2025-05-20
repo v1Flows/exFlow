@@ -31,6 +31,7 @@ func StartExecution(context *gin.Context, db *bun.DB) {
 	execution.ID = uuid.New()
 	execution.CreatedAt = time.Now()
 	execution.Status = "pending"
+	execution.TriggeredBy = "user"
 	_, err := db.NewInsert().Model(&execution).Exec(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error creating execution on db", err)

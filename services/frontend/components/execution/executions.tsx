@@ -5,6 +5,7 @@ import {
   Button,
   Card,
   CardBody,
+  Chip,
   Pagination,
   Snippet,
   Table,
@@ -174,6 +175,12 @@ export default function Executions({
             </div>
           </div>
         );
+      case "triggered_by":
+        return (
+          <Chip className="capitalize" radius="sm" size="sm" variant="flat">
+            {cellValue}
+          </Chip>
+        );
       case "runner_id":
         return runners.find((runner: any) => runner.id === cellValue)?.name ? (
           <span>
@@ -189,10 +196,10 @@ export default function Executions({
           <Tooltip content={new Date(cellValue).toLocaleString()}>
             {cellValue > new Date().toISOString() ? (
               <span className="text-secondary font-bold">
-                <ReactTimeago date={new Date(cellValue)} locale="de-DE" />
+                <ReactTimeago live date={new Date(cellValue)} />
               </span>
             ) : (
-              <ReactTimeago live date={new Date(cellValue)} locale="de-DE" />
+              <ReactTimeago live date={new Date(cellValue)} />
             )}
           </Tooltip>
         ) : (
@@ -358,6 +365,9 @@ export default function Executions({
         <TableHeader>
           <TableColumn key="status" align="start">
             Status
+          </TableColumn>
+          <TableColumn key="triggered_by" align="center">
+            Triggered By
           </TableColumn>
           <TableColumn key="runner_id" align="center">
             Runner
