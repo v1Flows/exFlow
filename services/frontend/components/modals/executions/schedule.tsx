@@ -130,14 +130,19 @@ export default function ScheduleExecutionModal({
                   />
                 </div>
               </ModalBody>
-              <ModalFooter className="grid grid-cols-2">
-                <Button color="default" variant="ghost" onPress={onClose}>
+              <ModalFooter>
+                <Button
+                  color="default"
+                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
+                  variant="ghost"
+                  onPress={onClose}
+                >
                   Cancel
                 </Button>
                 <Button
                   color="secondary"
                   isLoading={isScheduleLoading}
-                  variant="flat"
+                  variant="solid"
                   onPress={scheduleExecution}
                 >
                   <Icon icon="hugeicons:time-schedule" width={18} />

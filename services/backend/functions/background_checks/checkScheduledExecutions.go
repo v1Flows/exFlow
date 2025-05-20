@@ -15,7 +15,7 @@ import (
 func checkScheduledExecutions(db *bun.DB) {
 	context := context.Background()
 
-	log.Info("Bot: Checking for scheduled executions")
+	log.Info("Bot: Checking for scheduled executions to start...")
 
 	// get all executions that reached the scheduled time
 	var executions []models.Executions

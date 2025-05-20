@@ -181,12 +181,13 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
                   <DropdownMenu aria-label="Project actions" variant="flat">
                     <DropdownItem
                       key="copy"
+                      showDivider
                       startContent={
                         <Icon icon="hugeicons:copy-01" width={18} />
                       }
                       onPress={() => copyProjectIDtoClipboard(project.id)}
                     >
-                      Copy Project ID
+                      Copy ID
                     </DropdownItem>
                     <DropdownItem
                       key="edit"
@@ -204,7 +205,7 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
                         editProjectModal.onOpen();
                       }}
                     >
-                      Edit Project
+                      Edit
                     </DropdownItem>
                     <DropdownItem
                       key="delete"
@@ -223,7 +224,7 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
                         deleteProjectModal.onOpen();
                       }}
                     >
-                      Delete Project
+                      Delete
                     </DropdownItem>
                   </DropdownMenu>
                 </Dropdown>

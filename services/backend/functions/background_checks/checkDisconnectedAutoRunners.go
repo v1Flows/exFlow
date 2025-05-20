@@ -17,7 +17,7 @@ func checkDisconnectedAutoRunners(db *bun.DB) {
 
 	// get all executions that are not finished
 	var runners []models.Runners
-	err := db.NewSelect().Model(&runners).Where("last_heartbeat < NOW() - INTERVAL '5 minutes'").Scan(context)
+	err := db.NewSelect().Model(&runners).Where("last_heartbeat < NOW() - INTERVAL '5 minutes' and auto_runner = ?", true).Scan(context)
 	if err != nil {
 		log.Error("Bot: Error getting running runners. ", err)
 	}

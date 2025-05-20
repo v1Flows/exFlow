@@ -17,28 +17,35 @@ type SuccessResponse = {
   data: Result;
 };
 
-export default async function UpdateFlow(
-  id: string,
+export default async function CopyFlow(
   name: string,
   description: string,
-  projectID: string,
-  folderID: string,
-  runnerID: string,
+  folderId: string,
+  projectId: string,
+  runnerId: string,
   encryptExecutions: boolean,
   encryptActionParams: boolean,
-  execParallel: boolean,
+  actions: any,
+  failurePipelines: any,
   failurePipelineID: string,
-  scheduleEveryValue: number,
-  scheduleEveryUnit: string,
+  execParallel: boolean,
 ): Promise<SuccessResponse | ErrorResponse> {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get("session");
 
+    if (!token) {
+      return {
+        success: false,
+        error: "Authentication token not found",
+        message: "User is not authenticated",
+      };
+    }
+
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/flows/${id}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/flows/`,
       {
-        method: "PUT",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: token.value,
@@ -46,15 +53,15 @@ export default async function UpdateFlow(
         body: JSON.stringify({
           name,
           description,
-          project_id: projectID,
-          runner_id: runnerID,
-          folder_id: folderID,
+          folder_id: folderId,
+          project_id: projectId,
+          runner_id: runnerId,
           encrypt_executions: encryptExecutions,
           encrypt_action_params: encryptActionParams,
           exec_parallel: execParallel,
+          actions: actions,
+          failure_pipelines: failurePipelines,
           failure_pipeline_id: failurePipelineID,
-          schedule_every_value: scheduleEveryValue,
-          schedule_every_unit: scheduleEveryUnit,
         }),
       },
     );
@@ -79,7 +86,7 @@ export default async function UpdateFlow(
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error occurred",
-      message: "Failed to update flow",
+      message: "Failed to copy flow",
     };
   }
 }

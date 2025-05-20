@@ -15,6 +15,7 @@ import {
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { Icon } from "@iconify/react";
 
 import EditProjectMember from "@/lib/fetch/project/PUT/editProjectMember";
 import ErrorCard from "@/components/error/ErrorCard";
@@ -104,7 +105,7 @@ export default function EditProjectMemberModal({
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-wrap items-center">
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col">
                   <p className="text-lg font-bold">Edit Member</p>
                   <p className="text-sm text-default-500">
                     Change the role of the member by selecting it below
@@ -128,6 +129,7 @@ export default function EditProjectMemberModal({
                     key="Owner"
                     className="text-danger"
                     color="danger"
+                    variant="flat"
                   >
                     Owner
                   </SelectItem>
@@ -135,23 +137,34 @@ export default function EditProjectMemberModal({
                     key="Editor"
                     className="text-primary"
                     color="primary"
+                    variant="flat"
                   >
                     Editor
                   </SelectItem>
-                  <SelectItem key="Viewer">Viewer</SelectItem>
+                  <SelectItem key="Viewer" variant="flat">
+                    Viewer
+                  </SelectItem>
                 </Select>
               </ModalBody>
-              <ModalFooter className="grid grid-cols-2">
-                <Button color="default" variant="ghost" onPress={onClose}>
+              <ModalFooter>
+                <Button
+                  color="default"
+                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
+                  variant="ghost"
+                  onPress={onClose}
+                >
                   Cancel
                 </Button>
                 <Button
                   color="warning"
                   isLoading={isLoginLoading}
-                  variant="flat"
+                  startContent={
+                    <Icon icon="hugeicons:floppy-disk" width={18} />
+                  }
+                  variant="solid"
                   onPress={handleUpdateUser}
                 >
-                  Update Member
+                  Save Changes
                 </Button>
               </ModalFooter>
             </>

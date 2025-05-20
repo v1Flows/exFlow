@@ -1,3 +1,5 @@
+"use client";
+
 import type { UseDisclosureReturn } from "@heroui/use-disclosure";
 
 import {
@@ -8,103 +10,98 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
-  Snippet,
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { Icon } from "@iconify/react";
 
-import DeleteExecution from "@/lib/fetch/executions/DELETE/delete";
 import ErrorCard from "@/components/error/ErrorCard";
+import RotateAutoJoinToken from "@/lib/fetch/project/PUT/RotateAutoJoinToken";
 
-export default function DeleteExecutionModal({
+export default function RotateAutoJoinTokenModal({
   disclosure,
-  execution,
+  projectID,
 }: {
   disclosure: UseDisclosureReturn;
-  execution: any;
+  projectID: any;
 }) {
   const router = useRouter();
-
   const { isOpen, onOpenChange } = disclosure;
 
-  const [isDeleteLoading, setIsDeleteLoading] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState(false);
   const [errorText, setErrorText] = React.useState("");
   const [errorMessage, setErrorMessage] = React.useState("");
 
-  async function deleteExecution() {
-    setIsDeleteLoading(true);
-    const res = (await DeleteExecution(execution.id)) as any;
+  async function handleRotateToken() {
+    setIsLoading(true);
 
-    if (!res) {
+    const response = (await RotateAutoJoinToken(projectID)) as any;
+
+    if (!response) {
+      setIsLoading(false);
       setError(true);
-      setErrorText("Failed to delete execution");
-      setErrorMessage("Failed to delete execution");
-      setIsDeleteLoading(false);
+      setErrorText("Failed to rotate token");
+      setErrorMessage("Failed to rotate token");
+      addToast({
+        title: "Token",
+        description: "Failed to rotate token",
+        color: "danger",
+        variant: "flat",
+      });
 
       return;
     }
 
-    if (res.success) {
-      onOpenChange();
+    if (response.success) {
+      setIsLoading(false);
       setError(false);
       setErrorText("");
       setErrorMessage("");
+      router.refresh();
+      onOpenChange();
       addToast({
-        title: "Flow",
-        description: "Execution deleted successfully",
+        title: "Token",
+        description: "Token rotated successfully",
         color: "success",
         variant: "flat",
       });
-      router.refresh();
     } else {
       setError(true);
-      setErrorText(res.error);
-      setErrorMessage(res.message);
-      setIsDeleteLoading(false);
+      setErrorText(response.error);
+      setErrorMessage(response.message);
+      setIsLoading(false);
       addToast({
-        title: "Flow",
-        description: "Failed to delete execution",
+        title: "Token",
+        description: "Failed to rotate token",
         color: "danger",
         variant: "flat",
       });
     }
-
-    setIsDeleteLoading(false);
   }
 
   return (
-    <main>
-      <Modal
-        backdrop="blur"
-        isOpen={isOpen}
-        placement="center"
-        onOpenChange={onOpenChange}
-      >
-        <ModalContent className="w-full">
+    <>
+      <Modal isOpen={isOpen} placement="center" onOpenChange={onOpenChange}>
+        <ModalContent>
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-wrap items-center">
                 <div className="flex flex-col">
                   <p className="text-lg font-bold">Are you sure?</p>
                   <p className="text-sm text-default-500">
-                    You are about to delete the following execution which{" "}
-                    <span className="font-bold">cannot be undone</span>
+                    After rotating the auto-join token, all existing runners
+                    using this token will be unable to join the project. You
+                    will need to update the runners with the new token to allow
+                    them to join again.
                   </p>
                 </div>
               </ModalHeader>
-              <ModalBody>
-                {error && (
+              {error && (
+                <ModalBody>
                   <ErrorCard error={errorText} message={errorMessage} />
-                )}
-                <Snippet hideCopyButton hideSymbol>
-                  <span>
-                    ID:
-                    {execution.id}
-                  </span>
-                </Snippet>
-              </ModalBody>
+                </ModalBody>
+              )}
               <ModalFooter>
                 <Button
                   color="default"
@@ -115,19 +112,20 @@ export default function DeleteExecutionModal({
                   Cancel
                 </Button>
                 <Button
-                  color="danger"
-                  isLoading={isDeleteLoading}
-                  startContent={<Icon icon="hugeicons:delete-02" width={18} />}
-                  variant="solid"
-                  onPress={deleteExecution}
+                  color="warning"
+                  isLoading={isLoading}
+                  startContent={
+                    <Icon icon="hugeicons:rotate-clockwise" width={18} />
+                  }
+                  onPress={handleRotateToken}
                 >
-                  Delete
+                  Rotate
                 </Button>
               </ModalFooter>
             </>
           )}
         </ModalContent>
       </Modal>
-    </main>
+    </>
   );
 }

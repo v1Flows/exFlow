@@ -16,20 +16,22 @@ import {
   Switch,
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
 
 import GetProjectRunners from "@/lib/fetch/project/runners";
-import CreateFlow from "@/lib/fetch/flow/POST/CreateFlow";
 import ErrorCard from "@/components/error/ErrorCard";
+import CopyFlow from "@/lib/fetch/flow/POST/CopyFlow";
 
 import RowSteps from "../../steps/row-steps";
 
-export default function CreateFlowModal({
+export default function CopyFlowModal({
+  flow,
   folders,
   projects,
   disclosure,
 }: {
+  flow: any;
   folders: any;
   projects: any;
   disclosure: UseDisclosureReturn;
@@ -71,6 +73,19 @@ export default function CreateFlowModal({
   // runner select list
   const [runners, setRunners] = useState([]);
 
+  useEffect(() => {
+    if (flow) {
+      setName(flow.name);
+      setDescription(flow.description);
+      setProjectId(flow.project_id);
+      setFolderId(flow.folder_id);
+      setRunnerId(flow.runner_id);
+      setRunnerLimit(flow.runner_id !== "any");
+      setEncryptExecutions(flow.encrypt_executions);
+      setEncryptActionParameters(flow.encrypt_action_params);
+    }
+  }, [disclosure.isOpen]);
+
   const projectSelected = async (e: any) => {
     setProjectId(e.currentKey);
     setRunnerId("");
@@ -87,10 +102,10 @@ export default function CreateFlowModal({
     setRunnerId(e.currentKey);
   };
 
-  async function createFlow() {
+  async function copyFlow() {
     setIsLoading(true);
 
-    const response = (await CreateFlow(
+    const response = (await CopyFlow(
       name,
       description,
       folderId,
@@ -98,12 +113,16 @@ export default function CreateFlowModal({
       runnerLimit ? runnerId : "any",
       encryptExecutions,
       encryptActionParameters,
+      flow.actions,
+      flow.failure_pipelines,
+      flow.failure_pipeline_id,
+      flow.exec_parallel,
     )) as any;
 
     if (!response) {
       setError(true);
-      setErrorText("Failed to create flow");
-      setErrorMessage("Failed to create flow");
+      setErrorText("Failed to copy flow");
+      setErrorMessage("Failed to copy flow");
       setIsLoading(false);
 
       return;
@@ -125,7 +144,7 @@ export default function CreateFlowModal({
       setDisableNext(false);
       addToast({
         title: "Flow",
-        description: "Flow created successfully",
+        description: "Flow copied successfully",
         color: "success",
         variant: "flat",
       });
@@ -135,7 +154,7 @@ export default function CreateFlowModal({
       setErrorMessage(response.message);
       addToast({
         title: "Flow",
-        description: "Failed to create flow",
+        description: "Failed to copy flow",
         color: "danger",
         variant: "flat",
       });
@@ -168,10 +187,9 @@ export default function CreateFlowModal({
             <>
               <ModalHeader className="flex flex-col items-start">
                 <div className="flex flex-col">
-                  <p className="text-lg font-bold">Create new Flow</p>
+                  <p className="text-lg font-bold">Copy existing Flow</p>
                   <p className="text-sm text-default-500">
-                    Flows are the entrypoint for incoming alerts. You define
-                    actions and can view ongoing and completed executions.
+                    Copy an existing flow to a new one.
                   </p>
                 </div>
               </ModalHeader>
@@ -249,7 +267,7 @@ export default function CreateFlowModal({
                       <Select
                         label="Runner"
                         selectedKeys={[runnerId]}
-                        variant="flat"
+                        variant="bordered"
                         onSelectionChange={handleSelectRunner}
                       >
                         {runners
@@ -334,12 +352,10 @@ export default function CreateFlowModal({
                   <Button
                     color="primary"
                     isLoading={isLoading}
-                    startContent={
-                      <Icon icon="hugeicons:plus-sign" width={18} />
-                    }
-                    onPress={createFlow}
+                    startContent={<Icon icon="hugeicons:copy-02" width={18} />}
+                    onPress={copyFlow}
                   >
-                    Create Flow
+                    Copy Flow
                   </Button>
                 ) : (
                   <Button

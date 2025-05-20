@@ -19,6 +19,7 @@ import {
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
+import { Icon } from "@iconify/react";
 
 import GetProjectRunners from "@/lib/fetch/project/runners";
 import UpdateFlow from "@/lib/fetch/flow/PUT/UpdateFlow";
@@ -107,6 +108,8 @@ export default function EditFlowModal({
       targetFlow.encrypt_action_params,
       targetFlow.exec_parallel,
       targetFlow.failure_pipeline_id,
+      targetFlow.schedule_every_value,
+      targetFlow.schedule_every_unit,
     )) as any;
 
     if (!response) {
@@ -154,7 +157,7 @@ export default function EditFlowModal({
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-wrap items-center">
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col">
                   <p className="text-lg font-bold">Edit Flow</p>
                   <p className="text-sm text-default-500">
                     Edit the flow details below and click apply changes to save.
@@ -171,7 +174,7 @@ export default function EditFlowModal({
                   placeholder="Enter the flow name"
                   type="name"
                   value={name}
-                  variant="bordered"
+                  variant="flat"
                   onValueChange={setName}
                 />
                 <Input
@@ -180,7 +183,7 @@ export default function EditFlowModal({
                   placeholder="Enter the flow description"
                   type="description"
                   value={description}
-                  variant="bordered"
+                  variant="flat"
                   onValueChange={setDescription}
                 />
                 <Select
@@ -188,7 +191,7 @@ export default function EditFlowModal({
                   label="Project"
                   placeholder="Select the project to assign the flow to"
                   selectedKeys={[projectId]}
-                  variant="bordered"
+                  variant="flat"
                   onSelectionChange={projectSelected}
                 >
                   {projects.map((project: any) => (
@@ -199,7 +202,7 @@ export default function EditFlowModal({
                   label="Folder"
                   placeholder="Select the folder to assign the flow to"
                   selectedKeys={[folderId]}
-                  variant="bordered"
+                  variant="flat"
                   onSelectionChange={folderSelected}
                 >
                   <SelectItem key="none">None</SelectItem>
@@ -242,7 +245,7 @@ export default function EditFlowModal({
                     label="Runner"
                     placeholder="All Actions will be executed on this runner"
                     selectedKeys={[runnerId]}
-                    variant="bordered"
+                    variant="flat"
                     onSelectionChange={handleSelectRunner}
                   >
                     {runners
@@ -254,13 +257,20 @@ export default function EditFlowModal({
                 )}
               </ModalBody>
               <ModalFooter>
-                <Button variant="ghost" onPress={onClose}>
+                <Button
+                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
+                  variant="ghost"
+                  onPress={onClose}
+                >
                   Cancel
                 </Button>
                 <Button
                   color="warning"
                   isLoading={isLoading}
-                  variant="flat"
+                  startContent={
+                    <Icon icon="hugeicons:floppy-disk" width={18} />
+                  }
+                  variant="solid"
                   onPress={editFlow}
                 >
                   Save Changes

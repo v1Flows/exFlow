@@ -263,9 +263,11 @@ export const Navbar = ({
               <p className="font-semibold">Signed in as</p>
               <p className="font-semibold">
                 {userDetails.username}
-                {" | "}
                 {userDetails.role === "admin" && (
-                  <span className="text-danger font-bold">Admin</span>
+                  <span>
+                    {" "}
+                    | <span className="text-danger font-bold"> Admin</span>
+                  </span>
                 )}
               </p>
             </DropdownItem>

@@ -155,12 +155,7 @@ export default function ProjectMembers({ project, settings, user }: any) {
             color="danger"
             isDisabled={project.disabled}
             isIconOnly={isMobile}
-            startContent={
-              <Icon
-                icon="hugeicons:arrow-data-transfer-horizontal"
-                width={18}
-              />
-            }
+            startContent={<Icon icon="hugeicons:self-transfer" width={20} />}
             variant="flat"
             onPress={() => transferOwnershipModal.onOpen()}
           >
