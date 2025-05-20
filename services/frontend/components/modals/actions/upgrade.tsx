@@ -835,13 +835,21 @@ export default function UpgradeActionModal({
                 </div>
               </ModalBody>
               <ModalFooter>
-                <Button color="default" variant="ghost" onPress={cancel}>
+                <Button
+                  color="default"
+                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
+                  variant="ghost"
+                  onPress={cancel}
+                >
                   Cancel
                 </Button>
                 <Button
                   color="primary"
                   isLoading={isLoading}
-                  variant="flat"
+                  startContent={
+                    <Icon icon="hugeicons:system-update-01" width={18} />
+                  }
+                  variant="solid"
                   onPress={
                     isFailurePipeline
                       ? updateFlowFailurePipelineAction

@@ -14,6 +14,7 @@ import {
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { Icon } from "@iconify/react";
 
 import ErrorCard from "@/components/error/ErrorCard";
 import UpdateFlowFailurePipeline from "@/lib/fetch/flow/PUT/UpdateFailurePipeline";
@@ -134,7 +135,7 @@ export default function EditFailurePipelineModal({
                     label="Name"
                     type="name"
                     value={failurePipeline.name}
-                    variant="bordered"
+                    variant="flat"
                     onValueChange={(value) => {
                       setFailurePipeline({
                         ...failurePipeline,
@@ -148,7 +149,7 @@ export default function EditFailurePipelineModal({
                     selectedKeys={[
                       failurePipeline.exec_parallel ? "parallel" : "sequential",
                     ]}
-                    variant="bordered"
+                    variant="flat"
                     onSelectionChange={execStrategySelected}
                   >
                     <SelectItem key="sequential">Sequential</SelectItem>
@@ -157,16 +158,24 @@ export default function EditFailurePipelineModal({
                 </div>
               </ModalBody>
               <ModalFooter>
-                <Button color="default" variant="ghost" onPress={cancel}>
+                <Button
+                  color="default"
+                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
+                  variant="ghost"
+                  onPress={cancel}
+                >
                   Cancel
                 </Button>
                 <Button
                   color="warning"
                   isLoading={isLoading}
-                  variant="flat"
+                  startContent={
+                    <Icon icon="hugeicons:floppy-disk" width={18} />
+                  }
+                  variant="solid"
                   onPress={updateFailurePipeline}
                 >
-                  Update Failure Pipeline
+                  Save Changes
                 </Button>
               </ModalFooter>
             </>

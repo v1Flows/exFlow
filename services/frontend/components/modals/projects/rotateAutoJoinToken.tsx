@@ -87,7 +87,7 @@ export default function RotateAutoJoinTokenModal({
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-wrap items-center">
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col">
                   <p className="text-lg font-bold">Are you sure?</p>
                   <p className="text-sm text-default-500">
                     After rotating the auto-join token, all existing runners
@@ -102,7 +102,7 @@ export default function RotateAutoJoinTokenModal({
                   <ErrorCard error={errorText} message={errorMessage} />
                 </ModalBody>
               )}
-              <ModalFooter className="grid grid-cols-2">
+              <ModalFooter>
                 <Button
                   color="default"
                   startContent={<Icon icon="hugeicons:cancel-01" width={18} />}

@@ -516,20 +516,28 @@ export default function EditActionModal({
                 </div>
               </ModalBody>
               <ModalFooter>
-                <Button color="default" variant="ghost" onPress={cancel}>
+                <Button
+                  color="default"
+                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
+                  variant="ghost"
+                  onPress={cancel}
+                >
                   Cancel
                 </Button>
                 <Button
                   color="warning"
                   isLoading={isLoading}
-                  variant="flat"
+                  startContent={
+                    <Icon icon="hugeicons:floppy-disk" width={18} />
+                  }
+                  variant="solid"
                   onPress={
                     isFailurePipeline
                       ? updateFlowFailurePipelineAction
                       : updateFlowAction
                   }
                 >
-                  Update Action
+                  Save Changes
                 </Button>
               </ModalFooter>
             </>

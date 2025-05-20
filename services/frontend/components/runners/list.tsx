@@ -299,7 +299,7 @@ export default function RunnersList({
                                     changeRunnerStatusModal.onOpen();
                                   }}
                                 >
-                                  Enable Runner
+                                  Enable
                                 </DropdownItem>
                               ) : (
                                 <DropdownItem
@@ -314,7 +314,7 @@ export default function RunnersList({
                                     changeRunnerStatusModal.onOpen();
                                   }}
                                 >
-                                  Disable Runner
+                                  Disable
                                 </DropdownItem>
                               )}
                               <DropdownItem
@@ -331,7 +331,7 @@ export default function RunnersList({
                                   editRunnerModal.onOpen();
                                 }}
                               >
-                                Edit Runner
+                                Edit
                               </DropdownItem>
                               <DropdownItem
                                 key="delete"
@@ -345,7 +345,7 @@ export default function RunnersList({
                                   deleteRunnerModal.onOpen();
                                 }}
                               >
-                                Delete Runner
+                                Delete
                               </DropdownItem>
                             </DropdownMenu>
                           </Dropdown>

@@ -13,6 +13,7 @@ import {
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { Icon } from "@iconify/react";
 
 import LeaveProject from "@/lib/fetch/project/DELETE/leave";
 import ErrorCard from "@/components/error/ErrorCard";
@@ -88,7 +89,7 @@ export default function LeaveProjectModal({
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-wrap items-center">
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col">
                   <p className="text-lg font-bold">Are you sure?</p>
                   <p className="text-sm text-default-500">
                     You will lose all access to this project. You can always
@@ -101,13 +102,21 @@ export default function LeaveProjectModal({
                   <ErrorCard error={errorText} message={errorMessage} />
                 )}
               </ModalBody>
-              <ModalFooter className="grid grid-cols-2">
-                <Button color="default" variant="ghost" onPress={onClose}>
+              <ModalFooter>
+                <Button
+                  color="default"
+                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
+                  variant="ghost"
+                  onPress={onClose}
+                >
                   Cancel
                 </Button>
                 <Button
                   color="danger"
                   isLoading={isLeaveLoading}
+                  startContent={
+                    <Icon icon="hugeicons:self-transfer" width={18} />
+                  }
                   onPress={handleLeaveProject}
                 >
                   Leave Project

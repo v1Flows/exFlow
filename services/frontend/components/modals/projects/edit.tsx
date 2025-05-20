@@ -142,10 +142,10 @@ export default function EditProjectModal({
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-wrap items-center">
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col">
                   <p className="text-lg font-bold">Edit Project</p>
                   <p className="text-sm text-default-500">
-                    Edit the project details below and click apply changes to
+                    Edit the project details below and click Save Changes to
                     save.
                   </p>
                 </div>
@@ -160,7 +160,7 @@ export default function EditProjectModal({
                     name="name"
                     placeholder="Enter the project name"
                     value={name}
-                    variant="bordered"
+                    variant="flat"
                     onValueChange={setName}
                   />
                   <Input
@@ -168,7 +168,7 @@ export default function EditProjectModal({
                     name="description"
                     placeholder="Enter the project description"
                     value={description}
-                    variant="bordered"
+                    variant="flat"
                     onValueChange={setDescription}
                   />
                 </div>
@@ -194,7 +194,7 @@ export default function EditProjectModal({
                   onValueChange={setSharedRunners}
                 >
                   <div className="flex flex-col gap-1">
-                    <p className="text-medium">Enable shared Runners</p>
+                    <p className="text-medium">Enable Shared Runners</p>
                     <p className="text-tiny text-default-400">
                       Enable or disable shared runners.
                     </p>
@@ -234,14 +234,22 @@ export default function EditProjectModal({
                 </div>
                 <ColorPicker hideInput color={color} onChange={setColor} />
               </ModalBody>
-              <ModalFooter className="grid grid-cols-2">
-                <Button color="default" variant="ghost" onPress={onClose}>
+              <ModalFooter>
+                <Button
+                  color="default"
+                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
+                  variant="ghost"
+                  onPress={onClose}
+                >
                   Cancel
                 </Button>
                 <Button
                   color="warning"
                   isLoading={isLoading}
-                  variant="flat"
+                  startContent={
+                    <Icon icon="hugeicons:floppy-disk" width={18} />
+                  }
+                  variant="solid"
                   onPress={updateProject}
                 >
                   Save Changes

@@ -14,6 +14,7 @@ import {
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import React from "react";
+import { Icon } from "@iconify/react";
 
 import ErrorCard from "@/components/error/ErrorCard";
 import CreateProjectToken from "@/lib/fetch/project/POST/CreateProjectToken";
@@ -84,7 +85,7 @@ export default function CreateProjectTokenModal({
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-wrap items-center">
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col">
                   <p className="text-lg font-bold">Create Project Token</p>
                   <p className="text-sm text-default-500">
                     Create a new token for your project.
@@ -115,12 +116,18 @@ export default function CreateProjectTokenModal({
                 />
               </ModalBody>
               <ModalFooter>
-                <Button color="default" variant="ghost" onPress={onClose}>
-                  Discard
+                <Button
+                  color="default"
+                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
+                  variant="ghost"
+                  onPress={onClose}
+                >
+                  Cancel
                 </Button>
                 <Button
                   color="primary"
                   isLoading={isLoading}
+                  startContent={<Icon icon="hugeicons:plus-sign" width={18} />}
                   onPress={handleCreateToken}
                 >
                   Create

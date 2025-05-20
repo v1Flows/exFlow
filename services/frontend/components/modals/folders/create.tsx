@@ -16,6 +16,7 @@ import {
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import React from "react";
+import { Icon } from "@iconify/react";
 
 import ErrorCard from "@/components/error/ErrorCard";
 import CreateFolder from "@/lib/fetch/folder/POST/create";
@@ -159,12 +160,18 @@ export default function CreateFolderModal({
                 </Select>
               </ModalBody>
               <ModalFooter>
-                <Button color="default" variant="ghost" onPress={onClose}>
+                <Button
+                  color="default"
+                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
+                  variant="ghost"
+                  onPress={onClose}
+                >
                   Cancel
                 </Button>
                 <Button
                   color="primary"
                   isLoading={isLoading}
+                  startContent={<Icon icon="hugeicons:plus-sign" width={18} />}
                   onPress={createFolder}
                 >
                   Create

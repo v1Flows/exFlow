@@ -23,6 +23,7 @@ import {
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { Icon } from "@iconify/react";
 
 import ProjectTransferOwnershipAPI from "@/lib/fetch/project/PUT/transferOwnership";
 import ErrorCard from "@/components/error/ErrorCard";
@@ -209,14 +210,21 @@ export default function ProjectTransferOwnership({
                 </div>
               </CardBody>
               <CardFooter className="justify-end gap-2">
-                <Button variant="ghost" onPress={() => onOpenChange}>
+                <Button
+                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
+                  variant="ghost"
+                  onPress={() => onOpenChange}
+                >
                   Cancel
                 </Button>
                 <Button
                   color="danger"
                   isDisabled={selectedUser === ""}
                   isLoading={isLoading}
-                  variant="flat"
+                  startContent={
+                    <Icon icon="hugeicons:self-transfer" width={18} />
+                  }
+                  variant="solid"
                   onPress={transferOwnership}
                 >
                   Transfer Ownership
