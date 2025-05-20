@@ -101,20 +101,29 @@ func checkHangingExecutions(db *bun.DB) {
 					step.FinishedAt = time.Now()
 					step.CanceledAt = time.Now()
 					step.CanceledBy = "Automated Check"
-					step.Messages = []shared_models.Message{
-						{
-							Title: "Automated Check",
-							Lines: []shared_models.Line{
-								{
-									Content:   "Execution was marked as error, step will be canceled",
-									Color:     "danger",
-									Timestamp: time.Now(),
-								},
-							},
-						},
+
+					// check for encryption and decrypt messages
+					if flow.EncryptExecutions && step.Messages != nil && len(step.Messages) > 0 {
+						step.Messages, err = encryption.DecryptExecutionStepActionMessage(step.Messages)
+						if err != nil {
+							log.Error("Bot: Error encrypting execution step action messages", err)
+						}
+
+						step.Encrypted = true
 					}
 
-					// check for encryption
+					step.Messages = append(step.Messages, shared_models.Message{
+						Title: "Automated Check",
+						Lines: []shared_models.Line{
+							{
+								Content:   "Execution was marked as error, step will be canceled",
+								Color:     "danger",
+								Timestamp: time.Now(),
+							},
+						},
+					})
+
+					// check for encryption and encrypt messages
 					if flow.EncryptExecutions && step.Messages != nil && len(step.Messages) > 0 {
 						step.Messages, err = encryption.EncryptExecutionStepActionMessage(step.Messages)
 						if err != nil {
