@@ -65,28 +65,6 @@ export default function Login({ user, session, showSignUp, settings }: any) {
               />
             </DropdownItem>
             <DropdownItem
-              key="profile"
-              onPress={() => router.push(`/user/${userData?.id}`)}
-            >
-              Profile
-            </DropdownItem>
-            <DropdownItem
-              key="api_key"
-              showDivider
-              startContent={<Icon icon="solar:copy-outline" width={18} />}
-              onPress={() => {
-                navigator.clipboard.writeText(session);
-                addToast({
-                  title: "Token",
-                  description: "Copied to clipboard",
-                  color: "success",
-                  variant: "flat",
-                });
-              }}
-            >
-              Copy Token
-            </DropdownItem>
-            <DropdownItem
               key="logout"
               className="text-danger"
               color="danger"
