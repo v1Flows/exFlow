@@ -18,9 +18,7 @@ import {
   Select,
   SelectItem,
   Tooltip,
-  useDisclosure,
 } from "@heroui/react";
-import { LibraryIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 import { ColorPicker, useColor } from "react-color-palette";
@@ -37,10 +35,6 @@ export default function CreateProjectModal({
   const router = useRouter();
   const { isOpen, onOpenChange } = disclosure;
   const [icons, setIcons] = React.useState<string[]>([]);
-
-  // success modal
-  const { isOpen: isOpenSuccess, onOpenChange: onOpenChangeSuccess } =
-    useDisclosure();
 
   const [color, setColor] = useColor("#5213d7");
   const [projectIcon, setProjectIcon] = React.useState("hugeicons:home-12");
@@ -95,7 +89,6 @@ export default function CreateProjectModal({
     if (res.success) {
       router.refresh();
       onOpenChange();
-      onOpenChangeSuccess();
       setName("");
       setDescription("");
       setSharedRunners(false);
@@ -137,7 +130,7 @@ export default function CreateProjectModal({
           {() => (
             <>
               <ModalHeader className="flex flex-wrap items-center">
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col">
                   <p className="text-lg font-bold">Create new project</p>
                   <p className="text-sm text-default-500">
                     Projects are where you manage team members, create flows or
@@ -186,7 +179,7 @@ export default function CreateProjectModal({
                     <div>
                       <ButtonGroup radius="sm" variant="flat">
                         <Button
-                          className={`${sharedRunners ? "bg-primary" : ""}`}
+                          className={`${sharedRunners ? "bg-success" : ""}`}
                           onPress={() => setSharedRunners(true)}
                         >
                           <Icon
@@ -197,7 +190,7 @@ export default function CreateProjectModal({
                           Enabled
                         </Button>
                         <Button
-                          className={`${!sharedRunners ? "bg-primary" : ""}`}
+                          className={`${!sharedRunners ? "bg-danger" : ""}`}
                           onPress={() => setSharedRunners(false)}
                         >
                           <Icon
@@ -247,62 +240,21 @@ export default function CreateProjectModal({
                 <ColorPicker hideInput color={color} onChange={setColor} />
               </ModalBody>
               <ModalFooter>
-                <Button color="default" variant="flat" onPress={cancel}>
+                <Button
+                  color="default"
+                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
+                  variant="flat"
+                  onPress={cancel}
+                >
                   Cancel
                 </Button>
                 <Button
                   color="primary"
                   isLoading={isLoading}
+                  startContent={<Icon icon="hugeicons:plus-sign" width={18} />}
                   onPress={createProject}
                 >
                   Create Project
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
-
-      {/* Instructions Modal */}
-
-      <Modal
-        backdrop="blur"
-        isOpen={isOpenSuccess}
-        placement="center"
-        size="lg"
-        onOpenChange={onOpenChangeSuccess}
-      >
-        <ModalContent className="w-full">
-          {(onInstructionsClose) => (
-            <>
-              <ModalHeader className="flex flex-col items-center gap-1 text-success">
-                <Icon icon="solar:verified-check-broken" width={58} />
-                <p className="text-xl font-bold">
-                  Project successfully created
-                </p>
-              </ModalHeader>
-              <ModalBody className="text-center">
-                <p>
-                  Your new project has been created successfully and is ready to
-                  be used.
-                </p>
-              </ModalBody>
-              <ModalFooter className="grid grid-cols-2">
-                <Button
-                  color="default"
-                  variant="bordered"
-                  onPress={onInstructionsClose}
-                >
-                  <LibraryIcon />
-                  Show Documentation
-                </Button>
-                <Button
-                  color="primary"
-                  variant="solid"
-                  onPress={onInstructionsClose}
-                >
-                  <Icon icon="solar:glasses-line-duotone" width={20} />
-                  Start Exploring
                 </Button>
               </ModalFooter>
             </>

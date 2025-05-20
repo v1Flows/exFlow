@@ -171,18 +171,23 @@ export default function UpdateFolderModal({
                 </Select>
               </ModalBody>
               <ModalFooter>
-                <Button color="default" variant="ghost" onPress={onClose}>
+                <Button
+                  color="default"
+                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
+                  variant="ghost"
+                  onPress={onClose}
+                >
                   Cancel
                 </Button>
                 <Button
-                  color="primary"
+                  color="warning"
                   isLoading={isLoading}
                   startContent={
-                    <Icon icon="hugeicons:system-update-01" width={20} />
+                    <Icon icon="hugeicons:floppy-disk" width={18} />
                   }
                   onPress={updateFolder}
                 >
-                  Update
+                  Save Changes
                 </Button>
               </ModalFooter>
             </>

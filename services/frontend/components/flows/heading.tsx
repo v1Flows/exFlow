@@ -57,6 +57,14 @@ export default function FlowsHeading({
           <div className="hidden sm:flex gap-2">
             <Button
               color="primary"
+              startContent={<Icon icon="hugeicons:folder-01" width={16} />}
+              variant="flat"
+              onPress={createFolderModal.onOpen}
+            >
+              Create Folder
+            </Button>
+            <Button
+              color="primary"
               isDisabled={!settings.create_flows && user.role !== "admin"}
               startContent={
                 <Icon icon="hugeicons:workflow-square-10" width={16} />
@@ -65,20 +73,9 @@ export default function FlowsHeading({
             >
               Create Flow
             </Button>
-            <Button
-              color="primary"
-              startContent={<Icon icon="hugeicons:folder-01" width={16} />}
-              variant="flat"
-              onPress={createFolderModal.onOpen}
-            >
-              Create Folder
-            </Button>
           </div>
 
           <div className="flex sm:hidden gap-2">
-            <Button isIconOnly color="primary" onPress={createFlowModal.onOpen}>
-              <Icon icon="hugeicons:workflow-square-10" width={16} />
-            </Button>
             <Button
               isIconOnly
               color="primary"
@@ -86,6 +83,9 @@ export default function FlowsHeading({
               onPress={createFolderModal.onOpen}
             >
               <Icon icon="hugeicons:folder-01" width={16} />
+            </Button>
+            <Button isIconOnly color="primary" onPress={createFlowModal.onOpen}>
+              <Icon icon="hugeicons:workflow-square-10" width={16} />
             </Button>
           </div>
         </div>

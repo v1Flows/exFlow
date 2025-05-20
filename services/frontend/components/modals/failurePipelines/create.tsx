@@ -16,6 +16,7 @@ import {
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { Icon } from "@iconify/react";
 
 import ErrorCard from "@/components/error/ErrorCard";
 import CreateFlowFailurePipeline from "@/lib/fetch/flow/POST/AddFlowFailurePipeline";
@@ -127,14 +128,14 @@ export default function CreateFailurePipelineModal({
                     label="Name"
                     type="name"
                     value={name}
-                    variant="bordered"
+                    variant="flat"
                     onValueChange={setName}
                   />
                   <Select
                     label="Execution Strategy"
                     placeholder="Select the execution strategy"
                     selectedKeys={[execParallel ? "parallel" : "sequential"]}
-                    variant="bordered"
+                    variant="flat"
                     onSelectionChange={execStrategySelected}
                   >
                     <SelectItem key="sequential">Sequential</SelectItem>
@@ -143,12 +144,17 @@ export default function CreateFailurePipelineModal({
                 </div>
               </ModalBody>
               <ModalFooter>
-                <Button variant="ghost" onPress={cancel}>
+                <Button
+                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
+                  variant="ghost"
+                  onPress={cancel}
+                >
                   Cancel
                 </Button>
                 <Button
                   color="primary"
                   isLoading={isLoading}
+                  startContent={<Icon icon="hugeicons:plus-sign" width={18} />}
                   onPress={createFailurePipeline}
                 >
                   Create Failure Pipeline

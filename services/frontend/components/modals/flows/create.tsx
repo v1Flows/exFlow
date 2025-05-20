@@ -17,6 +17,7 @@ import {
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { Icon } from "@iconify/react";
 
 import GetProjectRunners from "@/lib/fetch/project/runners";
 import CreateFlow from "@/lib/fetch/flow/POST/CreateFlow";
@@ -193,7 +194,7 @@ export default function CreateFlowModal({
                       label="Name"
                       type="name"
                       value={name}
-                      variant="bordered"
+                      variant="flat"
                       onValueChange={setName}
                     />
                     <Input
@@ -201,7 +202,7 @@ export default function CreateFlowModal({
                       label="Description"
                       type="description"
                       value={description}
-                      variant="bordered"
+                      variant="flat"
                       onValueChange={setDescription}
                     />
                     <Select
@@ -209,7 +210,7 @@ export default function CreateFlowModal({
                       label="Project"
                       placeholder="Select the project to assign the flow to"
                       selectedKeys={[projectId]}
-                      variant="bordered"
+                      variant="flat"
                       onSelectionChange={projectSelected}
                     >
                       {projects.map((project: any) => (
@@ -220,7 +221,7 @@ export default function CreateFlowModal({
                       label="Folder"
                       placeholder="Select the folder to assign the flow to"
                       selectedKeys={[folderId]}
-                      variant="bordered"
+                      variant="flat"
                       onSelectionChange={folderSelected}
                     >
                       {folders.map((folder: any) => (
@@ -248,7 +249,7 @@ export default function CreateFlowModal({
                       <Select
                         label="Runner"
                         selectedKeys={[runnerId]}
-                        variant="bordered"
+                        variant="flat"
                         onSelectionChange={handleSelectRunner}
                       >
                         {runners
@@ -296,12 +297,19 @@ export default function CreateFlowModal({
                 )}
               </ModalBody>
               <ModalFooter>
-                <Button variant="ghost" onPress={cancel}>
+                <Button
+                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
+                  variant="ghost"
+                  onPress={cancel}
+                >
                   Cancel
                 </Button>
                 {currentStep > 0 ? (
                   <Button
                     color="default"
+                    startContent={
+                      <Icon icon="hugeicons:backward-02" width={18} />
+                    }
                     variant="flat"
                     onPress={() => {
                       setCurrentStep(currentStep - 1);
@@ -311,7 +319,14 @@ export default function CreateFlowModal({
                     Back
                   </Button>
                 ) : (
-                  <Button isDisabled color="default" variant="flat">
+                  <Button
+                    isDisabled
+                    color="default"
+                    startContent={
+                      <Icon icon="hugeicons:backward-02" width={18} />
+                    }
+                    variant="flat"
+                  >
                     Back
                   </Button>
                 )}
@@ -319,6 +334,9 @@ export default function CreateFlowModal({
                   <Button
                     color="primary"
                     isLoading={isLoading}
+                    startContent={
+                      <Icon icon="hugeicons:plus-sign" width={18} />
+                    }
                     onPress={createFlow}
                   >
                     Create Flow
@@ -328,6 +346,9 @@ export default function CreateFlowModal({
                     color="primary"
                     isDisabled={disableNext}
                     isLoading={isLoading}
+                    startContent={
+                      <Icon icon="hugeicons:forward-02" width={18} />
+                    }
                     onPress={() => setCurrentStep(currentStep + 1)}
                   >
                     Next Step

@@ -14,6 +14,7 @@ import {
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import React from "react";
+import { Icon } from "@iconify/react";
 
 import EditRunner from "@/lib/fetch/runner/PUT/Edit";
 import ErrorCard from "@/components/error/ErrorCard";
@@ -93,7 +94,7 @@ export default function EditRunnerModal({
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-wrap items-center">
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col">
                   <p className="text-lg font-bold">Edit Runner</p>
                   <p className="text-sm text-default-500">
                     Edit the runner details below and click apply changes to
@@ -114,17 +115,25 @@ export default function EditRunnerModal({
                   onValueChange={setName}
                 />
               </ModalBody>
-              <ModalFooter className="grid grid-cols-2">
-                <Button color="default" variant="ghost" onPress={onClose}>
+              <ModalFooter>
+                <Button
+                  color="default"
+                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
+                  variant="ghost"
+                  onPress={onClose}
+                >
                   Cancel
                 </Button>
                 <Button
                   color="warning"
                   isLoading={isLoading}
-                  variant="flat"
+                  startContent={
+                    <Icon icon="hugeicons:floppy-disk" width={18} />
+                  }
+                  variant="solid"
                   onPress={editRunner}
                 >
-                  Apply Changes
+                  Save Changes
                 </Button>
               </ModalFooter>
             </>

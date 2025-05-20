@@ -15,6 +15,7 @@ import {
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { Icon } from "@iconify/react";
 
 import RemoveProjectMember from "@/lib/fetch/project/DELETE/removeProjectMember";
 import ErrorCard from "@/components/error/ErrorCard";
@@ -98,7 +99,7 @@ export default function DeleteProjectMemberModal({
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-wrap items-center">
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col">
                   <p className="text-lg font-bold">Remove Member</p>
                   <p className="text-sm text-default-500">
                     By removing this member, they will no longer have access to
@@ -129,13 +130,19 @@ export default function DeleteProjectMemberModal({
                   }
                 />
               </ModalBody>
-              <ModalFooter className="grid grid-cols-2">
-                <Button color="default" variant="ghost" onPress={onClose}>
+              <ModalFooter>
+                <Button
+                  color="default"
+                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
+                  variant="ghost"
+                  onPress={onClose}
+                >
                   Cancel
                 </Button>
                 <Button
                   color="danger"
                   isLoading={isDeleteLoading}
+                  startContent={<Icon icon="hugeicons:delete-02" width={18} />}
                   onPress={handleDeleteMember}
                 >
                   Remove

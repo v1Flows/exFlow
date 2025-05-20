@@ -191,7 +191,7 @@ export default function FlowList({
                         updateFolderModal.onOpen();
                       }}
                     >
-                      Edit Folder
+                      Edit
                     </DropdownItem>
                     <DropdownItem
                       key="delete"
@@ -205,7 +205,7 @@ export default function FlowList({
                         deleteFolderModal.onOpen();
                       }}
                     >
-                      Delete Folder
+                      Delete
                     </DropdownItem>
                   </DropdownMenu>
                 </Dropdown>

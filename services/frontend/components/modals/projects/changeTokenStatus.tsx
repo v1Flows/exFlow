@@ -13,6 +13,7 @@ import {
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import React from "react";
+import { Icon } from "@iconify/react";
 
 import ErrorCard from "@/components/error/ErrorCard";
 import ChangeProjectTokenStatus from "@/lib/fetch/project/PUT/ChangeProjectTokenStatus";
@@ -99,7 +100,7 @@ export default function ChangeProjectTokenStatusModal({
             {(onClose) => (
               <>
                 <ModalHeader className="flex flex-wrap items-center">
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col">
                     <p className="text-lg font-bold">Disable Token</p>
                     <p className="text-sm text-default-500">
                       Are you sure you want to disable this token?
@@ -111,10 +112,7 @@ export default function ChangeProjectTokenStatusModal({
                     <ErrorCard error={errorText} message={errorMessage} />
                   )}
                   <Snippet hideCopyButton hideSymbol>
-                    <span>
-                      ID:
-                      {token.id}
-                    </span>
+                    <span>ID: {token.id}</span>
                   </Snippet>
                   <Input
                     label="Disable Reason"
@@ -125,13 +123,23 @@ export default function ChangeProjectTokenStatusModal({
                     onValueChange={setDisableReason}
                   />
                 </ModalBody>
-                <ModalFooter className="grid grid-cols-2">
-                  <Button color="default" variant="ghost" onPress={onClose}>
+                <ModalFooter>
+                  <Button
+                    color="default"
+                    startContent={
+                      <Icon icon="hugeicons:cancel-01" width={18} />
+                    }
+                    variant="ghost"
+                    onPress={onClose}
+                  >
                     Cancel
                   </Button>
                   <Button
                     color="danger"
                     isLoading={isLoading}
+                    startContent={
+                      <Icon icon="hugeicons:square-lock-01" width={18} />
+                    }
                     onPress={changeTokenStatus}
                   >
                     Disable
@@ -146,7 +154,7 @@ export default function ChangeProjectTokenStatusModal({
             {(onClose) => (
               <>
                 <ModalHeader className="flex flex-wrap items-center">
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col">
                     <p className="text-lg font-bold">Enable Token</p>
                     <p className="text-sm text-default-500">
                       Are you sure you want to enable this token?
@@ -155,19 +163,26 @@ export default function ChangeProjectTokenStatusModal({
                 </ModalHeader>
                 <ModalBody>
                   <Snippet hideCopyButton hideSymbol>
-                    <span>
-                      ID:
-                      {token.id}
-                    </span>
+                    <span>ID: {token.id}</span>
                   </Snippet>
                 </ModalBody>
-                <ModalFooter className="grid grid-cols-2">
-                  <Button color="default" variant="flat" onPress={onClose}>
+                <ModalFooter>
+                  <Button
+                    color="default"
+                    startContent={
+                      <Icon icon="hugeicons:cancel-01" width={18} />
+                    }
+                    variant="flat"
+                    onPress={onClose}
+                  >
                     Cancel
                   </Button>
                   <Button
                     color="success"
                     isLoading={isLoading}
+                    startContent={
+                      <Icon icon="hugeicons:square-unlock-01" width={18} />
+                    }
                     onPress={changeTokenStatus}
                   >
                     Enable

@@ -14,6 +14,7 @@ import {
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import React from "react";
+import { Icon } from "@iconify/react";
 
 import ErrorCard from "@/components/error/ErrorCard";
 import DeleteFolder from "@/lib/fetch/folder/delete";
@@ -92,11 +93,12 @@ export default function DeleteFolderModal({
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-wrap items-center">
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col">
                   <p className="text-lg font-bold">Are you sure?</p>
                   <p className="text-sm text-default-500">
                     You are about to delete the following folder which{" "}
-                    <span className="font-bold">cannot be undone</span>
+                    <span className="font-bold">cannot be undone</span>. All
+                    flows inside this folder will be moved out.
                   </p>
                 </div>
               </ModalHeader>
@@ -105,23 +107,23 @@ export default function DeleteFolderModal({
                   <ErrorCard error={errorText} message={errorMessage} />
                 )}
                 <Snippet hideCopyButton hideSymbol>
-                  <span>
-                    Name:
-                    {folder.name}
-                  </span>
-                  <span>
-                    ID:
-                    {folder.id}
-                  </span>
+                  <span>Name: {folder.name}</span>
+                  <span>ID: {folder.id}</span>
                 </Snippet>
               </ModalBody>
-              <ModalFooter className="grid grid-cols-2">
-                <Button color="default" variant="ghost" onPress={onClose}>
+              <ModalFooter>
+                <Button
+                  color="default"
+                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
+                  variant="ghost"
+                  onPress={onClose}
+                >
                   Cancel
                 </Button>
                 <Button
                   color="danger"
                   isLoading={isLoading}
+                  startContent={<Icon icon="hugeicons:delete-02" width={18} />}
                   variant="solid"
                   onPress={deleteFolder}
                 >

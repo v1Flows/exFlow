@@ -16,6 +16,7 @@ import {
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
+import { Icon } from "@iconify/react";
 
 import UpdateUser from "@/lib/fetch/admin/PUT/UpdateUser";
 import ErrorCard from "@/components/error/ErrorCard";
@@ -172,16 +173,23 @@ export default function AdminEditUserModal({
                 />
               </ModalBody>
               <ModalFooter>
-                <Button variant="ghost" onPress={onClose}>
+                <Button
+                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
+                  variant="ghost"
+                  onPress={onClose}
+                >
                   Cancel
                 </Button>
                 <Button
                   color="warning"
                   isLoading={isLoading}
-                  variant="flat"
+                  startContent={
+                    <Icon icon="hugeicons:floppy-disk" width={18} />
+                  }
+                  variant="solid"
                   onPress={editUser}
                 >
-                  Apply Changes
+                  Save Changes
                 </Button>
               </ModalFooter>
             </>

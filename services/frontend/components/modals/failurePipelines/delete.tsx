@@ -12,6 +12,7 @@ import {
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import React from "react";
+import { Icon } from "@iconify/react";
 
 import ErrorCard from "@/components/error/ErrorCard";
 import DeleteFlowFailurePipeline from "@/lib/fetch/flow/DELETE/DeleteFailurePipeline";
@@ -90,7 +91,7 @@ export default function DeleteFailurePipelineModal({
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-wrap items-center">
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col">
                   <p className="text-lg font-bold">Are you sure?</p>
                   <p className="text-sm text-default-500">
                     You are about to delete the following failure pipeline which{" "}
@@ -106,13 +107,19 @@ export default function DeleteFailurePipelineModal({
                   <span>ID: {failurePipeline}</span>
                 </Snippet>
               </ModalBody>
-              <ModalFooter className="grid grid-cols-2">
-                <Button color="default" variant="ghost" onPress={onClose}>
+              <ModalFooter>
+                <Button
+                  color="default"
+                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
+                  variant="ghost"
+                  onPress={onClose}
+                >
                   Cancel
                 </Button>
                 <Button
                   color="danger"
                   isLoading={isDeleteLoading}
+                  startContent={<Icon icon="hugeicons:delete-02" width={18} />}
                   variant="solid"
                   onPress={deleteFailurePipeline}
                 >

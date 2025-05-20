@@ -65,7 +65,7 @@ export default function ProjectTokens({
       case "actions":
         return (
           <ButtonGroup variant="light">
-            <Tooltip content="Copy Token">
+            <Tooltip content="Copy to Clipboard">
               <Button
                 isIconOnly
                 isDisabled={
@@ -81,7 +81,7 @@ export default function ProjectTokens({
               </Button>
             </Tooltip>
             {!key.disabled && (
-              <Tooltip content="Disable Token">
+              <Tooltip content="Disable">
                 <Button
                   isIconOnly
                   color="danger"
@@ -101,7 +101,7 @@ export default function ProjectTokens({
               </Tooltip>
             )}
             {key.disabled && (
-              <Tooltip content="Enable Token">
+              <Tooltip content="Enable">
                 <Button
                   isIconOnly
                   color="success"
@@ -120,7 +120,7 @@ export default function ProjectTokens({
                 </Button>
               </Tooltip>
             )}
-            <Tooltip color="danger" content="Delete Token">
+            <Tooltip color="danger" content="Delete">
               <Button
                 isIconOnly
                 color="danger"

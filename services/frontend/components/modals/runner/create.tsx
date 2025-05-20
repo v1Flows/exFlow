@@ -5,7 +5,6 @@ import type { UseDisclosureReturn } from "@heroui/use-disclosure";
 import {
   addToast,
   Button,
-  Divider,
   Input,
   Modal,
   ModalBody,
@@ -15,7 +14,6 @@ import {
   Snippet,
   useDisclosure,
 } from "@heroui/react";
-import { LibraryIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { Icon } from "@iconify/react";
@@ -112,10 +110,10 @@ export default function CreateRunnerModal({
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-wrap items-center">
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col">
                   <p className="text-lg font-bold">Add Runner</p>
                   <p className="text-sm text-default-500">
-                    Add a new runner to your project.
+                    Add a new persistent runner to the project.
                   </p>
                 </div>
               </ModalHeader>
@@ -133,15 +131,21 @@ export default function CreateRunnerModal({
                 />
               </ModalBody>
               <ModalFooter>
-                <Button color="default" variant="ghost" onPress={onClose}>
+                <Button
+                  color="default"
+                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
+                  variant="ghost"
+                  onPress={onClose}
+                >
                   Cancel
                 </Button>
                 <Button
                   color="primary"
                   isLoading={isLoading}
+                  startContent={<Icon icon="hugeicons:plus-sign" width={18} />}
                   onPress={createRunner}
                 >
-                  Add
+                  Create
                 </Button>
               </ModalFooter>
             </>
@@ -156,23 +160,23 @@ export default function CreateRunnerModal({
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className="flex flex-wrap items-center justify-center gap-2 text-success">
-                <Icon icon="hugeicons:checkmark-badge-01" />
-                Runner Created
+              <ModalHeader className="flex flex-wrap items-center">
+                <p className="text-lg font-bold text-success">Runner Created</p>
+                <p className="text-sm text-default-500">
+                  Enter the informations below in your runner config
+                </p>
               </ModalHeader>
               <ModalBody>
-                <p>Use the below information to configure your new runner.</p>
-                <Divider />
                 <div>
                   <p className="text-sm font-bold text-default-400">
-                    Runner ID
+                    runner_id
                   </p>
                   <Snippet hideSymbol className="w-full">
                     {inRunnerId}
                   </Snippet>
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-default-400">Token</p>
+                  <p className="text-sm font-bold text-default-400">api_key</p>
                   <Snippet hideSymbol className="w-full" codeString={inApikey}>
                     <span>{`${inApikey.slice(0, 30)}...`}</span>
                   </Snippet>
@@ -180,26 +184,14 @@ export default function CreateRunnerModal({
                     The Token can always be found on the &quot;Tokens&quot; tab.
                   </p>
                 </div>
-                <p className="mt-2 text-sm text-default-500">
-                  If you need help with the configuration, please click the
-                  documentation button below.
-                </p>
               </ModalBody>
               <ModalFooter>
                 <Button
-                  color="default"
-                  startContent={<LibraryIcon />}
-                  variant="bordered"
-                  onPress={onClose}
-                >
-                  Show Documentation
-                </Button>
-                <Button
                   color="success"
-                  startContent={<Icon icon="hugeicons:checkmark-badge-01" />}
+                  startContent={<Icon icon="hugeicons:tick-01" width={18} />}
                   onPress={onClose}
                 >
-                  <span className="font-bold">Understood</span>
+                  <span>Understood</span>
                 </Button>
               </ModalFooter>
             </>
