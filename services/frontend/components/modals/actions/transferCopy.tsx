@@ -24,6 +24,7 @@ import {
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { isMobile } from "react-device-detect";
 
 import { cn } from "@/components/cn/cn";
 import ErrorCard from "@/components/error/ErrorCard";
@@ -53,6 +54,7 @@ export const CustomRadio = (props: any) => {
 export default function CopyActionToDifferentFlowModal({
   disclosure,
   flows,
+  projects,
   flow,
   copyAction,
   isFailurePipeline,
@@ -60,6 +62,7 @@ export default function CopyActionToDifferentFlowModal({
   disclosure: UseDisclosureReturn;
   runners: any;
   flows: any;
+  projects: any;
   flow: any;
   copyAction: any;
   isFailurePipeline?: boolean;
@@ -297,36 +300,88 @@ export default function CopyActionToDifferentFlowModal({
                 {error && (
                   <ErrorCard error={errorText} message={errorMessage} />
                 )}
-                <Card
-                  className="border-2 border-default-200 border-primary"
-                  radius="sm"
+                <div
+                  className={`flex ${isMobile ? "flex-col" : "flex-cols"}  items-center gap-2`}
                 >
-                  <CardBody>
-                    <div className="flex items-center gap-2">
-                      <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
-                        <Icon icon={action.icon} width={26} />
-                      </div>
-                      <div className="flex flex-col">
-                        <div className="flex flex-cols gap-2 items-center">
-                          <p className="text-lg font-bold">
-                            {action.custom_name || action.name}
-                          </p>
-                          <Chip
-                            color="primary"
-                            radius="sm"
-                            size="sm"
-                            variant="flat"
-                          >
-                            Ver. {action.version}
-                          </Chip>
+                  <Card
+                    fullWidth
+                    className="border-2 border-default-200 border-primary"
+                    radius="sm"
+                  >
+                    <CardBody>
+                      <div className="flex items-center gap-2">
+                        <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
+                          <Icon icon={action.icon} width={26} />
                         </div>
-                        <p className="text-sm text-default-500">
-                          {action.custom_description || action.description}
-                        </p>
+                        <div className="flex flex-col">
+                          <div className="flex flex-cols gap-2 items-center">
+                            <p className="text-lg font-bold">
+                              {action.custom_name || action.name}
+                            </p>
+                            <Chip
+                              color="primary"
+                              radius="sm"
+                              size="sm"
+                              variant="flat"
+                            >
+                              Ver. {action.version}
+                            </Chip>
+                          </div>
+                          <p className="text-sm text-default-500">
+                            {action.custom_description || action.description}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  </CardBody>
-                </Card>
+                    </CardBody>
+                  </Card>
+                  <div className="flex items-center justify-center col-span-1">
+                    <Icon
+                      icon={
+                        isMobile
+                          ? "hugeicons:arrow-down-double"
+                          : "hugeicons:arrow-right-double"
+                      }
+                      width={26}
+                    />
+                  </div>
+                  <Card
+                    fullWidth
+                    className="col-span-2 border-2 border-default-200 border-primary"
+                    radius="sm"
+                  >
+                    <CardBody>
+                      <div className="flex items-center gap-2">
+                        <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
+                          <Icon
+                            icon="hugeicons:workflow-square-10"
+                            width={26}
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <div className="flex flex-cols gap-2 items-center">
+                            <p className="text-lg font-bold">
+                              {targetFlow?.name || "N/A"}
+                            </p>
+                            <Chip
+                              color="primary"
+                              radius="sm"
+                              size="sm"
+                              variant="flat"
+                            >
+                              Project:{" "}
+                              {projects.find(
+                                (p: any) => p.id === targetFlow?.project_id,
+                              )?.name || "N/A"}
+                            </Chip>
+                          </div>
+                          <p className="text-sm text-default-500">
+                            {targetFlow?.description || "N/A"}
+                          </p>
+                        </div>
+                      </div>
+                    </CardBody>
+                  </Card>
+                </div>
                 <div className="flex items-center justify-center">
                   <MinimalRowSteps
                     ref={null}
@@ -355,7 +410,11 @@ export default function CopyActionToDifferentFlowModal({
                           }}
                         >
                           {flows.map((fw: any) => (
-                            <SelectItem key={fw.id} textValue={fw.name}>
+                            <SelectItem
+                              key={fw.id}
+                              isDisabled={fw.id === flow.id}
+                              textValue={fw.name}
+                            >
                               <div className="flex gap-2 items-center">
                                 {fw.name}
                                 {fw.id === flow.id && (
@@ -368,6 +427,17 @@ export default function CopyActionToDifferentFlowModal({
                                     Current
                                   </Chip>
                                 )}
+                                <Chip
+                                  color="primary"
+                                  radius="sm"
+                                  size="sm"
+                                  variant="flat"
+                                >
+                                  Project:{" "}
+                                  {projects.find(
+                                    (p: any) => p.id === fw.project_id,
+                                  )?.name || "N/A"}
+                                </Chip>
                               </div>
                             </SelectItem>
                           ))}

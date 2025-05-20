@@ -78,6 +78,7 @@ export default async function FlowPage({
             flow={flow.data.flow}
             flows={flows.data.flows}
             members={project.data.project.members}
+            projects={projects.data.projects}
             runners={runners.data.runners}
             settings={settings.data.settings}
             user={userDetails.data.user}

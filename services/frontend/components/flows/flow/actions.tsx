@@ -52,6 +52,7 @@ import UpgradeActionModal from "@/components/modals/actions/upgrade";
 import CopyActionToDifferentFlowModal from "@/components/modals/actions/transferCopy";
 
 export default function Actions({
+  projects,
   flows,
   flow,
   runners,
@@ -59,6 +60,7 @@ export default function Actions({
   canEdit,
   settings,
 }: {
+  projects: any;
   flows: any;
   flow: any;
   runners: any;
@@ -942,6 +944,7 @@ export default function Actions({
         disclosure={copyActionToDifferentFlowModal}
         flow={flow}
         flows={flows}
+        projects={projects}
         runners={runners}
       />
       <UpgradeActionModal
@@ -1002,6 +1005,7 @@ export default function Actions({
         disclosure={copyFailurePipelineActionToDifferentFlowModal}
         flow={flow}
         flows={flows}
+        projects={projects}
         runners={runners}
       />
       <UpgradeActionModal
