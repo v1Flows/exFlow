@@ -18,6 +18,11 @@ import {
   CardBody,
   Chip,
   Divider,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
+  Snippet,
   Spacer,
   Tab,
   Table,
@@ -44,14 +49,19 @@ import EditFailurePipelineModal from "@/components/modals/failurePipelines/edit"
 import UpdateFlowFailurePipelineActions from "@/lib/fetch/flow/PUT/UpdateFailurePipelineActions";
 import CopyActionModal from "@/components/modals/actions/copy";
 import UpgradeActionModal from "@/components/modals/actions/upgrade";
+import CopyActionToDifferentFlowModal from "@/components/modals/actions/transferCopy";
 
 export default function Actions({
+  projects,
+  flows,
   flow,
   runners,
   user,
   canEdit,
   settings,
 }: {
+  projects: any;
+  flows: any;
   flow: any;
   runners: any;
   user: any;
@@ -86,6 +96,8 @@ export default function Actions({
   const deleteFlowFailurePipelineActionModal = useDisclosure();
   const copyFlowFailurePipelineActionModal = useDisclosure();
   const upgradeFlowFailurePipelineActionModal = useDisclosure();
+  const copyActionToDifferentFlowModal = useDisclosure();
+  const copyFailurePipelineActionToDifferentFlowModal = useDisclosure();
 
   const [expandedParams, setExpandedParams] = React.useState([] as any);
 
@@ -132,15 +144,6 @@ export default function Actions({
                             ? action.custom_name
                             : action.name}
                         </p>
-                        <Chip
-                          className="max-lg:hidden"
-                          color="default"
-                          radius="sm"
-                          size="sm"
-                          variant="flat"
-                        >
-                          ID: {action.id}
-                        </Chip>
                         <Chip
                           className="max-lg:hidden"
                           color="primary"
@@ -229,44 +232,103 @@ export default function Actions({
                       >
                         <Icon icon="hugeicons:pencil-edit-02" width={20} />
                       </Button>
-                      <Button
-                        isIconOnly
-                        isDisabled={
-                          (!canEdit || flow.disabled) && user.role !== "admin"
-                        }
-                        variant="light"
-                        onPress={() => {
-                          // if action is in an failure pipeline, open the edit modal
-                          if (
-                            flow.failure_pipelines.some(
-                              (pipeline: any) =>
-                                pipeline.actions !== null &&
-                                pipeline.actions.some(
-                                  (pipelineAction: any) =>
-                                    pipelineAction.id === action.id,
-                                ),
-                            )
-                          ) {
-                            setTargetAction(action);
-                            setTargetFailurePipeline(
-                              flow.failure_pipelines.filter(
-                                (pipeline: any) =>
-                                  pipeline.actions !== null &&
-                                  pipeline.actions.some(
-                                    (pipelineAction: any) =>
-                                      pipelineAction.id === action.id,
-                                  ),
-                              )[0],
-                            );
-                            copyFlowFailurePipelineActionModal.onOpen();
-                          } else {
-                            setTargetAction(action);
-                            copyFlowActionModal.onOpen();
-                          }
-                        }}
-                      >
-                        <Icon icon="hugeicons:copy-02" width={20} />
-                      </Button>
+                      <Dropdown>
+                        <DropdownTrigger>
+                          <Button
+                            isIconOnly
+                            isDisabled={
+                              (!canEdit || flow.disabled) &&
+                              user.role !== "admin"
+                            }
+                            variant="light"
+                          >
+                            <Icon icon="hugeicons:copy-02" width={20} />
+                          </Button>
+                        </DropdownTrigger>
+                        <DropdownMenu aria-label="Copy Actions" variant="flat">
+                          <DropdownItem
+                            key="local"
+                            startContent={
+                              <Icon
+                                icon="hugeicons:pin-location-02"
+                                width={18}
+                              />
+                            }
+                            onPress={() => {
+                              // if action is in an failure pipeline, open the edit modal
+                              if (
+                                flow.failure_pipelines.some(
+                                  (pipeline: any) =>
+                                    pipeline.actions !== null &&
+                                    pipeline.actions.some(
+                                      (pipelineAction: any) =>
+                                        pipelineAction.id === action.id,
+                                    ),
+                                )
+                              ) {
+                                setTargetAction(action);
+                                setTargetFailurePipeline(
+                                  flow.failure_pipelines.filter(
+                                    (pipeline: any) =>
+                                      pipeline.actions !== null &&
+                                      pipeline.actions.some(
+                                        (pipelineAction: any) =>
+                                          pipelineAction.id === action.id,
+                                      ),
+                                  )[0],
+                                );
+                                copyFlowFailurePipelineActionModal.onOpen();
+                              } else {
+                                setTargetAction(action);
+                                copyFlowActionModal.onOpen();
+                              }
+                            }}
+                          >
+                            Copy Locally
+                          </DropdownItem>
+                          <DropdownItem
+                            key="different"
+                            color="primary"
+                            startContent={
+                              <Icon
+                                icon="hugeicons:delivery-sent-02"
+                                width={18}
+                              />
+                            }
+                            onPress={() => {
+                              // if action is in an failure pipeline, open the edit modal
+                              if (
+                                flow.failure_pipelines.some(
+                                  (pipeline: any) =>
+                                    pipeline.actions !== null &&
+                                    pipeline.actions.some(
+                                      (pipelineAction: any) =>
+                                        pipelineAction.id === action.id,
+                                    ),
+                                )
+                              ) {
+                                setTargetAction(action);
+                                setTargetFailurePipeline(
+                                  flow.failure_pipelines.filter(
+                                    (pipeline: any) =>
+                                      pipeline.actions !== null &&
+                                      pipeline.actions.some(
+                                        (pipelineAction: any) =>
+                                          pipelineAction.id === action.id,
+                                      ),
+                                  )[0],
+                                );
+                                copyFailurePipelineActionToDifferentFlowModal.onOpen();
+                              } else {
+                                setTargetAction(action);
+                                copyActionToDifferentFlowModal.onOpen();
+                              }
+                            }}
+                          >
+                            Copy to another Flow
+                          </DropdownItem>
+                        </DropdownMenu>
+                      </Dropdown>
                       <Button
                         isIconOnly
                         color="danger"
@@ -332,15 +394,6 @@ export default function Actions({
                     variant="flat"
                   >
                     {action.active ? "Active" : "Disabled"}
-                  </Chip>
-                  <Chip
-                    className="lg:hidden"
-                    color="default"
-                    radius="sm"
-                    size="sm"
-                    variant="flat"
-                  >
-                    ID: {action.id}
                   </Chip>
                   <Chip
                     className="lg:hidden"
@@ -451,6 +504,14 @@ export default function Actions({
                         <TableColumn align="center">Value</TableColumn>
                       </TableHeader>
                       <TableBody emptyContent="No patterns defined.">
+                        <TableRow>
+                          <TableCell>ID</TableCell>
+                          <TableCell>
+                            <Snippet hideSymbol size="sm">
+                              {action.id}
+                            </Snippet>
+                          </TableCell>
+                        </TableRow>
                         <TableRow>
                           <TableCell>Plugin</TableCell>
                           <TableCell>{action.plugin}</TableCell>
@@ -878,6 +939,14 @@ export default function Actions({
         flow={flow}
         runners={runners}
       />
+      <CopyActionToDifferentFlowModal
+        copyAction={targetAction}
+        disclosure={copyActionToDifferentFlowModal}
+        flow={flow}
+        flows={flows}
+        projects={projects}
+        runners={runners}
+      />
       <UpgradeActionModal
         disclosure={upgradeFlowActionModal}
         flow={flow}
@@ -928,6 +997,15 @@ export default function Actions({
         disclosure={copyFlowFailurePipelineActionModal}
         failurePipeline={targetFailurePipeline}
         flow={flow}
+        runners={runners}
+      />
+      <CopyActionToDifferentFlowModal
+        isFailurePipeline
+        copyAction={targetAction}
+        disclosure={copyFailurePipelineActionToDifferentFlowModal}
+        flow={flow}
+        flows={flows}
+        projects={projects}
         runners={runners}
       />
       <UpgradeActionModal

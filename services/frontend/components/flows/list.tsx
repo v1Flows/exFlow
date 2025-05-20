@@ -34,6 +34,7 @@ import UpdateFolderModal from "../modals/folders/update";
 import ScheduleExecutionModal from "../modals/executions/schedule";
 import EditFlowModal from "../modals/flows/edit";
 import DeleteFlowModal from "../modals/flows/delete";
+import CopyFlowModal from "../modals/flows/copy";
 
 export default function FlowList({
   flows,
@@ -57,6 +58,7 @@ export default function FlowList({
 
   const scheduleExecutionModal = useDisclosure();
   const updateFolderModal = useDisclosure();
+  const copyFlowModal = useDisclosure();
   const deleteFolderModal = useDisclosure();
 
   const editFlowModal = useDisclosure();
@@ -383,12 +385,30 @@ export default function FlowList({
                     <DropdownMenu aria-label="Flow actions" variant="flat">
                       <DropdownItem
                         key="copy"
+                        showDivider
                         startContent={
                           <Icon icon="hugeicons:copy-01" width={18} />
                         }
                         onPress={() => copyFlowIDtoClipboard(flow.id)}
                       >
-                        Copy Flow ID
+                        Copy ID
+                      </DropdownItem>
+                      <DropdownItem
+                        key="copy"
+                        isDisabled={
+                          (!canEditProject(user.id, project.members) ||
+                            flow.disabled) &&
+                          user.role !== "admin"
+                        }
+                        startContent={
+                          <Icon icon="hugeicons:copy-02" width={18} />
+                        }
+                        onPress={() => {
+                          setTargetFlow(flow);
+                          copyFlowModal.onOpen();
+                        }}
+                      >
+                        Copy
                       </DropdownItem>
                       <DropdownItem
                         key="edit"
@@ -406,7 +426,7 @@ export default function FlowList({
                           editFlowModal.onOpen();
                         }}
                       >
-                        Edit Flow
+                        Edit
                       </DropdownItem>
                       <DropdownItem
                         key="delete"
@@ -425,7 +445,7 @@ export default function FlowList({
                           deleteFlowModal.onOpen();
                         }}
                       >
-                        Delete Flow
+                        Delete
                       </DropdownItem>
                     </DropdownMenu>
                   </Dropdown>
@@ -443,8 +463,8 @@ export default function FlowList({
                 <Chip
                   color={flow.disabled ? "danger" : "success"}
                   radius="sm"
-                  size="md"
-                  variant="light"
+                  size="sm"
+                  variant="flat"
                 >
                   <p className="font-bold">
                     {flow.disabled ? "Disabled" : "Active"}
@@ -471,6 +491,12 @@ export default function FlowList({
         folders={folders}
         projects={projects}
         targetFlow={targetFlow}
+      />
+      <CopyFlowModal
+        disclosure={copyFlowModal}
+        flow={targetFlow}
+        folders={folders}
+        projects={projects}
       />
       <DeleteFlowModal disclosure={deleteFlowModal} flow={targetFlow} />
     </main>

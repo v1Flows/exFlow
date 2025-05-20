@@ -12,6 +12,7 @@ import GetProjectRunners from "@/lib/fetch/project/runners";
 import GetProject from "@/lib/fetch/project/data";
 import GetFolders from "@/lib/fetch/folder/all";
 import PageGetSettings from "@/lib/fetch/page/settings";
+import GetFlows from "@/lib/fetch/flow/all";
 
 export default async function FlowPage({
   params,
@@ -20,6 +21,7 @@ export default async function FlowPage({
 }) {
   const { id } = await params;
 
+  const flowsData = GetFlows();
   const flowData = GetFlow(id);
   const projectsData = GetProjects();
   const executionsData = GetFlowExecutions(id);
@@ -27,8 +29,9 @@ export default async function FlowPage({
   const foldersData = GetFolders();
   const settingsData = PageGetSettings();
 
-  const [flow, projects, executions, userDetails, folders, settings] =
+  const [flows, flow, projects, executions, userDetails, folders, settings] =
     (await Promise.all([
+      flowsData,
       flowData,
       projectsData,
       executionsData,
@@ -73,7 +76,9 @@ export default async function FlowPage({
           <FlowTabs
             executions={executions.data.executions}
             flow={flow.data.flow}
+            flows={flows.data.flows}
             members={project.data.project.members}
+            projects={projects.data.projects}
             runners={runners.data.runners}
             settings={settings.data.settings}
             user={userDetails.data.user}
