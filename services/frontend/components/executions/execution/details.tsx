@@ -48,7 +48,7 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
       return "";
     }
 
-    if (execution.status === "success") {
+    if (execution.status === "success" || execution.status === "recovered") {
       return "success";
     }
 
@@ -82,7 +82,7 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
 
   return (
     <>
-      <div className="grid grid-cols-2 items-start items-stretch gap-4 lg:grid-cols-3 xl:grid-cols-7">
+      <div className="grid grid-cols-2 items-start items-stretch gap-4 lg:grid-cols-4 xl:grid-cols-7">
         <Card>
           <CardBody>
             <div className="flex items-center justify-start gap-2">

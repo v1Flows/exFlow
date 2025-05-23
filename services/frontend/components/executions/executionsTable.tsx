@@ -3,10 +3,7 @@
 import { Icon } from "@iconify/react";
 import {
   Button,
-  Card,
-  CardBody,
   Chip,
-  Pagination,
   Snippet,
   Table,
   TableBody,
@@ -17,22 +14,18 @@ import {
   Tooltip,
   useDisclosure,
 } from "@heroui/react";
-import NumberFlow from "@number-flow/react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import ReactTimeago from "react-timeago";
 
 import DeleteExecutionModal from "@/components/modals/executions/delete";
 import {
-  executionStatusCardBackgroundColor,
   executionStatusColor,
-  executionStatuses,
-  executionStatusIcon,
   executionStatusName,
   executionStatusWrapper,
 } from "@/lib/functions/executionStyles";
 
-export default function Executions({
+export default function ExecutionsTable({
   runners,
   executions,
   displayToFlow,
@@ -43,67 +36,6 @@ export default function Executions({
   const deleteExecutionModal = useDisclosure();
 
   const [targetExecution, setTargetExecution] = useState({} as any);
-
-  const [statusFilter, setStatusFilter] = useState(new Set([]) as any);
-
-  // pagination
-  const [page, setPage] = useState(1);
-  const rowsPerPage = 9;
-  const items = React.useMemo(() => {
-    const start = (page - 1) * rowsPerPage;
-    const end = start + rowsPerPage;
-
-    if (statusFilter.size > 0) {
-      return executions
-        .filter((execution: any) =>
-          statusFilter.has(statusFilterReturn(execution)),
-        )
-        .slice(start, end);
-    }
-
-    return executions.slice(start, end);
-  }, [page, executions, statusFilter]);
-
-  function pages() {
-    let length = 0;
-
-    if (statusFilter.size > 0) {
-      length =
-        executions.filter((execution: any) =>
-          statusFilter.has(statusFilterReturn(execution)),
-        ).length / rowsPerPage;
-    } else {
-      length = executions.length / rowsPerPage;
-    }
-
-    return Math.ceil(length);
-  }
-
-  function statusFilterReturn(execution: any) {
-    if (execution.status === "scheduled") {
-      return "scheduled";
-    } else if (execution.status === "pending") {
-      return "pending";
-    } else if (execution.status === "running") {
-      return "running";
-    } else if (execution.status === "paused") {
-      return "paused";
-    } else if (execution.status === "canceled") {
-      return "canceled";
-    } else if (execution.status === "noPatternMatch") {
-      return "no_pattern_match";
-    } else if (execution.status === "interactionWaiting") {
-      return "interaction_waiting";
-    } else if (execution.status === "error") {
-      return "error";
-    } else if (execution.status === "success") {
-      return "success";
-    } else if (execution.status === "recovered") {
-      return "recovered";
-    } else {
-      return "unknown";
-    }
-  }
 
   function getDuration(execution: any) {
     if (execution.finished_at === "0001-01-01T00:00:00Z") {
@@ -282,84 +214,10 @@ export default function Executions({
     }
   }, []);
 
-  const topContent = React.useMemo(() => {
-    return (
-      <div className="flex flex-wrap items-stretch gap-4">
-        {executionStatuses().map((status: any) => {
-          const count = executions.filter(
-            (e: any) => e.status === status,
-          ).length;
-
-          if (count === 0) return null;
-
-          return (
-            <Card
-              key={status}
-              isHoverable
-              isPressable
-              className={
-                statusFilter.has(status)
-                  ? `w-[240px] grow bg-${executionStatusCardBackgroundColor({ status: status })}`
-                  : "w-[240px] grow"
-              }
-              onPress={() => {
-                if (statusFilter.has(status)) {
-                  statusFilter.delete(status);
-                  setStatusFilter(new Set(statusFilter));
-                  setPage(1);
-                } else {
-                  statusFilter.add(status);
-                  setStatusFilter(new Set(statusFilter));
-                  setPage(1);
-                }
-              }}
-            >
-              <CardBody>
-                <div className="flex items-center gap-2">
-                  <div
-                    className={`flex size-10 items-center justify-center rounded-small bg-${executionStatusColor({ status: status })}/20 text-${executionStatusColor({ status: status })}`}
-                  >
-                    <Icon
-                      icon={executionStatusIcon({ status: status })}
-                      width={24}
-                    />
-                  </div>
-                  <div>
-                    <p className="text-md font-bold">
-                      <NumberFlow
-                        locales="en-US" // Intl.NumberFormat locales
-                        value={count}
-                      />
-                    </p>
-                    <p className="text-sm text-default-500">
-                      {executionStatusName({ status: status })}
-                    </p>
-                  </div>
-                </div>
-              </CardBody>
-            </Card>
-          );
-        })}
-      </div>
-    );
-  }, [executions, statusFilter]);
-
   return (
     <>
       <Table
         aria-label="Example table with custom cells"
-        bottomContent={
-          <div className="flex justify-center">
-            <Pagination
-              showControls
-              isDisabled={items.length === 0}
-              page={page}
-              total={pages()}
-              onChange={(page) => setPage(page)}
-            />
-          </div>
-        }
-        topContent={topContent}
         topContentPlacement="outside"
       >
         <TableHeader>
@@ -391,7 +249,7 @@ export default function Executions({
             Actions
           </TableColumn>
         </TableHeader>
-        <TableBody items={items}>
+        <TableBody items={executions}>
           {(item: any) => (
             <TableRow key={item.id}>
               {(columnKey) => (

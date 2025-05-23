@@ -1,4 +1,4 @@
-import { Execution } from "@/components/execution/execution";
+import { Execution } from "@/components/executions/execution/execution";
 import ErrorCard from "@/components/error/ErrorCard";
 import GetExecution from "@/lib/fetch/executions/execution";
 import GetFlow from "@/lib/fetch/flow/flow";

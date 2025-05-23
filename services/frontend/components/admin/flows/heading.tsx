@@ -1,14 +1,7 @@
 "use client";
 
-import {
-  BreadcrumbItem,
-  Breadcrumbs,
-  Button,
-  Divider,
-  useDisclosure,
-} from "@heroui/react";
+import { Button, useDisclosure } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { useSearchParams } from "next/navigation";
 
 import CreateFolderModal from "../../modals/folders/create";
 import CreateFlowModal from "../../modals/flows/create";
