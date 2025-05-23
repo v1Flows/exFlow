@@ -48,7 +48,7 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
       return "";
     }
 
-    if (execution.status === "success") {
+    if (execution.status === "success" || execution.status === "recovered") {
       return "success";
     }
 
