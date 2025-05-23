@@ -11,7 +11,6 @@ import {
   Progress,
   ScrollShadow,
   Snippet,
-  Spacer,
   Table,
   TableBody,
   TableCell,
@@ -21,43 +20,31 @@ import {
   Tooltip,
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
-import Reloader from "@/components/reloader/Reloader";
 import InteractExecutionStep from "@/lib/fetch/executions/PUT/step_interact";
-import GetExecutionSteps from "@/lib/fetch/executions/steps";
 import {
   executionStatusColor,
   executionStatusName,
   executionStatusWrapper,
 } from "@/lib/functions/executionStyles";
-import APICancelExecution from "@/lib/fetch/executions/cancel";
 
-import AdminExecutionActions from "./adminExecutionActions";
 import AdminStepActions from "./adminStepActions";
-import ExecutionDetails from "./details";
 
-export function Execution({ flow, execution, runners, userDetails }: any) {
+export function ExecutionStepsTable({
+  flow,
+  execution,
+  steps,
+  runners,
+  userDetails,
+}: any) {
   const router = useRouter();
 
-  const [steps, setSteps] = useState([] as any);
+  const [parSteps, setParSteps] = useState([] as any);
 
-  React.useEffect(() => {
-    GetExecutionSteps(execution.id).then((steps) => {
-      if (steps.success) {
-        setSteps(steps.data.steps);
-      } else {
-        if ("error" in steps) {
-          addToast({
-            title: "Execution",
-            description: steps.error,
-            color: "danger",
-            variant: "flat",
-          });
-        }
-      }
-    });
-  }, [execution]);
+  useEffect(() => {
+    setParSteps(steps);
+  }, [steps]);
 
   function lineColor(line: any) {
     // if line color is not set, return default
@@ -183,7 +170,7 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
         case "name":
           return (
             <div className="flex flex-col items-center gap-2">
-              {steps.find((s: any) => s.parent_id === step.action.id) ? (
+              {parSteps.find((s: any) => s.parent_id === step.action.id) ? (
                 <Badge
                   color="primary"
                   content={
@@ -201,7 +188,7 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
                     variant="light"
                     onPress={() => {
                       // set is_hidden to false for all child steps
-                      const newSteps = steps.map((s: any) => {
+                      const newSteps = parSteps?.map((s: any) => {
                         if (s.parent_id === step.action.id) {
                           s.is_hidden = !s.is_hidden;
                         }
@@ -209,7 +196,7 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
                         return s;
                       });
 
-                      setSteps([...newSteps]);
+                      parSteps([...newSteps]);
                     }}
                   >
                     <Icon
@@ -454,7 +441,7 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
           return cellValue;
       }
     },
-    [steps],
+    [parSteps],
   );
 
   const bottomContent = useMemo(() => {
@@ -481,64 +468,6 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
 
   return (
     <>
-      <div className="flex flex-wrap items-center justify-between">
-        <Button
-          color="default"
-          variant="bordered"
-          onPress={() => router.back()}
-        >
-          <Icon icon="hugeicons:link-backward" width={20} />
-          Back
-        </Button>
-        <div className="flex-wrap mt-2 flex items-center gap-4 lg:mt-0 lg:justify-end">
-          {(execution.status === "running" ||
-            execution.status === "paused" ||
-            execution.status === "pending" ||
-            execution.status === "scheduled" ||
-            execution.status === "interactionWaiting") && (
-            <Button
-              color="danger"
-              startContent={<Icon icon="hugeicons:cancel-01" width={20} />}
-              variant="shadow"
-              onPress={() => {
-                APICancelExecution(execution.id)
-                  .then(() => {
-                    addToast({
-                      title: "Request to cancel execution sent",
-                      color: "success",
-                    });
-                  })
-                  .catch((err) => {
-                    addToast({
-                      title: "Execution cancel failed",
-                      description: err.message,
-                      color: "danger",
-                    });
-                  });
-              }}
-            >
-              Cancel Execution
-            </Button>
-          )}
-          {userDetails.role === "admin" && (
-            <AdminExecutionActions execution={execution} />
-          )}
-
-          {(execution.status === "running" ||
-            execution.status === "pending" ||
-            execution.status === "paused" ||
-            execution.status === "scheduled" ||
-            execution.status === "interactionWaiting") && (
-            <div>
-              <Reloader circle />
-            </div>
-          )}
-        </div>
-      </div>
-      <Divider className="my-4" />
-      <ExecutionDetails execution={execution} runners={runners} steps={steps} />
-      <Spacer y={4} />
-      {/* Tabelle */}
       <Table
         aria-label="Example static collection table"
         bottomContent={bottomContent}
@@ -567,7 +496,7 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
             Admin Actions
           </TableColumn>
         </TableHeader>
-        <TableBody items={steps.filter((s: any) => s.is_hidden == false)}>
+        <TableBody items={parSteps.filter((s: any) => s.is_hidden == false)}>
           {(item: any) =>
             !item.pending ? (
               <TableRow

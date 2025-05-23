@@ -3,7 +3,7 @@ import { Divider } from "@heroui/react";
 import ErrorCard from "@/components/error/ErrorCard";
 import AdminGetFlows from "@/lib/fetch/admin/flows";
 import AdminGetExecutions from "@/lib/fetch/admin/executions";
-import Executions from "@/components/execution/executionsTable";
+import Executions from "@/components/executions/executionsTable";
 import AdminGetRunners from "@/lib/fetch/admin/runners";
 
 export default async function AdminExecutionsPage() {

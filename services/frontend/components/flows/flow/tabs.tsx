@@ -4,7 +4,7 @@ import { Tab, Tabs } from "@heroui/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 
-import Executions from "@/components/execution/executions";
+import Executions from "@/components/executions/executions";
 
 import Actions from "./actions";
 import FlowStats from "./stats";

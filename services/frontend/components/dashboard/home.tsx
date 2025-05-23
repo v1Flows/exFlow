@@ -19,7 +19,7 @@ import WelcomeModal from "@/components/modals/user/welcome";
 import Stats from "@/components/dashboard/stats";
 
 import Reloader from "../reloader/Reloader";
-import Executions from "../execution/executions";
+import Executions from "../executions/executions";
 
 export default function DashboardHome({
   stats,
