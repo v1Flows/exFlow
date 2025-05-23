@@ -29,6 +29,7 @@ type RestfulConf struct {
 	Database   DatabaseConf   `mapstructure:"database" validate:"required"`
 	JWT        JWTConf        `mapstructure:"jwt" validate:"required"`
 	Encryption EncryptionConf `mapstructure:"encryption" validate:"required"`
+	Runner     RunnerConf     `mapstructure:"runner"`
 }
 
 type DatabaseConf struct {
@@ -47,6 +48,10 @@ type JWTConf struct {
 type EncryptionConf struct {
 	Enabled bool   `mapstructure:"enabled" validate:"required"`
 	Key     string `mapstructure:"key"`
+}
+
+type RunnerConf struct {
+	SharedRunnerSecret string `mapstructure:"shared_runner_secret"`
 }
 
 // GetInstance returns the singleton configuration manager instance
@@ -72,16 +77,17 @@ func (cm *ConfigurationManager) LoadConfig(configFile string) error {
 
 	// Bind specific environment variables
 	envBindings := map[string]string{
-		"log_level":          "BACKEND_LOG_LEVEL",
-		"port":               "BACKEND_PORT",
-		"database.server":    "BACKEND_DATABASE_SERVER",
-		"database.port":      "BACKEND_DATABASE_PORT",
-		"database.name":      "BACKEND_DATABASE_NAME",
-		"database.user":      "BACKEND_DATABASE_USER",
-		"database.password":  "BACKEND_DATABASE_PASSWORD",
-		"encryption.enabled": "BACKEND_ENCRYPTION_ENABLED",
-		"encryption.key":     "BACKEND_ENCRYPTION_KEY",
-		"jwt.secret":         "BACKEND_JWT_SECRET",
+		"log_level":                   "BACKEND_LOG_LEVEL",
+		"port":                        "BACKEND_PORT",
+		"database.server":             "BACKEND_DATABASE_SERVER",
+		"database.port":               "BACKEND_DATABASE_PORT",
+		"database.name":               "BACKEND_DATABASE_NAME",
+		"database.user":               "BACKEND_DATABASE_USER",
+		"database.password":           "BACKEND_DATABASE_PASSWORD",
+		"encryption.enabled":          "BACKEND_ENCRYPTION_ENABLED",
+		"encryption.key":              "BACKEND_ENCRYPTION_KEY",
+		"jwt.secret":                  "BACKEND_JWT_SECRET",
+		"runner.shared_runner_secret": "BACKEND_RUNNER_SHARED_RUNNER_SECRET",
 	}
 
 	for configKey, envVar := range envBindings {
