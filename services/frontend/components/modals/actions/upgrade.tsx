@@ -134,8 +134,41 @@ export default function UpgradeActionModal({
     onOpenChange();
   }
 
+  function checkRequiredParams() {
+    let requiredParams = 0;
+    let requiredParamsFilled = 0;
+
+    actionNewVersion.params.map((param: any) => {
+      if (param.required) {
+        requiredParams++;
+      }
+      if (param.required && param.value !== "") {
+        requiredParamsFilled++;
+      }
+    });
+    if (requiredParams === requiredParamsFilled) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   async function updateFlowAction() {
     setLoading(true);
+
+    const requiredParamsFilled = checkRequiredParams();
+
+    if (!requiredParamsFilled) {
+      setError(true);
+      setErrorText("Required parameters not filled");
+      setErrorMessage(
+        "Please fill all required parameters before creating the action",
+      );
+      setLoading(false);
+
+      return;
+    }
+
     flow.actions.map((flowAction: any) => {
       if (flowAction.id === actionOldVersion.id) {
         flowAction.active = actionOldVersion.active;
@@ -194,6 +227,19 @@ export default function UpgradeActionModal({
 
   async function updateFlowFailurePipelineAction() {
     setLoading(true);
+
+    const requiredParamsFilled = checkRequiredParams();
+
+    if (!requiredParamsFilled) {
+      setError(true);
+      setErrorText("Required parameters not filled");
+      setErrorMessage(
+        "Please fill all required parameters before creating the action",
+      );
+      setLoading(false);
+
+      return;
+    }
 
     failurePipeline.actions.map((pipelineAction: any) => {
       if (pipelineAction.id === actionOldVersion.id) {
