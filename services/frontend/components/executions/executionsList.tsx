@@ -219,7 +219,7 @@ export default function ExecutionsList({
                     {execution.steps.map((step, index) => (
                       <div
                         key={step.key}
-                        className="flex flex-cols items-center justify-center min-w-[200px]"
+                        className="flex flex-cols items-center justify-center min-w-[200px] mb-3"
                       >
                         <Tooltip
                           className="p-2"
