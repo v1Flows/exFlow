@@ -213,7 +213,9 @@ export default function ExecutionsList({
                 </div>
 
                 <div className="mt-2">
-                  <div className="flex flex-cols items-center overflow-x-auto">
+                  <div
+                    className={`flex flex-cols items-center ${(execution.status === "running" || execution.status === "paused" || execution.status === "interactionWaiting") && "flex-cols-reversed justify-end"} overflow-x-auto`}
+                  >
                     {execution.steps.map((step, index) => (
                       <div
                         key={step.key}

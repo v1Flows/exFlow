@@ -13,7 +13,7 @@ import {
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { isMobile } from "react-device-detect";
+import { isMobile, isTablet } from "react-device-detect";
 
 import InteractExecutionStep from "@/lib/fetch/executions/PUT/step_interact";
 import { executionStatusWrapper } from "@/lib/functions/executionStyles";
@@ -237,7 +237,7 @@ export function ExecutionStepsAccordion({
                 subtitle={
                   <div className="flex items-center gap-4 text-small text-default-500">
                     <div
-                      className={`flex items-center gap-2 ${isMobile ? "hidden" : ""}`}
+                      className={`flex items-center gap-2 ${isMobile && !isTablet ? "hidden" : ""}`}
                     >
                       <div className="w-16">
                         <Progress
@@ -268,11 +268,11 @@ export function ExecutionStepsAccordion({
                     {step.action.status === "pending" ? (
                       <p>Step not started yet</p>
                     ) : (
-                      <div className="flex flex-col gap-2">
+                      <div className="flex flex-col overflow-x-auto gap-2">
                         <Snippet
                           hideCopyButton
                           hideSymbol
-                          className="w-full pb-2"
+                          className={`w-full`}
                           radius="sm"
                         >
                           {step.messages.map((data: any) =>
@@ -331,7 +331,7 @@ export function ExecutionStepsAccordion({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex overflow-x-auto items-center gap-2">
                   <Chip radius="sm" size="sm" variant="flat">
                     Created At: {new Date(step.created_at).toLocaleString()}
                   </Chip>
