@@ -232,14 +232,16 @@ export default function ExecutionsList({
                                 </span>
                               </p>
                               <p>
-                                Created: <ReactTimeago date={step.created_at} />
+                                Created:{" "}
+                                {new Date(step.created_at).toLocaleString()}
                               </p>
                               <p>
-                                Started: <ReactTimeago date={step.started_at} />
+                                Started:{" "}
+                                {new Date(step.started_at).toLocaleString()}
                               </p>
                               <p>
                                 Finished:{" "}
-                                <ReactTimeago date={step.finished_at} />
+                                {new Date(step.finished_at).toLocaleString()}
                               </p>
                             </div>
                           }
