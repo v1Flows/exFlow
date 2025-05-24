@@ -103,6 +103,38 @@ export default function RunnersList({
                             ID: {runner.id}
                           </p>
                         </div>
+
+                        {user.role === "admin" && (
+                          <Dropdown>
+                            <DropdownTrigger>
+                              <Button isIconOnly size="sm" variant="light">
+                                <Icon
+                                  className="text-lg"
+                                  icon="hugeicons:more-vertical-circle-01"
+                                />
+                              </Button>
+                            </DropdownTrigger>
+                            <DropdownMenu
+                              aria-label="Runner Actions"
+                              variant="flat"
+                            >
+                              <DropdownItem
+                                key="delete"
+                                className="text-danger"
+                                color="danger"
+                                startContent={
+                                  <Icon icon="hugeicons:delete-02" width={18} />
+                                }
+                                onPress={() => {
+                                  setTargetRunner(runner);
+                                  deleteRunnerModal.onOpen();
+                                }}
+                              >
+                                Delete
+                              </DropdownItem>
+                            </DropdownMenu>
+                          </Dropdown>
+                        )}
                       </div>
 
                       <Alert
