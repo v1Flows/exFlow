@@ -399,6 +399,23 @@ export default function UpgradeActionModal({
                                   <div className="grid lg:grid-cols-2 gap-2">
                                     {actionOldVersion.params.map(
                                       (param: any) => {
+                                        // an param can have depends_on set. If it is check, check for the required param and if its value matches
+                                        if (param.depends_on.key !== "") {
+                                          const dependsOnParam =
+                                            actionOldVersion.params.find(
+                                              (p: any) =>
+                                                p.key === param.depends_on.key,
+                                            );
+
+                                          if (
+                                            !dependsOnParam ||
+                                            dependsOnParam.value !==
+                                              param.depends_on.value
+                                          ) {
+                                            return null; // skip this param if the condition is not met
+                                          }
+                                        }
+
                                         return (param.category ||
                                           "Uncategorized") === category ? (
                                           param.type === "text" ||
@@ -648,6 +665,23 @@ export default function UpgradeActionModal({
                                   <div className="grid lg:grid-cols-2 gap-2">
                                     {actionNewVersion.params.map(
                                       (param: any) => {
+                                        // an param can have depends_on set. If it is check, check for the required param and if its value matches
+                                        if (param.depends_on.key !== "") {
+                                          const dependsOnParam =
+                                            actionNewVersion.params.find(
+                                              (p: any) =>
+                                                p.key === param.depends_on.key,
+                                            );
+
+                                          if (
+                                            !dependsOnParam ||
+                                            dependsOnParam.value !==
+                                              param.depends_on.value
+                                          ) {
+                                            return null; // skip this param if the condition is not met
+                                          }
+                                        }
+
                                         return (param.category ||
                                           "Uncategorized") === category ? (
                                           param.type === "text" ||
