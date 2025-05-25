@@ -628,7 +628,7 @@ export default function AddActionModal({
                             <div className="flex flex-col">
                               <div className="flex flex-cols gap-2 items-center">
                                 <p className="text-lg font-bold">
-                                  {action.name}
+                                  {action.custom_name || action.name}
                                 </p>
                                 <Chip
                                   color="primary"
@@ -640,7 +640,8 @@ export default function AddActionModal({
                                 </Chip>
                               </div>
                               <p className="text-sm text-default-500">
-                                {action.description}
+                                {action.custom_description ||
+                                  action.description}
                               </p>
                             </div>
                           </div>

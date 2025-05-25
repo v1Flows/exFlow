@@ -7,17 +7,14 @@ import {
   addToast,
   Avatar,
   Button,
-  ButtonGroup,
-  Divider,
+  Form,
   Input,
   Modal,
   ModalBody,
   ModalContent,
-  ModalFooter,
   ModalHeader,
   Select,
   SelectItem,
-  Tooltip,
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
@@ -37,45 +34,43 @@ export default function CreateProjectModal({
   const [icons, setIcons] = React.useState<string[]>([]);
 
   const [color, setColor] = useColor("#5213d7");
-  const [projectIcon, setProjectIcon] = React.useState("hugeicons:home-12");
-  const [name, setName] = React.useState("");
-  const [description, setDescription] = React.useState("");
-  const [sharedRunners, setSharedRunners] = React.useState(true);
-  const [error, setError] = React.useState(false);
-  const [errorText, setErrorText] = React.useState("");
-  const [errorMessage, setErrorMessage] = React.useState("");
+
+  const [errors, setErrors] = React.useState({});
+  const [apiError, setApiError] = React.useState(false);
+  const [apiErrorText, setApiErrorText] = React.useState("");
+  const [apiErrorMessage, setApiErrorMessage] = React.useState("");
 
   const [isLoading, setIsLoading] = React.useState(false);
 
   useEffect(() => {
-    loadAllIcons();
+    loadAllHugeIcons();
   }, []);
 
-  async function loadAllIcons() {
-    await loadIcons(["hugeicons:home-12", "hugeicons:alien-02"]);
+  async function loadAllHugeIcons() {
+    await loadIcons(["hugeicons:home-01", "hugeicons:ai-folder-02"]);
     setIcons(() => listIcons("", "hugeicons"));
   }
 
-  const handleIconChange = (e: any) => {
-    setProjectIcon(e.target.value);
-  };
+  const onSubmit = async (e) => {
+    e.preventDefault();
 
-  async function createProject() {
     setIsLoading(true);
 
+    const data = Object.fromEntries(new FormData(e.currentTarget));
+
     const res = (await CreateProject(
-      name,
-      description,
-      sharedRunners,
-      projectIcon,
+      data.name.toString(),
+      data.description.toString(),
+      data.sharedRunners === "true" ? true : false,
+      data.projectIcon.toString(),
       color.hex,
     )) as any;
 
     if (!res) {
       setIsLoading(false);
-      setError(true);
-      setErrorText("Failed to create project");
-      setErrorMessage("Failed to create project");
+      setApiError(true);
+      setApiErrorText("Failed to create project");
+      setApiErrorMessage("Failed to create project");
       addToast({
         title: "Project",
         description: "Failed to create project",
@@ -89,18 +84,14 @@ export default function CreateProjectModal({
     if (res.success) {
       router.refresh();
       onOpenChange();
-      setName("");
-      setDescription("");
-      setSharedRunners(false);
-      setIsLoading(false);
-      setError(false);
-      setErrorText("");
-      setErrorMessage("");
+      setApiError(false);
+      setApiErrorText("");
+      setApiErrorMessage("");
+      setErrors({});
     } else {
-      setIsLoading(false);
-      setError(true);
-      setErrorText(res.error);
-      setErrorMessage(res.message);
+      setApiError(true);
+      setApiErrorText(res.error);
+      setApiErrorMessage(res.message);
       addToast({
         title: "Project",
         description: "Failed to create project",
@@ -108,13 +99,11 @@ export default function CreateProjectModal({
         variant: "flat",
       });
     }
-  }
+
+    setIsLoading(false);
+  };
 
   function cancel() {
-    setName("");
-    setDescription("");
-    setSharedRunners(false);
-    setIsLoading(false);
     onOpenChange();
   }
 
@@ -139,124 +128,115 @@ export default function CreateProjectModal({
                 </div>
               </ModalHeader>
               <ModalBody>
-                {error && (
-                  <ErrorCard error={errorText} message={errorMessage} />
+                {apiError && (
+                  <ErrorCard error={apiErrorText} message={apiErrorMessage} />
                 )}
-                <div className="flex flex-col gap-4">
-                  <Input
-                    isRequired
-                    label="Name"
-                    labelPlacement="outside"
-                    placeholder="Enter name"
-                    radius="sm"
-                    type="name"
-                    value={name}
-                    variant="flat"
-                    onValueChange={setName}
-                  />
-                  <Input
-                    isRequired
-                    label="Description"
-                    labelPlacement="outside"
-                    placeholder="Enter description"
-                    radius="sm"
-                    type="description"
-                    value={description}
-                    variant="flat"
-                    onValueChange={setDescription}
-                  />
-                  <div className="flex flex-col gap-2">
-                    <div className="flex-cols flex items-center gap-2">
-                      <p className="text-sm">Shared Runners</p>
-                      <Tooltip content="Shared runners will be used across the platform for all projects.">
-                        <Icon
-                          className="text-default-500"
-                          icon="solar:info-circle-linear"
-                          width={18}
-                        />
-                      </Tooltip>
-                    </div>
+                <Form
+                  className="w-full items-stretch"
+                  validationErrors={errors}
+                  onSubmit={onSubmit}
+                >
+                  <div className="flex flex-col gap-4">
+                    <Input
+                      isRequired
+                      label="Name"
+                      name="name"
+                      placeholder="Enter name"
+                      radius="sm"
+                      variant="flat"
+                    />
+                    <Input
+                      isRequired
+                      label="Description"
+                      name="description"
+                      placeholder="Enter description"
+                      radius="sm"
+                      variant="flat"
+                    />
+                    <Select
+                      isRequired
+                      defaultSelectedKeys={["true"]}
+                      description="Shared runners will be used across the platform for all projects."
+                      label="Shared Runners"
+                      name="sharedRunners"
+                      placeholder="Select an option"
+                      variant="flat"
+                    >
+                      <SelectItem key="true" color="success" variant="flat">
+                        Enabled
+                      </SelectItem>
+                      <SelectItem key="false" color="danger" variant="flat">
+                        Disabled
+                      </SelectItem>
+                    </Select>
+
+                    <Select
+                      defaultSelectedKeys={["hugeicons:package-open"]}
+                      items={icons.map((icon) => ({ textValue: icon }))}
+                      label="Icon"
+                      name="projectIcon"
+                      placeholder="Select an icon"
+                      size="md"
+                      startContent={
+                        <Icon icon="hugeicons:package-open" width={22} />
+                      }
+                    >
+                      {(item) => (
+                        <SelectItem
+                          key={item.textValue}
+                          textValue={item.textValue}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Avatar
+                              className="shrink-0"
+                              color="primary"
+                              icon={<Icon icon={item.textValue} width={22} />}
+                              size="sm"
+                            />
+                            <div className="flex flex-col">
+                              <span className="text-small">
+                                {item.textValue}
+                              </span>
+                            </div>
+                          </div>
+                        </SelectItem>
+                      )}
+                    </Select>
+
                     <div>
-                      <ButtonGroup radius="sm" variant="flat">
-                        <Button
-                          className={`${sharedRunners ? "bg-success" : ""}`}
-                          onPress={() => setSharedRunners(true)}
-                        >
-                          <Icon
-                            className="text-success"
-                            icon="solar:check-circle-linear"
-                            width={18}
-                          />
-                          Enabled
-                        </Button>
-                        <Button
-                          className={`${!sharedRunners ? "bg-danger" : ""}`}
-                          onPress={() => setSharedRunners(false)}
-                        >
-                          <Icon
-                            className="text-danger"
-                            icon="solar:close-circle-linear"
-                            width={18}
-                          />
-                          Disabled
-                        </Button>
-                      </ButtonGroup>
+                      <p className="font-bold text-md">Project Color</p>
+                      <p className="text-tiny text-default-500">
+                        This color appears on the project list and page.
+                      </p>
                     </div>
+                    <ColorPicker hideInput color={color} onChange={setColor} />
                   </div>
-                </div>
-                <Divider />
-                <Select
-                  items={icons.map((icon) => ({ textValue: icon }))}
-                  label="Icon"
-                  labelPlacement="outside"
-                  placeholder="Select an icon"
-                  selectedKeys={[projectIcon]}
-                  size="md"
-                  startContent={<Icon icon={projectIcon} width={22} />}
-                  onChange={handleIconChange}
-                >
-                  {(item) => (
-                    <SelectItem key={item.textValue} textValue={item.textValue}>
-                      <div className="flex items-center gap-2">
-                        <Avatar
-                          className="shrink-0"
-                          color="primary"
-                          icon={<Icon icon={item.textValue} width={22} />}
-                          size="sm"
-                        />
-                        <div className="flex flex-col">
-                          <span className="text-small">{item.textValue}</span>
-                        </div>
-                      </div>
-                    </SelectItem>
-                  )}
-                </Select>
-                <div>
-                  <p className="font-bold">Project Color</p>
-                  <p className="text-sm text-default-500">
-                    This color appears on the project list and page.
-                  </p>
-                </div>
-                <ColorPicker hideInput color={color} onChange={setColor} />
+
+                  <div className="flex flex-cols gap-2 mt-4 mb-2 items-center justify-end">
+                    <Button
+                      color="default"
+                      startContent={
+                        <Icon icon="hugeicons:cancel-01" width={18} />
+                      }
+                      type="reset"
+                      variant="flat"
+                      onPress={cancel}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      color="primary"
+                      isLoading={isLoading}
+                      startContent={
+                        <Icon icon="hugeicons:plus-sign" width={18} />
+                      }
+                      type="submit"
+                    >
+                      Create Project
+                    </Button>
+                  </div>
+                </Form>
               </ModalBody>
-              <ModalFooter>
-                <Button
-                  color="default"
-                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
-                  variant="flat"
-                  onPress={cancel}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  color="primary"
-                  isLoading={isLoading}
-                  startContent={<Icon icon="hugeicons:plus-sign" width={18} />}
-                  onPress={createProject}
-                >
-                  Create Project
-                </Button>
-              </ModalFooter>
             </>
           )}
         </ModalContent>
