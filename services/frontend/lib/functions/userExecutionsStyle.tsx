@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-type DisplayStyle = "list" | "table";
+type DisplayStyle = "compact" | "list" | "table";
 
 interface ExecutionsStyleStore {
   displayStyle: DisplayStyle;
