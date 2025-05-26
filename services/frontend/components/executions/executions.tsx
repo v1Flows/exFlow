@@ -11,6 +11,7 @@ import {
   DropdownTrigger,
   Pagination,
   Spacer,
+  Tooltip,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useMemo, useState } from "react";
@@ -26,6 +27,7 @@ import {
 
 import ExecutionsList from "./executionsList";
 import ExecutionsTable from "./executionsTable";
+import ExecutionsCompact from "./executionsCompact";
 
 export default function Executions({
   runners,
@@ -41,7 +43,8 @@ export default function Executions({
 
   // pagination
   const [page, setPage] = useState(1);
-  const rowsPerPage = displayStyle === "list" ? 4 : 10;
+  const rowsPerPage =
+    displayStyle === "list" ? 4 : displayStyle === "compact" ? 6 : 10;
   const items = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
@@ -213,22 +216,43 @@ export default function Executions({
             </Button>
 
             <ButtonGroup radius="sm" size="md">
-              <Button
-                isIconOnly
-                startContent={<Icon icon="hugeicons:right-to-left-list-dash" />}
-                variant={displayStyle === "list" ? "solid" : "flat"}
-                onPress={() => {
-                  setDisplayStyle("list");
-                }}
-              />
-              <Button
-                isIconOnly
-                startContent={<Icon icon="hugeicons:layout-table-01" />}
-                variant={displayStyle === "table" ? "solid" : "flat"}
-                onPress={() => {
-                  setDisplayStyle("table");
-                }}
-              />
+              <Tooltip content="Compact View" placement="top">
+                <Button
+                  isIconOnly
+                  startContent={
+                    <Icon
+                      icon="hugeicons:left-to-right-list-bullet"
+                      width={17}
+                    />
+                  }
+                  variant={displayStyle === "compact" ? "solid" : "flat"}
+                  onPress={() => {
+                    setDisplayStyle("compact");
+                  }}
+                />
+              </Tooltip>
+              <Tooltip content="List View" placement="top">
+                <Button
+                  isIconOnly
+                  startContent={<Icon icon="hugeicons:task-01" width={17} />}
+                  variant={displayStyle === "list" ? "solid" : "flat"}
+                  onPress={() => {
+                    setDisplayStyle("list");
+                  }}
+                />
+              </Tooltip>
+              <Tooltip content="Table View" placement="top">
+                <Button
+                  isIconOnly
+                  startContent={
+                    <Icon icon="hugeicons:layout-table-01" width={17} />
+                  }
+                  variant={displayStyle === "table" ? "solid" : "flat"}
+                  onPress={() => {
+                    setDisplayStyle("table");
+                  }}
+                />
+              </Tooltip>
             </ButtonGroup>
           </div>
         </div>
@@ -246,6 +270,16 @@ export default function Executions({
 
         {displayStyle === "list" && (
           <ExecutionsList
+            canEdit={canEdit}
+            displayToFlow={displayToFlow}
+            executions={items}
+            flows={flows}
+            runners={runners}
+          />
+        )}
+
+        {displayStyle === "compact" && (
+          <ExecutionsCompact
             canEdit={canEdit}
             displayToFlow={displayToFlow}
             executions={items}
