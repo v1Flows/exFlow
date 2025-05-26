@@ -611,9 +611,9 @@ export function executionStatusWrapperCircle(step: any) {
 
 export function executionStatusTimeline(step: any) {
   if (step.status === "pending") {
-    return <div className="h-1 m-2 bg-default-200" />;
+    return <div className="h-1 m-2 bg-default" />;
   } else if (step.status === "scheduled") {
-    return <div className="h-1 m-2 bg-secondary-500" />;
+    return <div className="h-1 m-2 bg-secondary" />;
   } else if (step.status === "running") {
     return <Progress isIndeterminate className="h-1" />;
   } else if (step.status === "paused") {
@@ -621,20 +621,20 @@ export function executionStatusTimeline(step: any) {
   } else if (step.status === "canceled") {
     return <div className="h-1 m-2 bg-danger" />;
   } else if (step.status === "noPatternMatch") {
-    return <div className="h-1 m-2 bg-secondary-500" />;
+    return <div className="h-1 m-2 bg-secondary" />;
   } else if (step.status === "noResult") {
-    return <div className="h-1 m-2 bg-secondary-500" />;
+    return <div className="h-1 m-2 bg-secondary" />;
   } else if (step.status === "interactionWaiting") {
     return <Progress isIndeterminate className="flex-1 h-1" />;
   } else if (step.status === "error") {
     return <div className="h-1 m-2 bg-danger" />;
   } else if (step.status === "success") {
-    return <div className="h-1 m-2 bg-success-500" />;
+    return <div className="h-1 m-2 bg-success" />;
   } else if (step.status === "warning") {
-    return <div className="h-1 m-2 bg-warning-500" />;
+    return <div className="h-1 m-2 bg-warning" />;
   } else if (step.status === "recovered") {
-    return <div className="h-1 m-2 bg-warning-500" />;
+    return <div className="h-1 m-2 bg-warning" />;
   } else {
-    return <div className="h-1 m-2 bg-default-500" />;
+    return <div className="h-1 m-2 bg-default" />;
   }
 }
