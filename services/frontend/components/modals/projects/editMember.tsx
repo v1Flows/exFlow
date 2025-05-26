@@ -119,7 +119,6 @@ export default function EditProjectMemberModal({
                 <Select
                   className="w-full"
                   label="Member Role"
-                  labelPlacement="outside"
                   placeholder="Select the role of the member"
                   selectedKeys={[role]}
                   variant="flat"

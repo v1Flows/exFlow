@@ -129,8 +129,40 @@ export default function CopyActionToDifferentFlowModal({
     onOpenChange();
   }
 
+  function checkRequiredParams() {
+    let requiredParams = 0;
+    let requiredParamsFilled = 0;
+
+    action.params.map((param: any) => {
+      if (param.required) {
+        requiredParams++;
+      }
+      if (param.required && param.value !== "") {
+        requiredParamsFilled++;
+      }
+    });
+    if (requiredParams === requiredParamsFilled) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   async function copyFlowAction() {
     setLoading(true);
+
+    const requiredParamsFilled = checkRequiredParams();
+
+    if (!requiredParamsFilled) {
+      setError(true);
+      setErrorText("Required parameters not filled");
+      setErrorMessage(
+        "Please fill all required parameters before creating the action",
+      );
+      setLoading(false);
+
+      return;
+    }
 
     const sendAction = {
       id: uuidv4(),
@@ -197,6 +229,19 @@ export default function CopyActionToDifferentFlowModal({
 
   async function copyFlowFailurePipelineAction() {
     setLoading(true);
+
+    const requiredParamsFilled = checkRequiredParams();
+
+    if (!requiredParamsFilled) {
+      setError(true);
+      setErrorText("Required parameters not filled");
+      setErrorMessage(
+        "Please fill all required parameters before creating the action",
+      );
+      setLoading(false);
+
+      return;
+    }
 
     const sendAction = {
       id: uuidv4(),

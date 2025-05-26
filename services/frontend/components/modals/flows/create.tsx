@@ -198,7 +198,6 @@ export default function CreateFlowModal({
                       onValueChange={setName}
                     />
                     <Input
-                      isRequired
                       label="Description"
                       type="description"
                       value={description}

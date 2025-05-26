@@ -7,17 +7,14 @@ import {
   addToast,
   Avatar,
   Button,
-  cn,
-  Divider,
+  Form,
   Input,
   Modal,
   ModalBody,
   ModalContent,
-  ModalFooter,
   ModalHeader,
   Select,
   SelectItem,
-  Switch,
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
@@ -40,22 +37,18 @@ export default function EditProjectModal({
   const [icons, setIcons] = React.useState<string[]>([]);
 
   const [color, setColor] = useColor("");
-  const [projectIcon, setProjectIcon] = React.useState("");
-  const [name, setName] = React.useState("");
-  const [description, setDescription] = React.useState("");
-  const [sharedRunners, setSharedRunners] = React.useState(false);
+
+  const [errors] = React.useState({});
+  const [apiError, setApiError] = React.useState(false);
+  const [apiErrorText, setApiErrorText] = React.useState("");
+  const [apiErrorMessage, setApiErrorMessage] = React.useState("");
+
   const [isLoading, setIsLoading] = React.useState(false);
-  const [error, setError] = React.useState(false);
-  const [errorText, setErrorText] = React.useState("");
-  const [errorMessage, setErrorMessage] = React.useState("");
 
   useEffect(() => {
     if (project === undefined) return;
 
     loadAllHugeIcons();
-    setName(project.name);
-    setDescription(project.description);
-    setProjectIcon(project.icon);
     const colorObj = tinycolor(project.color);
 
     setColor({
@@ -63,7 +56,6 @@ export default function EditProjectModal({
       rgb: colorObj.toRgb(),
       hsv: colorObj.toHsv(),
     });
-    setSharedRunners(project.shared_runners);
   }, [disclosure.isOpen]);
 
   async function loadAllHugeIcons() {
@@ -71,28 +63,29 @@ export default function EditProjectModal({
     setIcons(() => listIcons("", "hugeicons"));
   }
 
-  const handleIconChange = (e: any) => {
-    setProjectIcon(e.target.value);
-  };
+  const onSubmit = async (e) => {
+    e.preventDefault();
 
-  async function updateProject() {
     setIsLoading(true);
-    const response = (await UpdateProject(
+
+    const data = Object.fromEntries(new FormData(e.currentTarget));
+
+    const res = (await UpdateProject(
       project.id,
-      name,
-      description,
-      sharedRunners,
-      projectIcon,
+      data.name.toString(),
+      data.description.toString(),
+      data.sharedRunners === "true" ? true : false,
+      data.projectIcon?.toString(),
       color.hex,
       project.enable_auto_runners,
       project.disable_runner_join,
     )) as any;
 
-    if (!response) {
+    if (!res) {
       setIsLoading(false);
-      setError(true);
-      setErrorText(response.error);
-      setErrorMessage(response.message);
+      setApiError(true);
+      setApiErrorText(res.error);
+      setApiErrorMessage(res.message);
       addToast({
         title: "Project",
         description: "An error occurred while updating the project",
@@ -103,13 +96,12 @@ export default function EditProjectModal({
       return;
     }
 
-    if (response.success) {
+    if (res.success) {
       router.refresh();
       onOpenChange();
-      setIsLoading(false);
-      setError(false);
-      setErrorText("");
-      setErrorMessage("");
+      setApiError(false);
+      setApiErrorText("");
+      setApiErrorMessage("");
       addToast({
         title: "Project",
         description: "Project updated successfully",
@@ -117,10 +109,9 @@ export default function EditProjectModal({
         variant: "flat",
       });
     } else {
-      setIsLoading(false);
-      setError(true);
-      setErrorText(response.error);
-      setErrorMessage(response.message);
+      setApiError(true);
+      setApiErrorText(res.error);
+      setApiErrorMessage(res.message);
       addToast({
         title: "Project",
         description: "Failed to update project",
@@ -128,7 +119,9 @@ export default function EditProjectModal({
         variant: "flat",
       });
     }
-  }
+
+    setIsLoading(false);
+  };
 
   return (
     <>
@@ -151,110 +144,115 @@ export default function EditProjectModal({
                 </div>
               </ModalHeader>
               <ModalBody>
-                {error && (
-                  <ErrorCard error={errorText} message={errorMessage} />
+                {apiError && (
+                  <ErrorCard error={apiErrorText} message={apiErrorMessage} />
                 )}
-                <div className="grid gap-2 lg:grid-cols-2">
-                  <Input
-                    label="Name"
-                    name="name"
-                    placeholder="Enter the project name"
-                    value={name}
-                    variant="flat"
-                    onValueChange={setName}
-                  />
-                  <Input
-                    label="Description"
-                    name="description"
-                    placeholder="Enter the project description"
-                    value={description}
-                    variant="flat"
-                    onValueChange={setDescription}
-                  />
-                </div>
-                <Switch
-                  classNames={{
-                    base: cn(
-                      "inline-flex flex-row-reverse max-w-full bg-content1 hover:bg-content2 items-center",
-                      "justify-between cursor-pointer rounded-2xl gap-2 p-4 border-2 border-transparent",
-                      "data-[selected=true]:border-primary",
-                    ),
-                    wrapper: "p-0 h-4 overflow-visible",
-                    thumb: cn(
-                      "w-6 h-6 border-2 shadow-lg",
-                      "group-data-[hover=true]:border-primary",
-                      // selected
-                      "group-data-[selected=true]:ml-6",
-                      // pressed
-                      "group-data-[pressed=true]:w-7",
-                      "group-data-[selected]:group-data-[pressed]:ml-4",
-                    ),
-                  }}
-                  isSelected={sharedRunners}
-                  onValueChange={setSharedRunners}
+                <Form
+                  className="w-full items-stretch"
+                  validationErrors={errors}
+                  onSubmit={onSubmit}
                 >
-                  <div className="flex flex-col gap-1">
-                    <p className="text-medium">Enable Shared Runners</p>
-                    <p className="text-tiny text-default-400">
-                      Enable or disable shared runners.
-                    </p>
+                  <div className="flex flex-col gap-4">
+                    <Input
+                      isRequired
+                      defaultValue={project.name}
+                      label="Name"
+                      name="name"
+                      placeholder="Enter the project name"
+                      variant="flat"
+                    />
+                    <Input
+                      isRequired
+                      defaultValue={project.description}
+                      label="Description"
+                      name="description"
+                      placeholder="Enter the project description"
+                      variant="flat"
+                    />
+
+                    <Select
+                      isRequired
+                      defaultSelectedKeys={[project.shared_runners.toString()]}
+                      description="Shared runners will be used across the platform for all projects."
+                      label="Shared Runners"
+                      name="sharedRunners"
+                      placeholder="Select an option"
+                      variant="flat"
+                    >
+                      <SelectItem key="true" color="success" variant="flat">
+                        Enabled
+                      </SelectItem>
+                      <SelectItem key="false" color="danger" variant="flat">
+                        Disabled
+                      </SelectItem>
+                    </Select>
+
+                    <Select
+                      defaultSelectedKeys={[project.icon]}
+                      items={icons.map((icon) => ({ textValue: icon }))}
+                      label="Icon"
+                      name="projectIcon"
+                      placeholder="Select an icon"
+                      size="md"
+                      startContent={<Icon icon={project.icon} width={22} />}
+                    >
+                      {(item) => (
+                        <SelectItem
+                          key={item.textValue}
+                          textValue={item.textValue}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Avatar
+                              className="shrink-0"
+                              color="primary"
+                              icon={<Icon icon={item.textValue} width={22} />}
+                              size="sm"
+                            />
+                            <div className="flex flex-col">
+                              <span className="text-small">
+                                {item.textValue}
+                              </span>
+                            </div>
+                          </div>
+                        </SelectItem>
+                      )}
+                    </Select>
+
+                    <div>
+                      <p className="font-bold text-md">Project Color</p>
+                      <p className="text-tiny text-default-500">
+                        This color appears on the project list and page.
+                      </p>
+                    </div>
+                    <ColorPicker hideInput color={color} onChange={setColor} />
                   </div>
-                </Switch>
-                <Divider />
-                <Select
-                  items={icons.map((icon) => ({ textValue: icon }))}
-                  label="Icon"
-                  placeholder="Select an icon"
-                  selectedKeys={[projectIcon]}
-                  size="md"
-                  startContent={<Icon icon={projectIcon} width={22} />}
-                  onChange={handleIconChange}
-                >
-                  {(item) => (
-                    <SelectItem key={item.textValue} textValue={item.textValue}>
-                      <div className="flex items-center gap-2">
-                        <Avatar
-                          className="shrink-0"
-                          color="primary"
-                          icon={<Icon icon={item.textValue} width={22} />}
-                          size="sm"
-                        />
-                        <div className="flex flex-col">
-                          <span className="text-small">{item.textValue}</span>
-                        </div>
-                      </div>
-                    </SelectItem>
-                  )}
-                </Select>
-                <div>
-                  <p className="font-bold">Project Color</p>
-                  <p className="text-sm text-default-500">
-                    This color appears on the project list
-                  </p>
-                </div>
-                <ColorPicker hideInput color={color} onChange={setColor} />
+
+                  <div className="flex flex-cols gap-2 mt-4 mb-2 items-center justify-end">
+                    <Button
+                      color="default"
+                      startContent={
+                        <Icon icon="hugeicons:cancel-01" width={18} />
+                      }
+                      type="reset"
+                      variant="ghost"
+                      onPress={onClose}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      color="warning"
+                      isLoading={isLoading}
+                      startContent={
+                        <Icon icon="hugeicons:floppy-disk" width={18} />
+                      }
+                      type="submit"
+                      variant="solid"
+                    >
+                      Save Changes
+                    </Button>
+                  </div>
+                </Form>
               </ModalBody>
-              <ModalFooter>
-                <Button
-                  color="default"
-                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
-                  variant="ghost"
-                  onPress={onClose}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  color="warning"
-                  isLoading={isLoading}
-                  startContent={
-                    <Icon icon="hugeicons:floppy-disk" width={18} />
-                  }
-                  variant="solid"
-                  onPress={updateProject}
-                >
-                  Save Changes
-                </Button>
-              </ModalFooter>
             </>
           )}
         </ModalContent>

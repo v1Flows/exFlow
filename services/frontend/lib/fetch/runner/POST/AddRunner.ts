@@ -18,11 +18,11 @@ type SuccessResponse = {
   data: Result;
 };
 
-export default async function AddRunner({
+export default async function AddRunner(
   projectId,
   name,
   alertflow_runner,
-}: any): Promise<SuccessResponse | ErrorResponse> {
+): Promise<SuccessResponse | ErrorResponse> {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get("session");

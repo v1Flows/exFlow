@@ -116,7 +116,6 @@ export default function ChangeProjectTokenStatusModal({
                   </Snippet>
                   <Input
                     label="Disable Reason"
-                    labelPlacement="outside"
                     placeholder="Enter the reason for disabling this flow"
                     value={disableReason}
                     variant="flat"

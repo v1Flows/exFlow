@@ -104,8 +104,41 @@ export default function EditActionModal({
     onOpenChange();
   }
 
+  function checkRequiredParams() {
+    let requiredParams = 0;
+    let requiredParamsFilled = 0;
+
+    action.params.map((param: any) => {
+      if (param.required) {
+        requiredParams++;
+      }
+      if (param.required && param.value !== "") {
+        requiredParamsFilled++;
+      }
+    });
+    if (requiredParams === requiredParamsFilled) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   async function updateFlowAction() {
     setLoading(true);
+
+    const requiredParamsFilled = checkRequiredParams();
+
+    if (!requiredParamsFilled) {
+      setError(true);
+      setErrorText("Required parameters not filled");
+      setErrorMessage(
+        "Please fill all required parameters before creating the action",
+      );
+      setLoading(false);
+
+      return;
+    }
+
     flow.actions.map((flowAction: any) => {
       if (flowAction.id === action.id) {
         flowAction.active = action.active;
@@ -159,6 +192,19 @@ export default function EditActionModal({
 
   async function updateFlowFailurePipelineAction() {
     setLoading(true);
+
+    const requiredParamsFilled = checkRequiredParams();
+
+    if (!requiredParamsFilled) {
+      setError(true);
+      setErrorText("Required parameters not filled");
+      setErrorMessage(
+        "Please fill all required parameters before creating the action",
+      );
+      setLoading(false);
+
+      return;
+    }
 
     failurePipeline.actions.map((pipelineAction: any) => {
       if (pipelineAction.id === action.id) {

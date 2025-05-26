@@ -451,7 +451,7 @@ export default function FlowList({
                   </Dropdown>
                 </div>
               </CardHeader>
-              <CardFooter className="flex flex-cols items-center justify-between">
+              <CardFooter className="flex flex-cols items-end h-full justify-between">
                 <Chip
                   className="text-sm text-default-500"
                   radius="sm"

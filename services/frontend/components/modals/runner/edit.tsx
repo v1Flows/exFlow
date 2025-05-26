@@ -5,15 +5,15 @@ import type { UseDisclosureReturn } from "@heroui/use-disclosure";
 import {
   addToast,
   Button,
+  Form,
   Input,
   Modal,
   ModalBody,
   ModalContent,
-  ModalFooter,
   ModalHeader,
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
 import { Icon } from "@iconify/react";
 
 import EditRunner from "@/lib/fetch/runner/PUT/Edit";
@@ -29,26 +29,27 @@ export default function EditRunnerModal({
   const router = useRouter();
   const { isOpen, onOpenChange } = disclosure;
 
-  const [name, setName] = React.useState("");
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [error, setError] = React.useState(false);
-  const [errorText, setErrorText] = React.useState("");
-  const [errorMessage, setErrorMessage] = React.useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  React.useEffect(() => {
-    setName(runner.name);
-  }, [runner]);
+  const [errors] = useState({});
+  const [apiError, setApiError] = useState(false);
+  const [apiErrorText, setApiErrorText] = useState("");
+  const [apiErrorMessage, setApiErrorMessage] = useState("");
 
-  async function editRunner() {
+  const onSubmit = async (e) => {
+    e.preventDefault();
+
     setIsLoading(true);
 
-    const response = (await EditRunner(runner.id, name)) as any;
+    const data = Object.fromEntries(new FormData(e.currentTarget));
 
-    if (!response) {
+    const res = (await EditRunner(runner.id, data.name.toString())) as any;
+
+    if (!res) {
       setIsLoading(false);
-      setError(true);
-      setErrorText("Failed to update runner");
-      setErrorMessage("An error occurred while updating the runner");
+      setApiError(true);
+      setApiErrorText("Failed to update runner");
+      setApiErrorMessage("An error occurred while updating the runner");
       addToast({
         title: "Runner",
         description: "Failed to update runner",
@@ -59,11 +60,10 @@ export default function EditRunnerModal({
       return;
     }
 
-    if (response.success) {
-      setName("");
-      setError(false);
-      setErrorText("");
-      setErrorMessage("");
+    if (res.success) {
+      setApiError(false);
+      setApiErrorText("");
+      setApiErrorMessage("");
       onOpenChange();
       addToast({
         title: "Runner",
@@ -73,9 +73,9 @@ export default function EditRunnerModal({
       });
       router.refresh();
     } else {
-      setError(true);
-      setErrorText(response.error);
-      setErrorMessage(response.message);
+      setApiError(true);
+      setApiErrorText(res.error);
+      setApiErrorMessage(res.message);
       addToast({
         title: "Runner",
         description: "Failed to update runner",
@@ -85,7 +85,7 @@ export default function EditRunnerModal({
     }
 
     setIsLoading(false);
-  }
+  };
 
   return (
     <>
@@ -103,39 +103,51 @@ export default function EditRunnerModal({
                 </div>
               </ModalHeader>
               <ModalBody>
-                {error && (
-                  <ErrorCard error={errorText} message={errorMessage} />
+                {apiError && (
+                  <ErrorCard error={apiErrorText} message={apiErrorMessage} />
                 )}
-                <Input
-                  label="Name"
-                  labelPlacement="outside"
-                  placeholder="Enter the new runner name"
-                  value={name}
-                  variant="flat"
-                  onValueChange={setName}
-                />
+                <Form
+                  className="w-full items-stretch"
+                  validationErrors={errors}
+                  onSubmit={onSubmit}
+                >
+                  <div className="flex flex-col gap-4">
+                    <Input
+                      isRequired
+                      defaultValue={runner.name}
+                      label="Name"
+                      name="name"
+                      placeholder="Enter the new runner name"
+                      variant="flat"
+                    />
+                  </div>
+
+                  <div className="flex flex-cols gap-2 mt-4 mb-2 items-center justify-end">
+                    <Button
+                      color="default"
+                      startContent={
+                        <Icon icon="hugeicons:cancel-01" width={18} />
+                      }
+                      type="reset"
+                      variant="ghost"
+                      onPress={onClose}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      color="warning"
+                      isLoading={isLoading}
+                      startContent={
+                        <Icon icon="hugeicons:floppy-disk" width={18} />
+                      }
+                      type="submit"
+                      variant="solid"
+                    >
+                      Save Changes
+                    </Button>
+                  </div>
+                </Form>
               </ModalBody>
-              <ModalFooter>
-                <Button
-                  color="default"
-                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
-                  variant="ghost"
-                  onPress={onClose}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  color="warning"
-                  isLoading={isLoading}
-                  startContent={
-                    <Icon icon="hugeicons:floppy-disk" width={18} />
-                  }
-                  variant="solid"
-                  onPress={editRunner}
-                >
-                  Save Changes
-                </Button>
-              </ModalFooter>
             </>
           )}
         </ModalContent>
