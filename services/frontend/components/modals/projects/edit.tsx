@@ -38,7 +38,7 @@ export default function EditProjectModal({
 
   const [color, setColor] = useColor("");
 
-  const [errors, setErrors] = React.useState({});
+  const [errors] = React.useState({});
   const [apiError, setApiError] = React.useState(false);
   const [apiErrorText, setApiErrorText] = React.useState("");
   const [apiErrorMessage, setApiErrorMessage] = React.useState("");

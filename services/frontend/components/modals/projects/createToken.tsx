@@ -5,15 +5,15 @@ import type { UseDisclosureReturn } from "@heroui/use-disclosure";
 import {
   addToast,
   Button,
+  Form,
   Input,
   Modal,
   ModalBody,
   ModalContent,
-  ModalFooter,
   ModalHeader,
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
 import { Icon } from "@iconify/react";
 
 import ErrorCard from "@/components/error/ErrorCard";
@@ -29,27 +29,31 @@ export default function CreateProjectTokenModal({
   const router = useRouter();
   const { isOpen, onOpenChange } = disclosure;
 
-  const [description, setDescription] = React.useState("");
-  const [expiresIn, setExpiresIn] = React.useState("1");
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [error, setError] = React.useState(false);
-  const [errorText, setErrorText] = React.useState("");
-  const [errorMessage, setErrorMessage] = React.useState("");
+  const [errors] = useState({});
+  const [apiError, setApiError] = useState(false);
+  const [apiErrorText, setApiErrorText] = useState("");
+  const [apiErrorMessage, setApiErrorMessage] = useState("");
 
-  async function handleCreateToken() {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+
     setIsLoading(true);
 
-    const res = (await CreateProjectToken({
-      projectId: projectID,
-      expiresIn: expiresIn,
-      description: description,
-    })) as any;
+    const data = Object.fromEntries(new FormData(e.currentTarget));
+
+    const res = (await CreateProjectToken(
+      projectID,
+      data.expiresIn,
+      data.description.toString(),
+    )) as any;
 
     if (!res) {
       setIsLoading(false);
-      setError(true);
-      setErrorText("Failed to create token");
-      setErrorMessage("Failed to create token");
+      setApiError(true);
+      setApiErrorText("Failed to create token");
+      setApiErrorMessage("Failed to create token");
       addToast({
         title: "Project",
         description: "Failed to create token",
@@ -63,12 +67,10 @@ export default function CreateProjectTokenModal({
     if (res.success) {
       router.refresh();
       onOpenChange();
-      setIsLoading(false);
     } else {
-      setIsLoading(false);
-      setError(true);
-      setErrorText(res.error);
-      setErrorMessage(res.message);
+      setApiError(true);
+      setApiErrorText(res.error);
+      setApiErrorMessage(res.message);
       addToast({
         title: "Project",
         description: "Failed to create token",
@@ -76,7 +78,9 @@ export default function CreateProjectTokenModal({
         variant: "flat",
       });
     }
-  }
+
+    setIsLoading(false);
+  };
 
   return (
     <>
@@ -93,46 +97,57 @@ export default function CreateProjectTokenModal({
                 </div>
               </ModalHeader>
               <ModalBody>
-                {error && (
-                  <ErrorCard error={errorText} message={errorMessage} />
+                {apiError && (
+                  <ErrorCard error={apiErrorText} message={apiErrorMessage} />
                 )}
-                <Input
-                  label="Description"
-                  labelPlacement="outside"
-                  placeholder="Enter the key description"
-                  value={description}
-                  variant="flat"
-                  onValueChange={setDescription}
-                />
-                <Input
-                  endContent="days"
-                  label="Expires In"
-                  labelPlacement="outside"
-                  placeholder="Enter the token expiration time"
-                  type="number"
-                  value={expiresIn}
-                  variant="flat"
-                  onValueChange={setExpiresIn}
-                />
+                <Form
+                  className="w-full items-stretch"
+                  validationErrors={errors}
+                  onSubmit={onSubmit}
+                >
+                  <div className="flex flex-col gap-4">
+                    <Input
+                      label="Description"
+                      name="description"
+                      placeholder="Enter the key description"
+                      variant="flat"
+                    />
+                    <Input
+                      defaultValue="7"
+                      endContent="days"
+                      label="Expires In"
+                      name="expiresIn"
+                      placeholder="Enter the token expiration time"
+                      type="number"
+                      variant="flat"
+                    />
+                  </div>
+
+                  <div className="flex flex-cols gap-2 mt-4 mb-2 items-center justify-end">
+                    <Button
+                      color="default"
+                      startContent={
+                        <Icon icon="hugeicons:cancel-01" width={18} />
+                      }
+                      type="reset"
+                      variant="ghost"
+                      onPress={onClose}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      color="primary"
+                      isLoading={isLoading}
+                      startContent={
+                        <Icon icon="hugeicons:plus-sign" width={18} />
+                      }
+                      type="submit"
+                    >
+                      Create
+                    </Button>
+                  </div>
+                </Form>
               </ModalBody>
-              <ModalFooter>
-                <Button
-                  color="default"
-                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
-                  variant="ghost"
-                  onPress={onClose}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  color="primary"
-                  isLoading={isLoading}
-                  startContent={<Icon icon="hugeicons:plus-sign" width={18} />}
-                  onPress={handleCreateToken}
-                >
-                  Create
-                </Button>
-              </ModalFooter>
             </>
           )}
         </ModalContent>

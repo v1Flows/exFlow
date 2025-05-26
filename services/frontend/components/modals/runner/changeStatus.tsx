@@ -113,7 +113,6 @@ export default function ChangeRunnerStatusModal({
                   </Snippet>
                   <Input
                     label="Disable Reason"
-                    labelPlacement="outside"
                     placeholder="Enter the reason for disabling this runner"
                     value={disableReason}
                     variant="flat"
