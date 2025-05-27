@@ -6,8 +6,10 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/v1Flows/exFlow/services/backend/config"
 	"github.com/v1Flows/exFlow/services/backend/functions/auth"
 	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
+	functions_runner "github.com/v1Flows/exFlow/services/backend/functions/runner"
 	"github.com/v1Flows/exFlow/services/backend/pkg/models"
 	shared_models "github.com/v1Flows/shared-library/pkg/models"
 
@@ -17,10 +19,27 @@ import (
 )
 
 func RegisterRunner(context *gin.Context, db *bun.DB) {
+
+	var requiresToken bool
+
 	runnerID, projectID, runnerType, err := auth.GetRunnerDataFromToken(context.GetHeader("Authorization"))
 	if err != nil {
-		httperror.Unauthorized(context, "Error receiving userID from token", err)
-		return
+		// if the token is not valid
+		// check if the token matches the config.runner.shared_runner_secret
+		if config.Config.Runner.SharedRunnerSecret != "" {
+			if context.GetHeader("Authorization") != config.Config.Runner.SharedRunnerSecret {
+				httperror.Unauthorized(context, "The provided secret is not valid", err)
+				return
+			} else {
+				runnerID = uuid.New().String()
+				projectID = "admin"
+				runnerType = "shared_auto_runner"
+				requiresToken = true
+			}
+		} else {
+			httperror.Unauthorized(context, "Error receiving runnerID from token", err)
+			return
+		}
 	}
 
 	var runner models.Runners
@@ -57,7 +76,7 @@ func RegisterRunner(context *gin.Context, db *bun.DB) {
 		runner.ApiURL = autoRunner.ApiURL
 		runner.ApiToken = autoRunner.ApiToken
 
-		sharedAutoRunnerRegister(runner, context, db)
+		sharedAutoRunnerRegister(requiresToken, runner, context, db)
 	} else {
 		if err := context.ShouldBindJSON(&runner); err != nil {
 			httperror.StatusBadRequest(context, "Error parsing incoming data", err)
@@ -156,7 +175,7 @@ func autoRunnerRegister(projectID string, runner models.Runners, context *gin.Co
 	context.JSON(http.StatusCreated, gin.H{"result": "success", "runner_id": runner.ID})
 }
 
-func sharedAutoRunnerRegister(runner models.Runners, context *gin.Context, db *bun.DB) {
+func sharedAutoRunnerRegister(requiresToken bool, runner models.Runners, context *gin.Context, db *bun.DB) {
 	// check if runner join is disabled for exflow
 	var settings models.Settings
 	err := db.NewSelect().Model(&settings).Where("id = 1").Scan(context)
@@ -197,5 +216,15 @@ func sharedAutoRunnerRegister(runner models.Runners, context *gin.Context, db *b
 		return
 	}
 
-	context.JSON(http.StatusCreated, gin.H{"result": "success", "runner_id": runner.ID})
+	var token string
+	if requiresToken {
+		// generate token for runner
+		token, err = functions_runner.GenerateRunnerToken(runner.ProjectID, runner.ID.String(), db)
+		if err != nil {
+			httperror.InternalServerError(context, "Error generating runner token", err)
+			return
+		}
+	}
+
+	context.JSON(http.StatusCreated, gin.H{"result": "success", "runner_id": runner.ID, "token": token})
 }
