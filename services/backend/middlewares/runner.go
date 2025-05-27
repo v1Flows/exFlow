@@ -27,13 +27,14 @@ func Runner(db *bun.DB) gin.HandlerFunc {
 				if tokenString != config.Config.Runner.SharedRunnerSecret {
 					httperror.Unauthorized(context, "The provided secret is not valid", err)
 					return
-				} else {
-					context.Next()
 				}
-			}
 
-			httperror.Unauthorized(context, "The provided token is not valid", err)
-			return
+				context.Next()
+				return
+			} else {
+				httperror.Unauthorized(context, "The provided token is not valid", err)
+				return
+			}
 		}
 
 		valid, err := auth.ValidateTokenDBEntry(tokenString, db, context)
