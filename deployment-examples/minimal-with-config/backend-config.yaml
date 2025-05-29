@@ -1,0 +1,14 @@
+---
+log_level: info
+port: 8081
+database:
+  server: db
+  port: 5432
+  name: postgres
+  user: postgres
+  password: postgres
+encryption:
+  enabled: true
+  key: 0AMutjk[Ga:a4.?0nLv|Sf[s?o~Q-RW>
+jwt:
+  secret: TyO7,:`(!DcBF@tK!NU6l$AU+Dd`&FGtDS4Uj,)SDQ[rsEhB

@@ -1,0 +1,25 @@
+---
+
+log_level: info
+mode: master
+
+alertflow:
+  enabled: false
+
+exflow:
+  enabled: true
+  url: http://exflow:8080
+
+plugins:
+  - name: git
+    version: v1.3.1
+  - name: ansible
+    version: v1.4.1
+  - name: ssh
+    version: v1.5.1
+
+api_endpoint:
+  port: 8081
+
+runner:
+  shared_runner_secret: <`@8W!?vBl`3$O6@Po7rZ|G:U3=j}ek]

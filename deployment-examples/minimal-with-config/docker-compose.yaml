@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  exflow:
+    image: justnz/exflow:latest
+    depends_on:
+      - db
+    ports:
+      - "3000:3000" # exFlow frontend
+      - "8080:8080" # exFlow backend
+    volumes:
+      - ./backend-config.yaml:/etc/exflow/backend_config.yaml
+    entrypoint: ["/bin/sh", "-c", "until pg_isready -h db -p 5432 -U postgres; do sleep 1; done; exec ./exflow-backend --config /etc/exflow/backend_config.yaml & exec node /app/server.js"]
+
+volumes:
+  db_data:
