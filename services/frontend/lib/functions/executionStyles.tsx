@@ -625,7 +625,7 @@ export function executionStatusTimeline(step: any) {
   } else if (step.status === "noResult") {
     return <div className="h-1 m-2 bg-secondary rounded-full" />;
   } else if (step.status === "interactionWaiting") {
-    return <Progress isIndeterminate className="flex-1 h-1" />;
+    return <Progress className="flex-1 h-1" value={100} />;
   } else if (step.status === "error") {
     return <div className="h-1 m-2 bg-danger rounded-full" />;
   } else if (step.status === "success") {
