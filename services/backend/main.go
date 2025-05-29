@@ -12,7 +12,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const version string = "1.3.0"
+const version string = "1.3.1"
 
 var (
 	configFile = kingpin.Flag("config", "Config file").Short('c').Default("config.yaml").String()
