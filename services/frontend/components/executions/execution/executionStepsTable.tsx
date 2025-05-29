@@ -304,53 +304,55 @@ export function ExecutionStepsTable({
           );
         case "duration":
           return (
-            <div className="flex flex-col items-center justify-center">
-              <Tooltip
-                content={
-                  <div className="grid grid-cols-2 p-1">
-                    <div className="text-small text-default-500">
-                      Created at
+            step.action.name !== "Pick Up" && (
+              <div className="flex flex-col items-center justify-center">
+                <Tooltip
+                  content={
+                    <div className="grid grid-cols-2 p-1">
+                      <div className="text-small text-default-500">
+                        Created at
+                      </div>
+                      <div className="text-small">
+                        {new Date(step.created_at).toLocaleString()}
+                      </div>
+                      {step.started_at !== "0001-01-01T00:00:00Z" && (
+                        <>
+                          <Divider className="col-span-2 my-2" />
+                          <div className="text-small text-default-500">
+                            Started at
+                          </div>
+                          <div className="text-small">
+                            {new Date(step.started_at).toLocaleString()}
+                          </div>
+                        </>
+                      )}
+                      {step.finished_at !== "0001-01-01T00:00:00Z" && (
+                        <>
+                          <Divider className="col-span-2 my-2" />
+                          <div className="text-small text-default-500">
+                            Finished at
+                          </div>
+                          <div className="text-small">
+                            {new Date(step.finished_at).toLocaleString()}
+                          </div>
+                        </>
+                      )}
                     </div>
-                    <div className="text-small">
-                      {new Date(step.created_at).toLocaleString()}
-                    </div>
-                    {step.started_at !== "0001-01-01T00:00:00Z" && (
-                      <>
-                        <Divider className="col-span-2 my-2" />
-                        <div className="text-small text-default-500">
-                          Started at
-                        </div>
-                        <div className="text-small">
-                          {new Date(step.started_at).toLocaleString()}
-                        </div>
-                      </>
-                    )}
-                    {step.finished_at !== "0001-01-01T00:00:00Z" && (
-                      <>
-                        <Divider className="col-span-2 my-2" />
-                        <div className="text-small text-default-500">
-                          Finished at
-                        </div>
-                        <div className="text-small">
-                          {new Date(step.finished_at).toLocaleString()}
-                        </div>
-                      </>
-                    )}
+                  }
+                >
+                  <div className="flex flex-col items-center gap-1">
+                    <CircularProgress
+                      showValueLabel
+                      aria-label="StepDuration"
+                      maxValue={getTotalDurationSeconds() || 1}
+                      size="lg"
+                      value={getDurationSeconds(step) || 0}
+                    />
+                    <p className="text-xs">{getDuration(step)}</p>
                   </div>
-                }
-              >
-                <div className="flex flex-col items-center gap-1">
-                  <CircularProgress
-                    showValueLabel
-                    aria-label="StepDuration"
-                    maxValue={getTotalDurationSeconds() || 1}
-                    size="lg"
-                    value={getDurationSeconds(step) || 0}
-                  />
-                  <p className="text-xs">{getDuration(step)}</p>
-                </div>
-              </Tooltip>
-            </div>
+                </Tooltip>
+              </div>
+            )
           );
         case "info":
           return (

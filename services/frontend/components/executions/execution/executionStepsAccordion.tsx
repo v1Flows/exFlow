@@ -18,6 +18,8 @@ import { isMobile, isTablet } from "react-device-detect";
 import InteractExecutionStep from "@/lib/fetch/executions/PUT/step_interact";
 import { executionStatusWrapper } from "@/lib/functions/executionStyles";
 
+import AdminStepActions from "./adminStepActions";
+
 export function ExecutionStepsAccordion({
   flow,
   execution,
@@ -236,29 +238,37 @@ export function ExecutionStepsAccordion({
                 }
                 subtitle={
                   <div className="flex items-center gap-4 text-small text-default-500">
-                    <div
-                      className={`flex items-center gap-2 ${isMobile && !isTablet ? "hidden" : ""}`}
-                    >
-                      <div className="w-16">
-                        <Progress
-                          className="max-w-full"
-                          color="primary"
-                          maxValue={getTotalDurationSeconds() || 1}
-                          size="sm"
-                          value={getDurationSeconds(step) || 0}
-                        />
+                    {step.action.name !== "Pick Up" && (
+                      <div
+                        className={`flex items-center gap-2 ${isMobile && !isTablet ? "hidden" : ""}`}
+                      >
+                        <div className="w-16">
+                          <Progress
+                            className="max-w-full"
+                            color="primary"
+                            maxValue={getTotalDurationSeconds() || 1}
+                            size="sm"
+                            value={getDurationSeconds(step) || 0}
+                          />
+                        </div>
+                        <span>
+                          {getPercentage(
+                            getTotalDurationSeconds() || 1,
+                            getDurationSeconds(step) || 0,
+                          )}
+                          %
+                        </span>
                       </div>
-                      <span>
-                        {getPercentage(
-                          getTotalDurationSeconds() || 1,
-                          getDurationSeconds(step) || 0,
-                        )}
-                        %
-                      </span>
-                    </div>
+                    )}
                     <div className="flex items-center gap-1">
                       <Icon icon="lucide:clock" width={14} />
                       <span>{getDuration(step)}</span>
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      {userDetails.role === "admin" && (
+                        <AdminStepActions execution={execution} step={step} />
+                      )}
                     </div>
                   </div>
                 }
@@ -276,7 +286,7 @@ export function ExecutionStepsAccordion({
                           radius="sm"
                         >
                           {step.messages.map((data: any) =>
-                            data.lines.map((line: any, index: any) => (
+                            data.lines?.map((line: any, index: any) => (
                               <div
                                 key={index}
                                 className={`container flex-cols font-semibold flex items-center gap-2`}
@@ -332,6 +342,19 @@ export function ExecutionStepsAccordion({
                 </div>
 
                 <div className="flex overflow-x-auto items-center gap-2">
+                  <Chip radius="sm" size="sm" variant="flat">
+                    ID: {step.id}
+                  </Chip>
+                  {step.encrypted && (
+                    <Chip color="success" radius="sm" size="sm" variant="flat">
+                      Encrypted
+                    </Chip>
+                  )}
+                  <Chip radius="sm" size="sm" variant="flat">
+                    Runner:{" "}
+                    {runners.find((r: any) => r.id === step.runner_id)?.name ||
+                      "N/A"}
+                  </Chip>
                   <Chip radius="sm" size="sm" variant="flat">
                     Created At: {new Date(step.created_at).toLocaleString()}
                   </Chip>
