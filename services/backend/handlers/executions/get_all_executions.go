@@ -1,7 +1,9 @@
 package executions
 
 import (
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/v1Flows/exFlow/services/backend/functions/auth"
 	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
@@ -16,6 +18,23 @@ func GetExecutions(context *gin.Context, db *bun.DB) {
 	if err != nil {
 		httperror.InternalServerError(context, "Error receiving userID from token", err)
 		return
+	}
+
+	// Parse pagination params
+	limit := 20
+	offset := 0
+	if l := context.Query("limit"); l != "" {
+		fmt.Sscanf(l, "%d", &limit)
+	}
+	if o := context.Query("offset"); o != "" {
+		fmt.Sscanf(o, "%d", &offset)
+	}
+
+	// Parse status filter (comma-separated)
+	statusParam := context.Query("status")
+	var statusList []string
+	if statusParam != "" {
+		statusList = strings.Split(statusParam, ",")
 	}
 
 	// get flows where user is a member
@@ -33,21 +52,28 @@ func GetExecutions(context *gin.Context, db *bun.DB) {
 	}
 
 	executions := make([]models.Executions, 0)
-	err = db.NewSelect().Model(&executions).
-		Where("flow_id IN (?)", bun.In(flowsArray)).
-		OrderExpr(`
-		CASE 
-			WHEN status = 'scheduled' THEN 1
-			ELSE 2
-		END ASC, 
-		CASE 
-			WHEN status = 'scheduled' THEN scheduled_at
-		END ASC, 
-		CASE 
-			WHEN status = 'scheduled' THEN NULL
-			ELSE created_at
-		END DESC
-	`).
+	query := db.NewSelect().Model(&executions).
+		Where("flow_id IN (?)", bun.In(flowsArray))
+
+	if len(statusList) > 0 {
+		query = query.Where("status IN (?)", bun.In(statusList))
+	}
+
+	err = query.OrderExpr(`
+        CASE 
+            WHEN status = 'scheduled' THEN 1
+            ELSE 2
+        END ASC, 
+        CASE 
+            WHEN status = 'scheduled' THEN scheduled_at
+        END ASC, 
+        CASE 
+            WHEN status = 'scheduled' THEN NULL
+            ELSE created_at
+        END DESC
+    `).
+		Limit(limit).
+		Offset(offset).
 		Scan(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error collecting executions from db", err)
@@ -74,5 +100,23 @@ func GetExecutions(context *gin.Context, db *bun.DB) {
 		})
 	}
 
-	context.JSON(http.StatusOK, gin.H{"executions": executionsWithSteps})
+	// Count total executions for pagination (with status filter)
+	countQuery := db.NewSelect().
+		Model((*models.Executions)(nil)).
+		Where("flow_id IN (?)", bun.In(flowsArray))
+	if len(statusList) > 0 {
+		countQuery = countQuery.Where("status IN (?)", bun.In(statusList))
+	}
+	totalExecutions, err := countQuery.Count(context)
+	if err != nil {
+		httperror.InternalServerError(context, "Error counting executions", err)
+		return
+	}
+
+	context.JSON(http.StatusOK, gin.H{
+		"executions": executionsWithSteps,
+		"limit":      limit,
+		"offset":     offset,
+		"total":      totalExecutions,
+	})
 }

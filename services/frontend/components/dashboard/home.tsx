@@ -25,7 +25,7 @@ export default function DashboardHome({
   stats,
   flows,
   runners,
-  executions,
+  executionsWithAttention,
   user,
 }: any) {
   const router = useRouter();
@@ -145,7 +145,7 @@ export default function DashboardHome({
                       <Icon icon="hugeicons:rocket-02" width={24} />
                     </div>
                     <div>
-                      {executions.filter(
+                      {executionsWithAttention.filter(
                         (e: any) =>
                           (e.status === "error" ||
                             e.status === "interactionWaiting") &&
@@ -153,12 +153,12 @@ export default function DashboardHome({
                             Date.now() - 24 * 60 * 60 * 1000,
                       ).length > 0 ? (
                         <div className="flex-cols flex items-center gap-1">
-                          {executions.filter(
+                          {executionsWithAttention.filter(
                             (e: any) => e.status === "interactionWaiting",
                           ).length > 0 && (
                             <p className="text-md font-bold text-primary">
                               {
-                                executions.filter(
+                                executionsWithAttention.filter(
                                   (e: any) =>
                                     e.status === "interactionWaiting" &&
                                     new Date(e.created_at).getTime() >
@@ -168,18 +168,20 @@ export default function DashboardHome({
                               Interaction Required
                             </p>
                           )}
-                          {executions.filter((e: any) => e.status === "error")
-                            .length > 0 &&
-                            executions.filter(
+                          {executionsWithAttention.filter(
+                            (e: any) => e.status === "error",
+                          ).length > 0 &&
+                            executionsWithAttention.filter(
                               (e: any) => e.status === "interactionWaiting",
                             ).length > 0 && (
                               <p className="text-md font-bold">&</p>
                             )}
-                          {executions.filter((e: any) => e.status === "error")
-                            .length > 0 && (
+                          {executionsWithAttention.filter(
+                            (e: any) => e.status === "error",
+                          ).length > 0 && (
                             <p className="text-md font-bold text-danger">
                               {
-                                executions.filter(
+                                executionsWithAttention.filter(
                                   (e: any) =>
                                     e.status === "error" &&
                                     new Date(e.created_at).getTime() >
@@ -202,7 +204,7 @@ export default function DashboardHome({
               </Card>
             </DropdownTrigger>
             <DropdownMenu aria-label="Execution Problems">
-              {executions
+              {executionsWithAttention
                 .filter(
                   (e: any) =>
                     e.status === "interactionWaiting" &&
@@ -215,7 +217,7 @@ export default function DashboardHome({
                 .map((execution: any, index: any) => (
                   <DropdownItem
                     key={execution.id}
-                    showDivider={index !== executions.length - 1}
+                    showDivider={index !== executionsWithAttention.length - 1}
                     onPress={() => {
                       router.push(
                         `/flows/${execution.flow_id}/execution/${execution.id}`,
@@ -250,7 +252,7 @@ export default function DashboardHome({
                     </div>
                   </DropdownItem>
                 ))}
-              {executions
+              {executionsWithAttention
                 .filter(
                   (e: any) =>
                     e.status === "error" &&
@@ -388,12 +390,7 @@ export default function DashboardHome({
 
       <Spacer y={4} />
       <p className="mb-2 text-2xl font-bold text-primary">Executions</p>
-      <Executions
-        displayToFlow
-        executions={executions}
-        flows={flows}
-        runners={runners}
-      />
+      <Executions displayToFlow flows={flows} runners={runners} />
 
       <WelcomeModal disclosure={welcomeModal} />
     </main>

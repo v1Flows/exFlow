@@ -8,12 +8,12 @@ import { useRouter } from "next/navigation";
 export default function FlowDetails({
   flow,
   project,
-  executions,
+  totalExecutions,
   runners,
 }: {
   flow: any;
   project: any;
-  executions: any;
+  totalExecutions: any;
   runners: any;
 }) {
   const router = useRouter();
@@ -89,7 +89,7 @@ export default function FlowDetails({
                   <Icon icon="hugeicons:rocket-02" width={24} />
                 </div>
                 <div>
-                  <NumberFlow className="font-bold" value={executions.length} />
+                  <NumberFlow className="font-bold" value={totalExecutions} />
                   <p className="text-sm text-default-500">Executions</p>
                 </div>
               </div>
