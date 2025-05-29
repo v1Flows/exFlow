@@ -16,6 +16,7 @@ func Init(db *bun.DB) {
 			select {
 			case <-ticker.C:
 				checkHangingExecutions(db)
+				checkHangingExecutionSteps(db)
 				checkDisconnectedAutoRunners(db)
 				checkForFlowActionUpdates(db)
 				scheduleFlowExecutions(db)
