@@ -265,11 +265,13 @@ export function ExecutionStepsAccordion({
                       <span>{getDuration(step)}</span>
                     </div>
 
-                    <div className="flex items-center gap-1">
-                      {userDetails.role === "admin" && (
-                        <AdminStepActions execution={execution} step={step} />
-                      )}
-                    </div>
+                    {!isMobile && (
+                      <div className="flex items-center gap-1">
+                        {userDetails.role === "admin" && (
+                          <AdminStepActions execution={execution} step={step} />
+                        )}
+                      </div>
+                    )}
                   </div>
                 }
               >
