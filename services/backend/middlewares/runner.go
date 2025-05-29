@@ -3,6 +3,7 @@ package middlewares
 import (
 	"errors"
 
+	"github.com/v1Flows/exFlow/services/backend/config"
 	"github.com/v1Flows/exFlow/services/backend/functions/auth"
 	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
 
@@ -17,10 +18,23 @@ func Runner(db *bun.DB) gin.HandlerFunc {
 			httperror.Unauthorized(context, "Request does not contain an access token", errors.New("request does not contain an access token"))
 			return
 		}
+
 		err := auth.ValidateToken(tokenString)
 		if err != nil {
-			httperror.Unauthorized(context, "The provided token is not valid", err)
-			return
+			// if the token is not valid
+			// check if the token matches the config.runner.shared_runner_secret
+			if config.Config.Runner.SharedRunnerSecret != "" {
+				if tokenString != config.Config.Runner.SharedRunnerSecret {
+					httperror.Unauthorized(context, "The provided secret is not valid", err)
+					return
+				}
+
+				context.Next()
+				return
+			} else {
+				httperror.Unauthorized(context, "The provided token is not valid", err)
+				return
+			}
 		}
 
 		valid, err := auth.ValidateTokenDBEntry(tokenString, db, context)

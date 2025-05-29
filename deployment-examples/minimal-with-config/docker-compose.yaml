@@ -20,19 +20,7 @@ services:
       - "3000:3000" # exFlow frontend
       - "8080:8080" # exFlow backend
     volumes:
-      - ./config.yaml:/etc/exflow/backend_config.yaml
-    # environment:
-      # Adjust these if your config.yaml uses different DB settings
-      # BACKEND_LOG_LEVEL: info
-      # BACKEND_PORT: 8080
-      # BACKEND_DATABASE_SERVER: db
-      # BACKEND_DATABASE_PORT: 5432
-      # BACKEND_DATABASE_NAME: postgres
-      # BACKEND_DATABASE_USER: postgres
-      # BACKEND_DATABASE_PASSWORD: postgres
-      # BACKEND_ENCRYPTION_ENABLED: "true"
-      # BACKEND_ENCRYPTION_KEY: "change-me"
-      # BACKEND_JWT_SECRET: "change-me"
+      - ./backend-config.yaml:/etc/exflow/backend_config.yaml
     entrypoint: ["/bin/sh", "-c", "until pg_isready -h db -p 5432 -U postgres; do sleep 1; done; exec ./exflow-backend --config /etc/exflow/backend_config.yaml & exec node /app/server.js"]
 
 volumes:

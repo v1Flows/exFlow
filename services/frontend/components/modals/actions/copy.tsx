@@ -105,8 +105,40 @@ export default function CopyActionModal({
     onOpenChange();
   }
 
+  function checkRequiredParams() {
+    let requiredParams = 0;
+    let requiredParamsFilled = 0;
+
+    action.params.map((param: any) => {
+      if (param.required) {
+        requiredParams++;
+      }
+      if (param.required && param.value !== "") {
+        requiredParamsFilled++;
+      }
+    });
+    if (requiredParams === requiredParamsFilled) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   async function copyFlowAction() {
     setLoading(true);
+
+    const requiredParamsFilled = checkRequiredParams();
+
+    if (!requiredParamsFilled) {
+      setError(true);
+      setErrorText("Required parameters not filled");
+      setErrorMessage(
+        "Please fill all required parameters before creating the action",
+      );
+      setLoading(false);
+
+      return;
+    }
 
     const sendAction = {
       id: uuidv4(),
@@ -169,6 +201,19 @@ export default function CopyActionModal({
 
   async function copyFlowFailurePipelineAction() {
     setLoading(true);
+
+    const requiredParamsFilled = checkRequiredParams();
+
+    if (!requiredParamsFilled) {
+      setError(true);
+      setErrorText("Required parameters not filled");
+      setErrorMessage(
+        "Please fill all required parameters before creating the action",
+      );
+      setLoading(false);
+
+      return;
+    }
 
     const sendAction = {
       id: uuidv4(),
@@ -381,6 +426,22 @@ export default function CopyActionModal({
                               </p>
                               <div className="grid lg:grid-cols-2 gap-2">
                                 {action.params.map((param: any) => {
+                                  // an param can have depends_on set. If it is check, check for the required param and if its value matches
+                                  if (param.depends_on.key !== "") {
+                                    const dependsOnParam = action.params.find(
+                                      (p: any) =>
+                                        p.key === param.depends_on.key,
+                                    );
+
+                                    if (
+                                      !dependsOnParam ||
+                                      dependsOnParam.value !==
+                                        param.depends_on.value
+                                    ) {
+                                      return null; // skip this param if the condition is not met
+                                    }
+                                  }
+
                                   return (param.category || "Uncategorized") ===
                                     category ? (
                                     param.type === "text" ||

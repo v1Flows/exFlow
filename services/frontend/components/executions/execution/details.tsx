@@ -48,7 +48,7 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
       return "";
     }
 
-    if (execution.status === "success") {
+    if (execution.status === "success" || execution.status === "recovered") {
       return "success";
     }
 
@@ -82,7 +82,7 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
 
   return (
     <>
-      <div className="grid grid-cols-2 items-start items-stretch gap-4 lg:grid-cols-3 xl:grid-cols-7">
+      <div className="grid grid-cols-2 items-start items-stretch gap-4 lg:grid-cols-4 xl:grid-cols-7">
         <Card>
           <CardBody>
             <div className="flex items-center justify-start gap-2">
@@ -231,15 +231,20 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
         {execution.status !== "scheduled" && (
           <Card>
             <CardBody>
-              <div className="flex items-center justify-start gap-4">
-                <div className="flex size-12 items-center justify-center rounded-large bg-default bg-opacity-40">
-                  <Icon icon="hugeicons:timer-02" width={28} />
+              <Tooltip
+                content="The 'Pick Up' step is not considered in the calculation"
+                placement="top"
+              >
+                <div className="flex items-center justify-start gap-4">
+                  <div className="flex size-12 items-center justify-center rounded-large bg-default bg-opacity-40">
+                    <Icon icon="hugeicons:timer-02" width={28} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold">{getDuration()}</p>
+                    <p className="text-sm text-default-500">Duration</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-bold">{getDuration()}</p>
-                  <p className="text-sm text-default-500">Duration</p>
-                </div>
-              </div>
+              </Tooltip>
             </CardBody>
           </Card>
         )}

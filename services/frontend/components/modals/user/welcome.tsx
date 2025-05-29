@@ -12,7 +12,6 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@heroui/react";
-import { LibraryIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React from "react";
 

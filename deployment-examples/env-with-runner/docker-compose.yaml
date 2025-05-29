@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  exflow:
+    image: justnz/exflow:latest
+    depends_on:
+      - db
+    ports:
+      - "3000:3000" # exFlow frontend
+      - "8080:8080" # exFlow backend
+    # volumes:
+    #   - ./config.yaml:/etc/exflow/backend_config.yaml
+    environment:
+      # Adjust these if your config.yaml uses different DB settings
+      # BACKEND_LOG_LEVEL: info
+      # BACKEND_PORT: 8080
+      BACKEND_DATABASE_SERVER: db
+      # BACKEND_DATABASE_PORT: 5432
+      # BACKEND_DATABASE_NAME: postgres
+      # BACKEND_DATABASE_USER: postgres
+      # BACKEND_DATABASE_PASSWORD: postgres
+      # BACKEND_ENCRYPTION_ENABLED: "true"
+      BACKEND_ENCRYPTION_KEY: "change-me"
+      BACKEND_JWT_SECRET: "change-me"
+      BACKEND_RUNNER_SHARED_RUNNER_SECRET: "change-me"
+    entrypoint: ["/bin/sh", "-c", "until pg_isready -h db -p 5432 -U postgres; do sleep 1; done; exec ./exflow-backend --config /etc/exflow/backend_config.yaml & exec node /app/server.js"]
+
+  runner:
+    image: justnz/runner:latest
+    depends_on:
+      - exflow
+    ports:
+      - "8081:8081"
+    # volumes:
+    #   - ./runner-config.yaml:/app/config/config.yaml
+    environment:
+      RUNNER_LOG_LEVEL: info
+      RUNNER_MODE: master
+      RUNNER_ALERTFLOW_ENABLED: "false"
+      # RUNNER_ALERTFLOW_URL: ""
+      # RUNNER_ALERTFLOW_RUNNER_ID: ""
+      # RUNNER_ALERTFLOW_API_KEY: ""
+      RUNNER_EXFLOW_ENABLED: "true"
+      RUNNER_EXFLOW_URL: "http://exflow:8080"
+      # RUNNER_EXFLOW_RUNNER_ID: ""
+      # RUNNER_EXFLOW_API_KEY: ""
+      RUNNER_API_ENDPOINT_PORT: 8081
+      # RUNNER_WORKSPACE_DIR: ""
+      # RUNNER_PLUGIN_DIR: ""
+      RUNNER_RUNNER_SHARED_RUNNER_SECRET: "change-me"
+
+volumes:
+  db_data:

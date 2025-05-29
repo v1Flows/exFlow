@@ -18,11 +18,11 @@ type SuccessResponse = {
   data: Result;
 };
 
-export default async function CreateProjectToken({
+export default async function CreateProjectToken(
   projectId,
   expiresIn,
   description,
-}: any): Promise<SuccessResponse | ErrorResponse> {
+): Promise<SuccessResponse | ErrorResponse> {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get("session");

@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/no-autofocus */
 import type { UseDisclosureReturn } from "@heroui/use-disclosure";
 
 import { isMobile } from "react-device-detect";
@@ -241,6 +242,25 @@ export default function AddActionModal({
     setActionParamsCategorys(Array.from(categories));
   }
 
+  function checkRequiredParams() {
+    let requiredParams = 0;
+    let requiredParamsFilled = 0;
+
+    action.params.map((param: any) => {
+      if (param.required) {
+        requiredParams++;
+      }
+      if (param.required && param.value !== "") {
+        requiredParamsFilled++;
+      }
+    });
+    if (requiredParams === requiredParamsFilled) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   function cancel() {
     setStatus(true);
     setAction({
@@ -263,6 +283,19 @@ export default function AddActionModal({
 
   async function createFlowAction() {
     setLoading(true);
+
+    const requiredParamsFilled = checkRequiredParams();
+
+    if (!requiredParamsFilled) {
+      setError(true);
+      setErrorText("Required parameters not filled");
+      setErrorMessage(
+        "Please fill all required parameters before creating the action",
+      );
+      setLoading(false);
+
+      return;
+    }
 
     const sendAction = {
       id: uuidv4(),
@@ -341,6 +374,19 @@ export default function AddActionModal({
 
   async function createFlowFailurePipelineAction() {
     setLoading(true);
+
+    const requiredParamsFilled = checkRequiredParams();
+
+    if (!requiredParamsFilled) {
+      setError(true);
+      setErrorText("Required parameters not filled");
+      setErrorMessage(
+        "Please fill all required parameters before creating the action",
+      );
+      setLoading(false);
+
+      return;
+    }
 
     const sendAction = {
       id: uuidv4(),
@@ -510,6 +556,7 @@ export default function AddActionModal({
                         </div>
                         <Spacer y={4} />
                         <Input
+                          autoFocus
                           placeholder="Search..."
                           size="md"
                           startContent={<Icon icon="hugeicons:search-01" />}
@@ -583,7 +630,7 @@ export default function AddActionModal({
                             <div className="flex flex-col">
                               <div className="flex flex-cols gap-2 items-center">
                                 <p className="text-lg font-bold">
-                                  {action.name}
+                                  {action.custom_name || action.name}
                                 </p>
                                 <Chip
                                   color="primary"
@@ -595,7 +642,8 @@ export default function AddActionModal({
                                 </Chip>
                               </div>
                               <p className="text-sm text-default-500">
-                                {action.description}
+                                {action.custom_description ||
+                                  action.description}
                               </p>
                             </div>
                           </div>
@@ -663,6 +711,22 @@ export default function AddActionModal({
                                 </p>
                                 <div className="grid lg:grid-cols-2 gap-2">
                                   {action.params.map((param: any) => {
+                                    // an param can have depends_on set. If it is check, check for the required param and if its value matches
+                                    if (param.depends_on.key !== "") {
+                                      const dependsOnParam = action.params.find(
+                                        (p: any) =>
+                                          p.key === param.depends_on.key,
+                                      );
+
+                                      if (
+                                        !dependsOnParam ||
+                                        dependsOnParam.value !==
+                                          param.depends_on.value
+                                      ) {
+                                        return null; // skip this param if the condition is not met
+                                      }
+                                    }
+
                                     return (param.category ||
                                       "Uncategorized") === category ? (
                                       param.type === "text" ||

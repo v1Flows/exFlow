@@ -5,6 +5,7 @@ import type { UseDisclosureReturn } from "@heroui/use-disclosure";
 import {
   addToast,
   Button,
+  Form,
   Input,
   Modal,
   ModalBody,
@@ -15,7 +16,7 @@ import {
   useDisclosure,
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
 import { Icon } from "@iconify/react";
 
 import AddRunner from "@/lib/fetch/runner/POST/AddRunner";
@@ -36,30 +37,34 @@ export default function CreateRunnerModal({
   // instructions modal
   const { isOpen: isOpenInstructions, onOpenChange: onOpenChangeInstructions } =
     useDisclosure();
-  const [inApikey, setInApikey] = React.useState("");
-  const [inRunnerId, setInRunnerId] = React.useState("");
+  const [inApikey, setInApikey] = useState("");
+  const [inRunnerId, setInRunnerId] = useState("");
 
-  const [name, setName] = React.useState("");
+  const [errors] = useState({});
+  const [apiError, setApiError] = useState(false);
+  const [apiErrorText, setApiErrorText] = useState("");
+  const [apiErrorMessage, setApiErrorMessage] = useState("");
 
   const [isLoading, setIsLoading] = React.useState(false);
-  const [error, setError] = React.useState(false);
-  const [errorText, setErrorText] = React.useState("");
-  const [errorMessage, setErrorMessage] = React.useState("");
 
-  async function createRunner() {
+  const onSubmit = async (e) => {
+    e.preventDefault();
+
     setIsLoading(true);
 
-    const response = (await AddRunner({
-      projectId: project.id ? project.id : "none",
-      name,
-      shared_runner,
-    })) as any;
+    const data = Object.fromEntries(new FormData(e.currentTarget));
 
-    if (!response) {
+    const res = (await AddRunner(
+      project.id ? project.id : "none",
+      data.name.toString(),
+      shared_runner,
+    )) as any;
+
+    if (!res) {
       setIsLoading(false);
-      setError(true);
-      setErrorText("Failed to create runner");
-      setErrorMessage("An error occurred while creating the runner");
+      setApiError(true);
+      setApiErrorText("Failed to create runner");
+      setApiErrorMessage("An error occurred while creating the runner");
       addToast({
         title: "Runner",
         description: "Failed to create runner",
@@ -70,16 +75,15 @@ export default function CreateRunnerModal({
       return;
     }
 
-    if (response.success) {
-      setName("");
+    if (res.success) {
       onOpenChange();
-      setError(false);
-      setErrorText("");
-      setErrorMessage("");
+      setApiError(false);
+      setApiErrorText("");
+      setApiErrorMessage("");
 
       // set variables
-      setInApikey(response.data.token);
-      setInRunnerId(response.data.runner.id);
+      setInApikey(res.data.token);
+      setInRunnerId(res.data.runner.id);
       onOpenChangeInstructions();
       router.refresh();
       addToast({
@@ -89,19 +93,19 @@ export default function CreateRunnerModal({
         variant: "flat",
       });
     } else {
-      setError(true);
-      setErrorText(response.error.error);
-      setErrorMessage(response.error.message);
+      setApiError(true);
+      setApiErrorText(res.error.error);
+      setApiErrorMessage(res.error.message);
       addToast({
         title: "Runner",
-        description: `Failed to create runner: ${response.error.error}`,
+        description: `Failed to create runner: ${res.error.error}`,
         color: "danger",
         variant: "flat",
       });
     }
 
     setIsLoading(false);
-  }
+  };
 
   return (
     <>
@@ -118,36 +122,49 @@ export default function CreateRunnerModal({
                 </div>
               </ModalHeader>
               <ModalBody>
-                {error && (
-                  <ErrorCard error={errorText} message={errorMessage} />
+                {apiError && (
+                  <ErrorCard error={apiErrorText} message={apiErrorMessage} />
                 )}
-                <Input
-                  label="Name"
-                  labelPlacement="outside"
-                  placeholder="Enter the runner name"
-                  value={name}
-                  variant="flat"
-                  onValueChange={setName}
-                />
+                <Form
+                  className="w-full items-stretch"
+                  validationErrors={errors}
+                  onSubmit={onSubmit}
+                >
+                  <div className="flex flex-col gap-4">
+                    <Input
+                      isRequired
+                      label="Name"
+                      name="name"
+                      placeholder="Enter the runner name"
+                      variant="flat"
+                    />
+                  </div>
+
+                  <div className="flex flex-cols gap-2 mt-4 mb-2 items-center justify-end">
+                    <Button
+                      color="default"
+                      startContent={
+                        <Icon icon="hugeicons:cancel-01" width={18} />
+                      }
+                      type="reset"
+                      variant="ghost"
+                      onPress={onClose}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      color="primary"
+                      isLoading={isLoading}
+                      startContent={
+                        <Icon icon="hugeicons:plus-sign" width={18} />
+                      }
+                      type="submit"
+                    >
+                      Create
+                    </Button>
+                  </div>
+                </Form>
               </ModalBody>
-              <ModalFooter>
-                <Button
-                  color="default"
-                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
-                  variant="ghost"
-                  onPress={onClose}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  color="primary"
-                  isLoading={isLoading}
-                  startContent={<Icon icon="hugeicons:plus-sign" width={18} />}
-                  onPress={createRunner}
-                >
-                  Create
-                </Button>
-              </ModalFooter>
             </>
           )}
         </ModalContent>

@@ -54,5 +54,24 @@ func GetFlowExecutions(context *gin.Context, db *bun.DB) {
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"executions": executions})
+	// Fetch steps for each execution and build ExecutionWithSteps
+	executionsWithSteps := make([]models.ExecutionWithSteps, 0, len(executions))
+	for _, exec := range executions {
+		steps := make([]models.ExecutionSteps, 0)
+		err := db.NewSelect().
+			Model(&steps).
+			Where("execution_id = ?", exec.ID).
+			Order("created_at ASC").
+			Scan(context)
+		if err != nil {
+			httperror.InternalServerError(context, "Error collecting execution steps from db", err)
+			return
+		}
+		executionsWithSteps = append(executionsWithSteps, models.ExecutionWithSteps{
+			Executions: exec,
+			Steps:      steps,
+		})
+	}
+
+	context.JSON(http.StatusOK, gin.H{"executions": executionsWithSteps})
 }

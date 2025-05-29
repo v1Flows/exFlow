@@ -1,6 +1,5 @@
 import { Divider } from "@heroui/react";
 
-import GetFolders from "@/lib/fetch/folder/all";
 import GetUserDetails from "@/lib/fetch/user/getDetails";
 import AdminGetFlows from "@/lib/fetch/admin/flows";
 import AdminGetProjects from "@/lib/fetch/admin/projects";

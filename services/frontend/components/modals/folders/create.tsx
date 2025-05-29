@@ -5,17 +5,17 @@ import type { UseDisclosureReturn } from "@heroui/use-disclosure";
 import {
   addToast,
   Button,
+  Form,
   Input,
   Modal,
   ModalBody,
   ModalContent,
-  ModalFooter,
   ModalHeader,
   Select,
   SelectItem,
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
 import { Icon } from "@iconify/react";
 
 import ErrorCard from "@/components/error/ErrorCard";
@@ -33,39 +33,32 @@ export default function CreateFolderModal({
   const router = useRouter();
   const { isOpen, onOpenChange } = disclosure;
 
-  const [name, setName] = React.useState("");
-  const [description, setDescription] = React.useState("");
-  const [projectID, setProjectID] = React.useState("");
-  const [parentFolderID, setParentFolderID] = React.useState("");
+  const [errors] = useState({});
+  const [apiError, setApiError] = useState(false);
+  const [apiErrorText, setApiErrorText] = useState("");
+  const [apiErrorMessage, setApiErrorMessage] = useState("");
 
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [error, setError] = React.useState(false);
-  const [errorText, setErrorText] = React.useState("");
-  const [errorMessage, setErrorMessage] = React.useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSelectParentFolder = (e: any) => {
-    setParentFolderID(e.currentKey);
-  };
+  const onSubmit = async (e) => {
+    e.preventDefault();
 
-  const handleSelectProject = (e: any) => {
-    setProjectID(e.currentKey);
-  };
-
-  async function createFolder() {
     setIsLoading(true);
 
-    const response = (await CreateFolder({
-      name,
-      description,
-      parentFolderID,
-      projectID,
+    const data = Object.fromEntries(new FormData(e.currentTarget));
+
+    const res = (await CreateFolder({
+      name: data.name.toString(),
+      description: data.description.toString(),
+      parentFolderID: data.parentFolderID.toString(),
+      projectID: data.projectID.toString(),
     })) as any;
 
-    if (!response) {
+    if (!res) {
       setIsLoading(false);
-      setError(true);
-      setErrorText("Failed to create folder");
-      setErrorMessage("An error occurred while creating the folder");
+      setApiError(true);
+      setApiErrorText("Failed to create folder");
+      setApiErrorMessage("An error occurred while creating the folder");
       addToast({
         title: "Folder",
         description: "Failed to create folder",
@@ -76,13 +69,11 @@ export default function CreateFolderModal({
       return;
     }
 
-    if (response.success) {
-      setName("");
-      setDescription("");
+    if (res.success) {
       onOpenChange();
-      setError(false);
-      setErrorText("");
-      setErrorMessage("");
+      setApiError(false);
+      setApiErrorText("");
+      setApiErrorMessage("");
 
       router.refresh();
       addToast({
@@ -92,19 +83,19 @@ export default function CreateFolderModal({
         variant: "flat",
       });
     } else {
-      setError(true);
-      setErrorText(response.error);
-      setErrorMessage(response.message);
+      setApiError(true);
+      setApiErrorText(res.error);
+      setApiErrorMessage(res.message);
       addToast({
         title: "Folder",
-        description: `Failed to create folder: ${response.error}`,
+        description: `Failed to create folder: ${res.error}`,
         color: "danger",
         variant: "flat",
       });
     }
 
     setIsLoading(false);
-  }
+  };
 
   return (
     <>
@@ -121,62 +112,67 @@ export default function CreateFolderModal({
                 </div>
               </ModalHeader>
               <ModalBody>
-                {error && (
-                  <ErrorCard error={errorText} message={errorMessage} />
+                {apiError && (
+                  <ErrorCard error={apiErrorText} message={apiErrorMessage} />
                 )}
-                <Input
-                  isRequired
-                  label="Name"
-                  value={name}
-                  variant="flat"
-                  onValueChange={setName}
-                />
-                <Input
-                  label="Description"
-                  value={description}
-                  variant="flat"
-                  onValueChange={setDescription}
-                />
-                <Select
-                  label="Parent Folder"
-                  value={[parentFolderID]}
-                  variant="flat"
-                  onSelectionChange={handleSelectParentFolder}
+                <Form
+                  className="w-full items-stretch"
+                  validationErrors={errors}
+                  onSubmit={onSubmit}
                 >
-                  {folders.map((folder) => (
-                    <SelectItem key={folder.id}>{folder.name}</SelectItem>
-                  ))}
-                </Select>
-                <Select
-                  isRequired
-                  label="Project"
-                  value={[projectID]}
-                  variant="flat"
-                  onSelectionChange={handleSelectProject}
-                >
-                  {projects.map((project) => (
-                    <SelectItem key={project.id}>{project.name}</SelectItem>
-                  ))}
-                </Select>
+                  <div className="flex flex-col gap-4">
+                    <Input isRequired label="Name" name="name" variant="flat" />
+                    <Input
+                      label="Description"
+                      name="description"
+                      variant="flat"
+                    />
+                    <Select
+                      isRequired
+                      label="Project"
+                      name="projectID"
+                      variant="flat"
+                    >
+                      {projects.map((project) => (
+                        <SelectItem key={project.id}>{project.name}</SelectItem>
+                      ))}
+                    </Select>
+                    <Select
+                      label="Parent Folder"
+                      name="parentFolderID"
+                      variant="flat"
+                    >
+                      {folders.map((folder) => (
+                        <SelectItem key={folder.id}>{folder.name}</SelectItem>
+                      ))}
+                    </Select>
+                  </div>
+
+                  <div className="flex flex-cols gap-2 mt-4 mb-2 items-center justify-end">
+                    <Button
+                      color="default"
+                      startContent={
+                        <Icon icon="hugeicons:cancel-01" width={18} />
+                      }
+                      type="reset"
+                      variant="ghost"
+                      onPress={onClose}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      color="primary"
+                      isLoading={isLoading}
+                      startContent={
+                        <Icon icon="hugeicons:plus-sign" width={18} />
+                      }
+                      type="submit"
+                    >
+                      Create
+                    </Button>
+                  </div>
+                </Form>
               </ModalBody>
-              <ModalFooter>
-                <Button
-                  color="default"
-                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
-                  variant="ghost"
-                  onPress={onClose}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  color="primary"
-                  isLoading={isLoading}
-                  startContent={<Icon icon="hugeicons:plus-sign" width={18} />}
-                  onPress={createFolder}
-                >
-                  Create
-                </Button>
-              </ModalFooter>
             </>
           )}
         </ModalContent>

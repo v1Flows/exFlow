@@ -1,23 +1,14 @@
 ---
-
 log_level: info
-
-port: 8080
-
+port: 8081
 database:
-  server: localhost
+  server: db
   port: 5432
   name: postgres
   user: postgres
   password: postgres
-
 encryption:
   enabled: true
-  # maximum 32 characters
-  key: null
-
+  key: 0AMutjk[Ga:a4.?0nLv|Sf[s?o~Q-RW>
 jwt:
-  secret: null
-
-runner:
-  shared_runner_secret: null
+  secret: TyO7,:`(!DcBF@tK!NU6l$AU+Dd`&FGtDS4Uj,)SDQ[rsEhB
