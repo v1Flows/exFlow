@@ -1,16 +1,16 @@
 import ErrorCard from "@/components/error/ErrorCard";
-import GetExecutions from "@/lib/fetch/executions/all";
 import GetFlows from "@/lib/fetch/flow/all";
 import GetRunners from "@/lib/fetch/runner/get";
 import GetUserDetails from "@/lib/fetch/user/getDetails";
 import GetUserStats from "@/lib/fetch/user/stats";
 import DashboardHome from "@/components/dashboard/home";
+import GetExecutionsWithAttention from "@/lib/fetch/executions/attention";
 
 export default async function DashboardHomePage() {
   const statsData = GetUserStats();
   const flowsData = GetFlows();
   const runnersData = GetRunners();
-  const executionsData = GetExecutions();
+  const executionsData = GetExecutionsWithAttention();
   const userData = GetUserDetails();
 
   const [stats, flows, runners, executions, user] = (await Promise.all([
@@ -29,7 +29,7 @@ export default async function DashboardHomePage() {
       stats.success &&
       user.success ? (
         <DashboardHome
-          executions={executions.data.executions}
+          executionsWithAttention={executions.data.executions}
           flows={flows.data.flows}
           runners={runners.data.runners}
           stats={stats.data.stats}

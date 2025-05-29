@@ -22,6 +22,10 @@ func Executions(router *gin.RouterGroup, db *bun.DB) {
 			executions.GetRunningExecutions(c, db)
 		})
 
+		execution.GET("/attention", func(c *gin.Context) {
+			executions.GetExecutionsWithAttention(c, db)
+		})
+
 		execution.POST("/schedule", func(c *gin.Context) {
 			executions.ScheduleExecution(c, db)
 		})

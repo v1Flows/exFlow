@@ -14,7 +14,6 @@ export default function FlowTabs({
   projects,
   flows,
   flow,
-  executions,
   runners,
   user,
   members,
@@ -89,7 +88,7 @@ export default function FlowTabs({
           >
             <Executions
               canEdit={checkUserCanEdit()}
-              executions={executions}
+              flowID={flow.id}
               runners={runners}
             />
           </Tab>

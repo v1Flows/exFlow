@@ -4,9 +4,6 @@ import { cookies } from "next/headers";
 
 type Executions = {
   executions: [];
-  limit: number;
-  offset: number;
-  total: number;
 };
 
 type ErrorResponse = {
@@ -20,11 +17,9 @@ type SuccessResponse = {
   data: Executions;
 };
 
-export async function GetExecutions(
-  limit: number = 10,
-  offset: number = 0,
-  status: string | null = null,
-): Promise<SuccessResponse | ErrorResponse> {
+export async function GetExecutionsWithAttention(): Promise<
+  SuccessResponse | ErrorResponse
+> {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get("session");
@@ -38,7 +33,7 @@ export async function GetExecutions(
     }
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/executions?limit=${limit}&offset=${offset}&status=${status || ""}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/executions/attention`,
       {
         method: "GET",
         headers: {
@@ -73,4 +68,4 @@ export async function GetExecutions(
   }
 }
 
-export default GetExecutions;
+export default GetExecutionsWithAttention;
