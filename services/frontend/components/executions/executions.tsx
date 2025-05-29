@@ -1,10 +1,8 @@
 import {
-  Badge,
   Button,
   ButtonGroup,
   Card,
   CardBody,
-  Chip,
   Dropdown,
   DropdownItem,
   DropdownMenu,
@@ -14,7 +12,7 @@ import {
   Tooltip,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { useExecutionsStyleStore } from "@/lib/functions/userExecutionsStyle";
@@ -24,6 +22,8 @@ import {
   executionStatusIcon,
   executionStatusName,
 } from "@/lib/functions/executionStyles";
+import GetExecutions from "@/lib/fetch/executions/all";
+import GetFlowExecutions from "@/lib/fetch/flow/executions";
 
 import ExecutionsList from "./executionsList";
 import ExecutionsTable from "./executionsTable";
@@ -31,48 +31,73 @@ import ExecutionsCompact from "./executionsCompact";
 
 export default function Executions({
   runners,
-  executions,
   displayToFlow,
   canEdit,
   flows,
+  flowID,
 }: any) {
   const router = useRouter();
 
   const { displayStyle, setDisplayStyle } = useExecutionsStyleStore();
   const [statusFilter, setStatusFilter] = useState(new Set([]) as any);
 
+  const [totalExecutions, setTotalExecutions] = useState(0);
+  const [executions, setExecutions] = useState([] as any);
+  const [refreshKey, setRefreshKey] = useState(0);
+
   // pagination
   const [page, setPage] = useState(1);
-  const rowsPerPage =
+  const limit =
     displayStyle === "list" ? 4 : displayStyle === "compact" ? 6 : 10;
-  const items = useMemo(() => {
-    const start = (page - 1) * rowsPerPage;
-    const end = start + rowsPerPage;
+  const offset = (page - 1) * limit;
 
+  const items = useMemo(() => {
     if (statusFilter.size > 0) {
-      return executions
-        .filter((execution: any) =>
-          statusFilter.has(statusFilterReturn(execution)),
-        )
-        .slice(start, end);
+      return executions.filter((execution: any) =>
+        statusFilter.has(statusFilterReturn(execution)),
+      );
     }
 
-    return executions.slice(start, end);
-  }, [page, executions, statusFilter, displayStyle]);
+    return executions;
+  }, [executions, statusFilter]);
+
+  useEffect(() => {
+    async function fetchExecutions() {
+      let res: any;
+
+      if (flowID) {
+        res = await GetFlowExecutions(
+          flowID,
+          limit,
+          offset,
+          statusFilter.size > 0 ? Array.from(statusFilter).join(",") : null,
+        );
+      } else {
+        res = await GetExecutions(
+          limit,
+          offset,
+          statusFilter.size > 0 ? Array.from(statusFilter).join(",") : null,
+        );
+      }
+
+      if (res.success) {
+        setExecutions(res.data.executions);
+        setTotalExecutions(res.data.total);
+      }
+    }
+    fetchExecutions();
+  }, [page, statusFilter, displayStyle, refreshKey]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRefreshKey((k) => k + 1);
+    }, 5000); // 5 seconds
+
+    return () => clearInterval(interval);
+  }, []);
 
   function pages() {
-    let length = 0;
-
-    if (statusFilter.size > 0) {
-      length =
-        executions.filter((execution: any) =>
-          statusFilter.has(statusFilterReturn(execution)),
-        ).length / rowsPerPage;
-    } else {
-      length = executions.length / rowsPerPage;
-    }
-
-    return Math.ceil(length);
+    return Math.ceil(totalExecutions / limit);
   }
 
   function statusFilterReturn(execution: any) {
@@ -104,62 +129,7 @@ export default function Executions({
   return (
     <Card>
       <CardBody className="p-0 h-full overflow-hidden">
-        <div className="p-4 border-b border-default-100 flex flex-wrap gap-4 justify-between items-center">
-          <div className="flex flex-wrap items-center gap-2">
-            {executionStatuses().map((status: any) => {
-              const count = executions.filter(
-                (e: any) => e.status === status,
-              ).length;
-
-              if (count === 0) return null;
-
-              return (
-                <Badge
-                  key={status}
-                  color={executionStatusColor({ status: status })}
-                  content={count}
-                  showOutline={false}
-                  size="md"
-                  variant="solid"
-                >
-                  <Chip
-                    color={
-                      statusFilter.has(status)
-                        ? executionStatusColor({ status: status })
-                        : "default"
-                    }
-                    radius="sm"
-                    size="md"
-                    startContent={
-                      <Icon
-                        className={`text-${
-                          statusFilter.has(status)
-                            ? "default"
-                            : executionStatusColor({ status: status })
-                        }`}
-                        icon={executionStatusIcon({ status: status })}
-                        width={20}
-                      />
-                    }
-                    variant={statusFilter.has(status) ? "solid" : "flat"}
-                    onClick={() => {
-                      if (statusFilter.has(status)) {
-                        statusFilter.delete(status);
-                        setStatusFilter(new Set(statusFilter));
-                        // setPage(1);
-                      } else {
-                        statusFilter.add(status);
-                        setStatusFilter(new Set(statusFilter));
-                        // setPage(1);
-                      }
-                    }}
-                  >
-                    {executionStatusName({ status: status })}
-                  </Chip>
-                </Badge>
-              );
-            })}
-          </div>
+        <div className="p-4 border-b border-default-100 flex flex-wrap gap-4 justify-end items-center">
           <div className="flex gap-2">
             <Dropdown backdrop="blur">
               <DropdownTrigger>
@@ -209,6 +179,7 @@ export default function Executions({
               }
               variant="flat"
               onPress={() => {
+                setRefreshKey((k) => k + 1);
                 router.refresh();
               }}
             >

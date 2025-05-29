@@ -218,7 +218,7 @@ export default function ExecutionsList({
                   >
                     {execution.steps.map((step, index) => (
                       <div
-                        key={step.key}
+                        key={step.id}
                         className="flex flex-cols items-center justify-center min-w-[200px] mb-3"
                       >
                         <Tooltip

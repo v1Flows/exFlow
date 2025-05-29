@@ -67,14 +67,13 @@ export default async function FlowPage({
           />
           <Divider className="mt-4 mb-4" />
           <FlowDetails
-            executions={executions.data.executions}
             flow={flow.data.flow}
             project={project.data.project}
             runners={runners.data.runners}
+            totalExecutions={executions.data.total}
           />
           <Spacer y={4} />
           <FlowTabs
-            executions={executions.data.executions}
             flow={flow.data.flow}
             flows={flows.data.flows}
             members={project.data.project.members}
