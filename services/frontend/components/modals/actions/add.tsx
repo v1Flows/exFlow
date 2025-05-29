@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/no-autofocus */
 import type { UseDisclosureReturn } from "@heroui/use-disclosure";
 
 import { isMobile } from "react-device-detect";
@@ -555,6 +556,7 @@ export default function AddActionModal({
                         </div>
                         <Spacer y={4} />
                         <Input
+                          autoFocus
                           placeholder="Search..."
                           size="md"
                           startContent={<Icon icon="hugeicons:search-01" />}
