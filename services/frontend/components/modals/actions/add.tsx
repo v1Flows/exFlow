@@ -761,8 +761,12 @@ export default function AddActionModal({
                   {currentStep === 2 && (
                     <div className="flex flex-col w-full">
                       <p className="text-lg font-bold">Conditional Execution</p>
+                      <p className="text-default-500">
+                        If nothing is selected conditional execution will be
+                        disabled.
+                      </p>
                       <Divider className="mb-4 mt-2" />
-                      <Accordion defaultExpandedKeys={["examples"]}>
+                      <Accordion>
                         <AccordionItem
                           key="examples"
                           aria-label="Conditional Examples"
@@ -1315,6 +1319,33 @@ export default function AddActionModal({
                 >
                   Cancel
                 </Button>
+                {currentStep === 2 && (
+                  <Button
+                    color="warning"
+                    startContent={
+                      <Icon icon="hugeicons:file-sync" width={18} />
+                    }
+                    variant="ghost"
+                    onPress={() => {
+                      setAction({
+                        ...action,
+                        condition: {
+                          selected_action_id: "",
+                          condition_items: [
+                            {
+                              condition_key: "",
+                              condition_type: "",
+                              condition_value: "",
+                              condition_logic: "and",
+                            },
+                          ],
+                        },
+                      });
+                    }}
+                  >
+                    Reset Current Input
+                  </Button>
+                )}
                 {currentStep > 0 ? (
                   <Button
                     color="default"

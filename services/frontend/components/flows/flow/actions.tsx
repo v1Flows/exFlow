@@ -652,8 +652,10 @@ export default function Actions({
                                 <TableCell>
                                   {condition.condition_value}
                                 </TableCell>
-                                <TableCell>
-                                  {condition.condition_logic}
+                                <TableCell className="text-primary font-semibold">
+                                  {condition.condition_logic === "and"
+                                    ? "&"
+                                    : "or"}
                                 </TableCell>
                               </TableRow>
                             ),
