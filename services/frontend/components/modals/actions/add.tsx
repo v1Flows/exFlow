@@ -1168,34 +1168,52 @@ export default function AddActionModal({
                                 </p>
                                 <div className="grid lg:grid-cols-2 gap-2">
                                   {action.params.map((param: any) => {
-                                    // an param can have depends_on set. If it is check, check for the required param and if its value matches
+                                    // Check if param belongs to this category first
+                                    if (
+                                      (param.category || "Uncategorized") !==
+                                      category
+                                    ) {
+                                      return null;
+                                    }
+
+                                    // Check if param has depends_on set and evaluate the condition
+                                    let isDisabled = false;
+
                                     if (param.depends_on.key !== "") {
                                       const dependsOnParam = action.params.find(
                                         (p: any) =>
                                           p.key === param.depends_on.key,
                                       );
 
-                                      if (
-                                        !dependsOnParam ||
-                                        dependsOnParam.value !==
-                                          param.depends_on.value
+                                      if (!dependsOnParam) {
+                                        isDisabled = true;
+                                      } else if (
+                                        param.depends_on.value === "*"
                                       ) {
-                                        return null; // skip this param if the condition is not met
+                                        // Wildcard: any non-empty value is acceptable
+                                        isDisabled =
+                                          !dependsOnParam.value ||
+                                          dependsOnParam.value.trim() === "";
+                                      } else {
+                                        // Exact match required
+                                        isDisabled =
+                                          dependsOnParam.value !==
+                                          param.depends_on.value;
                                       }
                                     }
 
-                                    return (param.category ||
-                                      "Uncategorized") === category ? (
-                                      param.type === "text" ||
+                                    return param.type === "text" ||
                                       param.type === "number" ? (
-                                        <Input
-                                          key={param.key}
-                                          description={param?.description}
-                                          isRequired={param.required}
-                                          label={param.title || param.key}
-                                          type={param.type}
-                                          value={param.value}
-                                          onValueChange={(e) => {
+                                      <Input
+                                        key={param.key}
+                                        description={param?.description}
+                                        isDisabled={isDisabled}
+                                        isRequired={param.required}
+                                        label={param.title || param.key}
+                                        type={param.type}
+                                        value={param.value}
+                                        onValueChange={(e) => {
+                                          if (!isDisabled) {
                                             setAction({
                                               ...action,
                                               params: action.params.map(
@@ -1208,16 +1226,19 @@ export default function AddActionModal({
                                                 },
                                               ),
                                             });
-                                          }}
-                                        />
-                                      ) : param.type === "boolean" ? (
-                                        <Select
-                                          key={param.key}
-                                          description={param?.description}
-                                          isRequired={param.required}
-                                          label={param.title || param.key}
-                                          selectedKeys={[param.value]}
-                                          onSelectionChange={(e) => {
+                                          }
+                                        }}
+                                      />
+                                    ) : param.type === "boolean" ? (
+                                      <Select
+                                        key={param.key}
+                                        description={param?.description}
+                                        isDisabled={isDisabled}
+                                        isRequired={param.required}
+                                        label={param.title || param.key}
+                                        selectedKeys={[param.value]}
+                                        onSelectionChange={(e) => {
+                                          if (!isDisabled) {
                                             const value =
                                               Array.from(e).join("");
 
@@ -1233,25 +1254,26 @@ export default function AddActionModal({
                                                 },
                                               ),
                                             });
-                                          }}
-                                        >
-                                          <SelectItem key="true">
-                                            true
-                                          </SelectItem>
-                                          <SelectItem key="false">
-                                            false
-                                          </SelectItem>
-                                        </Select>
-                                      ) : param.type === "textarea" ? (
-                                        <Textarea
-                                          key={param.key}
-                                          className="col-span-2"
-                                          description={param?.description}
-                                          isRequired={param.required}
-                                          label={param.title || param.key}
-                                          type={param.type}
-                                          value={param.value}
-                                          onValueChange={(e) => {
+                                          }
+                                        }}
+                                      >
+                                        <SelectItem key="true">true</SelectItem>
+                                        <SelectItem key="false">
+                                          false
+                                        </SelectItem>
+                                      </Select>
+                                    ) : param.type === "textarea" ? (
+                                      <Textarea
+                                        key={param.key}
+                                        className="col-span-2"
+                                        description={param?.description}
+                                        isDisabled={isDisabled}
+                                        isRequired={param.required}
+                                        label={param.title || param.key}
+                                        type={param.type}
+                                        value={param.value}
+                                        onValueChange={(e) => {
+                                          if (!isDisabled) {
                                             setAction({
                                               ...action,
                                               params: action.params.map(
@@ -1264,17 +1286,20 @@ export default function AddActionModal({
                                                 },
                                               ),
                                             });
-                                          }}
-                                        />
-                                      ) : param.type === "password" ? (
-                                        <Input
-                                          key={param.key}
-                                          description={param?.description}
-                                          isRequired={param.required}
-                                          label={param.title || param.key}
-                                          type={param.type}
-                                          value={param.value}
-                                          onValueChange={(e) => {
+                                          }
+                                        }}
+                                      />
+                                    ) : param.type === "password" ? (
+                                      <Input
+                                        key={param.key}
+                                        description={param?.description}
+                                        isDisabled={isDisabled}
+                                        isRequired={param.required}
+                                        label={param.title || param.key}
+                                        type={param.type}
+                                        value={param.value}
+                                        onValueChange={(e) => {
+                                          if (!isDisabled) {
                                             setAction({
                                               ...action,
                                               params: action.params.map(
@@ -1287,17 +1312,20 @@ export default function AddActionModal({
                                                 },
                                               ),
                                             });
-                                          }}
-                                        />
-                                      ) : param.type === "select" ? (
-                                        <Select
-                                          key={param.key}
-                                          defaultSelectedKeys={[param.default]}
-                                          description={param?.description}
-                                          isRequired={param.required}
-                                          label={param.title || param.key}
-                                          selectedKeys={[param.value]}
-                                          onSelectionChange={(e) => {
+                                          }
+                                        }}
+                                      />
+                                    ) : param.type === "select" ? (
+                                      <Select
+                                        key={param.key}
+                                        defaultSelectedKeys={[param.default]}
+                                        description={param?.description}
+                                        isDisabled={isDisabled}
+                                        isRequired={param.required}
+                                        label={param.title || param.key}
+                                        selectedKeys={[param.value]}
+                                        onSelectionChange={(e) => {
+                                          if (!isDisabled) {
                                             const value =
                                               Array.from(e).join("");
 
@@ -1313,15 +1341,15 @@ export default function AddActionModal({
                                                 },
                                               ),
                                             });
-                                          }}
-                                        >
-                                          {param.options.map((option: any) => (
-                                            <SelectItem key={option.key}>
-                                              {option.value}
-                                            </SelectItem>
-                                          ))}
-                                        </Select>
-                                      ) : null
+                                          }
+                                        }}
+                                      >
+                                        {param.options.map((option: any) => (
+                                          <SelectItem key={option.key}>
+                                            {option.value}
+                                          </SelectItem>
+                                        ))}
+                                      </Select>
                                     ) : null;
                                   })}
                                 </div>
