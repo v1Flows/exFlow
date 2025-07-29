@@ -16,6 +16,7 @@ import {
   ButtonGroup,
   Card,
   CardBody,
+  Checkbox,
   Chip,
   Divider,
   Dropdown,
@@ -590,6 +591,19 @@ export default function Actions({
                       subtitle="View condition details (click to expand)"
                       title="Conditions"
                     >
+                      <div className="mb-2">
+                        <p>Options</p>
+                        <Checkbox
+                          isDisabled
+                          color="danger"
+                          isSelected={action.condition.cancel_execution}
+                        >
+                          <span className="text-danger font-bold">Cancel</span>{" "}
+                          Execution if conditions match and dont start any
+                          following action.
+                        </Checkbox>
+                      </div>
+                      <Divider className="mb-2" />
                       <div className="flex items-center gap-2 mb-2">
                         <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
                           <Icon

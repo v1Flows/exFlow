@@ -11,6 +11,7 @@ import {
   Button,
   Card,
   CardBody,
+  Checkbox,
   Chip,
   Divider,
   Input,
@@ -141,6 +142,7 @@ export default function AddActionModal({
           condition_logic: "and",
         },
       ],
+      cancel_execution: false,
     },
   });
   const [actionParamsCategorys, setActionParamsCategorys] = useState([] as any);
@@ -248,6 +250,7 @@ export default function AddActionModal({
           condition_logic: "and",
         },
       ],
+      cancel_execution: false,
     };
 
     setAction(action);
@@ -312,6 +315,7 @@ export default function AddActionModal({
             condition_logic: "and",
           },
         ],
+        cancel_execution: false,
       },
     });
     setCurrentStep(0);
@@ -395,6 +399,7 @@ export default function AddActionModal({
               condition_logic: "and",
             },
           ],
+          cancel_execution: false,
         },
       });
       setCurrentStep(0);
@@ -507,6 +512,7 @@ export default function AddActionModal({
               condition_logic: "and",
             },
           ],
+          cancel_execution: false,
         },
       });
       setCurrentStep(0);
@@ -809,7 +815,7 @@ export default function AddActionModal({
                       <div className="flex flex-col gap-1 w-full">
                         <RadioGroup
                           classNames={{
-                            base: "w-full",
+                            base: "w-full mb-2",
                           }}
                           label="Select an Action to apply an condition on"
                           value={action.condition.selected_action_id}
@@ -1122,6 +1128,24 @@ export default function AddActionModal({
                             ),
                           )}
                         </div>
+                        <p className="mt-2 font-semibold">Options</p>
+                        <Checkbox
+                          color="danger"
+                          isSelected={action.condition.cancel_execution}
+                          onValueChange={(e) => {
+                            setAction({
+                              ...action,
+                              condition: {
+                                ...action.condition,
+                                cancel_execution: e,
+                              },
+                            });
+                          }}
+                        >
+                          <span className="text-danger font-bold">Cancel</span>{" "}
+                          Execution if conditions match and dont start any
+                          following action.
+                        </Checkbox>
                       </div>
                     </div>
                   )}
@@ -1339,6 +1363,7 @@ export default function AddActionModal({
                               condition_logic: "and",
                             },
                           ],
+                          cancel_execution: false,
                         },
                       });
                     }}
