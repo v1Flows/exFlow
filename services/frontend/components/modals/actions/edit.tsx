@@ -68,7 +68,7 @@ export default function EditActionModal({
   const router = useRouter();
   const { isOpen, onOpenChange } = disclosure;
 
-  const [steps] = useState(4);
+  const [steps] = useState(3);
   const [currentStep, setCurrentStep] = useState(0);
   const [disableNext, setDisableNext] = useState(false);
 
@@ -358,6 +358,29 @@ export default function EditActionModal({
                             setAction({ ...action, custom_description: e })
                           }
                         />
+                        <Select
+                          isRequired
+                          className={isFailurePipeline ? "col-span-2" : ""}
+                          label="Status"
+                          placeholder="Select the flow to copy the action to"
+                          selectedKeys={[action?.active?.toString()]}
+                          variant="flat"
+                          onSelectionChange={(e) => {
+                            if (e.currentKey === "true") {
+                              setAction({ ...action, active: true });
+                            }
+                            if (e.currentKey === "false") {
+                              setAction({ ...action, active: false });
+                            }
+                          }}
+                        >
+                          <SelectItem key="true" color="success" variant="flat">
+                            Enabled
+                          </SelectItem>
+                          <SelectItem key="false" color="danger" variant="flat">
+                            Disabled
+                          </SelectItem>
+                        </Select>
                         {!isFailurePipeline && (
                           <Select
                             label="Failure Pipeline"
@@ -384,24 +407,6 @@ export default function EditActionModal({
                     </div>
                   )}
                   {currentStep === 1 && (
-                    <>
-                      <p className="text-lg font-bold text-default-600">
-                        Options
-                      </p>
-                      <div className="flex flex-col gap-0">
-                        <Checkbox
-                          isSelected={action.active}
-                          onValueChange={(e) => {
-                            setAction({ ...action, active: e });
-                          }}
-                        >
-                          {action.active ? "Enabled" : "Disabled"}
-                        </Checkbox>
-                        <p className="text-sm text-default-500">Status</p>
-                      </div>
-                    </>
-                  )}
-                  {currentStep === 2 && (
                     <div>
                       <p className="text-lg font-bold text-default-600">
                         Conditional Execution
@@ -603,12 +608,17 @@ export default function EditActionModal({
                                 >
                                   <SelectItem key="equals">=</SelectItem>
                                   <SelectItem key="not_equals">!=</SelectItem>
-                                  <SelectItem key="contains">
-                                    contains
-                                  </SelectItem>
-                                  <SelectItem key="not_contains">
-                                    does not contain
-                                  </SelectItem>
+                                  {condition.condition_key === "message" && (
+                                    <>
+                                      <SelectItem key="contains">
+                                        contains
+                                      </SelectItem>
+                                      <SelectItem key="not_contains">
+                                        does not contain
+                                      </SelectItem>
+                                      <SelectItem key="regex">regex</SelectItem>
+                                    </>
+                                  )}
                                 </Select>
                                 {condition.condition_key === "status" ? (
                                   <Select
@@ -750,7 +760,7 @@ export default function EditActionModal({
                       </div>
                     </div>
                   )}
-                  {currentStep === 3 && (
+                  {currentStep === 2 && (
                     <div>
                       <p className="text-lg font-bold text-default-600">
                         Parameters

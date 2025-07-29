@@ -3,6 +3,7 @@ import type { UseDisclosureReturn } from "@heroui/use-disclosure";
 import { Icon } from "@iconify/react";
 import {
   addToast,
+  Alert,
   Button,
   Card,
   CardBody,
@@ -70,7 +71,7 @@ export default function CopyActionToDifferentFlowModal({
   const router = useRouter();
   const { isOpen, onOpenChange } = disclosure;
 
-  const [steps] = useState(3);
+  const [steps] = useState(4);
   const [currentStep, setCurrentStep] = useState(0);
 
   const [isLoading, setLoading] = useState(false);
@@ -171,12 +172,24 @@ export default function CopyActionToDifferentFlowModal({
       plugin: action.plugin,
       version: action.version,
       icon: action.icon,
-      active: true,
+      active: action.active,
       params: action.params,
       custom_name: action.custom_name,
       custom_description: action.custom_description,
       failure_pipeline_id:
         action.failure_pipeline_id === "none" ? "" : action.failure_pipeline_id,
+      condition: {
+        selected_action_id: "",
+        condition_items: [
+          {
+            condition_key: "",
+            condition_type: "",
+            condition_value: "",
+            condition_logic: "and",
+          },
+        ],
+        cancel_execution: false,
+      },
     };
 
     const newActions = [...targetFlow.actions, sendAction];
@@ -520,6 +533,24 @@ export default function CopyActionToDifferentFlowModal({
                       <p className="text-lg font-bold">Details</p>
                       <Spacer y={2} />
                       <div className="grid grid-cols-2 gap-2">
+                        <Input
+                          description="Custom name for this action (optional)"
+                          label="Custom Name"
+                          type="text"
+                          value={action.custom_name}
+                          onValueChange={(e) =>
+                            setAction({ ...action, custom_name: e })
+                          }
+                        />
+                        <Input
+                          description="Custom description for this action (optional)"
+                          label="Custom Description"
+                          type="text"
+                          value={action.custom_description}
+                          onValueChange={(e) =>
+                            setAction({ ...action, custom_description: e })
+                          }
+                        />
                         <Select
                           isRequired
                           className={isFailurePipeline ? "col-span-2" : ""}
@@ -565,28 +596,22 @@ export default function CopyActionToDifferentFlowModal({
                             ))}
                           </Select>
                         )}
-                        <Input
-                          description="Custom name for this action (optional)"
-                          label="Custom Name"
-                          type="text"
-                          value={action.custom_name}
-                          onValueChange={(e) =>
-                            setAction({ ...action, custom_name: e })
-                          }
-                        />
-                        <Input
-                          description="Custom description for this action (optional)"
-                          label="Custom Description"
-                          type="text"
-                          value={action.custom_description}
-                          onValueChange={(e) =>
-                            setAction({ ...action, custom_description: e })
-                          }
-                        />
                       </div>
                     </div>
                   )}
                   {currentStep === 2 && (
+                    <div>
+                      <p className="text-lg font-bold text-default-600">
+                        Conditional Execution
+                      </p>
+                      <Spacer y={2} />
+                      <Alert color="warning" variant="faded">
+                        You cannot copy the current action conditions to an
+                        different flow.
+                      </Alert>
+                    </div>
+                  )}
+                  {currentStep === 3 && (
                     <div>
                       <Spacer y={2} />
                       <p className="text-lg font-bold text-default-600">

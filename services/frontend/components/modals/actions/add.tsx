@@ -1002,12 +1002,17 @@ export default function AddActionModal({
                                 >
                                   <SelectItem key="equals">=</SelectItem>
                                   <SelectItem key="not_equals">!=</SelectItem>
-                                  <SelectItem key="contains">
-                                    contains
-                                  </SelectItem>
-                                  <SelectItem key="not_contains">
-                                    does not contain
-                                  </SelectItem>
+                                  {condition.condition_key === "message" && (
+                                    <>
+                                      <SelectItem key="contains">
+                                        contains
+                                      </SelectItem>
+                                      <SelectItem key="not_contains">
+                                        does not contain
+                                      </SelectItem>
+                                      <SelectItem key="regex">regex</SelectItem>
+                                    </>
+                                  )}
                                 </Select>
                                 {condition.condition_key === "status" ? (
                                   <Select
