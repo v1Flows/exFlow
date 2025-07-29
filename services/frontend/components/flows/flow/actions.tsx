@@ -16,6 +16,7 @@ import {
   ButtonGroup,
   Card,
   CardBody,
+  Checkbox,
   Chip,
   Divider,
   Dropdown,
@@ -579,6 +580,100 @@ export default function Actions({
                               </TableCell>
                             </TableRow>
                           ))}
+                        </TableBody>
+                      </Table>
+                    </AccordionItem>
+                  )}
+                  {action.condition.selected_action_id !== "" && (
+                    <AccordionItem
+                      key={action.id + "-conditions"}
+                      aria-label="Conditions"
+                      subtitle="View condition details (click to expand)"
+                      title="Conditions"
+                    >
+                      <div className="mb-2">
+                        <p>Options</p>
+                        <Checkbox
+                          isDisabled
+                          color="danger"
+                          isSelected={action.condition.cancel_execution}
+                        >
+                          <span className="text-danger font-bold">Cancel</span>{" "}
+                          Execution if conditions match and dont start any
+                          following action.
+                        </Checkbox>
+                      </div>
+                      <Divider className="mb-2" />
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
+                          <Icon
+                            icon={
+                              flow.actions.filter(
+                                (a: any) =>
+                                  a.id === action.condition.selected_action_id,
+                              )[0]?.icon
+                            }
+                            width={26}
+                          />
+                        </div>
+                        <div>
+                          <div className="flex-cols flex gap-2">
+                            <p className="text-md font-bold">
+                              {flow.actions.filter(
+                                (a: any) =>
+                                  a.id === action.condition.selected_action_id,
+                              )[0]?.custom_name ||
+                                flow.actions.filter(
+                                  (a: any) =>
+                                    a.id ===
+                                    action.condition.selected_action_id,
+                                )[0]?.name ||
+                                action.condition.selected_action_id}
+                            </p>
+                          </div>
+                          <p className="text-sm text-default-500">
+                            {flow.actions.filter(
+                              (a: any) =>
+                                a.id === action.condition.selected_action_id,
+                            )[0]?.custom_description ||
+                              flow.actions.filter(
+                                (a: any) =>
+                                  a.id === action.condition.selected_action_id,
+                              )[0]?.description ||
+                              "No description available"}
+                          </p>
+                        </div>
+                      </div>
+                      <Table
+                        removeWrapper
+                        aria-label="Details"
+                        className="w-full"
+                      >
+                        <TableHeader>
+                          <TableColumn align="center">Key</TableColumn>
+                          <TableColumn align="center">Type</TableColumn>
+                          <TableColumn align="center">Value</TableColumn>
+                          <TableColumn align="center">Logic</TableColumn>
+                        </TableHeader>
+                        <TableBody emptyContent="No patterns defined.">
+                          {action.condition.condition_items.map(
+                            (condition: any, index: number) => (
+                              <TableRow key={index}>
+                                <TableCell>{condition.condition_key}</TableCell>
+                                <TableCell>
+                                  {condition.condition_type}
+                                </TableCell>
+                                <TableCell>
+                                  {condition.condition_value}
+                                </TableCell>
+                                <TableCell className="text-primary font-semibold">
+                                  {condition.condition_logic === "and"
+                                    ? "&"
+                                    : "or"}
+                                </TableCell>
+                              </TableRow>
+                            ),
+                          )}
                         </TableBody>
                       </Table>
                     </AccordionItem>

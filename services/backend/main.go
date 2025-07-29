@@ -50,8 +50,6 @@ func main() {
 	cfg := config.Config
 	log.Info("Config loaded successfully")
 
-	log.Info(cfg.LogLevel)
-
 	logging(cfg.LogLevel)
 
 	db := database.StartDatabase(cfg.Database.Driver, cfg.Database.Server, cfg.Database.Port, cfg.Database.User, cfg.Database.Password, cfg.Database.Name)
