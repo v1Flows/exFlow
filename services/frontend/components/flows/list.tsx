@@ -155,7 +155,12 @@ export default function FlowList({
                   >
                     <CardBody>
                       <div className="flex items-start justify-between">
-                        <Chip color="primary" size="sm" variant="flat">
+                        <Chip
+                          color="primary"
+                          radius="sm"
+                          size="sm"
+                          variant="flat"
+                        >
                           Current Folder
                         </Chip>
                         <Dropdown isDisabled placement="bottom-end">
@@ -315,12 +320,18 @@ export default function FlowList({
                         {runningExecutions.executions.filter(
                           (e: any) => e.flow_id === flow.id,
                         ).length > 0 && (
-                          <Chip color="primary" size="sm" variant="flat">
+                          <Chip
+                            color="primary"
+                            radius="sm"
+                            size="sm"
+                            variant="flat"
+                          >
                             Executing
                           </Chip>
                         )}
                         <Chip
                           color={flow.disabled ? "danger" : "success"}
+                          radius="sm"
                           size="sm"
                           variant="flat"
                         >
