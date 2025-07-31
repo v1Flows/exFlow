@@ -817,7 +817,7 @@ export default function AddActionModal({
                           classNames={{
                             base: "w-full mb-2",
                           }}
-                          label="Select an Action to apply an condition on"
+                          label="Select an Action to apply an condition on. !CAUTION the action must be executed prior to this action!"
                           value={action.condition.selected_action_id}
                           onValueChange={(e) => {
                             setAction({
