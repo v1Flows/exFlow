@@ -85,6 +85,26 @@ export default function CopyActionModal({
       return;
     }
 
+    if (disclosure.isOpen) {
+      if (
+        copyAction.condition === undefined ||
+        copyAction.condition.condition_items === null
+      ) {
+        copyAction.condition = {
+          selected_action_id: "",
+          condition_items: [
+            {
+              condition_key: "",
+              condition_type: "",
+              condition_value: "",
+              condition_logic: "and",
+            },
+          ],
+          cancel_execution: false,
+        };
+      }
+    }
+
     setAction(copyAction);
     getParamsCategorys(copyAction.params);
   }, [copyAction]);
@@ -491,154 +511,79 @@ export default function CopyActionModal({
                         </RadioGroup>
 
                         <div className="flex flex-col items-center gap-2">
-                          {action?.condition?.condition_items.map(
-                            (condition: any, index: number) => (
-                              <div
-                                key={index}
-                                className="flex items-center gap-2 w-full"
-                              >
-                                <Button
-                                  isIconOnly
-                                  color="primary"
-                                  size="sm"
-                                  variant="flat"
-                                  onPress={() => {
-                                    // add new condition item
-                                    setAction({
-                                      ...action,
-                                      condition: {
-                                        ...action.condition,
-                                        condition_items: [
-                                          ...action.condition.condition_items,
-                                          {
-                                            condition_key: "",
-                                            condition_type: "",
-                                            condition_value: "",
-                                            condition_logic: "and",
-                                          },
-                                        ],
-                                      },
-                                    });
-                                  }}
+                          {action.condition.condition_items != null &&
+                            action.condition.condition_items.map(
+                              (condition: any, index: number) => (
+                                <div
+                                  key={index}
+                                  className="flex items-center gap-2 w-full"
                                 >
-                                  <Icon
-                                    className="text-primary"
-                                    icon="hugeicons:plus-sign"
-                                    width={20}
-                                  />
-                                </Button>
-                                <Button
-                                  isIconOnly
-                                  color="danger"
-                                  isDisabled={
-                                    action.condition.condition_items.length <= 1
-                                  }
-                                  size="sm"
-                                  variant="flat"
-                                  onPress={() => {
-                                    // remove condition item
-                                    setAction({
-                                      ...action,
-                                      condition: {
-                                        ...action.condition,
-                                        condition_items:
-                                          action.condition.condition_items.filter(
-                                            (item: any, i: number) =>
-                                              i !== index,
-                                          ),
-                                      },
-                                    });
-                                  }}
-                                >
-                                  <Icon
-                                    className="text-danger"
-                                    icon="hugeicons:minus-sign"
-                                    width={20}
-                                  />
-                                </Button>
-                                <Select
-                                  label="Key"
-                                  placeholder="Select an key"
-                                  selectedKeys={[condition.condition_key]}
-                                  onSelectionChange={(e) => {
-                                    const key = e.currentKey;
-
-                                    setAction({
-                                      ...action,
-                                      condition: {
-                                        ...action.condition,
-                                        condition_items:
-                                          action.condition.condition_items.map(
-                                            (item: any, i: number) => {
-                                              if (i === index) {
-                                                return {
-                                                  ...item,
-                                                  condition_key: key,
-                                                  condition_type: "",
-                                                  condition_value: "",
-                                                };
-                                              }
-
-                                              return item;
+                                  <Button
+                                    isIconOnly
+                                    color="primary"
+                                    size="sm"
+                                    variant="flat"
+                                    onPress={() => {
+                                      // add new condition item
+                                      setAction({
+                                        ...action,
+                                        condition: {
+                                          ...action.condition,
+                                          condition_items: [
+                                            ...action.condition.condition_items,
+                                            {
+                                              condition_key: "",
+                                              condition_type: "",
+                                              condition_value: "",
+                                              condition_logic: "and",
                                             },
-                                          ),
-                                      },
-                                    });
-                                  }}
-                                >
-                                  <SelectItem key="status">Status</SelectItem>
-                                  <SelectItem key="message">Message</SelectItem>
-                                </Select>
-                                <Select
-                                  label="Type"
-                                  placeholder="Select an type"
-                                  selectedKeys={[condition.condition_type]}
-                                  onSelectionChange={(e) => {
-                                    const type = e.currentKey;
-
-                                    setAction({
-                                      ...action,
-                                      condition: {
-                                        ...action.condition,
-                                        condition_items:
-                                          action.condition.condition_items.map(
-                                            (item: any, i: number) => {
-                                              if (i === index) {
-                                                return {
-                                                  ...item,
-                                                  condition_type: type,
-                                                  condition_value: "",
-                                                };
-                                              }
-
-                                              return item;
-                                            },
-                                          ),
-                                      },
-                                    });
-                                  }}
-                                >
-                                  <SelectItem key="equals">=</SelectItem>
-                                  <SelectItem key="not_equals">!=</SelectItem>
-                                  {condition.condition_key === "message" && (
-                                    <>
-                                      <SelectItem key="contains">
-                                        contains
-                                      </SelectItem>
-                                      <SelectItem key="not_contains">
-                                        does not contain
-                                      </SelectItem>
-                                      <SelectItem key="regex">regex</SelectItem>
-                                    </>
-                                  )}
-                                </Select>
-                                {condition.condition_key === "status" ? (
+                                          ],
+                                        },
+                                      });
+                                    }}
+                                  >
+                                    <Icon
+                                      className="text-primary"
+                                      icon="hugeicons:plus-sign"
+                                      width={20}
+                                    />
+                                  </Button>
+                                  <Button
+                                    isIconOnly
+                                    color="danger"
+                                    isDisabled={
+                                      action.condition.condition_items.length <=
+                                      1
+                                    }
+                                    size="sm"
+                                    variant="flat"
+                                    onPress={() => {
+                                      // remove condition item
+                                      setAction({
+                                        ...action,
+                                        condition: {
+                                          ...action.condition,
+                                          condition_items:
+                                            action.condition.condition_items.filter(
+                                              (item: any, i: number) =>
+                                                i !== index,
+                                            ),
+                                        },
+                                      });
+                                    }}
+                                  >
+                                    <Icon
+                                      className="text-danger"
+                                      icon="hugeicons:minus-sign"
+                                      width={20}
+                                    />
+                                  </Button>
                                   <Select
-                                    label="Value"
-                                    placeholder="Select an value"
-                                    selectedKeys={[condition.condition_value]}
+                                    label="Key"
+                                    placeholder="Select an key"
+                                    selectedKeys={[condition.condition_key]}
                                     onSelectionChange={(e) => {
-                                      const value = e.currentKey;
+                                      const key = e.currentKey;
 
                                       setAction({
                                         ...action,
@@ -650,7 +595,9 @@ export default function CopyActionModal({
                                                 if (i === index) {
                                                   return {
                                                     ...item,
-                                                    condition_value: value,
+                                                    condition_key: key,
+                                                    condition_type: "",
+                                                    condition_value: "",
                                                   };
                                                 }
 
@@ -661,27 +608,18 @@ export default function CopyActionModal({
                                       });
                                     }}
                                   >
-                                    <SelectItem key="canceled">
-                                      Canceled
-                                    </SelectItem>
-                                    <SelectItem key="no_pattern_match">
-                                      No Pattern Match
-                                    </SelectItem>
-                                    <SelectItem key="warning">
-                                      Warning
-                                    </SelectItem>
-                                    <SelectItem key="error">Error</SelectItem>
-                                    <SelectItem key="success">
-                                      Success
+                                    <SelectItem key="status">Status</SelectItem>
+                                    <SelectItem key="message">
+                                      Message
                                     </SelectItem>
                                   </Select>
-                                ) : (
-                                  <Input
-                                    label="Value"
-                                    placeholder="Enter a value"
-                                    type="text"
-                                    value={condition.condition_value}
-                                    onValueChange={(e) => {
+                                  <Select
+                                    label="Type"
+                                    placeholder="Select an type"
+                                    selectedKeys={[condition.condition_type]}
+                                    onSelectionChange={(e) => {
+                                      const type = e.currentKey;
+
                                       setAction({
                                         ...action,
                                         condition: {
@@ -692,7 +630,8 @@ export default function CopyActionModal({
                                                 if (i === index) {
                                                   return {
                                                     ...item,
-                                                    condition_value: e,
+                                                    condition_type: type,
+                                                    condition_value: "",
                                                   };
                                                 }
 
@@ -702,54 +641,142 @@ export default function CopyActionModal({
                                         },
                                       });
                                     }}
-                                  />
-                                )}
-                                <Button
-                                  isIconOnly
-                                  color="primary"
-                                  isDisabled={
-                                    action.condition.condition_items.length ===
-                                    index + 1
-                                  }
-                                  size="md"
-                                  variant="flat"
-                                  onPress={() => {
-                                    // toggle logic between and/or
-                                    const newLogic =
-                                      condition.condition_logic === "and"
-                                        ? "or"
-                                        : "and";
+                                  >
+                                    <SelectItem key="equals">=</SelectItem>
+                                    <SelectItem key="not_equals">!=</SelectItem>
+                                    {condition.condition_key === "message" && (
+                                      <>
+                                        <SelectItem key="contains">
+                                          contains
+                                        </SelectItem>
+                                        <SelectItem key="not_contains">
+                                          does not contain
+                                        </SelectItem>
+                                        <SelectItem key="regex">
+                                          regex
+                                        </SelectItem>
+                                      </>
+                                    )}
+                                  </Select>
+                                  {condition.condition_key === "status" ? (
+                                    <Select
+                                      label="Value"
+                                      placeholder="Select an value"
+                                      selectedKeys={[condition.condition_value]}
+                                      onSelectionChange={(e) => {
+                                        const value = e.currentKey;
 
-                                    setAction({
-                                      ...action,
-                                      condition: {
-                                        ...action.condition,
-                                        condition_items:
-                                          action.condition.condition_items.map(
-                                            (item: any, i: number) => {
-                                              if (i === index) {
-                                                return {
-                                                  ...item,
-                                                  condition_logic: newLogic,
-                                                };
-                                              }
+                                        setAction({
+                                          ...action,
+                                          condition: {
+                                            ...action.condition,
+                                            condition_items:
+                                              action.condition.condition_items.map(
+                                                (item: any, i: number) => {
+                                                  if (i === index) {
+                                                    return {
+                                                      ...item,
+                                                      condition_value: value,
+                                                    };
+                                                  }
 
-                                              return item;
-                                            },
-                                          ),
-                                      },
-                                    });
-                                  }}
-                                >
-                                  {condition.condition_logic === "and" ? (
-                                    <p>&</p>
+                                                  return item;
+                                                },
+                                              ),
+                                          },
+                                        });
+                                      }}
+                                    >
+                                      <SelectItem key="canceled">
+                                        Canceled
+                                      </SelectItem>
+                                      <SelectItem key="no_pattern_match">
+                                        No Pattern Match
+                                      </SelectItem>
+                                      <SelectItem key="warning">
+                                        Warning
+                                      </SelectItem>
+                                      <SelectItem key="error">Error</SelectItem>
+                                      <SelectItem key="success">
+                                        Success
+                                      </SelectItem>
+                                    </Select>
                                   ) : (
-                                    <p>or</p>
+                                    <Input
+                                      label="Value"
+                                      placeholder="Enter a value"
+                                      type="text"
+                                      value={condition.condition_value}
+                                      onValueChange={(e) => {
+                                        setAction({
+                                          ...action,
+                                          condition: {
+                                            ...action.condition,
+                                            condition_items:
+                                              action.condition.condition_items.map(
+                                                (item: any, i: number) => {
+                                                  if (i === index) {
+                                                    return {
+                                                      ...item,
+                                                      condition_value: e,
+                                                    };
+                                                  }
+
+                                                  return item;
+                                                },
+                                              ),
+                                          },
+                                        });
+                                      }}
+                                    />
                                   )}
-                                </Button>
-                              </div>
-                            ),
-                          )}
+                                  <Button
+                                    isIconOnly
+                                    color="primary"
+                                    isDisabled={
+                                      action.condition.condition_items
+                                        .length ===
+                                      index + 1
+                                    }
+                                    size="md"
+                                    variant="flat"
+                                    onPress={() => {
+                                      // toggle logic between and/or
+                                      const newLogic =
+                                        condition.condition_logic === "and"
+                                          ? "or"
+                                          : "and";
+
+                                      setAction({
+                                        ...action,
+                                        condition: {
+                                          ...action.condition,
+                                          condition_items:
+                                            action.condition.condition_items.map(
+                                              (item: any, i: number) => {
+                                                if (i === index) {
+                                                  return {
+                                                    ...item,
+                                                    condition_logic: newLogic,
+                                                  };
+                                                }
+
+                                                return item;
+                                              },
+                                            ),
+                                        },
+                                      });
+                                    }}
+                                  >
+                                    {condition.condition_logic === "and" ? (
+                                      <p>&</p>
+                                    ) : (
+                                      <p>or</p>
+                                    )}
+                                  </Button>
+                                </div>
+                              ),
+                            )}
                         </div>
                         <p className="mt-2 font-semibold">Options</p>
                         <Checkbox
