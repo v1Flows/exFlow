@@ -1382,7 +1382,7 @@ export default function AddActionModal({
                     startContent={
                       <Icon icon="hugeicons:file-sync" width={18} />
                     }
-                    variant="ghost"
+                    variant="flat"
                     onPress={() => {
                       setAction({
                         ...action,
