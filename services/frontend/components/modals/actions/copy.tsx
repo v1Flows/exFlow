@@ -994,6 +994,34 @@ export default function CopyActionModal({
                 >
                   Cancel
                 </Button>
+                {currentStep === 1 && (
+                  <Button
+                    color="warning"
+                    startContent={
+                      <Icon icon="hugeicons:file-sync" width={18} />
+                    }
+                    variant="flat"
+                    onPress={() => {
+                      setAction({
+                        ...action,
+                        condition: {
+                          selected_action_id: "",
+                          condition_items: [
+                            {
+                              condition_key: "",
+                              condition_type: "",
+                              condition_value: "",
+                              condition_logic: "and",
+                            },
+                          ],
+                          cancel_execution: false,
+                        },
+                      });
+                    }}
+                  >
+                    Reset Current Input
+                  </Button>
+                )}
                 {currentStep > 0 ? (
                   <Button
                     color="default"
