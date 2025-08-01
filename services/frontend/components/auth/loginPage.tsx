@@ -97,7 +97,7 @@ export default function LoginPageComponent({ settings }: { settings: any }) {
             placeholder="Enter your username or email"
             type="text"
             value={usernameEmail}
-            variant="bordered"
+            variant="flat"
             onValueChange={setUsernameEmail}
           />
           <Input
@@ -122,7 +122,7 @@ export default function LoginPageComponent({ settings }: { settings: any }) {
             placeholder="Enter your password"
             type={isVisible ? "text" : "password"}
             value={password}
-            variant="bordered"
+            variant="flat"
             onValueChange={setPassword}
           />
           <div className="flex items-center justify-between px-1 py-2">
