@@ -21,7 +21,9 @@ export default async function AdminExecutionsPage() {
     <main>
       {flows.success ? (
         <>
-          <p className="text-2xl font-bold mb-1">Executions</p>
+          <p className="text-2xl font-bold mb-1">
+            <span className="text-danger">Admin</span> | Executions
+          </p>
           <Divider className="mt-4 mb-4" />
           <Executions
             canEdit

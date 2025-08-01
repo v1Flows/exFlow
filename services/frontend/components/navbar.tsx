@@ -211,7 +211,7 @@ export const Navbar = ({
                 </DropdownItem>
                 <DropdownItem
                   key="page_settings"
-                  description="Manage the page settings"
+                  description="Manage the exFlow settings"
                   startContent={
                     <Icon
                       className="text-danger"
@@ -223,7 +223,7 @@ export const Navbar = ({
                     router.push("/admin/page-settings");
                   }}
                 >
-                  Page Settings
+                  exFlow Settings
                 </DropdownItem>
               </DropdownMenu>
             </Dropdown>
@@ -522,7 +522,7 @@ export const Navbar = ({
                 </DropdownItem>
                 <DropdownItem
                   key="page_settings"
-                  description="Manage the page settings"
+                  description="Manage the exFlow settings"
                   startContent={
                     <Icon
                       className="text-danger"
@@ -534,7 +534,7 @@ export const Navbar = ({
                     router.push("/admin/page-settings");
                   }}
                 >
-                  Page Settings
+                  exFlow Settings
                 </DropdownItem>
               </DropdownMenu>
             </Dropdown>
