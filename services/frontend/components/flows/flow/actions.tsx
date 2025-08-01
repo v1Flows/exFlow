@@ -432,7 +432,7 @@ export default function Actions({
                     hideIconWrapper
                     className="mt-2 flex flex-wrap gap-2"
                     color="primary"
-                    description="Newer plugin version was found on one of the runners. Do you want to update the action?"
+                    description="Newer plugin version was found on one of the runners. Do you want to upgrade the action plugin version?"
                     endContent={
                       <Button
                         color="primary"

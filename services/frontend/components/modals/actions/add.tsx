@@ -1148,8 +1148,8 @@ export default function AddActionModal({
                           }}
                         >
                           <span className="text-danger font-bold">Cancel</span>{" "}
-                          Execution if conditions match and dont start any
-                          following action.
+                          Execution if conditions doesn&apos;t match and dont
+                          start any following action.
                         </Checkbox>
                       </div>
                     </div>

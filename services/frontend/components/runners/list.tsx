@@ -79,15 +79,14 @@ export default function RunnersList({
               </p>
             </div>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {(singleProject && projects[0].shared_runners !== false) ||
-            globalView ? (
-              <div>
-                {runners.filter((runner: any) => runner.shared_runner === true)
-                  .length === 0 && (
-                  <p className="text-default-500">No shared runners found</p>
-                )}
+          {(singleProject && projects[0].shared_runners !== false) ||
+          globalView ? (
+            <div>
+              {runners.filter((runner: any) => runner.shared_runner === true)
+                .length === 0 && (
+                <p className="text-default-500">No shared runners found</p>
+              )}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {runners.map(
                   (runner: any) =>
                     runner.shared_runner === true && (
@@ -237,12 +236,12 @@ export default function RunnersList({
                     ),
                 )}
               </div>
-            ) : (
-              <p className="text-default-500">
-                Shared runners are disabled for this project.
-              </p>
-            )}
-          </div>
+            </div>
+          ) : (
+            <p className="text-default-500">
+              Shared runners are disabled for this project.
+            </p>
+          )}
         </CardBody>
       </Card>
 
