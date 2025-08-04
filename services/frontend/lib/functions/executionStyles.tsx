@@ -11,6 +11,7 @@ export function executionStatuses(): string[] {
     "canceled",
     "noPatternMatch",
     "noResult",
+    "skipped",
     "recovered",
     "error",
     "success",
@@ -32,6 +33,8 @@ export function executionStatusName(step: any): any {
     return "No Pattern Match";
   } else if (step.status === "noResult") {
     return "No Result";
+  } else if (step.status === "skipped") {
+    return "Skipped";
   } else if (step.status === "interactionWaiting") {
     return "Interaction Required";
   } else if (step.status === "error") {
@@ -61,6 +64,8 @@ export function executionStatusColor(step: any) {
   } else if (step.status === "noPatternMatch") {
     return "secondary";
   } else if (step.status === "noResult") {
+    return "default";
+  } else if (step.status === "skipped") {
     return "default";
   } else if (step.status === "interactionWaiting") {
     return "primary";
@@ -92,6 +97,8 @@ export function executionStatusCardBackgroundColor(step: any) {
     return "secondary/20";
   } else if (step.status === "noResult") {
     return "default/50";
+  } else if (step.status === "skipped") {
+    return "default/50";
   } else if (step.status === "interactionWaiting") {
     return "primary/20";
   } else if (step.status === "error") {
@@ -122,6 +129,8 @@ export function executionStatusIcon(step: any) {
     return "hugeicons:note-remove";
   } else if (step.status === "noResult") {
     return "solar:ghost-broken";
+  } else if (step.status === "skipped") {
+    return "hugeicons:redo-03";
   } else if (step.status === "interactionWaiting") {
     return "hugeicons:waving-hand-01";
   } else if (step.status === "error") {
@@ -247,6 +256,25 @@ export function executionStatusWrapper(step: any) {
             <Icon
               className="text-default-500"
               icon="solar:ghost-broken"
+              width={20}
+            />
+          }
+        />
+      </Tooltip>
+    );
+  } else if (step.status === "skipped") {
+    return (
+      <Tooltip content={`${executionStatusName(step)}`}>
+        <CircularProgress
+          showValueLabel
+          aria-label="Step"
+          color="default"
+          size="md"
+          value={100}
+          valueLabel={
+            <Icon
+              className="text-default-500"
+              icon="hugeicons:redo-03"
               width={20}
             />
           }
@@ -473,6 +501,25 @@ export function executionStatusSmall(step: any) {
         />
       </Tooltip>
     );
+  } else if (step.status === "skipped") {
+    return (
+      <Tooltip content={`${executionStatusName(step)}`}>
+        <CircularProgress
+          showValueLabel
+          aria-label="Step"
+          color="default"
+          size="md"
+          value={100}
+          valueLabel={
+            <Icon
+              className="text-default-500"
+              icon="hugeicons:redo-03"
+              width={20}
+            />
+          }
+        />
+      </Tooltip>
+    );
   } else if (step.status === "interactionWaiting") {
     return (
       <Tooltip content={`${executionStatusName(step)}`}>
@@ -594,6 +641,8 @@ export function executionStatusWrapperCircle(step: any) {
     return <div className="w-3 h-3 rounded-full bg-secondary" />;
   } else if (step.status === "noResult") {
     return <div className="w-3 h-3 rounded-full bg-default-500" />;
+  } else if (step.status === "skipped") {
+    return <div className="w-3 h-3 rounded-full bg-default-500" />;
   } else if (step.status === "interactionWaiting") {
     return <div className="w-3 h-3 rounded-full bg-primary" />;
   } else if (step.status === "error") {
@@ -624,6 +673,8 @@ export function executionStatusTimeline(step: any) {
     return <div className="h-1 m-2 bg-secondary rounded-full" />;
   } else if (step.status === "noResult") {
     return <div className="h-1 m-2 bg-secondary rounded-full" />;
+  } else if (step.status === "skipped") {
+    return <div className="h-1 m-2 bg-default rounded-full" />;
   } else if (step.status === "interactionWaiting") {
     return <Progress className="flex-1 h-1" value={100} />;
   } else if (step.status === "error") {

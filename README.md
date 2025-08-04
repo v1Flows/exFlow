@@ -8,15 +8,6 @@ exFlow is a workflow automation platform like Jenkins but beautiful. This reposi
 
 ![Dashboard Image](https://github.com/v1Flows/exFlow/blob/develop/services/frontend/public/images/full_dashboard.png?raw=true)
 
-## Demo
-There is an demo of exFlow available where you can test things out and get yourself an picture of this project. <br />
-**Please do not use this for real life cases nor put any sensitive informations in there.**
-
-Use the following details: 
-- URL: [exFlow](https://exflow.org)
-- Username: Demo
-- Password: demo123
-
 ## Table of Contents
 
 - [Features](#features)

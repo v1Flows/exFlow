@@ -4,11 +4,14 @@ import type { UseDisclosureReturn } from "@heroui/use-disclosure";
 import { isMobile } from "react-device-detect";
 import { Icon } from "@iconify/react";
 import {
+  Accordion,
+  AccordionItem,
   addToast,
   Alert,
   Button,
   Card,
   CardBody,
+  Checkbox,
   Chip,
   Divider,
   Input,
@@ -19,6 +22,7 @@ import {
   ModalHeader,
   Pagination,
   Radio,
+  RadioGroup,
   ScrollShadow,
   Select,
   SelectItem,
@@ -72,7 +76,7 @@ export default function AddActionModal({
 
   const { isOpen, onOpenChange } = disclosure;
 
-  const [steps] = useState(3);
+  const [steps] = useState(4);
   const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = React.useState(false);
@@ -128,6 +132,18 @@ export default function AddActionModal({
     custom_name: "",
     custom_description: "",
     failure_pipeline_id: "",
+    condition: {
+      selected_action_id: "",
+      condition_items: [
+        {
+          condition_key: "",
+          condition_type: "",
+          condition_value: "",
+          condition_logic: "and",
+        },
+      ],
+      cancel_execution: false,
+    },
   });
   const [actionParamsCategorys, setActionParamsCategorys] = useState([] as any);
 
@@ -224,6 +240,19 @@ export default function AddActionModal({
       action.params = [];
     }
 
+    action.condition = {
+      selected_action_id: "",
+      condition_items: [
+        {
+          condition_key: "",
+          condition_type: "",
+          condition_value: "",
+          condition_logic: "and",
+        },
+      ],
+      cancel_execution: false,
+    };
+
     setAction(action);
     getParamsCategorys(action.params);
   }
@@ -276,6 +305,18 @@ export default function AddActionModal({
       custom_name: "",
       custom_description: "",
       failure_pipeline_id: "",
+      condition: {
+        selected_action_id: "",
+        condition_items: [
+          {
+            condition_key: "",
+            condition_type: "",
+            condition_value: "",
+            condition_logic: "and",
+          },
+        ],
+        cancel_execution: false,
+      },
     });
     setCurrentStep(0);
     onOpenChange();
@@ -310,6 +351,7 @@ export default function AddActionModal({
       custom_description: action.custom_description,
       failure_pipeline_id:
         action.failure_pipeline_id === "none" ? "" : action.failure_pipeline_id,
+      condition: action.condition,
     };
 
     const updatedActions = [...flow.actions, sendAction];
@@ -347,6 +389,18 @@ export default function AddActionModal({
         custom_name: "",
         custom_description: "",
         failure_pipeline_id: "",
+        condition: {
+          selected_action_id: "",
+          condition_items: [
+            {
+              condition_key: "",
+              condition_type: "",
+              condition_value: "",
+              condition_logic: "and",
+            },
+          ],
+          cancel_execution: false,
+        },
       });
       setCurrentStep(0);
       onOpenChange();
@@ -399,6 +453,7 @@ export default function AddActionModal({
       params: action.params,
       custom_name: action.custom_name,
       custom_description: action.custom_description,
+      condition: action.condition,
     };
 
     if (failurePipeline.actions === null) {
@@ -447,6 +502,18 @@ export default function AddActionModal({
         custom_name: "",
         custom_description: "",
         failure_pipeline_id: "",
+        condition: {
+          selected_action_id: "",
+          condition_items: [
+            {
+              condition_key: "",
+              condition_type: "",
+              condition_value: "",
+              condition_logic: "and",
+            },
+          ],
+          cancel_execution: false,
+        },
       });
       setCurrentStep(0);
       onOpenChange();
@@ -699,6 +766,396 @@ export default function AddActionModal({
                   )}
                   {currentStep === 2 && (
                     <div className="flex flex-col w-full">
+                      <p className="text-lg font-bold">Conditional Execution</p>
+                      <p className="text-default-500">
+                        If nothing is selected conditional execution will be
+                        disabled.
+                      </p>
+                      <Divider className="mb-4 mt-2" />
+                      <Accordion>
+                        <AccordionItem
+                          key="examples"
+                          aria-label="Conditional Examples"
+                          subtitle="Press to expand/collapse"
+                          title="Examples"
+                        >
+                          <div className="flex items-center justify-center text-center gap-5 mb-4">
+                            <div className="flex flex-col items-center gap-2">
+                              <Icon
+                                icon="hugeicons:structure-fail"
+                                width={32}
+                              />
+                              <div className="flex flex-col items-center">
+                                <p className="font-bold">
+                                  Previous Action Status
+                                </p>
+                                <p className="text-sm text-default-600">
+                                  Don&apos;t execute this new action if an
+                                  previous action ended in an specific status.
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex flex-col items-center gap-2">
+                              <Icon icon="hugeicons:archive-02" width={32} />
+                              <div className="flex flex-col items-center">
+                                <p className="font-bold">
+                                  Action contains message
+                                </p>
+                                <p className="text-sm text-default-600">
+                                  Don&apos;t execute this new action if an
+                                  previous action contains an specific message.
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </AccordionItem>
+                      </Accordion>
+
+                      <Divider className="mb-4 mt-2" />
+                      <div className="flex flex-col gap-1 w-full">
+                        <RadioGroup
+                          classNames={{
+                            base: "w-full mb-2",
+                          }}
+                          label="Select an Action to apply an condition on. !CAUTION the action must be executed prior to this action!"
+                          value={action.condition.selected_action_id}
+                          onValueChange={(e) => {
+                            setAction({
+                              ...action,
+                              condition: {
+                                ...action.condition,
+                                selected_action_id: e,
+                              },
+                            });
+                          }}
+                        >
+                          {flow.actions.map((flowActs: any) => (
+                            <Radio
+                              key={flowActs.id}
+                              aria-label={flowActs.custom_name || flowActs.name}
+                              classNames={{
+                                base: cn(
+                                  "inline-flex max-w-full w-full bg-content1 m-0",
+                                  "hover:bg-content2 items-center justify-start",
+                                  "cursor-pointer rounded-lg gap-2 p-4 border-2 border-transparent",
+                                  "data-[selected=true]:border-primary",
+                                ),
+                                label: "w-full",
+                              }}
+                              value={flowActs.id}
+                            >
+                              <div className="flex items-center gap-2">
+                                <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
+                                  <Icon icon={flowActs.icon} width={26} />
+                                </div>
+                                <div className="flex flex-col">
+                                  <div className="flex flex-cols gap-2 items-center">
+                                    <p className="text-lg font-bold">
+                                      {flowActs.custom_name || flowActs.name}
+                                    </p>
+                                    <Chip
+                                      color="primary"
+                                      radius="sm"
+                                      size="sm"
+                                      variant="flat"
+                                    >
+                                      Ver. {flowActs.version}
+                                    </Chip>
+                                  </div>
+                                  <p className="text-sm text-default-500">
+                                    {flowActs.custom_description ||
+                                      flowActs.description}
+                                  </p>
+                                </div>
+                              </div>
+                            </Radio>
+                          ))}
+                        </RadioGroup>
+
+                        <div className="flex flex-col items-center gap-2">
+                          {action?.condition?.condition_items.map(
+                            (condition: any, index: number) => (
+                              <div
+                                key={index}
+                                className="flex items-center gap-2 w-full"
+                              >
+                                <Button
+                                  isIconOnly
+                                  color="primary"
+                                  size="sm"
+                                  variant="flat"
+                                  onPress={() => {
+                                    // add new condition item
+                                    setAction({
+                                      ...action,
+                                      condition: {
+                                        ...action.condition,
+                                        condition_items: [
+                                          ...action.condition.condition_items,
+                                          {
+                                            condition_key: "",
+                                            condition_type: "",
+                                            condition_value: "",
+                                            condition_logic: "and",
+                                          },
+                                        ],
+                                      },
+                                    });
+                                  }}
+                                >
+                                  <Icon
+                                    className="text-primary"
+                                    icon="hugeicons:plus-sign"
+                                    width={20}
+                                  />
+                                </Button>
+                                <Button
+                                  isIconOnly
+                                  color="danger"
+                                  isDisabled={
+                                    action.condition.condition_items.length <= 1
+                                  }
+                                  size="sm"
+                                  variant="flat"
+                                  onPress={() => {
+                                    // remove condition item
+                                    setAction({
+                                      ...action,
+                                      condition: {
+                                        ...action.condition,
+                                        condition_items:
+                                          action.condition.condition_items.filter(
+                                            (item: any, i: number) =>
+                                              i !== index,
+                                          ),
+                                      },
+                                    });
+                                  }}
+                                >
+                                  <Icon
+                                    className="text-danger"
+                                    icon="hugeicons:minus-sign"
+                                    width={20}
+                                  />
+                                </Button>
+                                <Select
+                                  label="Key"
+                                  placeholder="Select an key"
+                                  selectedKeys={[condition.condition_key]}
+                                  onSelectionChange={(e) => {
+                                    const key = e.currentKey;
+
+                                    setAction({
+                                      ...action,
+                                      condition: {
+                                        ...action.condition,
+                                        condition_items:
+                                          action.condition.condition_items.map(
+                                            (item: any, i: number) => {
+                                              if (i === index) {
+                                                return {
+                                                  ...item,
+                                                  condition_key: key,
+                                                  condition_type: "",
+                                                  condition_value: "",
+                                                };
+                                              }
+
+                                              return item;
+                                            },
+                                          ),
+                                      },
+                                    });
+                                  }}
+                                >
+                                  <SelectItem key="status">Status</SelectItem>
+                                  <SelectItem key="message">Message</SelectItem>
+                                </Select>
+                                <Select
+                                  label="Type"
+                                  placeholder="Select an type"
+                                  selectedKeys={[condition.condition_type]}
+                                  onSelectionChange={(e) => {
+                                    const type = e.currentKey;
+
+                                    setAction({
+                                      ...action,
+                                      condition: {
+                                        ...action.condition,
+                                        condition_items:
+                                          action.condition.condition_items.map(
+                                            (item: any, i: number) => {
+                                              if (i === index) {
+                                                return {
+                                                  ...item,
+                                                  condition_type: type,
+                                                  condition_value: "",
+                                                };
+                                              }
+
+                                              return item;
+                                            },
+                                          ),
+                                      },
+                                    });
+                                  }}
+                                >
+                                  <SelectItem key="equals">=</SelectItem>
+                                  <SelectItem key="not_equals">!=</SelectItem>
+                                  {condition.condition_key === "message" && (
+                                    <>
+                                      <SelectItem key="contains">
+                                        contains
+                                      </SelectItem>
+                                      <SelectItem key="not_contains">
+                                        does not contain
+                                      </SelectItem>
+                                      <SelectItem key="regex">regex</SelectItem>
+                                    </>
+                                  )}
+                                </Select>
+                                {condition.condition_key === "status" ? (
+                                  <Select
+                                    label="Value"
+                                    placeholder="Select an value"
+                                    selectedKeys={[condition.condition_value]}
+                                    onSelectionChange={(e) => {
+                                      const value = e.currentKey;
+
+                                      setAction({
+                                        ...action,
+                                        condition: {
+                                          ...action.condition,
+                                          condition_items:
+                                            action.condition.condition_items.map(
+                                              (item: any, i: number) => {
+                                                if (i === index) {
+                                                  return {
+                                                    ...item,
+                                                    condition_value: value,
+                                                  };
+                                                }
+
+                                                return item;
+                                              },
+                                            ),
+                                        },
+                                      });
+                                    }}
+                                  >
+                                    <SelectItem key="canceled">
+                                      Canceled
+                                    </SelectItem>
+                                    <SelectItem key="no_pattern_match">
+                                      No Pattern Match
+                                    </SelectItem>
+                                    <SelectItem key="warning">
+                                      Warning
+                                    </SelectItem>
+                                    <SelectItem key="error">Error</SelectItem>
+                                    <SelectItem key="success">
+                                      Success
+                                    </SelectItem>
+                                  </Select>
+                                ) : (
+                                  <Input
+                                    label="Value"
+                                    placeholder="Enter a value"
+                                    type="text"
+                                    value={condition.condition_value}
+                                    onValueChange={(e) => {
+                                      setAction({
+                                        ...action,
+                                        condition: {
+                                          ...action.condition,
+                                          condition_items:
+                                            action.condition.condition_items.map(
+                                              (item: any, i: number) => {
+                                                if (i === index) {
+                                                  return {
+                                                    ...item,
+                                                    condition_value: e,
+                                                  };
+                                                }
+
+                                                return item;
+                                              },
+                                            ),
+                                        },
+                                      });
+                                    }}
+                                  />
+                                )}
+                                <Button
+                                  isIconOnly
+                                  color="primary"
+                                  isDisabled={
+                                    action.condition.condition_items.length ===
+                                    index + 1
+                                  }
+                                  size="md"
+                                  variant="flat"
+                                  onPress={() => {
+                                    // toggle logic between and/or
+                                    const newLogic =
+                                      condition.condition_logic === "and"
+                                        ? "or"
+                                        : "and";
+
+                                    setAction({
+                                      ...action,
+                                      condition: {
+                                        ...action.condition,
+                                        condition_items:
+                                          action.condition.condition_items.map(
+                                            (item: any, i: number) => {
+                                              if (i === index) {
+                                                return {
+                                                  ...item,
+                                                  condition_logic: newLogic,
+                                                };
+                                              }
+
+                                              return item;
+                                            },
+                                          ),
+                                      },
+                                    });
+                                  }}
+                                >
+                                  {condition.condition_logic === "and" ? (
+                                    <p>&</p>
+                                  ) : (
+                                    <p>or</p>
+                                  )}
+                                </Button>
+                              </div>
+                            ),
+                          )}
+                        </div>
+                        <p className="mt-2 font-semibold">Options</p>
+                        <Checkbox
+                          color="danger"
+                          isSelected={action.condition.cancel_execution}
+                          onValueChange={(e) => {
+                            setAction({
+                              ...action,
+                              condition: {
+                                ...action.condition,
+                                cancel_execution: e,
+                              },
+                            });
+                          }}
+                        >
+                          <span className="text-danger font-bold">Cancel</span>{" "}
+                          Execution if conditions doesn&apos;t match and dont
+                          start any following action.
+                        </Checkbox>
+                      </div>
+                    </div>
+                  )}
+                  {currentStep === 3 && (
+                    <div className="flex flex-col w-full">
                       <p className="text-lg font-bold">Parameters</p>
                       <Spacer y={2} />
                       <ScrollShadow className="max-h-[60vh]">
@@ -711,34 +1168,52 @@ export default function AddActionModal({
                                 </p>
                                 <div className="grid lg:grid-cols-2 gap-2">
                                   {action.params.map((param: any) => {
-                                    // an param can have depends_on set. If it is check, check for the required param and if its value matches
+                                    // Check if param belongs to this category first
+                                    if (
+                                      (param.category || "Uncategorized") !==
+                                      category
+                                    ) {
+                                      return null;
+                                    }
+
+                                    // Check if param has depends_on set and evaluate the condition
+                                    let isDisabled = false;
+
                                     if (param.depends_on.key !== "") {
                                       const dependsOnParam = action.params.find(
                                         (p: any) =>
                                           p.key === param.depends_on.key,
                                       );
 
-                                      if (
-                                        !dependsOnParam ||
-                                        dependsOnParam.value !==
-                                          param.depends_on.value
+                                      if (!dependsOnParam) {
+                                        isDisabled = true;
+                                      } else if (
+                                        param.depends_on.value === "*"
                                       ) {
-                                        return null; // skip this param if the condition is not met
+                                        // Wildcard: any non-empty value is acceptable
+                                        isDisabled =
+                                          !dependsOnParam.value ||
+                                          dependsOnParam.value.trim() === "";
+                                      } else {
+                                        // Exact match required
+                                        isDisabled =
+                                          dependsOnParam.value !==
+                                          param.depends_on.value;
                                       }
                                     }
 
-                                    return (param.category ||
-                                      "Uncategorized") === category ? (
-                                      param.type === "text" ||
+                                    return param.type === "text" ||
                                       param.type === "number" ? (
-                                        <Input
-                                          key={param.key}
-                                          description={param?.description}
-                                          isRequired={param.required}
-                                          label={param.title || param.key}
-                                          type={param.type}
-                                          value={param.value}
-                                          onValueChange={(e) => {
+                                      <Input
+                                        key={param.key}
+                                        description={param?.description}
+                                        isDisabled={isDisabled}
+                                        isRequired={param.required}
+                                        label={param.title || param.key}
+                                        type={param.type}
+                                        value={param.value}
+                                        onValueChange={(e) => {
+                                          if (!isDisabled) {
                                             setAction({
                                               ...action,
                                               params: action.params.map(
@@ -751,16 +1226,19 @@ export default function AddActionModal({
                                                 },
                                               ),
                                             });
-                                          }}
-                                        />
-                                      ) : param.type === "boolean" ? (
-                                        <Select
-                                          key={param.key}
-                                          description={param?.description}
-                                          isRequired={param.required}
-                                          label={param.title || param.key}
-                                          selectedKeys={[param.value]}
-                                          onSelectionChange={(e) => {
+                                          }
+                                        }}
+                                      />
+                                    ) : param.type === "boolean" ? (
+                                      <Select
+                                        key={param.key}
+                                        description={param?.description}
+                                        isDisabled={isDisabled}
+                                        isRequired={param.required}
+                                        label={param.title || param.key}
+                                        selectedKeys={[param.value]}
+                                        onSelectionChange={(e) => {
+                                          if (!isDisabled) {
                                             const value =
                                               Array.from(e).join("");
 
@@ -776,25 +1254,26 @@ export default function AddActionModal({
                                                 },
                                               ),
                                             });
-                                          }}
-                                        >
-                                          <SelectItem key="true">
-                                            true
-                                          </SelectItem>
-                                          <SelectItem key="false">
-                                            false
-                                          </SelectItem>
-                                        </Select>
-                                      ) : param.type === "textarea" ? (
-                                        <Textarea
-                                          key={param.key}
-                                          className="col-span-2"
-                                          description={param?.description}
-                                          isRequired={param.required}
-                                          label={param.title || param.key}
-                                          type={param.type}
-                                          value={param.value}
-                                          onValueChange={(e) => {
+                                          }
+                                        }}
+                                      >
+                                        <SelectItem key="true">true</SelectItem>
+                                        <SelectItem key="false">
+                                          false
+                                        </SelectItem>
+                                      </Select>
+                                    ) : param.type === "textarea" ? (
+                                      <Textarea
+                                        key={param.key}
+                                        className="col-span-2"
+                                        description={param?.description}
+                                        isDisabled={isDisabled}
+                                        isRequired={param.required}
+                                        label={param.title || param.key}
+                                        type={param.type}
+                                        value={param.value}
+                                        onValueChange={(e) => {
+                                          if (!isDisabled) {
                                             setAction({
                                               ...action,
                                               params: action.params.map(
@@ -807,17 +1286,20 @@ export default function AddActionModal({
                                                 },
                                               ),
                                             });
-                                          }}
-                                        />
-                                      ) : param.type === "password" ? (
-                                        <Input
-                                          key={param.key}
-                                          description={param?.description}
-                                          isRequired={param.required}
-                                          label={param.title || param.key}
-                                          type={param.type}
-                                          value={param.value}
-                                          onValueChange={(e) => {
+                                          }
+                                        }}
+                                      />
+                                    ) : param.type === "password" ? (
+                                      <Input
+                                        key={param.key}
+                                        description={param?.description}
+                                        isDisabled={isDisabled}
+                                        isRequired={param.required}
+                                        label={param.title || param.key}
+                                        type={param.type}
+                                        value={param.value}
+                                        onValueChange={(e) => {
+                                          if (!isDisabled) {
                                             setAction({
                                               ...action,
                                               params: action.params.map(
@@ -830,17 +1312,20 @@ export default function AddActionModal({
                                                 },
                                               ),
                                             });
-                                          }}
-                                        />
-                                      ) : param.type === "select" ? (
-                                        <Select
-                                          key={param.key}
-                                          defaultSelectedKeys={[param.default]}
-                                          description={param?.description}
-                                          isRequired={param.required}
-                                          label={param.title || param.key}
-                                          selectedKeys={[param.value]}
-                                          onSelectionChange={(e) => {
+                                          }
+                                        }}
+                                      />
+                                    ) : param.type === "select" ? (
+                                      <Select
+                                        key={param.key}
+                                        defaultSelectedKeys={[param.default]}
+                                        description={param?.description}
+                                        isDisabled={isDisabled}
+                                        isRequired={param.required}
+                                        label={param.title || param.key}
+                                        selectedKeys={[param.value]}
+                                        onSelectionChange={(e) => {
+                                          if (!isDisabled) {
                                             const value =
                                               Array.from(e).join("");
 
@@ -856,15 +1341,15 @@ export default function AddActionModal({
                                                 },
                                               ),
                                             });
-                                          }}
-                                        >
-                                          {param.options.map((option: any) => (
-                                            <SelectItem key={option.key}>
-                                              {option.value}
-                                            </SelectItem>
-                                          ))}
-                                        </Select>
-                                      ) : null
+                                          }
+                                        }}
+                                      >
+                                        {param.options.map((option: any) => (
+                                          <SelectItem key={option.key}>
+                                            {option.value}
+                                          </SelectItem>
+                                        ))}
+                                      </Select>
                                     ) : null;
                                   })}
                                 </div>
@@ -891,6 +1376,34 @@ export default function AddActionModal({
                 >
                   Cancel
                 </Button>
+                {currentStep === 2 && (
+                  <Button
+                    color="warning"
+                    startContent={
+                      <Icon icon="hugeicons:file-sync" width={18} />
+                    }
+                    variant="flat"
+                    onPress={() => {
+                      setAction({
+                        ...action,
+                        condition: {
+                          selected_action_id: "",
+                          condition_items: [
+                            {
+                              condition_key: "",
+                              condition_type: "",
+                              condition_value: "",
+                              condition_logic: "and",
+                            },
+                          ],
+                          cancel_execution: false,
+                        },
+                      });
+                    }}
+                  >
+                    Reset Current Input
+                  </Button>
+                )}
                 {currentStep > 0 ? (
                   <Button
                     color="default"

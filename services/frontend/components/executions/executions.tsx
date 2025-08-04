@@ -138,7 +138,7 @@ export default function Executions({
                   startContent={
                     <Icon className="text-sm" icon="hugeicons:filter" />
                   }
-                  variant="flat"
+                  variant={statusFilter.size > 0 ? "solid" : "flat"}
                 >
                   Filter
                 </Button>
@@ -149,7 +149,10 @@ export default function Executions({
                 selectedKeys={statusFilter}
                 selectionMode="multiple"
                 variant="flat"
-                onSelectionChange={setStatusFilter}
+                onSelectionChange={(e) => {
+                  setStatusFilter(e);
+                  setPage(1); // Reset to first page when filter changes
+                }}
               >
                 {executionStatuses().map((status: any) => {
                   return (

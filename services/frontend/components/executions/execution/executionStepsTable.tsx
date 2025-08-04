@@ -239,7 +239,7 @@ export function ExecutionStepsTable({
                 <p>Step not started yet</p>
               ) : (
                 <div className="flex flex-col gap-2">
-                  <ScrollShadow className="flex flex-col max-h-[600px] w-full justify-end pb-6">
+                  <ScrollShadow className="flex flex-col max-h-[600px] w-full pb-6">
                     <Snippet
                       hideCopyButton
                       hideSymbol

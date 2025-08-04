@@ -162,6 +162,33 @@ export default function AdminStepActions({
             ? step.finished_at
             : "0001-01-01T00:00:00Z";
         break;
+      case "skipped":
+        newStep.status = "skipped";
+        newStep.messages = [
+          {
+            Title: "Admin",
+            Lines: [
+              {
+                Content: `********** CAUTION **********`,
+                Timestamp: new Date().toISOString(),
+              },
+              {
+                Content: `Step Status changed by Admin to Skipped`,
+                Color: "warning",
+                Timestamp: new Date().toISOString(),
+              },
+              {
+                Content: `********************`,
+                Timestamp: new Date().toISOString(),
+              },
+            ],
+          },
+        ];
+        newStep.finished_at =
+          step.finished_at !== "0001-01-01T00:00:00Z"
+            ? step.finished_at
+            : "0001-01-01T00:00:00Z";
+        break;
       case "interactionWaiting":
         newStep.status = "interactionWaiting";
         newStep.messages = [
@@ -388,6 +415,20 @@ export default function AdminStepActions({
                 width={20}
               />
               No Pattern Match
+            </div>
+          </DropdownItem>
+          <DropdownItem
+            key="skipped"
+            className="capitalize"
+            onPress={() => changeStepStatus("skipped")}
+          >
+            <div className="flex-cols flex gap-2">
+              <Icon
+                className="text-default-500"
+                icon="hugeicons:redo-03"
+                width={20}
+              />
+              Skipped
             </div>
           </DropdownItem>
           <DropdownItem
