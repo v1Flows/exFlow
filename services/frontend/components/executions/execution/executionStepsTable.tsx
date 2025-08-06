@@ -422,22 +422,50 @@ export function ExecutionStepsTable({
                         className="w-full"
                         radius="sm"
                       >
-                        {step.messages.flatMap(
-                          (data: any, dataIndex: number) =>
-                            data.lines?.map((line: any, lineIndex: number) => (
-                              <div
-                                key={`${dataIndex}-${lineIndex}`}
-                                className={`container flex-cols font-semibold flex items-center gap-2`}
-                              >
-                                <p className="text-default-500 text-opacity-70">
-                                  {new Date(line.timestamp).toLocaleString()}
-                                </p>
-                                <p className={`text-${lineColor(line)}`}>
-                                  {line.content}
-                                </p>
-                              </div>
-                            )) || [],
-                        )}
+                        {(() => {
+                          let globalLineNumber = 1;
+
+                          return step.messages.flatMap(
+                            (data: any, dataIndex: number) =>
+                              data.lines?.map(
+                                (line: any, lineIndex: number) => {
+                                  const currentLineNumber = globalLineNumber++;
+
+                                  return (
+                                    <div
+                                      key={`${dataIndex}-${lineIndex}`}
+                                      className={`container flex items-start gap-3 py-1 hover:bg-default-100/50 transition-colors`}
+                                    >
+                                      <div className="flex-shrink-0 w-8 text-right">
+                                        <span className="text-xs text-default-400 font-mono select-none">
+                                          {currentLineNumber}
+                                        </span>
+                                      </div>
+                                      <div className="flex-shrink-0">
+                                        <span className="text-xs text-default-500 text-opacity-70 font-mono">
+                                          {new Date(
+                                            line.timestamp,
+                                          ).toLocaleTimeString([], {
+                                            hour12: false,
+                                            hour: "2-digit",
+                                            minute: "2-digit",
+                                            second: "2-digit",
+                                          })}
+                                        </span>
+                                      </div>
+                                      <div className="min-w-0">
+                                        <span
+                                          className={`text-sm font-medium text-${lineColor(line)} break-words`}
+                                        >
+                                          {line.content}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  );
+                                },
+                              ) || [],
+                          );
+                        })()}
                       </Snippet>
                     </div>
 
