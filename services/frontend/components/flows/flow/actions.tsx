@@ -121,6 +121,22 @@ export default function Actions({
     setFailurePipelineTab(key);
   };
 
+  // function to get action from clipboard
+  const getClipboardAction = async () => {
+    try {
+      const clipboardText = await navigator.clipboard.readText();
+      const parsedAction = JSON.parse(clipboardText);
+
+      if (parsedAction && parsedAction.id && parsedAction.plugin) {
+        return parsedAction;
+      } else {
+        return null;
+      }
+    } catch {
+      return null;
+    }
+  };
+
   const SortableItem = ({ action }: { action: any }) => {
     const { attributes, listeners, setNodeRef, transform, transition } =
       useSortable({ id: action.id });
@@ -250,6 +266,25 @@ export default function Actions({
                           </Button>
                         </DropdownTrigger>
                         <DropdownMenu aria-label="Copy Actions" variant="flat">
+                          <DropdownItem
+                            key="clipboard"
+                            startContent={
+                              <Icon icon="hugeicons:clipboard" width={18} />
+                            }
+                            onPress={() => {
+                              navigator.clipboard.writeText(
+                                JSON.stringify(action),
+                              );
+                              addToast({
+                                title: "Action",
+                                description: "Action copied to clipboard!",
+                                color: "success",
+                                variant: "flat",
+                              });
+                            }}
+                          >
+                            Copy to Clipboard
+                          </DropdownItem>
                           <DropdownItem
                             key="local"
                             startContent={
@@ -800,35 +835,84 @@ export default function Actions({
               </div>
             </SortableContext>
           </DndContext>
-          <Card
-            fullWidth
-            className="border border-dashed border-default-200 bg-opacity-60 hover:border-primary"
-            isDisabled={
-              (!canEdit || !settings.add_flow_actions || flow.disabled) &&
-              user.role !== "admin"
-            }
-            isPressable={
-              (canEdit && settings.add_flow_actions && !flow.disabled) ||
-              user.role === "admin"
-            }
-            onPress={addFlowActionModal.onOpen}
-          >
-            <CardBody>
-              <div className="flex-cols flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
-                    <Icon icon="solar:add-square-outline" width={26} />
-                  </div>
-                  <div>
-                    <p className="text-md font-bold">Add Action</p>
-                    <p className="text-sm text-default-500">
-                      Add a new action to the flow
-                    </p>
+
+          <div className="flex flex-cols gap-2">
+            <Card
+              fullWidth
+              className="border border-dashed border-default-200 bg-opacity-60 hover:border-primary"
+              isDisabled={
+                (!canEdit || !settings.add_flow_actions || flow.disabled) &&
+                user.role !== "admin"
+              }
+              isPressable={
+                (canEdit && settings.add_flow_actions && !flow.disabled) ||
+                user.role === "admin"
+              }
+              onPress={addFlowActionModal.onOpen}
+            >
+              <CardBody>
+                <div className="flex-cols flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
+                      <Icon icon="hugeicons:subnode-add" width={26} />
+                    </div>
+                    <div>
+                      <p className="text-md font-bold">Create new Action</p>
+                      <p className="text-sm text-default-500">
+                        Add a new action to the flow
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </CardBody>
-          </Card>
+              </CardBody>
+            </Card>
+
+            <Card
+              fullWidth
+              className="border border-dashed border-default-200 bg-opacity-60 hover:border-primary"
+              isDisabled={
+                (!canEdit || !settings.add_flow_actions || flow.disabled) &&
+                user.role !== "admin"
+              }
+              isPressable={
+                (canEdit && settings.add_flow_actions && !flow.disabled) ||
+                user.role === "admin"
+              }
+              onPress={async () => {
+                const parsedAction = await getClipboardAction();
+
+                if (parsedAction) {
+                  setTargetAction(parsedAction);
+                  copyFlowActionModal.onOpen();
+                } else {
+                  addToast({
+                    title: "Flow",
+                    description: "No action found in clipboard.",
+                    color: "danger",
+                    variant: "flat",
+                  });
+                }
+              }}
+            >
+              <CardBody>
+                <div className="flex-cols flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
+                      <Icon icon="hugeicons:file-paste" width={26} />
+                    </div>
+                    <div>
+                      <p className="text-md font-bold">
+                        Paste Action from Clipboard
+                      </p>
+                      <p className="text-sm text-default-500">
+                        You have an action copied to the clipboard.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
+          </div>
         </div>
         <Divider className="sm:hidden mt-4 mb-4" />
         <div>
@@ -964,42 +1048,98 @@ export default function Actions({
                       </div>
                     </SortableContext>
                   </DndContext>
-                  <Card
-                    fullWidth
-                    className="border border-dashed border-default-200 bg-opacity-60 hover:border-primary"
-                    isDisabled={
-                      (!canEdit ||
-                        !settings.add_flow_actions ||
-                        flow.disabled) &&
-                      user.role !== "admin"
-                    }
-                    isPressable={
-                      (canEdit &&
-                        settings.add_flow_actions &&
-                        !flow.disabled) ||
-                      user.role === "admin"
-                    }
-                    onPress={() => {
-                      setTargetFailurePipeline(pipeline);
-                      addFlowFailurePipelineActionModal.onOpen();
-                    }}
-                  >
-                    <CardBody>
-                      <div className="flex-cols flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2">
-                          <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
-                            <Icon icon="solar:add-square-outline" width={26} />
-                          </div>
-                          <div>
-                            <p className="text-md font-bold">Add Action</p>
-                            <p className="text-sm text-default-500">
-                              Add a new action to the failure pipeline
-                            </p>
+
+                  <div className="flex flex-cols gap-2">
+                    <Card
+                      fullWidth
+                      className="border border-dashed border-default-200 bg-opacity-60 hover:border-primary"
+                      isDisabled={
+                        (!canEdit ||
+                          !settings.add_flow_actions ||
+                          flow.disabled) &&
+                        user.role !== "admin"
+                      }
+                      isPressable={
+                        (canEdit &&
+                          settings.add_flow_actions &&
+                          !flow.disabled) ||
+                        user.role === "admin"
+                      }
+                      onPress={() => {
+                        setTargetFailurePipeline(pipeline);
+                        addFlowFailurePipelineActionModal.onOpen();
+                      }}
+                    >
+                      <CardBody>
+                        <div className="flex-cols flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
+                              <Icon icon="hugeicons:subnode-add" width={26} />
+                            </div>
+                            <div>
+                              <p className="text-md font-bold">
+                                Create new Action
+                              </p>
+                              <p className="text-sm text-default-500">
+                                Add a new action to the failure pipeline
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </CardBody>
-                  </Card>
+                      </CardBody>
+                    </Card>
+
+                    <Card
+                      fullWidth
+                      className="border border-dashed border-default-200 bg-opacity-60 hover:border-primary"
+                      isDisabled={
+                        (!canEdit ||
+                          !settings.add_flow_actions ||
+                          flow.disabled) &&
+                        user.role !== "admin"
+                      }
+                      isPressable={
+                        (canEdit &&
+                          settings.add_flow_actions &&
+                          !flow.disabled) ||
+                        user.role === "admin"
+                      }
+                      onPress={async () => {
+                        const parsedAction = await getClipboardAction();
+
+                        if (parsedAction) {
+                          setTargetAction(parsedAction);
+                          setTargetFailurePipeline(pipeline);
+                          copyFlowFailurePipelineActionModal.onOpen();
+                        } else {
+                          addToast({
+                            title: "Flow",
+                            description: "No action found in clipboard.",
+                            color: "danger",
+                            variant: "flat",
+                          });
+                        }
+                      }}
+                    >
+                      <CardBody>
+                        <div className="flex-cols flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
+                              <Icon icon="hugeicons:file-paste" width={26} />
+                            </div>
+                            <div>
+                              <p className="text-md font-bold">
+                                Paste Action from Clipboard
+                              </p>
+                              <p className="text-sm text-default-500">
+                                You have an action copied to the clipboard.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </CardBody>
+                    </Card>
+                  </div>
                 </div>
               </Tab>
             ))}
