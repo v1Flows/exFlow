@@ -131,32 +131,6 @@ export default function ExecutionsList({
                         </Button>
                       </Tooltip>
                     </div>
-                    <div className="flex flex-wrap items-center gap-2 text-sm text-foreground-500 mt-0">
-                      {displayToFlow && (
-                        <Chip radius="sm" size="sm" variant="flat">
-                          <span className="text-default-500">Flow: </span>
-                          {flows.find(
-                            (flow: any) => flow.id === execution.flow_id,
-                          )?.name || "Unknown"}
-                        </Chip>
-                      )}
-                      <Chip radius="sm" size="sm" variant="flat">
-                        <span className="text-default-500">Triggered by: </span>
-                        <span className="capitalize">
-                          {execution.triggered_by}
-                        </span>
-                      </Chip>
-                      <Chip radius="sm" size="sm" variant="flat">
-                        <span className="text-default-500">Runner: </span>
-                        {runners.find(
-                          (runner: any) => runner.id === execution.runner_id,
-                        )?.name || "Unknown"}
-                      </Chip>
-                      <Chip radius="sm" size="sm" variant="flat">
-                        <span className="text-default-500">Duration: </span>
-                        {getDuration(execution)}
-                      </Chip>
-                    </div>
                   </div>
 
                   <div className="flex flex-wrap justify-end gap-2">
@@ -264,13 +238,42 @@ export default function ExecutionsList({
                     ))}
                   </div>
 
-                  <div className="flex justify-between mt-4">
-                    <span className="text-xs text-foreground-400">
-                      Created at: <ReactTimeago date={execution.created_at} />
-                    </span>
-                    <span className="text-xs text-foreground-400">
-                      Finished at: <ReactTimeago date={execution.finished_at} />
-                    </span>
+                  <div className="flex flex-cols justify-between items-center gap-4 mt-4">
+                    <div className="flex flex-wrap items-center gap-2 text-sm text-foreground-500">
+                      {displayToFlow && (
+                        <Chip radius="sm" size="sm" variant="flat">
+                          <span className="text-default-500">Flow: </span>
+                          {flows.find(
+                            (flow: any) => flow.id === execution.flow_id,
+                          )?.name || "Unknown"}
+                        </Chip>
+                      )}
+                      <Chip radius="sm" size="sm" variant="flat">
+                        <span className="text-default-500">Triggered by: </span>
+                        <span className="capitalize">
+                          {execution.triggered_by}
+                        </span>
+                      </Chip>
+                      <Chip radius="sm" size="sm" variant="flat">
+                        <span className="text-default-500">Runner: </span>
+                        {runners.find(
+                          (runner: any) => runner.id === execution.runner_id,
+                        )?.name || "Unknown"}
+                      </Chip>
+                      <Chip radius="sm" size="sm" variant="flat">
+                        <span className="text-default-500">Duration: </span>
+                        {getDuration(execution)}
+                      </Chip>
+                    </div>
+                    <div className="flex flex-col items-end text-xs text-foreground-400">
+                      <span className="text-xs text-foreground-400">
+                        Created at: <ReactTimeago date={execution.created_at} />
+                      </span>
+                      <span className="text-xs text-foreground-400">
+                        Finished at:{" "}
+                        <ReactTimeago date={execution.finished_at} />
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>

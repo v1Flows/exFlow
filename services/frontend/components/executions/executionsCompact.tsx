@@ -114,9 +114,9 @@ export default function ExecutionsCompact({
             <div className="flex items-start">
               <div className="flex-1 overflow-x-auto">
                 <div
-                  className={`flex ${isMobile && !isTablet ? "flex-wrap" : "flex-cols"} justify-between items-center gap-4`}
+                  className={`grid ${isMobile && !isTablet ? "grid-cols-2" : "grid-cols-4"} justify-between items-center gap-4`}
                 >
-                  <div className="flex flex-col">
+                  <div className="flex flex-col col-span-1">
                     <div className="flex items-center gap-2">
                       <Icon
                         className={`text-${executionStatusColor(execution)}`}
@@ -141,37 +141,10 @@ export default function ExecutionsCompact({
                         </Button>
                       </Tooltip>
                     </div>
-
-                    <div className="flex flex-wrap items-center gap-2 text-sm text-foreground-500 mt-0">
-                      {displayToFlow && (
-                        <Chip radius="sm" size="sm" variant="flat">
-                          <span className="text-default-500">Flow: </span>
-                          {flows.find(
-                            (flow: any) => flow.id === execution.flow_id,
-                          )?.name || "Unknown"}
-                        </Chip>
-                      )}
-                      <Chip radius="sm" size="sm" variant="flat">
-                        <span className="text-default-500">Triggered by: </span>
-                        <span className="capitalize">
-                          {execution.triggered_by}
-                        </span>
-                      </Chip>
-                      <Chip radius="sm" size="sm" variant="flat">
-                        <span className="text-default-500">Runner: </span>
-                        {runners.find(
-                          (runner: any) => runner.id === execution.runner_id,
-                        )?.name || "Unknown"}
-                      </Chip>
-                      <Chip radius="sm" size="sm" variant="flat">
-                        <span className="text-default-500">Duration: </span>
-                        {getDuration(execution)}
-                      </Chip>
-                    </div>
                   </div>
 
                   <div
-                    className={`flex flex-cols justify-center items-center ${(execution.status === "running" || execution.status === "paused" || execution.status === "interactionWaiting") && "flex-cols-reversed justify-end"} overflow-x-auto`}
+                    className={`flex flex-cols col-span-2 justify-center items-center ${(execution.status === "running" || execution.status === "paused" || execution.status === "interactionWaiting") && "flex-cols-reversed justify-end"} overflow-x-auto`}
                   >
                     {execution.steps.map((step, index) => (
                       <div
@@ -223,7 +196,7 @@ export default function ExecutionsCompact({
                     ))}
                   </div>
 
-                  <div className="flex flex-wrap justify-end gap-2">
+                  <div className="flex flex-cols col-span-1 items-center justify-end gap-2">
                     {displayToFlow && (
                       <Button
                         color="secondary"
@@ -276,8 +249,34 @@ export default function ExecutionsCompact({
                   </div>
                 </div>
 
-                <div className="mt-2">
-                  <div className="flex justify-between mt-4">
+                <div className="flex flex-cols justify-between items-center gap-4 mt-4">
+                  <div className="flex flex-wrap items-center gap-2 text-sm text-foreground-500">
+                    {displayToFlow && (
+                      <Chip radius="sm" size="sm" variant="flat">
+                        <span className="text-default-500">Flow: </span>
+                        {flows.find(
+                          (flow: any) => flow.id === execution.flow_id,
+                        )?.name || "Unknown"}
+                      </Chip>
+                    )}
+                    <Chip radius="sm" size="sm" variant="flat">
+                      <span className="text-default-500">Triggered by: </span>
+                      <span className="capitalize">
+                        {execution.triggered_by}
+                      </span>
+                    </Chip>
+                    <Chip radius="sm" size="sm" variant="flat">
+                      <span className="text-default-500">Runner: </span>
+                      {runners.find(
+                        (runner: any) => runner.id === execution.runner_id,
+                      )?.name || "Unknown"}
+                    </Chip>
+                    <Chip radius="sm" size="sm" variant="flat">
+                      <span className="text-default-500">Duration: </span>
+                      {getDuration(execution)}
+                    </Chip>
+                  </div>
+                  <div className="flex flex-col items-end text-xs text-foreground-400">
                     <span className="text-xs text-foreground-400">
                       Created at: <ReactTimeago date={execution.created_at} />
                     </span>
