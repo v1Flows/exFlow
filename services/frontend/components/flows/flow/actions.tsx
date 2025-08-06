@@ -25,6 +25,7 @@ import {
   DropdownTrigger,
   Snippet,
   Spacer,
+  Switch,
   Tab,
   Table,
   TableBody,
@@ -74,6 +75,8 @@ export default function Actions({
   const [actions, setActions] = React.useState([] as any);
   const [targetAction, setTargetAction] = React.useState({} as any);
   const [updatedAction, setUpdatedAction] = React.useState({} as any);
+
+  const [showDefaultParams, setShowDefaultParams] = React.useState(false);
 
   const [failurePipelines, setFailurePipelines] = React.useState([] as any);
   const [targetFailurePipeline, setTargetFailurePipeline] = React.useState(
@@ -553,6 +556,15 @@ export default function Actions({
                       subtitle="View action parameters (click to expand)"
                       title="Parameters"
                     >
+                      <div className="flex flex-cols w-full justify-end mb-2">
+                        <Switch
+                          isSelected={showDefaultParams}
+                          size="sm"
+                          onValueChange={setShowDefaultParams}
+                        >
+                          Show default parameters
+                        </Switch>
+                      </div>
                       <Table
                         removeWrapper
                         aria-label="Parameters"
@@ -563,23 +575,29 @@ export default function Actions({
                           <TableColumn align="center">Value</TableColumn>
                           <TableColumn align="center">Note</TableColumn>
                         </TableHeader>
-                        <TableBody emptyContent="No patterns defined.">
-                          {action.params.map((param: any, index: number) => (
-                            <TableRow key={index}>
-                              <TableCell>{param.key}</TableCell>
-                              <TableCell>{param.value}</TableCell>
-                              <TableCell>
-                                {param.type === "password" &&
-                                param.value != "" ? (
-                                  <span className="text-success">
-                                    Encrypted
-                                  </span>
-                                ) : (
-                                  ""
-                                )}
-                              </TableCell>
-                            </TableRow>
-                          ))}
+                        <TableBody emptyContent="No params defined or default values are used.">
+                          {action.params
+                            .filter(
+                              (param: any) =>
+                                showDefaultParams ||
+                                param.value !== param.default,
+                            )
+                            .map((param: any, index: number) => (
+                              <TableRow key={index}>
+                                <TableCell>{param.key}</TableCell>
+                                <TableCell>{param.value}</TableCell>
+                                <TableCell>
+                                  {param.type === "password" &&
+                                  param.value != "" ? (
+                                    <span className="text-success">
+                                      Encrypted
+                                    </span>
+                                  ) : (
+                                    ""
+                                  )}
+                                </TableCell>
+                              </TableRow>
+                            ))}
                         </TableBody>
                       </Table>
                     </AccordionItem>
@@ -832,7 +850,7 @@ export default function Actions({
           <Tabs
             aria-label="failure-pipelines"
             selectedKey={failurePipelineTab}
-            variant="underlined"
+            variant="solid"
             onSelectionChange={handleFailurePipelineTabChange}
           >
             {failurePipelines.map((pipeline: any) => (
@@ -843,11 +861,11 @@ export default function Actions({
                     className="bg-opacity-80 hover:border-primary"
                   >
                     <CardBody>
-                      <div className="flex-cols flex items-center justify-between gap-2">
+                      <div className="flex-wrap flex items-center justify-between gap-2">
                         <div className="flex flex-col items-start gap-1">
                           <div className="flex flex-cols items-center gap-2">
                             <p className="text-md font-bold">{pipeline.name}</p>
-                            <div className="flex flex-wrap gap-2">
+                            <div className="flex flex-cols gap-2">
                               <Chip radius="sm" size="sm" variant="flat">
                                 {pipeline.exec_parallel
                                   ? "Parallel"

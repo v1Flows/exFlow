@@ -15,8 +15,8 @@ import {
   SelectItem,
   Switch,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
 
 import GetProjectRunners from "@/lib/fetch/project/runners";
@@ -70,6 +70,18 @@ export default function CreateFlowModal({
   const [errorMessage, setErrorMessage] = useState("");
   // runner select list
   const [runners, setRunners] = useState([]);
+
+  // get folder id from query params
+  const searchParams = useSearchParams();
+  const searchFolderID = searchParams.get("folder");
+
+  useEffect(() => {
+    if (searchFolderID) {
+      setFolderId(searchFolderID);
+    } else {
+      setFolderId("");
+    }
+  }, [searchFolderID]);
 
   const projectSelected = async (e: any) => {
     setProjectId(e.currentKey);
