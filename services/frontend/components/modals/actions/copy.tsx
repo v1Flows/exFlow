@@ -256,6 +256,13 @@ export default function CopyActionModal({
       custom_description: action.custom_description,
     };
 
+    if (
+      failurePipeline.actions === undefined ||
+      failurePipeline.actions === null
+    ) {
+      failurePipeline.actions = [];
+    }
+
     const newActions = [...failurePipeline.actions, sendAction];
 
     const newFailurePipeline = {
