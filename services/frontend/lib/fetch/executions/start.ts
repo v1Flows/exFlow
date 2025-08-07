@@ -33,16 +33,14 @@ export default async function APIStartExecution(
     }
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/executions/`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/flows/${flowID}/execute/`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: token.value,
         },
-        body: JSON.stringify({
-          flow_id: flowID,
-        }),
+        body: JSON.stringify({}),
       },
     );
 

@@ -35,6 +35,9 @@ func Flows(router *gin.RouterGroup, db *bun.DB) {
 		flow.PUT("/:flowID/maintenance", func(c *gin.Context) {
 			flows.ChangeFlowMaintenance(c, db)
 		})
+		flow.POST("/:flowID/execute", func(c *gin.Context) {
+			flows.StartExecution(c, db)
+		})
 
 		// actions
 		flow.POST("/:flowID/actions", func(c *gin.Context) {
