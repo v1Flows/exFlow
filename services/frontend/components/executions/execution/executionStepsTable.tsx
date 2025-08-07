@@ -434,7 +434,7 @@ export function ExecutionStepsTable({
                                   return (
                                     <div
                                       key={`${dataIndex}-${lineIndex}`}
-                                      className={`container flex items-start gap-3 py-1 hover:bg-default-100/50 transition-colors`}
+                                      className={`container flex items-start gap-3 py-0.3 hover:bg-default-100/50 transition-colors`}
                                     >
                                       <div className="flex-shrink-0 w-8 text-right">
                                         <span className="text-xs text-default-400 font-mono select-none">
