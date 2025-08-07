@@ -5,18 +5,19 @@ import { Icon } from "@iconify/react";
 import NumberFlow from "@number-flow/react";
 import { useRouter } from "next/navigation";
 
+import { useFlowExecutions } from "@/lib/swr/hooks/flows";
+
 export default function FlowDetails({
   flow,
   project,
-  totalExecutions,
   runners,
 }: {
   flow: any;
   project: any;
-  totalExecutions: any;
   runners: any;
 }) {
   const router = useRouter();
+  const { total: totalExecutions } = useFlowExecutions(flow.id);
 
   return (
     <main>
@@ -89,7 +90,10 @@ export default function FlowDetails({
                   <Icon icon="hugeicons:rocket-02" width={24} />
                 </div>
                 <div>
-                  <NumberFlow className="font-bold" value={totalExecutions} />
+                  <NumberFlow
+                    className="font-bold"
+                    value={totalExecutions || 0}
+                  />
                   <p className="text-sm text-default-500">Executions</p>
                 </div>
               </div>

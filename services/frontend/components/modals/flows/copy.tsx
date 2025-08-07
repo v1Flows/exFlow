@@ -15,13 +15,13 @@ import {
   SelectItem,
   Switch,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
 
 import GetProjectRunners from "@/lib/fetch/project/runners";
 import ErrorCard from "@/components/error/ErrorCard";
 import CopyFlow from "@/lib/fetch/flow/POST/CopyFlow";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 import RowSteps from "../../steps/row-steps";
 
@@ -36,7 +36,8 @@ export default function CopyFlowModal({
   projects: any;
   disclosure: UseDisclosureReturn;
 }) {
-  const router = useRouter();
+  const { refreshFlowData, refreshFolders, refreshProjects } =
+    useRefreshCache();
 
   // create modal
   const { isOpen, onOpenChange } = disclosure;
@@ -120,7 +121,9 @@ export default function CopyFlowModal({
     }
 
     if (response.success) {
-      router.refresh();
+      refreshFlowData(); // Refresh SWR cache instead of router
+      refreshProjects(); // Refresh SWR cache instead of router
+      refreshFolders();
       onOpenChange();
       setName("");
       setDescription("");

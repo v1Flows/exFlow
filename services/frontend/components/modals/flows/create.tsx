@@ -15,13 +15,14 @@ import {
   SelectItem,
   Switch,
 } from "@heroui/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
 
 import GetProjectRunners from "@/lib/fetch/project/runners";
 import CreateFlow from "@/lib/fetch/flow/POST/CreateFlow";
 import ErrorCard from "@/components/error/ErrorCard";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 import RowSteps from "../../steps/row-steps";
 
@@ -34,7 +35,7 @@ export default function CreateFlowModal({
   projects: any;
   disclosure: UseDisclosureReturn;
 }) {
-  const router = useRouter();
+  const { refreshFlowData } = useRefreshCache();
 
   // create modal
   const { isOpen, onOpenChange } = disclosure;
@@ -115,7 +116,7 @@ export default function CreateFlowModal({
     }
 
     if (response.success) {
-      router.refresh();
+      refreshFlowData(); // Refresh SWR cache (for new flows, no specific ID needed)
       onOpenChange();
       setName("");
       setDescription("");
