@@ -23,8 +23,10 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
+  ScrollShadow,
   Snippet,
   Spacer,
+  Switch,
   Tab,
   Table,
   TableBody,
@@ -75,6 +77,8 @@ export default function Actions({
   const [targetAction, setTargetAction] = React.useState({} as any);
   const [updatedAction, setUpdatedAction] = React.useState({} as any);
 
+  const [showDefaultParams, setShowDefaultParams] = React.useState(false);
+
   const [failurePipelines, setFailurePipelines] = React.useState([] as any);
   const [targetFailurePipeline, setTargetFailurePipeline] = React.useState(
     {} as any,
@@ -116,6 +120,22 @@ export default function Actions({
 
   const handleFailurePipelineTabChange = (key: any) => {
     setFailurePipelineTab(key);
+  };
+
+  // function to get action from clipboard
+  const getClipboardAction = async () => {
+    try {
+      const clipboardText = await navigator.clipboard.readText();
+      const parsedAction = JSON.parse(clipboardText);
+
+      if (parsedAction && parsedAction.id && parsedAction.plugin) {
+        return parsedAction;
+      } else {
+        return null;
+      }
+    } catch {
+      return null;
+    }
   };
 
   const SortableItem = ({ action }: { action: any }) => {
@@ -247,6 +267,25 @@ export default function Actions({
                           </Button>
                         </DropdownTrigger>
                         <DropdownMenu aria-label="Copy Actions" variant="flat">
+                          <DropdownItem
+                            key="clipboard"
+                            startContent={
+                              <Icon icon="hugeicons:clipboard" width={18} />
+                            }
+                            onPress={() => {
+                              navigator.clipboard.writeText(
+                                JSON.stringify(action),
+                              );
+                              addToast({
+                                title: "Action",
+                                description: "Action copied to clipboard!",
+                                color: "success",
+                                variant: "flat",
+                              });
+                            }}
+                          >
+                            Copy to Clipboard
+                          </DropdownItem>
                           <DropdownItem
                             key="local"
                             startContent={
@@ -553,6 +592,15 @@ export default function Actions({
                       subtitle="View action parameters (click to expand)"
                       title="Parameters"
                     >
+                      <div className="flex flex-cols w-full justify-end mb-2">
+                        <Switch
+                          isSelected={showDefaultParams}
+                          size="sm"
+                          onValueChange={setShowDefaultParams}
+                        >
+                          Show default parameters
+                        </Switch>
+                      </div>
                       <Table
                         removeWrapper
                         aria-label="Parameters"
@@ -563,23 +611,29 @@ export default function Actions({
                           <TableColumn align="center">Value</TableColumn>
                           <TableColumn align="center">Note</TableColumn>
                         </TableHeader>
-                        <TableBody emptyContent="No patterns defined.">
-                          {action.params.map((param: any, index: number) => (
-                            <TableRow key={index}>
-                              <TableCell>{param.key}</TableCell>
-                              <TableCell>{param.value}</TableCell>
-                              <TableCell>
-                                {param.type === "password" &&
-                                param.value != "" ? (
-                                  <span className="text-success">
-                                    Encrypted
-                                  </span>
-                                ) : (
-                                  ""
-                                )}
-                              </TableCell>
-                            </TableRow>
-                          ))}
+                        <TableBody emptyContent="No params defined or default values are used.">
+                          {action.params
+                            .filter(
+                              (param: any) =>
+                                showDefaultParams ||
+                                param.value !== param.default,
+                            )
+                            .map((param: any, index: number) => (
+                              <TableRow key={index}>
+                                <TableCell>{param.key}</TableCell>
+                                <TableCell>{param.value}</TableCell>
+                                <TableCell>
+                                  {param.type === "password" &&
+                                  param.value != "" ? (
+                                    <span className="text-success">
+                                      Encrypted
+                                    </span>
+                                  ) : (
+                                    ""
+                                  )}
+                                </TableCell>
+                              </TableRow>
+                            ))}
                         </TableBody>
                       </Table>
                     </AccordionItem>
@@ -767,50 +821,101 @@ export default function Actions({
       <Spacer y={2} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
         <div className="flex flex-col gap-2">
-          <DndContext
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              items={actions}
-              strategy={verticalListSortingStrategy}
+          <ScrollShadow className="max-h-[calc(100vh-500px)]">
+            <DndContext
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
             >
-              <div className="flex flex-col gap-2">
-                {actions.map((action: any) => (
-                  <SortableItem key={action.id} action={action} />
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
-          <Card
-            fullWidth
-            className="border border-dashed border-default-200 bg-opacity-60 hover:border-primary"
-            isDisabled={
-              (!canEdit || !settings.add_flow_actions || flow.disabled) &&
-              user.role !== "admin"
-            }
-            isPressable={
-              (canEdit && settings.add_flow_actions && !flow.disabled) ||
-              user.role === "admin"
-            }
-            onPress={addFlowActionModal.onOpen}
-          >
-            <CardBody>
-              <div className="flex-cols flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
-                    <Icon icon="solar:add-square-outline" width={26} />
-                  </div>
-                  <div>
-                    <p className="text-md font-bold">Add Action</p>
-                    <p className="text-sm text-default-500">
-                      Add a new action to the flow
-                    </p>
+              <SortableContext
+                items={actions}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="flex flex-col gap-2">
+                  {actions.map((action: any) => (
+                    <SortableItem key={action.id} action={action} />
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
+          </ScrollShadow>
+
+          <div className="flex flex-cols gap-2">
+            <Card
+              fullWidth
+              className="border border-dashed border-default-200 bg-opacity-60 hover:border-primary"
+              isDisabled={
+                (!canEdit || !settings.add_flow_actions || flow.disabled) &&
+                user.role !== "admin"
+              }
+              isPressable={
+                (canEdit && settings.add_flow_actions && !flow.disabled) ||
+                user.role === "admin"
+              }
+              onPress={addFlowActionModal.onOpen}
+            >
+              <CardBody>
+                <div className="flex-cols flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
+                      <Icon icon="hugeicons:subnode-add" width={26} />
+                    </div>
+                    <div>
+                      <p className="text-md font-bold">Create new Action</p>
+                      <p className="text-sm text-default-500">
+                        Add a new action to the flow
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </CardBody>
-          </Card>
+              </CardBody>
+            </Card>
+
+            <Card
+              fullWidth
+              className="border border-dashed border-default-200 bg-opacity-60 hover:border-primary"
+              isDisabled={
+                (!canEdit || !settings.add_flow_actions || flow.disabled) &&
+                user.role !== "admin"
+              }
+              isPressable={
+                (canEdit && settings.add_flow_actions && !flow.disabled) ||
+                user.role === "admin"
+              }
+              onPress={async () => {
+                const parsedAction = await getClipboardAction();
+
+                if (parsedAction) {
+                  setTargetAction(parsedAction);
+                  copyFlowActionModal.onOpen();
+                } else {
+                  addToast({
+                    title: "Flow",
+                    description: "No action found in clipboard.",
+                    color: "danger",
+                    variant: "flat",
+                  });
+                }
+              }}
+            >
+              <CardBody>
+                <div className="flex-cols flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
+                      <Icon icon="hugeicons:file-paste" width={26} />
+                    </div>
+                    <div>
+                      <p className="text-md font-bold">
+                        Paste Action from Clipboard
+                      </p>
+                      <p className="text-sm text-default-500">
+                        You have an action copied to the clipboard.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
+          </div>
         </div>
         <Divider className="sm:hidden mt-4 mb-4" />
         <div>
@@ -832,7 +937,7 @@ export default function Actions({
           <Tabs
             aria-label="failure-pipelines"
             selectedKey={failurePipelineTab}
-            variant="underlined"
+            variant="solid"
             onSelectionChange={handleFailurePipelineTabChange}
           >
             {failurePipelines.map((pipeline: any) => (
@@ -843,11 +948,11 @@ export default function Actions({
                     className="bg-opacity-80 hover:border-primary"
                   >
                     <CardBody>
-                      <div className="flex-cols flex items-center justify-between gap-2">
+                      <div className="flex-wrap flex items-center justify-between gap-2">
                         <div className="flex flex-col items-start gap-1">
                           <div className="flex flex-cols items-center gap-2">
                             <p className="text-md font-bold">{pipeline.name}</p>
-                            <div className="flex flex-wrap gap-2">
+                            <div className="flex flex-cols gap-2">
                               <Chip radius="sm" size="sm" variant="flat">
                                 {pipeline.exec_parallel
                                   ? "Parallel"
@@ -927,61 +1032,121 @@ export default function Actions({
                       </div>
                     </CardBody>
                   </Card>
-                  <DndContext
-                    collisionDetection={closestCenter}
-                    onDragEnd={(event) =>
-                      handleDragEndPipeline(pipeline, event)
-                    }
-                  >
-                    <SortableContext
-                      items={pipeline.actions !== null ? pipeline.actions : []}
-                      strategy={verticalListSortingStrategy}
+                  <ScrollShadow className="max-h-[calc(100vh-700px)]">
+                    <DndContext
+                      collisionDetection={closestCenter}
+                      onDragEnd={(event) =>
+                        handleDragEndPipeline(pipeline, event)
+                      }
                     >
-                      <div className="flex flex-col gap-2">
-                        {pipeline.actions !== null &&
-                          pipeline.actions.length > 0 &&
-                          pipeline.actions.map((action: any) => (
-                            <SortableItem key={action.id} action={action} />
-                          ))}
-                      </div>
-                    </SortableContext>
-                  </DndContext>
-                  <Card
-                    fullWidth
-                    className="border border-dashed border-default-200 bg-opacity-60 hover:border-primary"
-                    isDisabled={
-                      (!canEdit ||
-                        !settings.add_flow_actions ||
-                        flow.disabled) &&
-                      user.role !== "admin"
-                    }
-                    isPressable={
-                      (canEdit &&
-                        settings.add_flow_actions &&
-                        !flow.disabled) ||
-                      user.role === "admin"
-                    }
-                    onPress={() => {
-                      setTargetFailurePipeline(pipeline);
-                      addFlowFailurePipelineActionModal.onOpen();
-                    }}
-                  >
-                    <CardBody>
-                      <div className="flex-cols flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2">
-                          <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
-                            <Icon icon="solar:add-square-outline" width={26} />
-                          </div>
-                          <div>
-                            <p className="text-md font-bold">Add Action</p>
-                            <p className="text-sm text-default-500">
-                              Add a new action to the failure pipeline
-                            </p>
+                      <SortableContext
+                        items={
+                          pipeline.actions !== null ? pipeline.actions : []
+                        }
+                        strategy={verticalListSortingStrategy}
+                      >
+                        <div className="flex flex-col gap-2">
+                          {pipeline.actions !== null &&
+                            pipeline.actions.length > 0 &&
+                            pipeline.actions.map((action: any) => (
+                              <SortableItem key={action.id} action={action} />
+                            ))}
+                        </div>
+                      </SortableContext>
+                    </DndContext>
+                  </ScrollShadow>
+
+                  <div className="flex flex-cols gap-2">
+                    <Card
+                      fullWidth
+                      className="border border-dashed border-default-200 bg-opacity-60 hover:border-primary"
+                      isDisabled={
+                        (!canEdit ||
+                          !settings.add_flow_actions ||
+                          flow.disabled) &&
+                        user.role !== "admin"
+                      }
+                      isPressable={
+                        (canEdit &&
+                          settings.add_flow_actions &&
+                          !flow.disabled) ||
+                        user.role === "admin"
+                      }
+                      onPress={() => {
+                        setTargetFailurePipeline(pipeline);
+                        addFlowFailurePipelineActionModal.onOpen();
+                      }}
+                    >
+                      <CardBody>
+                        <div className="flex-cols flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
+                              <Icon icon="hugeicons:subnode-add" width={26} />
+                            </div>
+                            <div>
+                              <p className="text-md font-bold">
+                                Create new Action
+                              </p>
+                              <p className="text-sm text-default-500">
+                                Add a new action to the failure pipeline
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </CardBody>
-                  </Card>
+                      </CardBody>
+                    </Card>
+
+                    <Card
+                      fullWidth
+                      className="border border-dashed border-default-200 bg-opacity-60 hover:border-primary"
+                      isDisabled={
+                        (!canEdit ||
+                          !settings.add_flow_actions ||
+                          flow.disabled) &&
+                        user.role !== "admin"
+                      }
+                      isPressable={
+                        (canEdit &&
+                          settings.add_flow_actions &&
+                          !flow.disabled) ||
+                        user.role === "admin"
+                      }
+                      onPress={async () => {
+                        const parsedAction = await getClipboardAction();
+
+                        if (parsedAction) {
+                          setTargetAction(parsedAction);
+                          setTargetFailurePipeline(pipeline);
+                          copyFlowFailurePipelineActionModal.onOpen();
+                        } else {
+                          addToast({
+                            title: "Flow",
+                            description: "No action found in clipboard.",
+                            color: "danger",
+                            variant: "flat",
+                          });
+                        }
+                      }}
+                    >
+                      <CardBody>
+                        <div className="flex-cols flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
+                              <Icon icon="hugeicons:file-paste" width={26} />
+                            </div>
+                            <div>
+                              <p className="text-md font-bold">
+                                Paste Action from Clipboard
+                              </p>
+                              <p className="text-sm text-default-500">
+                                You have an action copied to the clipboard.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </CardBody>
+                    </Card>
+                  </div>
                 </div>
               </Tab>
             ))}

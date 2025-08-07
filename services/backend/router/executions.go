@@ -14,9 +14,6 @@ func Executions(router *gin.RouterGroup, db *bun.DB) {
 		execution.GET("/", func(c *gin.Context) {
 			executions.GetExecutions(c, db)
 		})
-		execution.POST("/", func(c *gin.Context) {
-			executions.StartExecution(c, db)
-		})
 
 		execution.GET("/running", func(c *gin.Context) {
 			executions.GetRunningExecutions(c, db)

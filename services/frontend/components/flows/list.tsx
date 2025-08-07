@@ -12,8 +12,6 @@ import {
   Chip,
   Button,
   addToast,
-  Breadcrumbs,
-  BreadcrumbItem,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -101,25 +99,6 @@ export default function FlowList({
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center gap-2">
               <h2 className="text-2xl font-semibold">Folders</h2>
-              {searchFolderID && (
-                <Breadcrumbs variant="solid">
-                  <BreadcrumbItem
-                    href="/flows"
-                    startContent={
-                      <Icon icon="hugeicons:workflow-square-10" width={16} />
-                    }
-                  >
-                    Flows
-                  </BreadcrumbItem>
-                  <BreadcrumbItem
-                    startContent={
-                      <Icon icon="hugeicons:folder-01" width={16} />
-                    }
-                  >
-                    {folders.find((f: any) => f.id === searchFolderID)?.name}
-                  </BreadcrumbItem>
-                </Breadcrumbs>
-              )}
             </div>
             <Button
               isDisabled={!searchFolderID}
@@ -288,7 +267,7 @@ export default function FlowList({
         </CardBody>
       </Card>
 
-      <Card className="bg-content1 shadow-md mt-8">
+      <Card className="bg-content1 shadow-md mt-4">
         <CardBody>
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-semibold">Flows</h2>

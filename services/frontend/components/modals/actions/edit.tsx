@@ -429,6 +429,217 @@ export default function EditActionModal({
                   {currentStep === 1 && (
                     <div>
                       <p className="text-lg font-bold text-default-600">
+                        Parameters
+                      </p>
+                      <Spacer y={2} />
+                      <ScrollShadow className="max-h-[60vh]">
+                        {actionParamsCategorys.length > 0 ? (
+                          <div className="flex flex-col w-full gap-2">
+                            {actionParamsCategorys.map((category: any) => (
+                              <div key={category}>
+                                <p className="font-semibold text-default-500 mb-2">
+                                  {category}
+                                </p>
+                                <div className="grid lg:grid-cols-2 gap-2">
+                                  {action.params.map((param: any) => {
+                                    // Check if param belongs to this category first
+                                    if (
+                                      (param.category || "Uncategorized") !==
+                                      category
+                                    ) {
+                                      return null;
+                                    }
+
+                                    // Check if param has depends_on set and evaluate the condition
+                                    let isDisabled = false;
+
+                                    if (param.depends_on.key !== "") {
+                                      const dependsOnParam = action.params.find(
+                                        (p: any) =>
+                                          p.key === param.depends_on.key,
+                                      );
+
+                                      if (!dependsOnParam) {
+                                        isDisabled = true;
+                                      } else if (
+                                        param.depends_on.value === "*"
+                                      ) {
+                                        // Wildcard: any non-empty value is acceptable
+                                        isDisabled =
+                                          !dependsOnParam.value ||
+                                          dependsOnParam.value.trim() === "";
+                                      } else {
+                                        // Exact match required
+                                        isDisabled =
+                                          dependsOnParam.value !==
+                                          param.depends_on.value;
+                                      }
+                                    }
+
+                                    return param.type === "text" ||
+                                      param.type === "number" ? (
+                                      <Input
+                                        key={param.key}
+                                        description={param?.description}
+                                        isDisabled={isDisabled}
+                                        isRequired={param.required}
+                                        label={param.title || param.key}
+                                        type={param.type}
+                                        value={param.value}
+                                        onValueChange={(e) => {
+                                          if (!isDisabled) {
+                                            setAction({
+                                              ...action,
+                                              params: action.params.map(
+                                                (x: any) => {
+                                                  if (x.key === param.key) {
+                                                    return { ...x, value: e };
+                                                  }
+
+                                                  return x;
+                                                },
+                                              ),
+                                            });
+                                          }
+                                        }}
+                                      />
+                                    ) : param.type === "boolean" ? (
+                                      <Select
+                                        key={param.key}
+                                        description={param?.description}
+                                        isDisabled={isDisabled}
+                                        isRequired={param.required}
+                                        label={param.title || param.key}
+                                        selectedKeys={[param.value]}
+                                        onSelectionChange={(e) => {
+                                          if (!isDisabled) {
+                                            const value =
+                                              Array.from(e).join("");
+
+                                            setAction({
+                                              ...action,
+                                              params: action.params.map(
+                                                (x: any) => {
+                                                  if (x.key === param.key) {
+                                                    return { ...x, value };
+                                                  }
+
+                                                  return x;
+                                                },
+                                              ),
+                                            });
+                                          }
+                                        }}
+                                      >
+                                        <SelectItem key="true">true</SelectItem>
+                                        <SelectItem key="false">
+                                          false
+                                        </SelectItem>
+                                      </Select>
+                                    ) : param.type === "textarea" ? (
+                                      <Textarea
+                                        key={param.key}
+                                        className="col-span-2"
+                                        description={param?.description}
+                                        isDisabled={isDisabled}
+                                        isRequired={param.required}
+                                        label={param.title || param.key}
+                                        type={param.type}
+                                        value={param.value}
+                                        onValueChange={(e) => {
+                                          if (!isDisabled) {
+                                            setAction({
+                                              ...action,
+                                              params: action.params.map(
+                                                (x: any) => {
+                                                  if (x.key === param.key) {
+                                                    return { ...x, value: e };
+                                                  }
+
+                                                  return x;
+                                                },
+                                              ),
+                                            });
+                                          }
+                                        }}
+                                      />
+                                    ) : param.type === "password" ? (
+                                      <Input
+                                        key={param.key}
+                                        description={param?.description}
+                                        isDisabled={isDisabled}
+                                        isRequired={param.required}
+                                        label={param.title || param.key}
+                                        type={param.type}
+                                        value={param.value}
+                                        onValueChange={(e) => {
+                                          if (!isDisabled) {
+                                            setAction({
+                                              ...action,
+                                              params: action.params.map(
+                                                (x: any) => {
+                                                  if (x.key === param.key) {
+                                                    return { ...x, value: e };
+                                                  }
+
+                                                  return x;
+                                                },
+                                              ),
+                                            });
+                                          }
+                                        }}
+                                      />
+                                    ) : param.type === "select" ? (
+                                      <Select
+                                        key={param.key}
+                                        defaultSelectedKeys={[param.default]}
+                                        description={param?.description}
+                                        isDisabled={isDisabled}
+                                        isRequired={param.required}
+                                        label={param.title || param.key}
+                                        selectedKeys={[param.value]}
+                                        onSelectionChange={(e) => {
+                                          if (!isDisabled) {
+                                            const value =
+                                              Array.from(e).join("");
+
+                                            setAction({
+                                              ...action,
+                                              params: action.params.map(
+                                                (x: any) => {
+                                                  if (x.key === param.key) {
+                                                    return { ...x, value };
+                                                  }
+
+                                                  return x;
+                                                },
+                                              ),
+                                            });
+                                          }
+                                        }}
+                                      >
+                                        {param.options.map((option: any) => (
+                                          <SelectItem key={option.key}>
+                                            {option.value}
+                                          </SelectItem>
+                                        ))}
+                                      </Select>
+                                    ) : null;
+                                  })}
+                                </div>
+                                <Divider className="mb-2 mt-2" />
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p>No parameters for this action found.</p>
+                        )}
+                      </ScrollShadow>
+                    </div>
+                  )}
+                  {currentStep === 2 && (
+                    <div>
+                      <p className="text-lg font-bold text-default-600">
                         Conditional Execution
                       </p>
                       <Spacer y={2} />
@@ -449,22 +660,9 @@ export default function EditActionModal({
                             });
                           }}
                         >
-                          {flow.actions.filter(
-                            (flowActs: any, index: number) => {
-                              const currentActionIndex = flow.actions.findIndex(
-                                (act: any) => act.id === action.id,
-                              );
-
-                              if (isFailurePipeline) {
-                                // If it's a failure pipeline, we want to include all actions
-                                return true;
-                              }
-
-                              return index < currentActionIndex;
-                            },
-                          ).length > 0 ? (
-                            flow.actions
-                              .filter((flowActs: any, index: number) => {
+                          <ScrollShadow className="max-h-[30vh]">
+                            {flow.actions.filter(
+                              (flowActs: any, index: number) => {
                                 const currentActionIndex =
                                   flow.actions.findIndex(
                                     (act: any) => act.id === action.id,
@@ -476,57 +674,73 @@ export default function EditActionModal({
                                 }
 
                                 return index < currentActionIndex;
-                              })
-                              .map((flowActs: any) => (
-                                <Radio
-                                  key={flowActs.id}
-                                  aria-label={
-                                    flowActs.custom_name || flowActs.name
+                              },
+                            ).length > 0 ? (
+                              flow.actions
+                                .filter((flowActs: any, index: number) => {
+                                  const currentActionIndex =
+                                    flow.actions.findIndex(
+                                      (act: any) => act.id === action.id,
+                                    );
+
+                                  if (isFailurePipeline) {
+                                    // If it's a failure pipeline, we want to include all actions
+                                    return true;
                                   }
-                                  classNames={{
-                                    base: cn(
-                                      "inline-flex max-w-full w-full bg-content1 m-0",
-                                      "hover:bg-content2 items-center justify-start",
-                                      "cursor-pointer rounded-lg gap-2 p-4 border-2 border-transparent",
-                                      "data-[selected=true]:border-primary",
-                                    ),
-                                    label: "w-full",
-                                  }}
-                                  value={flowActs.id}
-                                >
-                                  <div className="flex items-center gap-2">
-                                    <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
-                                      <Icon icon={flowActs.icon} width={26} />
-                                    </div>
-                                    <div className="flex flex-col">
-                                      <div className="flex flex-cols gap-2 items-center">
-                                        <p className="text-lg font-bold">
-                                          {flowActs.custom_name ||
-                                            flowActs.name}
-                                        </p>
-                                        <Chip
-                                          color="primary"
-                                          radius="sm"
-                                          size="sm"
-                                          variant="flat"
-                                        >
-                                          Ver. {flowActs.version}
-                                        </Chip>
+
+                                  return index < currentActionIndex;
+                                })
+                                .map((flowActs: any) => (
+                                  <Radio
+                                    key={flowActs.id}
+                                    aria-label={
+                                      flowActs.custom_name || flowActs.name
+                                    }
+                                    classNames={{
+                                      base: cn(
+                                        "inline-flex max-w-full w-full bg-content1 m-0",
+                                        "hover:bg-content2 items-center justify-start",
+                                        "cursor-pointer rounded-lg gap-2 p-4 border-2 border-transparent",
+                                        "data-[selected=true]:border-primary",
+                                      ),
+                                      label: "w-full",
+                                    }}
+                                    value={flowActs.id}
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
+                                        <Icon icon={flowActs.icon} width={26} />
                                       </div>
-                                      <p className="text-sm text-default-500">
-                                        {flowActs.custom_description ||
-                                          flowActs.description}
-                                      </p>
+                                      <div className="flex flex-col">
+                                        <div className="flex flex-cols gap-2 items-center">
+                                          <p className="text-lg font-bold">
+                                            {flowActs.custom_name ||
+                                              flowActs.name}
+                                          </p>
+                                          <Chip
+                                            color="primary"
+                                            radius="sm"
+                                            size="sm"
+                                            variant="flat"
+                                          >
+                                            Ver. {flowActs.version}
+                                          </Chip>
+                                        </div>
+                                        <p className="text-sm text-default-500">
+                                          {flowActs.custom_description ||
+                                            flowActs.description}
+                                        </p>
+                                      </div>
                                     </div>
-                                  </div>
-                                </Radio>
-                              ))
-                          ) : (
-                            <div className="text-center p-4 text-default-500">
-                              No previous actions available for conditional
-                              execution
-                            </div>
-                          )}
+                                  </Radio>
+                                ))
+                            ) : (
+                              <div className="text-center p-4 text-default-500">
+                                No previous actions available for conditional
+                                execution
+                              </div>
+                            )}
+                          </ScrollShadow>
                         </RadioGroup>
 
                         <div className="flex flex-col items-center gap-2">
@@ -818,217 +1032,6 @@ export default function EditActionModal({
                       </div>
                     </div>
                   )}
-                  {currentStep === 2 && (
-                    <div>
-                      <p className="text-lg font-bold text-default-600">
-                        Parameters
-                      </p>
-                      <Spacer y={2} />
-                      <ScrollShadow className="max-h-[60vh]">
-                        {actionParamsCategorys.length > 0 ? (
-                          <div className="flex flex-col w-full gap-2">
-                            {actionParamsCategorys.map((category: any) => (
-                              <div key={category}>
-                                <p className="font-semibold text-default-500 mb-2">
-                                  {category}
-                                </p>
-                                <div className="grid lg:grid-cols-2 gap-2">
-                                  {action.params.map((param: any) => {
-                                    // Check if param belongs to this category first
-                                    if (
-                                      (param.category || "Uncategorized") !==
-                                      category
-                                    ) {
-                                      return null;
-                                    }
-
-                                    // Check if param has depends_on set and evaluate the condition
-                                    let isDisabled = false;
-
-                                    if (param.depends_on.key !== "") {
-                                      const dependsOnParam = action.params.find(
-                                        (p: any) =>
-                                          p.key === param.depends_on.key,
-                                      );
-
-                                      if (!dependsOnParam) {
-                                        isDisabled = true;
-                                      } else if (
-                                        param.depends_on.value === "*"
-                                      ) {
-                                        // Wildcard: any non-empty value is acceptable
-                                        isDisabled =
-                                          !dependsOnParam.value ||
-                                          dependsOnParam.value.trim() === "";
-                                      } else {
-                                        // Exact match required
-                                        isDisabled =
-                                          dependsOnParam.value !==
-                                          param.depends_on.value;
-                                      }
-                                    }
-
-                                    return param.type === "text" ||
-                                      param.type === "number" ? (
-                                      <Input
-                                        key={param.key}
-                                        description={param?.description}
-                                        isDisabled={isDisabled}
-                                        isRequired={param.required}
-                                        label={param.title || param.key}
-                                        type={param.type}
-                                        value={param.value}
-                                        onValueChange={(e) => {
-                                          if (!isDisabled) {
-                                            setAction({
-                                              ...action,
-                                              params: action.params.map(
-                                                (x: any) => {
-                                                  if (x.key === param.key) {
-                                                    return { ...x, value: e };
-                                                  }
-
-                                                  return x;
-                                                },
-                                              ),
-                                            });
-                                          }
-                                        }}
-                                      />
-                                    ) : param.type === "boolean" ? (
-                                      <Select
-                                        key={param.key}
-                                        description={param?.description}
-                                        isDisabled={isDisabled}
-                                        isRequired={param.required}
-                                        label={param.title || param.key}
-                                        selectedKeys={[param.value]}
-                                        onSelectionChange={(e) => {
-                                          if (!isDisabled) {
-                                            const value =
-                                              Array.from(e).join("");
-
-                                            setAction({
-                                              ...action,
-                                              params: action.params.map(
-                                                (x: any) => {
-                                                  if (x.key === param.key) {
-                                                    return { ...x, value };
-                                                  }
-
-                                                  return x;
-                                                },
-                                              ),
-                                            });
-                                          }
-                                        }}
-                                      >
-                                        <SelectItem key="true">true</SelectItem>
-                                        <SelectItem key="false">
-                                          false
-                                        </SelectItem>
-                                      </Select>
-                                    ) : param.type === "textarea" ? (
-                                      <Textarea
-                                        key={param.key}
-                                        className="col-span-2"
-                                        description={param?.description}
-                                        isDisabled={isDisabled}
-                                        isRequired={param.required}
-                                        label={param.title || param.key}
-                                        type={param.type}
-                                        value={param.value}
-                                        onValueChange={(e) => {
-                                          if (!isDisabled) {
-                                            setAction({
-                                              ...action,
-                                              params: action.params.map(
-                                                (x: any) => {
-                                                  if (x.key === param.key) {
-                                                    return { ...x, value: e };
-                                                  }
-
-                                                  return x;
-                                                },
-                                              ),
-                                            });
-                                          }
-                                        }}
-                                      />
-                                    ) : param.type === "password" ? (
-                                      <Input
-                                        key={param.key}
-                                        description={param?.description}
-                                        isDisabled={isDisabled}
-                                        isRequired={param.required}
-                                        label={param.title || param.key}
-                                        type={param.type}
-                                        value={param.value}
-                                        onValueChange={(e) => {
-                                          if (!isDisabled) {
-                                            setAction({
-                                              ...action,
-                                              params: action.params.map(
-                                                (x: any) => {
-                                                  if (x.key === param.key) {
-                                                    return { ...x, value: e };
-                                                  }
-
-                                                  return x;
-                                                },
-                                              ),
-                                            });
-                                          }
-                                        }}
-                                      />
-                                    ) : param.type === "select" ? (
-                                      <Select
-                                        key={param.key}
-                                        defaultSelectedKeys={[param.default]}
-                                        description={param?.description}
-                                        isDisabled={isDisabled}
-                                        isRequired={param.required}
-                                        label={param.title || param.key}
-                                        selectedKeys={[param.value]}
-                                        onSelectionChange={(e) => {
-                                          if (!isDisabled) {
-                                            const value =
-                                              Array.from(e).join("");
-
-                                            setAction({
-                                              ...action,
-                                              params: action.params.map(
-                                                (x: any) => {
-                                                  if (x.key === param.key) {
-                                                    return { ...x, value };
-                                                  }
-
-                                                  return x;
-                                                },
-                                              ),
-                                            });
-                                          }
-                                        }}
-                                      >
-                                        {param.options.map((option: any) => (
-                                          <SelectItem key={option.key}>
-                                            {option.value}
-                                          </SelectItem>
-                                        ))}
-                                      </Select>
-                                    ) : null;
-                                  })}
-                                </div>
-                                <Divider className="mb-2 mt-2" />
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <p>No parameters for this action found.</p>
-                        )}
-                      </ScrollShadow>
-                    </div>
-                  )}
                 </div>
               </ModalBody>
               <ModalFooter>
@@ -1043,7 +1046,7 @@ export default function EditActionModal({
                 >
                   Cancel
                 </Button>
-                {currentStep === 1 && (
+                {currentStep === 2 && (
                   <Button
                     color="warning"
                     startContent={

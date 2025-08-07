@@ -12,7 +12,7 @@ import {
   Snippet,
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { isMobile, isTablet } from "react-device-detect";
 
 import InteractExecutionStep from "@/lib/fetch/executions/PUT/step_interact";
@@ -32,6 +32,11 @@ export function ExecutionStepsAccordion({
   const [parSteps, setParSteps] = useState([] as any);
   const [selectedKeys, setSelectedKeys] = React.useState(new Set(["1"]));
   const [userSelected, setUserSelected] = useState(false);
+  const messagesEndRef = useRef<{ [key: string]: any }>({});
+  const messagesContainerRef = useRef<{ [key: string]: any }>({});
+  const [autoScrollEnabled, setAutoScrollEnabled] = useState<{
+    [key: string]: boolean;
+  }>({});
 
   useEffect(() => {
     setParSteps(steps);
@@ -48,7 +53,40 @@ export function ExecutionStepsAccordion({
         ]),
       );
     }
+
+    // Initialize auto-scroll as enabled for new steps
+    const newAutoScrollState: { [key: string]: boolean } = {};
+
+    steps.forEach((step: any) => {
+      if (autoScrollEnabled[step.id] === undefined) {
+        newAutoScrollState[step.id] = true;
+      } else {
+        newAutoScrollState[step.id] = autoScrollEnabled[step.id];
+      }
+    });
+    setAutoScrollEnabled(newAutoScrollState);
   }, [steps]);
+
+  // Auto-scroll to bottom of messages for each step when content changes
+  useEffect(() => {
+    // Use a timeout to ensure DOM is updated before scrolling
+    const timeoutId = setTimeout(() => {
+      steps.forEach((step: any) => {
+        if (autoScrollEnabled[step.id]) {
+          const messagesEnd = messagesEndRef.current[step.id];
+
+          if (messagesEnd) {
+            messagesEnd.scrollIntoView({
+              behavior: "smooth",
+              block: "end",
+            });
+          }
+        }
+      });
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
+  }, [steps, autoScrollEnabled]);
 
   function lineColor(line: any) {
     // if line color is not set, return default
@@ -124,6 +162,40 @@ export function ExecutionStepsAccordion({
     }
 
     return Math.min(100, Math.floor((value / maxValue) * 100));
+  }
+
+  function handleScrollToBottom(stepId: string) {
+    const messagesEnd = messagesEndRef.current[stepId];
+
+    if (messagesEnd) {
+      messagesEnd.scrollIntoView({ behavior: "smooth" });
+      setAutoScrollEnabled((prev) => ({ ...prev, [stepId]: true }));
+      setUserSelected(false); // Reset user selection to auto-scroll
+    }
+  }
+
+  function handleScroll(stepId: string, event: any) {
+    // Prevent event bubbling to avoid interfering with page scroll
+    event.stopPropagation();
+
+    const container = event.currentTarget;
+
+    // Only handle scroll if this is actually the messages container
+    if (!container || !container.scrollHeight) return;
+
+    const isNearBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight <
+      50;
+
+    // Re-enable auto-scroll if user scrolls near the bottom
+    if (isNearBottom && !autoScrollEnabled[stepId]) {
+      setAutoScrollEnabled((prev) => ({ ...prev, [stepId]: true }));
+      setUserSelected(false); // Reset user selection to auto-scroll
+    } else if (!isNearBottom && autoScrollEnabled[stepId]) {
+      // Disable auto-scroll if user scrolls away from bottom
+      setAutoScrollEnabled((prev) => ({ ...prev, [stepId]: false }));
+      setUserSelected(true); // Set user selection to prevent auto-scroll
+    }
   }
 
   async function interactStep(step: any, status: boolean) {
@@ -281,28 +353,86 @@ export function ExecutionStepsAccordion({
                       <p>Step not started yet</p>
                     ) : (
                       <div className="flex flex-col overflow-x-auto gap-2">
-                        <Snippet
-                          hideCopyButton
-                          hideSymbol
-                          className={`w-full`}
-                          radius="sm"
-                        >
-                          {step.messages.map((data: any) =>
-                            data.lines?.map((line: any, index: any) => (
+                        <div className="relative">
+                          <div
+                            ref={(el) => {
+                              messagesContainerRef.current[step.id] = el;
+                            }}
+                            className="max-h-96 overflow-y-auto"
+                            onScroll={(e) => handleScroll(step.id, e)}
+                          >
+                            <Snippet
+                              hideCopyButton
+                              hideSymbol
+                              className="w-full"
+                              radius="sm"
+                            >
+                              {(() => {
+                                let globalLineNumber = 1;
+
+                                return step.messages.flatMap(
+                                  (data: any, dataIndex: number) =>
+                                    data.lines?.map(
+                                      (line: any, lineIndex: number) => {
+                                        const currentLineNumber =
+                                          globalLineNumber++;
+
+                                        return (
+                                          <div
+                                            key={`${dataIndex}-${lineIndex}`}
+                                            className={`container flex items-start gap-3 py-0.3 hover:bg-default-100/50 transition-colors`}
+                                          >
+                                            <div className="flex-shrink-0 w-8 text-right">
+                                              <span className="text-xs text-default-400 font-mono select-none">
+                                                {currentLineNumber}
+                                              </span>
+                                            </div>
+                                            <div className="flex-shrink-0">
+                                              <span className="text-xs text-default-500 text-opacity-70 font-mono">
+                                                {new Date(
+                                                  line.timestamp,
+                                                ).toLocaleTimeString([], {
+                                                  hour12: false,
+                                                  hour: "2-digit",
+                                                  minute: "2-digit",
+                                                  second: "2-digit",
+                                                })}
+                                              </span>
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                              <span
+                                                className={`text-sm font-medium text-${lineColor(line)} break-words`}
+                                              >
+                                                {line.content}
+                                              </span>
+                                            </div>
+                                          </div>
+                                        );
+                                      },
+                                    ) || [],
+                                );
+                              })()}
                               <div
-                                key={index}
-                                className={`container flex-cols font-semibold flex items-center gap-2`}
-                              >
-                                <p className="text-default-500 text-opacity-70">
-                                  {new Date(line.timestamp).toLocaleString()}
-                                </p>
-                                <p className={`text-${lineColor(line)}`}>
-                                  {line.content}
-                                </p>
-                              </div>
-                            )),
+                                ref={(el) => {
+                                  messagesEndRef.current[step.id] = el;
+                                }}
+                              />
+                            </Snippet>
+                          </div>
+
+                          {!autoScrollEnabled[step.id] && (
+                            <Button
+                              isIconOnly
+                              className="absolute bottom-2 right-4 z-10"
+                              color="primary"
+                              size="sm"
+                              variant="shadow"
+                              onPress={() => handleScrollToBottom(step.id)}
+                            >
+                              <Icon icon="hugeicons:arrow-down-01" width={18} />
+                            </Button>
                           )}
-                        </Snippet>
+                        </div>
 
                         {step.status === "interactionWaiting" &&
                           !step.interacted && (

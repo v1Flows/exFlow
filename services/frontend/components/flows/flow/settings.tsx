@@ -99,7 +99,7 @@ export default function FlowSettings({
           <div className="grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-4">
             <Card>
               <CardBody>
-                <div className="flex flex-cols items-center justify-between gap-8">
+                <div className="grid lg:grid-cols-2 grid-cols-1 items-center justify-between gap-8">
                   <div>
                     <p className="text-md font-bold">Execution Strategy</p>
                     <p className="text-sm text-default-500">
@@ -108,7 +108,6 @@ export default function FlowSettings({
                     </p>
                   </div>
                   <Select
-                    className="w-1/2"
                     isDisabled={
                       (!canEdit || flow.disabled) && user.role !== "admin"
                     }
@@ -131,7 +130,7 @@ export default function FlowSettings({
 
             <Card>
               <CardBody>
-                <div className="flex flex-cols items-center justify-between gap-8">
+                <div className="grid lg:grid-cols-2 grid-cols-1 items-center justify-between gap-8">
                   <div>
                     <p className="text-md font-bold">Common Failure Pipeline</p>
                     <p className="text-sm text-default-500">
@@ -145,7 +144,6 @@ export default function FlowSettings({
                     </p>
                   </div>
                   <Select
-                    className="w-1/2"
                     isDisabled={
                       (!canEdit || flow.disabled) && user.role !== "admin"
                     }
@@ -174,7 +172,7 @@ export default function FlowSettings({
           <div className="grid grid-cols-1 gap-4">
             <Card>
               <CardBody>
-                <div className="flex flex-cols items-center justify-between gap-8">
+                <div className="grid lg:grid-cols-2 grid-cols-1 items-center justify-between gap-8">
                   <div>
                     <p className="text-md font-bold">Schedule Every</p>
                     <p className="text-sm text-default-500">
@@ -189,7 +187,7 @@ export default function FlowSettings({
                       </span>
                     </p>
                   </div>
-                  <div className="flex flex-cols w-1/2 gap-2">
+                  <div className="flex flex-cols gap-2">
                     <NumberInput
                       defaultValue={scheduleEveryValue}
                       minValue={0}

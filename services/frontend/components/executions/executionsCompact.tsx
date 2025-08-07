@@ -10,7 +10,7 @@ import {
   useDisclosure,
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ReactTimeago from "react-timeago";
 import { isMobile, isTablet } from "react-device-detect";
 
@@ -35,6 +35,55 @@ export default function ExecutionsCompact({
   const deleteExecutionModal = useDisclosure();
 
   const [targetExecution, setTargetExecution] = useState({} as any);
+  const stepsContainerRefs = useRef<Record<string, any>>({});
+
+  // Function to find the current step (running, paused, or interactionWaiting)
+  const findCurrentStepIndex = (steps: any[]) => {
+    return steps.findIndex(
+      (step) =>
+        step.status === "running" ||
+        step.status === "paused" ||
+        step.status === "interactionWaiting",
+    );
+  };
+
+  // Function to scroll to current step
+  const scrollToCurrentStep = (executionId: string, stepIndex: number) => {
+    if (stepIndex === -1) return;
+
+    const container = stepsContainerRefs.current[executionId];
+    const stepElement = container?.querySelector(
+      `[data-step-index="${stepIndex}"]`,
+    );
+
+    if (container && stepElement) {
+      stepElement.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "center",
+      });
+    }
+  };
+
+  // Auto-scroll effect
+  useEffect(() => {
+    executions.forEach((execution: any) => {
+      if (
+        execution.status === "running" ||
+        execution.status === "paused" ||
+        execution.status === "interactionWaiting"
+      ) {
+        const currentStepIndex = findCurrentStepIndex(execution.steps);
+
+        if (currentStepIndex !== -1) {
+          // Small delay to ensure DOM is ready
+          setTimeout(() => {
+            scrollToCurrentStep(execution.id, currentStepIndex);
+          }, 100);
+        }
+      }
+    });
+  }, [executions]);
 
   function getDuration(execution: any) {
     if (execution.finished_at === "0001-01-01T00:00:00Z") {
@@ -114,9 +163,9 @@ export default function ExecutionsCompact({
             <div className="flex items-start">
               <div className="flex-1 overflow-x-auto">
                 <div
-                  className={`flex ${isMobile && !isTablet ? "flex-wrap" : "flex-cols"} justify-between items-center gap-4`}
+                  className={`grid ${isMobile && !isTablet ? "grid-cols-2" : "grid-cols-4"} justify-between items-center gap-4`}
                 >
-                  <div className="flex flex-col">
+                  <div className="flex flex-col col-span-1">
                     <div className="flex items-center gap-2">
                       <Icon
                         className={`text-${executionStatusColor(execution)}`}
@@ -141,42 +190,20 @@ export default function ExecutionsCompact({
                         </Button>
                       </Tooltip>
                     </div>
-
-                    <div className="flex flex-wrap items-center gap-2 text-sm text-foreground-500 mt-0">
-                      {displayToFlow && (
-                        <Chip radius="sm" size="sm" variant="flat">
-                          <span className="text-default-500">Flow: </span>
-                          {flows.find(
-                            (flow: any) => flow.id === execution.flow_id,
-                          )?.name || "Unknown"}
-                        </Chip>
-                      )}
-                      <Chip radius="sm" size="sm" variant="flat">
-                        <span className="text-default-500">Triggered by: </span>
-                        <span className="capitalize">
-                          {execution.triggered_by}
-                        </span>
-                      </Chip>
-                      <Chip radius="sm" size="sm" variant="flat">
-                        <span className="text-default-500">Runner: </span>
-                        {runners.find(
-                          (runner: any) => runner.id === execution.runner_id,
-                        )?.name || "Unknown"}
-                      </Chip>
-                      <Chip radius="sm" size="sm" variant="flat">
-                        <span className="text-default-500">Duration: </span>
-                        {getDuration(execution)}
-                      </Chip>
-                    </div>
                   </div>
 
                   <div
-                    className={`flex flex-cols justify-center items-center ${(execution.status === "running" || execution.status === "paused" || execution.status === "interactionWaiting") && "flex-cols-reversed justify-end"} overflow-x-auto`}
+                    ref={(el) => {
+                      stepsContainerRefs.current[execution.id] = el;
+                    }}
+                    className="flex flex-cols col-span-2 justify-start items-center overflow-x-auto"
+                    data-execution-id={execution.id}
                   >
                     {execution.steps.map((step, index) => (
                       <div
                         key={step.key}
                         className="flex flex-cols items-center justify-center min-w-[100px]"
+                        data-step-index={index}
                       >
                         <Tooltip
                           className="p-2"
@@ -223,7 +250,7 @@ export default function ExecutionsCompact({
                     ))}
                   </div>
 
-                  <div className="flex flex-wrap justify-end gap-2">
+                  <div className="flex flex-cols col-span-1 items-center justify-end gap-2">
                     {displayToFlow && (
                       <Button
                         color="secondary"
@@ -276,8 +303,34 @@ export default function ExecutionsCompact({
                   </div>
                 </div>
 
-                <div className="mt-2">
-                  <div className="flex justify-between mt-4">
+                <div className="flex flex-cols justify-between items-center gap-4 mt-4">
+                  <div className="flex flex-wrap items-center gap-2 text-sm text-foreground-500">
+                    {displayToFlow && (
+                      <Chip radius="sm" size="sm" variant="flat">
+                        <span className="text-default-500">Flow: </span>
+                        {flows.find(
+                          (flow: any) => flow.id === execution.flow_id,
+                        )?.name || "Unknown"}
+                      </Chip>
+                    )}
+                    <Chip radius="sm" size="sm" variant="flat">
+                      <span className="text-default-500">Triggered by: </span>
+                      <span className="capitalize">
+                        {execution.triggered_by}
+                      </span>
+                    </Chip>
+                    <Chip radius="sm" size="sm" variant="flat">
+                      <span className="text-default-500">Runner: </span>
+                      {runners.find(
+                        (runner: any) => runner.id === execution.runner_id,
+                      )?.name || "Unknown"}
+                    </Chip>
+                    <Chip radius="sm" size="sm" variant="flat">
+                      <span className="text-default-500">Duration: </span>
+                      {getDuration(execution)}
+                    </Chip>
+                  </div>
+                  <div className="flex flex-col items-end text-xs text-foreground-400">
                     <span className="text-xs text-foreground-400">
                       Created at: <ReactTimeago date={execution.created_at} />
                     </span>
