@@ -1,4 +1,4 @@
-package executions
+package flows
 
 import (
 	"net/http"
@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
+	"github.com/v1Flows/exFlow/services/backend/functions/auth"
 	"github.com/v1Flows/exFlow/services/backend/functions/encryption"
 	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
 	"github.com/v1Flows/exFlow/services/backend/pkg/models"
@@ -16,23 +17,34 @@ import (
 )
 
 func StartExecution(context *gin.Context, db *bun.DB) {
+	flowID := context.Param("flowID")
+
+	// check if flow with given ID exists
+	var flow models.Flows
+	err := db.NewSelect().Model(&flow).Where("id = ?", flowID).Scan(context)
+	if err != nil {
+		httperror.InternalServerError(context, "Error fetching flow data", err)
+		return
+	}
+
+	// check auth token type
+	tokenType, err := auth.GetTypeFromToken(context.GetHeader("Authorization"))
+	if err != nil {
+		httperror.InternalServerError(context, "Error receiving token type", err)
+		return
+	}
+
+	if tokenType == "project" {
+		tokenType = "Project Token"
+	}
+
 	var execution models.Executions
-	if err := context.ShouldBindJSON(&execution); err != nil {
-		httperror.StatusBadRequest(context, "Error parsing incoming data", err)
-		return
-	}
-
-	// check if flow_id is set
-	if execution.FlowID == "" {
-		httperror.StatusBadRequest(context, "Flow ID is required", nil)
-		return
-	}
-
 	execution.ID = uuid.New()
 	execution.CreatedAt = time.Now()
+	execution.FlowID = flowID
 	execution.Status = "pending"
-	execution.TriggeredBy = "user"
-	_, err := db.NewInsert().Model(&execution).Exec(context)
+	execution.TriggeredBy = tokenType
+	_, err = db.NewInsert().Model(&execution).Exec(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error creating execution on db", err)
 		return
@@ -59,14 +71,6 @@ func StartExecution(context *gin.Context, db *bun.DB) {
 		Status:    "running",
 		CreatedAt: time.Now(),
 		StartedAt: time.Now(),
-	}
-
-	// get flow data
-	var flow models.Flows
-	err = db.NewSelect().Model(&flow).Where("id = ?", execution.FlowID).Scan(context)
-	if err != nil {
-		httperror.InternalServerError(context, "Error fetching flow data", err)
-		return
 	}
 
 	// check for encryption

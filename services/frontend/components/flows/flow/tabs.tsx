@@ -9,6 +9,7 @@ import Executions from "@/components/executions/executions";
 import Actions from "./actions";
 import FlowStats from "./stats";
 import FlowSettings from "./settings";
+import FlowInfo from "./info";
 
 export default function FlowTabs({
   projects,
@@ -121,6 +122,17 @@ export default function FlowTabs({
               flow={flow}
               user={user}
             />
+          </Tab>
+          <Tab
+            key="info"
+            title={
+              <div className="flex items-center space-x-2">
+                <Icon icon="hugeicons:information-square" width={20} />
+                <span>Info</span>
+              </div>
+            }
+          >
+            <FlowInfo flow={flow} />
           </Tab>
         </Tabs>
       </div>
