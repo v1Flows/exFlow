@@ -3,7 +3,7 @@
 import { Icon } from "@iconify/react";
 import { addToast, Button, Chip, Tooltip, useDisclosure } from "@heroui/react";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ReactTimeago from "react-timeago";
 
 import DeleteExecutionModal from "@/components/modals/executions/delete";
@@ -27,6 +27,55 @@ export default function ExecutionsList({
   const deleteExecutionModal = useDisclosure();
 
   const [targetExecution, setTargetExecution] = useState({} as any);
+  const stepsContainerRefs = useRef<Record<string, any>>({});
+
+  // Function to find the current step (running, paused, or interactionWaiting)
+  const findCurrentStepIndex = (steps: any[]) => {
+    return steps.findIndex(
+      (step) =>
+        step.status === "running" ||
+        step.status === "paused" ||
+        step.status === "interactionWaiting",
+    );
+  };
+
+  // Function to scroll to current step
+  const scrollToCurrentStep = (executionId: string, stepIndex: number) => {
+    if (stepIndex === -1) return;
+
+    const container = stepsContainerRefs.current[executionId];
+    const stepElement = container?.querySelector(
+      `[data-step-index="${stepIndex}"]`,
+    );
+
+    if (container && stepElement) {
+      stepElement.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "center",
+      });
+    }
+  };
+
+  // Auto-scroll effect
+  useEffect(() => {
+    executions.forEach((execution: any) => {
+      if (
+        execution.status === "running" ||
+        execution.status === "paused" ||
+        execution.status === "interactionWaiting"
+      ) {
+        const currentStepIndex = findCurrentStepIndex(execution.steps);
+
+        if (currentStepIndex !== -1) {
+          // Small delay to ensure DOM is ready
+          setTimeout(() => {
+            scrollToCurrentStep(execution.id, currentStepIndex);
+          }, 100);
+        }
+      }
+    });
+  }, [executions]);
 
   function getDuration(execution: any) {
     if (execution.finished_at === "0001-01-01T00:00:00Z") {
@@ -188,12 +237,17 @@ export default function ExecutionsList({
 
                 <div className="mt-2">
                   <div
-                    className={`flex flex-cols items-center ${(execution.status === "running" || execution.status === "paused" || execution.status === "interactionWaiting") && "flex-cols-reversed justify-end"} overflow-x-auto`}
+                    ref={(el) => {
+                      stepsContainerRefs.current[execution.id] = el;
+                    }}
+                    className="flex flex-cols items-center overflow-x-auto"
+                    data-execution-id={execution.id}
                   >
                     {execution.steps.map((step, index) => (
                       <div
                         key={step.id}
                         className="flex flex-cols items-center justify-center min-w-[200px] mb-3"
+                        data-step-index={index}
                       >
                         <Tooltip
                           className="p-2"
@@ -271,7 +325,13 @@ export default function ExecutionsList({
                       </span>
                       <span className="text-xs text-foreground-400">
                         Finished at:{" "}
-                        <ReactTimeago date={execution.finished_at} />
+                        {execution.finished_at === "0001-01-01T00:00:00Z" ? (
+                          "N/A"
+                        ) : execution.finished_at === null ? (
+                          "Still running"
+                        ) : (
+                          <ReactTimeago date={execution.finished_at} />
+                        )}
                       </span>
                     </div>
                   </div>

@@ -9,6 +9,7 @@ import {
   DropdownTrigger,
   Pagination,
   Spacer,
+  Spinner,
   Tooltip,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
@@ -41,6 +42,7 @@ export default function Executions({
   const { displayStyle, setDisplayStyle } = useExecutionsStyleStore();
   const [statusFilter, setStatusFilter] = useState(new Set([]) as any);
 
+  const [loading, setLoading] = useState(true);
   const [totalExecutions, setTotalExecutions] = useState(0);
   const [executions, setExecutions] = useState([] as any);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -52,16 +54,14 @@ export default function Executions({
   const offset = (page - 1) * limit;
 
   const items = useMemo(() => {
-    if (statusFilter.size > 0) {
-      return executions.filter((execution: any) =>
-        statusFilter.has(statusFilterReturn(execution)),
-      );
-    }
-
     return executions;
-  }, [executions, statusFilter]);
+  }, [executions]);
 
   useEffect(() => {
+    setLoading(true);
+    // Clear executions when changing pages to avoid showing stale data
+    setExecutions([]);
+
     async function fetchExecutions() {
       let res: any;
 
@@ -81,6 +81,7 @@ export default function Executions({
       }
 
       if (res.success) {
+        setLoading(false);
         setExecutions(res.data.executions);
         setTotalExecutions(res.data.total);
       }
@@ -89,41 +90,32 @@ export default function Executions({
   }, [page, statusFilter, displayStyle, refreshKey]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setRefreshKey((k) => k + 1);
-    }, 5000); // 5 seconds
+    // Only auto-refresh when on page 1 with no filters to avoid interrupting user navigation
+    const shouldAutoRefresh = page === 1 && statusFilter.size === 0;
+
+    if (!shouldAutoRefresh) return;
+
+    const interval = setInterval(async () => {
+      // Background fetch without loading state to avoid disabling pagination
+      let res: any;
+
+      if (flowID) {
+        res = await GetFlowExecutions(flowID, limit, offset, null);
+      } else {
+        res = await GetExecutions(limit, offset, null);
+      }
+
+      if (res.success) {
+        setExecutions(res.data.executions);
+        setTotalExecutions(res.data.total);
+      }
+    }, 5000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [page, statusFilter, flowID, limit, offset]);
 
   function pages() {
     return Math.ceil(totalExecutions / limit);
-  }
-
-  function statusFilterReturn(execution: any) {
-    if (execution.status === "scheduled") {
-      return "scheduled";
-    } else if (execution.status === "pending") {
-      return "pending";
-    } else if (execution.status === "running") {
-      return "running";
-    } else if (execution.status === "paused") {
-      return "paused";
-    } else if (execution.status === "canceled") {
-      return "canceled";
-    } else if (execution.status === "noPatternMatch") {
-      return "no_pattern_match";
-    } else if (execution.status === "interactionWaiting") {
-      return "interaction_waiting";
-    } else if (execution.status === "error") {
-      return "error";
-    } else if (execution.status === "success") {
-      return "success";
-    } else if (execution.status === "recovered") {
-      return "recovered";
-    } else {
-      return "unknown";
-    }
   }
 
   return (
@@ -131,7 +123,7 @@ export default function Executions({
       <CardBody className="p-0 h-full overflow-hidden">
         <div className="p-4 border-b border-default-100 flex flex-wrap gap-4 justify-end items-center">
           <div className="flex gap-2">
-            <Dropdown backdrop="blur">
+            <Dropdown backdrop="transparent">
               <DropdownTrigger>
                 <Button
                   size="md"
@@ -233,33 +225,41 @@ export default function Executions({
 
         <Spacer y={2} />
 
-        {displayStyle === "table" && (
-          <ExecutionsTable
-            canEdit={canEdit}
-            displayToFlow={displayToFlow}
-            executions={items}
-            runners={runners}
-          />
-        )}
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <Spinner size="lg" />
+          </div>
+        ) : (
+          <>
+            {displayStyle === "table" && (
+              <ExecutionsTable
+                canEdit={canEdit}
+                displayToFlow={displayToFlow}
+                executions={items}
+                runners={runners}
+              />
+            )}
 
-        {displayStyle === "list" && (
-          <ExecutionsList
-            canEdit={canEdit}
-            displayToFlow={displayToFlow}
-            executions={items}
-            flows={flows}
-            runners={runners}
-          />
-        )}
+            {displayStyle === "list" && (
+              <ExecutionsList
+                canEdit={canEdit}
+                displayToFlow={displayToFlow}
+                executions={items}
+                flows={flows}
+                runners={runners}
+              />
+            )}
 
-        {displayStyle === "compact" && (
-          <ExecutionsCompact
-            canEdit={canEdit}
-            displayToFlow={displayToFlow}
-            executions={items}
-            flows={flows}
-            runners={runners}
-          />
+            {displayStyle === "compact" && (
+              <ExecutionsCompact
+                canEdit={canEdit}
+                displayToFlow={displayToFlow}
+                executions={items}
+                flows={flows}
+                runners={runners}
+              />
+            )}
+          </>
         )}
 
         <div className="flex justify-center mt-4 mb-4">
@@ -267,7 +267,7 @@ export default function Executions({
             showControls
             isDisabled={items.length === 0}
             page={page}
-            total={pages()}
+            total={Math.max(1, pages())}
             onChange={(page) => setPage(page)}
           />
         </div>
