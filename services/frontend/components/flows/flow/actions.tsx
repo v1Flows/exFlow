@@ -23,6 +23,7 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
+  ScrollShadow,
   Snippet,
   Spacer,
   Switch,
@@ -820,21 +821,23 @@ export default function Actions({
       <Spacer y={2} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
         <div className="flex flex-col gap-2">
-          <DndContext
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              items={actions}
-              strategy={verticalListSortingStrategy}
+          <ScrollShadow className="max-h-[calc(100vh-500px)]">
+            <DndContext
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
             >
-              <div className="flex flex-col gap-2">
-                {actions.map((action: any) => (
-                  <SortableItem key={action.id} action={action} />
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
+              <SortableContext
+                items={actions}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="flex flex-col gap-2">
+                  {actions.map((action: any) => (
+                    <SortableItem key={action.id} action={action} />
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
+          </ScrollShadow>
 
           <div className="flex flex-cols gap-2">
             <Card
@@ -1029,25 +1032,29 @@ export default function Actions({
                       </div>
                     </CardBody>
                   </Card>
-                  <DndContext
-                    collisionDetection={closestCenter}
-                    onDragEnd={(event) =>
-                      handleDragEndPipeline(pipeline, event)
-                    }
-                  >
-                    <SortableContext
-                      items={pipeline.actions !== null ? pipeline.actions : []}
-                      strategy={verticalListSortingStrategy}
+                  <ScrollShadow className="max-h-[calc(100vh-700px)]">
+                    <DndContext
+                      collisionDetection={closestCenter}
+                      onDragEnd={(event) =>
+                        handleDragEndPipeline(pipeline, event)
+                      }
                     >
-                      <div className="flex flex-col gap-2">
-                        {pipeline.actions !== null &&
-                          pipeline.actions.length > 0 &&
-                          pipeline.actions.map((action: any) => (
-                            <SortableItem key={action.id} action={action} />
-                          ))}
-                      </div>
-                    </SortableContext>
-                  </DndContext>
+                      <SortableContext
+                        items={
+                          pipeline.actions !== null ? pipeline.actions : []
+                        }
+                        strategy={verticalListSortingStrategy}
+                      >
+                        <div className="flex flex-col gap-2">
+                          {pipeline.actions !== null &&
+                            pipeline.actions.length > 0 &&
+                            pipeline.actions.map((action: any) => (
+                              <SortableItem key={action.id} action={action} />
+                            ))}
+                        </div>
+                      </SortableContext>
+                    </DndContext>
+                  </ScrollShadow>
 
                   <div className="flex flex-cols gap-2">
                     <Card
