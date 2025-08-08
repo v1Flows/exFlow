@@ -621,7 +621,11 @@ export default function Actions({
                             .map((param: any, index: number) => (
                               <TableRow key={index}>
                                 <TableCell>{param.key}</TableCell>
-                                <TableCell>{param.value}</TableCell>
+                                <TableCell>
+                                  {param.type === "password"
+                                    ? "••••••••"
+                                    : param.value}
+                                </TableCell>
                                 <TableCell>
                                   {param.type === "password" &&
                                   param.value != "" ? (
