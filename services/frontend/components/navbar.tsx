@@ -255,6 +255,7 @@ export const Navbar = ({
               className="transition-transform"
               color="primary"
               name={userDetails.username}
+              radius="sm"
               size="sm"
             />
           </DropdownTrigger>

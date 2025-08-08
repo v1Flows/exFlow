@@ -1,22 +1,18 @@
 # Release Notes
 
-## [Version 1.5.0] - 2025-08-07
-
-### ⚠️ Breaking Changes ⚠️
-- none
+## [Version 1.5.1] - 2025-08-08
 
 ### Added
-- Copy Flow Actions to clipboard
-- Added Auto-Scroll for Executions
-- Add Line numbering and new timestamp format to step messages
-- Refactor Flow execution start endpoint
+- none
 
 ### Changed
-- nothing changed
+- Background of search
+- Avatar radius
+- Autoscroll for execution table view
+- Action password params are now blurred instead of showing the encrypted string
 
 ### Fixed
-- Fixed Behaviour when a Flow has many actions (added scrollbar)
-- Fixed some UI Parts for better useability
+- Flow action params are not decrypted when the /flows api endpoint is queried
 
 ### Known Issues
 - No known issues at this time.

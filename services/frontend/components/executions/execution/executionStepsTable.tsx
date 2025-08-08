@@ -327,6 +327,7 @@ export function ExecutionStepsTable({
         color: "success",
         variant: "flat",
       });
+      setPageAutoScrollEnabled(true);
       router.refresh();
     }
   }

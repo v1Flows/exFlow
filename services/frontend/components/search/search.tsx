@@ -1,12 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import {
-  Badge,
-  type ButtonProps,
-  type Selection,
-  Tooltip,
-} from "@heroui/react";
+import { Badge, type ButtonProps, type Selection } from "@heroui/react";
 import {
   Button,
   cn,
@@ -798,36 +793,21 @@ export default function Search({
 
   return (
     <>
-      <Tooltip
-        classNames={{
-          content: "px-0",
-        }}
-        content={
-          <Kbd
-            className="hidden bg-transparent px-2 py-0.5 shadow-none lg:inline-block"
-            keys={commandKey}
-          >
-            K
-          </Kbd>
-        }
-        placement="bottom"
+      <Button
+        fullWidth
+        endContent={<Kbd keys={[commandKey]}>K</Kbd>}
+        radius="sm"
+        size="md"
+        variant="flat"
+        onPress={handleOpenCmdk}
       >
-        <Button
-          fullWidth
-          radius="sm"
-          size="md"
-          variant="flat"
-          onPress={handleOpenCmdk}
-        >
-          <Icon
-            className="text-default-400 [&>g]:stroke-[2px]"
-            icon="hugeicons:search-01"
-            width={18}
-          />
-          Search
-          <Kbd keys={["command"]}>K</Kbd>
-        </Button>
-      </Tooltip>
+        <Icon
+          className="text-default-400 [&>g]:stroke-[2px]"
+          icon="hugeicons:search-01"
+          width={18}
+        />
+        Search...
+      </Button>
       <Modal
         hideCloseButton
         backdrop="blur"
@@ -836,8 +816,7 @@ export default function Search({
             "mt-[20vh]",
             "border-small",
             "dark:border-default-100",
-            "supports-[backdrop-filter]:bg-background/80",
-            "dark:supports-[backdrop-filter]:bg-background/30",
+            "bg-content1",
             "supports-[backdrop-filter]:backdrop-blur-md",
             "supports-[backdrop-filter]:backdrop-saturate-150",
           ],
