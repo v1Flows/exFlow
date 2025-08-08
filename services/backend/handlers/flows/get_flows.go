@@ -1,10 +1,13 @@
 package flows
 
 import (
+	"net/http"
+
+	"github.com/v1Flows/exFlow/services/backend/config"
 	"github.com/v1Flows/exFlow/services/backend/functions/auth"
+	"github.com/v1Flows/exFlow/services/backend/functions/encryption"
 	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
 	"github.com/v1Flows/exFlow/services/backend/pkg/models"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
@@ -23,6 +26,48 @@ func GetFlows(context *gin.Context, db *bun.DB) {
 	if err != nil {
 		httperror.InternalServerError(context, "Error collecting flows from db", err)
 		return
+	}
+
+	// decrypt action params
+	tokenString := context.GetHeader("Authorization")
+	tokenType, err := auth.GetTypeFromToken(tokenString)
+	if err != nil {
+		httperror.InternalServerError(context, "Error receiving token type", err)
+		return
+	}
+
+	var decryptPasswords bool
+	if tokenType == "user" || tokenType == "service" {
+		decryptPasswords = false
+	} else {
+		decryptPasswords = true
+	}
+
+	if config.Config.Encryption.Enabled && len(flows) > 0 {
+		for i, flow := range flows {
+			if flow.EncryptActionParams && len(flow.Actions) > 0 {
+				flow.Actions, err = encryption.DecryptParams(flow.Actions, decryptPasswords)
+				if err != nil {
+					httperror.InternalServerError(context, "Error decrypting action params", err)
+					return
+				}
+
+				flows[i].Actions = flow.Actions
+
+				// decrypt failure pipeline actions
+				for i, pipeline := range flow.FailurePipelines {
+					if pipeline.Actions != nil {
+						flow.FailurePipelines[i].Actions, err = encryption.DecryptParams(pipeline.Actions, decryptPasswords)
+						if err != nil {
+							httperror.InternalServerError(context, "Error decrypting action params", err)
+							return
+						}
+					}
+
+					flows[i].FailurePipelines = flow.FailurePipelines
+				}
+			}
+		}
 	}
 
 	context.JSON(http.StatusOK, gin.H{"flows": flows, "count": count})
