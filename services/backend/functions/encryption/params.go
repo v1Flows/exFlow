@@ -79,6 +79,11 @@ func EncryptParams(actions []shared_models.Action) ([]shared_models.Action, erro
 					continue
 				}
 
+				// don't encrypt if the value is already encrypted
+				if IsEncrypted(param.Value) {
+					continue
+				}
+
 				// Convert the param value to JSON
 				jsonValue, err := json.Marshal(param.Value)
 				if err != nil {
@@ -122,6 +127,11 @@ func DecryptParams(actions []shared_models.Action, decryptPasswords bool) ([]sha
 			}
 
 			if param.Type == "password" && !decryptPasswords {
+				continue
+			}
+
+			// Skip decryption if the value is not encrypted
+			if !IsEncrypted(param.Value) {
 				continue
 			}
 
