@@ -35,7 +35,7 @@
     "@react-stately/utils": "^3.10.8",
     "@serwist/next": "^9.0.12",
     "@tabler/icons-react": "^3.33.0",
-    "@tsparticles/engine": "^3.8.1",
+    "@tsparticles/engine": "^3.9.1",
     "@tsparticles/react": "^3.0.0",
     "@tsparticles/slim": "^3.8.1",
     "@types/node": "20.5.7",
