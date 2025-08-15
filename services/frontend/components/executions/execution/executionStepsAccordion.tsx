@@ -34,9 +34,12 @@ export function ExecutionStepsAccordion({
   const [userSelected, setUserSelected] = useState(false);
   const messagesEndRef = useRef<{ [key: string]: any }>({});
   const messagesContainerRef = useRef<{ [key: string]: any }>({});
+  const stepItemRef = useRef<{ [key: string]: any }>({});
   const [autoScrollEnabled, setAutoScrollEnabled] = useState<{
     [key: string]: boolean;
   }>({});
+  const [stepAutoScrollEnabled, setStepAutoScrollEnabled] = useState(true);
+  const isAutoScrollingRef = useRef(false);
 
   useEffect(() => {
     setParSteps(steps);
@@ -67,19 +70,18 @@ export function ExecutionStepsAccordion({
     setAutoScrollEnabled(newAutoScrollState);
   }, [steps]);
 
-  // Auto-scroll to bottom of messages for each step when content changes
+  // Auto-scroll: only scroll to bottom of messages, no automatic step centering
   useEffect(() => {
     // Use a timeout to ensure DOM is updated before scrolling
     const timeoutId = setTimeout(() => {
+      // Only scroll to bottom of messages for steps with auto-scroll enabled
       steps.forEach((step: any) => {
         if (autoScrollEnabled[step.id]) {
-          const messagesEnd = messagesEndRef.current[step.id];
+          const messagesContainer = messagesContainerRef.current[step.id];
 
-          if (messagesEnd) {
-            messagesEnd.scrollIntoView({
-              behavior: "smooth",
-              block: "end",
-            });
+          if (messagesContainer) {
+            // Use scrollTop instead of scrollIntoView to avoid page jumping
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
           }
         }
       });
@@ -87,6 +89,70 @@ export function ExecutionStepsAccordion({
 
     return () => clearTimeout(timeoutId);
   }, [steps, autoScrollEnabled]);
+
+  // Initial auto-scroll to active step (only when step auto-scroll is enabled and not user-selected)
+  useEffect(() => {
+    if (stepAutoScrollEnabled && !userSelected) {
+      const timeoutId = setTimeout(() => {
+        const nonPendingSteps = steps.filter(
+          (step: any) => step.status !== "pending",
+        );
+        const activeStep = nonPendingSteps[nonPendingSteps.length - 1];
+        
+        if (activeStep) {
+          const stepElement = stepItemRef.current[activeStep.id];
+
+          if (stepElement) {
+            // Set flag to prevent scroll listener from interfering
+            isAutoScrollingRef.current = true;
+            
+            stepElement.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+            });
+            
+            // Clear the flag after scrolling is complete
+            setTimeout(() => {
+              isAutoScrollingRef.current = false;
+            }, 1000);
+          }
+        }
+      }, 200); // Slightly longer delay to ensure all elements are rendered
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [
+    steps.length,
+    stepAutoScrollEnabled,
+    userSelected,
+    // Also trigger when the active step changes (not just when new steps are added)
+    steps.filter((step: any) => step.status !== "pending").length > 0
+      ? steps.filter((step: any) => step.status !== "pending")[
+          steps.filter((step: any) => step.status !== "pending").length - 1
+        ]?.id
+      : null,
+  ]); // Trigger when steps count changes OR when the active step changes
+
+  // Add scroll listener to detect page scrolling and disable step auto-scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      // Only disable auto-scroll if it's not a programmatic scroll
+      if (stepAutoScrollEnabled && !isAutoScrollingRef.current) {
+        setStepAutoScrollEnabled(false);
+      }
+    };
+
+    // Only add listener if we're in the browser
+    if (typeof globalThis !== "undefined" && globalThis.window) {
+      globalThis.window.addEventListener("scroll", handleScroll, {
+        passive: true,
+      });
+
+      return () => {
+        globalThis.window.removeEventListener("scroll", handleScroll);
+      };
+    }
+  }, [stepAutoScrollEnabled]);
 
   function lineColor(line: any) {
     // if line color is not set, return default
@@ -165,12 +231,44 @@ export function ExecutionStepsAccordion({
   }
 
   function handleScrollToBottom(stepId: string) {
-    const messagesEnd = messagesEndRef.current[stepId];
+    const messagesContainer = messagesContainerRef.current[stepId];
 
-    if (messagesEnd) {
-      messagesEnd.scrollIntoView({ behavior: "smooth" });
+    if (messagesContainer) {
+      // Use smooth scrolling with scrollTo instead of scrollIntoView
+      messagesContainer.scrollTo({
+        top: messagesContainer.scrollHeight,
+        behavior: "smooth",
+      });
       setAutoScrollEnabled((prev) => ({ ...prev, [stepId]: true }));
-      setUserSelected(false); // Reset user selection to auto-scroll
+    }
+  }
+
+  function handleScrollToActiveStep() {
+    const nonPendingSteps = steps.filter(
+      (step: any) => step.status !== "pending",
+    );
+    const activeStep = nonPendingSteps[nonPendingSteps.length - 1];
+    
+    if (activeStep) {
+      const stepElement = stepItemRef.current[activeStep.id];
+
+      if (stepElement) {
+        // Set flag to prevent scroll listener from interfering
+        isAutoScrollingRef.current = true;
+        
+        stepElement.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+        
+        setStepAutoScrollEnabled(true);
+        setUserSelected(false);
+        
+        // Clear the flag after scrolling is complete
+        setTimeout(() => {
+          isAutoScrollingRef.current = false;
+        }, 1000); // Give enough time for smooth scrolling to complete
+      }
     }
   }
 
@@ -190,11 +288,9 @@ export function ExecutionStepsAccordion({
     // Re-enable auto-scroll if user scrolls near the bottom
     if (isNearBottom && !autoScrollEnabled[stepId]) {
       setAutoScrollEnabled((prev) => ({ ...prev, [stepId]: true }));
-      setUserSelected(false); // Reset user selection to auto-scroll
     } else if (!isNearBottom && autoScrollEnabled[stepId]) {
       // Disable auto-scroll if user scrolls away from bottom
       setAutoScrollEnabled((prev) => ({ ...prev, [stepId]: false }));
-      setUserSelected(true); // Set user selection to prevent auto-scroll
     }
   }
 
@@ -256,6 +352,7 @@ export function ExecutionStepsAccordion({
           variant="shadow"
           onSelectionChange={(e: any) => {
             setUserSelected(true);
+            setStepAutoScrollEnabled(false); // Disable step auto-scroll when user manually selects
             setSelectedKeys(e);
           }}
         >
@@ -347,7 +444,12 @@ export function ExecutionStepsAccordion({
                   </div>
                 }
               >
-                <div className="pb-5">
+                <div
+                  ref={(el) => {
+                    stepItemRef.current[step.id] = el;
+                  }}
+                  className="pb-5"
+                >
                   <div className="border-l-2 border-default-200 pl-5 ml-3">
                     {step.action.status === "pending" ? (
                       <p>Step not started yet</p>
@@ -502,23 +604,39 @@ export function ExecutionStepsAccordion({
           })}
         </Accordion>
         <div className="mt flex w-full items-center justify-center mt-5 mb-5">
-          {(execution.status === "running" ||
-            execution.status === "pending" ||
-            execution.status === "paused" ||
-            execution.status === "scheduled" ||
-            execution.status === "interactionWaiting") && (
-            <>
-              <Progress
-                isIndeterminate
-                aria-label="Loading..."
-                className="max-w-md"
-                label="Waiting for new data..."
-                size="sm"
-              />
-            </>
-          )}
+          <div className="flex items-center gap-4">
+            {(execution.status === "running" ||
+              execution.status === "pending" ||
+              execution.status === "paused" ||
+              execution.status === "scheduled" ||
+              execution.status === "interactionWaiting") && (
+              <>
+                <Progress
+                  isIndeterminate
+                  aria-label="Loading..."
+                  className="max-w-md"
+                  label="Waiting for new data..."
+                  size="sm"
+                />
+              </>
+            )}
+          </div>
         </div>
       </Card>
+      
+      {/* Floating auto-scroll button - fixed position */}
+      {!stepAutoScrollEnabled && (
+        <Button
+          isIconOnly
+          className="fixed bottom-6 right-6 z-50 shadow-lg"
+          color="primary"
+          size="lg"
+          variant="shadow"
+          onPress={handleScrollToActiveStep}
+        >
+          <Icon icon="hugeicons:arrow-down-01" width={20} />
+        </Button>
+      )}
     </>
   );
 }

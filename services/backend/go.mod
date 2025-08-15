@@ -6,7 +6,7 @@ require (
 	github.com/uptrace/bun v1.2.15
 	github.com/uptrace/bun/driver/pgdriver v1.2.15
 	github.com/uptrace/bun/extra/bunotel v1.2.15
-	golang.org/x/crypto v0.40.0
+	golang.org/x/crypto v0.41.0
 )
 
 require (
@@ -53,8 +53,8 @@ require (
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/arch v0.18.0 // indirect
-	golang.org/x/net v0.41.0 // indirect
-	golang.org/x/text v0.27.0 // indirect
+	golang.org/x/net v0.42.0 // indirect
+	golang.org/x/text v0.28.0 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	mellium.im/sasl v0.3.2 // indirect
@@ -68,11 +68,11 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/uuid v1.6.0
 	github.com/lib/pq v1.10.9
-	github.com/mattn/go-sqlite3 v1.14.30
+	github.com/mattn/go-sqlite3 v1.14.31
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.20.1
 	github.com/uptrace/bun/dialect/pgdialect v1.2.15
 	github.com/v1Flows/shared-library v1.0.25
-	golang.org/x/sys v0.34.0 // indirect
+	golang.org/x/sys v0.35.0 // indirect
 )
