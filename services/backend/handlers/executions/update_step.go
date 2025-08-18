@@ -48,10 +48,17 @@ func UpdateStep(context *gin.Context, db *bun.DB) {
 		log.Error("Error fetching flow data", err)
 		return
 	}
+	// get project data
+	var project models.Projects
+	err = db.NewSelect().Model(&project).Where("id = ?", flow.ProjectID).Scan(context)
+	if err != nil {
+		httperror.InternalServerError(context, "Error collecting project data from db", err)
+		return
+	}
 
 	// check for ecryption and decrypt if needed
-	if flow.EncryptExecutions && dbStep.Messages != nil && len(dbStep.Messages) > 0 {
-		dbStep.Messages, err = encryption.DecryptExecutionStepActionMessage(dbStep.Messages)
+	if project.EncryptionEnabled && dbStep.Messages != nil && len(dbStep.Messages) > 0 {
+		dbStep.Messages, err = encryption.DecryptExecutionStepActionMessageWithProject(dbStep.Messages, project.ID.String(), db)
 		if err != nil {
 			httperror.InternalServerError(context, "Error decrypting execution step action messages", err)
 			log.Error("Error decrypting execution step action messages", err)
@@ -71,8 +78,8 @@ func UpdateStep(context *gin.Context, db *bun.DB) {
 	}
 
 	// check for ecryption and encrypt if needed
-	if flow.EncryptExecutions && step.Messages != nil && len(step.Messages) > 0 {
-		step.Messages, err = encryption.EncryptExecutionStepActionMessage(step.Messages)
+	if project.EncryptionEnabled && step.Messages != nil && len(step.Messages) > 0 {
+		step.Messages, err = encryption.EncryptExecutionStepActionMessageWithProject(step.Messages, project.ID.String(), db)
 		if err != nil {
 			httperror.InternalServerError(context, "Error encrypting execution step action messages", err)
 			log.Error("Error encrypting execution step action messages", err)

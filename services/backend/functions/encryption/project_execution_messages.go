@@ -8,12 +8,18 @@ import (
 	"errors"
 	"io"
 
-	"github.com/v1Flows/exFlow/services/backend/config"
+	"github.com/uptrace/bun"
 	shared_models "github.com/v1Flows/shared-library/pkg/models"
 )
 
-func EncryptExecutionStepActionMessage(messages []shared_models.Message) ([]shared_models.Message, error) {
-	block, err := aes.NewCipher([]byte(config.Config.Encryption.Key))
+// EncryptExecutionStepActionMessageWithProject encrypts execution step messages using project-specific encryption
+func EncryptExecutionStepActionMessageWithProject(messages []shared_models.Message, projectID string, db *bun.DB) ([]shared_models.Message, error) {
+	encryptionKey, err := getEncryptionKey(projectID, db)
+	if err != nil {
+		return nil, err
+	}
+
+	block, err := aes.NewCipher(encryptionKey)
 	if err != nil {
 		return nil, err
 	}
@@ -43,8 +49,14 @@ func EncryptExecutionStepActionMessage(messages []shared_models.Message) ([]shar
 	return messages, nil
 }
 
-func DecryptExecutionStepActionMessage(encryptedMessage []shared_models.Message) ([]shared_models.Message, error) {
-	block, err := aes.NewCipher([]byte(config.Config.Encryption.Key))
+// DecryptExecutionStepActionMessageWithProject decrypts execution step messages using project-specific encryption
+func DecryptExecutionStepActionMessageWithProject(encryptedMessage []shared_models.Message, projectID string, db *bun.DB) ([]shared_models.Message, error) {
+	encryptionKey, err := getEncryptionKey(projectID, db)
+	if err != nil {
+		return nil, err
+	}
+
+	block, err := aes.NewCipher(encryptionKey)
 	if err != nil {
 		return nil, err
 	}

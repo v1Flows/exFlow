@@ -33,6 +33,13 @@ func checkScheduledExecutions(db *bun.DB) {
 			log.Error("Bot: Error getting flow data", err)
 		}
 
+		// get project data
+		var project models.Projects
+		err = db.NewSelect().Model(&project).Where("id = ?", flow.ProjectID).Scan(context)
+		if err != nil {
+			return
+		}
+
 		// update the scheduled step to success
 		var steps []models.ExecutionSteps
 		err = db.NewSelect().Model(&steps).Where("execution_id = ?", execution.ID).Scan(context)
@@ -47,8 +54,8 @@ func checkScheduledExecutions(db *bun.DB) {
 				step.FinishedAt = time.Now()
 
 				// check for encryption
-				if flow.EncryptExecutions && step.Messages != nil && len(step.Messages) > 0 {
-					step.Messages, err = encryption.DecryptExecutionStepActionMessage(step.Messages)
+				if project.EncryptionEnabled && step.Messages != nil && len(step.Messages) > 0 {
+					step.Messages, err = encryption.DecryptExecutionStepActionMessageWithProject(step.Messages, project.ID.String(), db)
 					if err != nil {
 						log.Error("Bot: Error encrypting execution step action messages", err)
 					}
@@ -68,8 +75,8 @@ func checkScheduledExecutions(db *bun.DB) {
 				})
 
 				// check for encryption
-				if flow.EncryptExecutions && step.Messages != nil && len(step.Messages) > 0 {
-					step.Messages, err = encryption.EncryptExecutionStepActionMessage(step.Messages)
+				if project.EncryptionEnabled && step.Messages != nil && len(step.Messages) > 0 {
+					step.Messages, err = encryption.EncryptExecutionStepActionMessageWithProject(step.Messages, project.ID.String(), db)
 					if err != nil {
 						log.Error("Bot: Error encrypting execution step action messages", err)
 					}
@@ -106,8 +113,8 @@ func checkScheduledExecutions(db *bun.DB) {
 				}
 
 				// check for encryption
-				if flow.EncryptExecutions && step.Messages != nil && len(step.Messages) > 0 {
-					step.Messages, err = encryption.EncryptExecutionStepActionMessage(step.Messages)
+				if project.EncryptionEnabled && step.Messages != nil && len(step.Messages) > 0 {
+					step.Messages, err = encryption.EncryptExecutionStepActionMessageWithProject(step.Messages, project.ID.String(), db)
 					if err != nil {
 						log.Error("Bot: Error encrypting execution step action messages", err)
 					}

@@ -1,6 +1,7 @@
 package encryption
 
 import (
+	"context"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
@@ -10,22 +11,61 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/uptrace/bun"
 	"github.com/v1Flows/exFlow/services/backend/config"
+	"github.com/v1Flows/exFlow/services/backend/pkg/models"
 	shared_models "github.com/v1Flows/shared-library/pkg/models"
 )
 
-func IsEncrypted(value string) bool {
-	// Encrypted values should be at least as long as the AES block size
-	if len(value) < aes.BlockSize*2 {
-		return false
+// getEncryptionKey returns the appropriate encryption key for a project
+// Falls back to global config key if project encryption is disabled or key is missing
+func getEncryptionKey(projectID string, db *bun.DB) ([]byte, error) {
+	if projectID == "" {
+		// Fall back to global config if no project ID provided
+		return []byte(config.Config.Encryption.Key), nil
 	}
 
-	_, err := hex.DecodeString(value)
-	return err == nil
+	var project models.Projects
+	err := db.NewSelect().Model(&project).Where("id = ?", projectID).Scan(context.Background())
+	if err != nil {
+		// Fall back to global config if project not found
+		return []byte(config.Config.Encryption.Key), nil
+	}
+
+	// Use project-specific encryption if enabled and salt exists
+	if project.EncryptionEnabled && project.EncryptionKey != "" {
+		// Try to derive key from master secret + salt
+		masterSecret := config.Config.Encryption.MasterSecret
+		if masterSecret != "" {
+			keyBytes, err := DeriveProjectEncryptionKey(project.EncryptionKey, masterSecret)
+			if err != nil {
+				// Fall back to global config if key derivation fails
+				return []byte(config.Config.Encryption.Key), nil
+			}
+			return keyBytes, nil
+		}
+
+		// Legacy: treat stored value as actual key (for backward compatibility)
+		keyBytes, err := hex.DecodeString(project.EncryptionKey)
+		if err != nil {
+			// Fall back to global config if key decode fails
+			return []byte(config.Config.Encryption.Key), nil
+		}
+		return keyBytes, nil
+	}
+
+	// Fall back to global config
+	return []byte(config.Config.Encryption.Key), nil
 }
 
-func EncryptParams(actions []shared_models.Action) ([]shared_models.Action, error) {
-	block, err := aes.NewCipher([]byte(config.Config.Encryption.Key))
+// EncryptParamsWithProject encrypts action params using project-specific encryption
+func EncryptParamsWithProject(actions []shared_models.Action, projectID string, db *bun.DB) ([]shared_models.Action, error) {
+	encryptionKey, err := getEncryptionKey(projectID, db)
+	if err != nil {
+		return nil, err
+	}
+
+	block, err := aes.NewCipher(encryptionKey)
 	if err != nil {
 		return nil, err
 	}
@@ -108,8 +148,14 @@ func EncryptParams(actions []shared_models.Action) ([]shared_models.Action, erro
 	return actions, nil
 }
 
-func DecryptParams(actions []shared_models.Action, decryptPasswords bool) ([]shared_models.Action, error) {
-	block, err := aes.NewCipher([]byte(config.Config.Encryption.Key))
+// DecryptParamsWithProject decrypts action params using project-specific encryption
+func DecryptParamsWithProject(actions []shared_models.Action, projectID string, decryptPasswords bool, db *bun.DB) ([]shared_models.Action, error) {
+	encryptionKey, err := getEncryptionKey(projectID, db)
+	if err != nil {
+		return nil, err
+	}
+
+	block, err := aes.NewCipher(encryptionKey)
 	if err != nil {
 		return nil, err
 	}
@@ -217,8 +263,14 @@ func DecryptParams(actions []shared_models.Action, decryptPasswords bool) ([]sha
 	return actions, nil
 }
 
-func EncryptParam(param shared_models.Params) (shared_models.Params, error) {
-	block, err := aes.NewCipher([]byte(config.Config.Encryption.Key))
+// EncryptParamWithProject encrypts a single param using project-specific encryption
+func EncryptParamWithProject(param shared_models.Params, projectID string, db *bun.DB) (shared_models.Params, error) {
+	encryptionKey, err := getEncryptionKey(projectID, db)
+	if err != nil {
+		return param, err
+	}
+
+	block, err := aes.NewCipher(encryptionKey)
 	if err != nil {
 		return param, err
 	}
@@ -258,8 +310,14 @@ func EncryptParam(param shared_models.Params) (shared_models.Params, error) {
 	return param, nil
 }
 
-func DecryptString(value string) (string, error) {
-	block, err := aes.NewCipher([]byte(config.Config.Encryption.Key))
+// DecryptStringWithProject decrypts a string using project-specific encryption
+func DecryptStringWithProject(value string, projectID string, db *bun.DB) (string, error) {
+	encryptionKey, err := getEncryptionKey(projectID, db)
+	if err != nil {
+		return "", err
+	}
+
+	block, err := aes.NewCipher(encryptionKey)
 	if err != nil {
 		return "", err
 	}
@@ -290,4 +348,15 @@ func DecryptString(value string) (string, error) {
 	}
 
 	return string(plaintext), nil
+}
+
+func IsEncrypted(value string) bool {
+	decoded, err := hex.DecodeString(value)
+	if err != nil {
+		return false
+	}
+
+	// GCM nonce size is 12 bytes for standard GCM
+	nonceSize := 12
+	return len(decoded) > nonceSize
 }

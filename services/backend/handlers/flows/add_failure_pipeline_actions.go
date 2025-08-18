@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/v1Flows/exFlow/services/backend/config"
 	"github.com/v1Flows/exFlow/services/backend/functions/encryption"
 	"github.com/v1Flows/exFlow/services/backend/functions/gatekeeper"
 	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
@@ -36,6 +35,14 @@ func AddFlowFailurePipelineActions(context *gin.Context, db *bun.DB) {
 		return
 	}
 
+	// get project data
+	var project models.Projects
+	err = db.NewSelect().Model(&project).Where("id = ?", flowDB.ProjectID).Scan(context)
+	if err != nil {
+		httperror.InternalServerError(context, "Error collecting project data from db", err)
+		return
+	}
+
 	// check if user has access to project
 	access, err := gatekeeper.CheckUserProjectAccess(flowDB.ProjectID, context, db)
 	if err != nil {
@@ -59,8 +66,8 @@ func AddFlowFailurePipelineActions(context *gin.Context, db *bun.DB) {
 	}
 
 	// encrypt action params
-	if config.Config.Encryption.Enabled && flowDB.EncryptActionParams {
-		failurePipeline.Actions, err = encryption.EncryptParams(failurePipeline.Actions)
+	if project.EncryptionEnabled {
+		failurePipeline.Actions, err = encryption.EncryptParamsWithProject(failurePipeline.Actions, flowDB.ProjectID, db)
 		if err != nil {
 			httperror.InternalServerError(context, "Error encrypting failure pipeline action params", err)
 			fmt.Println(err)

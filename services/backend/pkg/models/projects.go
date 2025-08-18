@@ -22,6 +22,8 @@ type Projects struct {
 	EnableAutoRunners   bool      `bun:"enable_auto_runners,type:bool,default:false" json:"enable_auto_runners"`
 	DisableRunnerJoin   bool      `bun:"disable_runner_join,type:bool,default:false" json:"disable_runner_join"`
 	RunnerAutoJoinToken string    `bun:"runner_auto_join_token,type:text,notnull" json:"runner_auto_join_token"`
+	EncryptionKey       string    `bun:"encryption_key,type:text,default:''" json:"encryption_key"`
+	EncryptionEnabled   bool      `bun:"encryption_enabled,type:bool,default:true" json:"encryption_enabled"`
 }
 
 type ProjectsWithMembers struct {

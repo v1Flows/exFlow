@@ -6,13 +6,14 @@ import (
 	"github.com/v1Flows/exFlow/services/backend/config"
 	"github.com/v1Flows/exFlow/services/backend/database"
 	"github.com/v1Flows/exFlow/services/backend/functions/background_checks"
+	"github.com/v1Flows/exFlow/services/backend/functions/encryption"
 	"github.com/v1Flows/exFlow/services/backend/router"
 
 	"github.com/alecthomas/kingpin/v2"
 	log "github.com/sirupsen/logrus"
 )
 
-const version string = "1.5.2"
+const version string = "2.0.0"
 
 var (
 	configFile = kingpin.Flag("config", "Config file").Short('c').Default("config.yaml").String()
@@ -21,15 +22,16 @@ var (
 func logging(logLevel string) {
 	logLevel = strings.ToLower(logLevel)
 
-	if logLevel == "info" {
+	switch logLevel {
+	case "info":
 		log.SetLevel(log.InfoLevel)
-	} else if logLevel == "warn" {
+	case "warn":
 		log.SetLevel(log.WarnLevel)
-	} else if logLevel == "error" {
+	case "error":
 		log.SetLevel(log.ErrorLevel)
-	} else if logLevel == "debug" {
+	case "debug":
 		log.SetLevel(log.DebugLevel)
-	} else {
+	default:
 		log.SetLevel(log.InfoLevel)
 	}
 }
@@ -55,6 +57,11 @@ func main() {
 	db := database.StartDatabase(cfg.Database.Driver, cfg.Database.Server, cfg.Database.Port, cfg.Database.User, cfg.Database.Password, cfg.Database.Name)
 	if db == nil {
 		log.Fatal("Failed to connect to the database")
+	}
+
+	err = encryption.MigrateProjectsEncryption(cfg.Encryption.Key, db)
+	if err != nil {
+		log.Fatal("Failed to migrate projects: ", err)
 	}
 
 	go background_checks.Init(db)
