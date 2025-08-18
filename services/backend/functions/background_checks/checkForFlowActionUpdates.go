@@ -69,6 +69,7 @@ func processFlowsForProject(db *bun.DB, context context.Context, projectID strin
 		_, err := db.NewUpdate().Model(&updatedFlow).Where("id = ?", updatedFlow.ID).Set("failure_pipelines = ?, actions = ?", updatedFlow.FailurePipelines, updatedFlow.Actions).Exec(context)
 		if err != nil {
 			log.Error("Bot: Error updating flow actions. ", err)
+			continue
 		}
 	}
 }

@@ -47,9 +47,6 @@ export default function CreateFlowModal({
     {
       title: "Runner",
     },
-    {
-      title: "Encryption",
-    },
   ]);
   const [disableNext, setDisableNext] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
@@ -60,8 +57,6 @@ export default function CreateFlowModal({
   const [projectId, setProjectId] = useState("");
   const [runnerId, setRunnerId] = useState("");
   const [runnerLimit, setRunnerLimit] = useState(false);
-  const [encryptExecutions, setEncryptExecutions] = useState(true);
-  const [encryptActionParameters, setEncryptActionParameters] = useState(true);
 
   // loading
   const [isLoading, setIsLoading] = useState(false);
@@ -108,8 +103,6 @@ export default function CreateFlowModal({
       folderId,
       projectId,
       runnerLimit ? runnerId : "any",
-      encryptExecutions,
-      encryptActionParameters,
     )) as any;
 
     if (!response) {
@@ -274,36 +267,6 @@ export default function CreateFlowModal({
                           ))}
                       </Select>
                     )}
-                  </>
-                )}
-                {currentStep === 2 && (
-                  <>
-                    <div className="flex flex-cols items-center justify-between border-2 border-default-200 p-3 rounded-lg">
-                      <div>
-                        <p className="font-bold">Executions</p>
-                        <p className="text-sm text-default-500">
-                          All execution action messages will be stored encrypted
-                          on the db
-                        </p>
-                      </div>
-                      <Switch
-                        isSelected={encryptExecutions}
-                        onValueChange={setEncryptExecutions}
-                      />
-                    </div>
-                    <div className="flex flex-cols items-center justify-between border-2 border-default-200 p-3 rounded-lg">
-                      <div>
-                        <p className="font-bold">Action Params</p>
-                        <p className="text-sm text-default-500">
-                          All action parameters will be stored encrypted on the
-                          db
-                        </p>
-                      </div>
-                      <Switch
-                        isSelected={encryptActionParameters}
-                        onValueChange={setEncryptActionParameters}
-                      />
-                    </div>
                   </>
                 )}
               </ModalBody>

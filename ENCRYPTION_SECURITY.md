@@ -31,15 +31,6 @@ encryption:
   key: "legacy-key-for-backward-compatibility"
 ```
 
-### Option 3: External Key Management (For Enterprise)
-```yaml
-# For advanced setups, integrate with:
-# - AWS KMS
-# - HashiCorp Vault
-# - Azure Key Vault
-# - Google Cloud KMS
-```
-
 ## Master Secret Requirements
 
 - **Length**: Minimum 32 characters, recommended 64+ characters
@@ -116,10 +107,4 @@ The system maintains backward compatibility:
 ```go
 // Environment variable
 masterSecret := os.Getenv("EXFLOW_ENCRYPTION_MASTER_SECRET")
-
-// Or AWS Secrets Manager
-masterSecret := getFromAWSSecretsManager("exflow/encryption/master-secret")
-
-// Or HashiCorp Vault
-masterSecret := getFromVault("secret/exflow/encryption/master-secret")
 ```
