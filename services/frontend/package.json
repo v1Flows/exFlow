@@ -29,7 +29,7 @@
     "@radix-ui/react-popover": "^1.1.13",
     "@react-aria/i18n": "^3.12.7",
     "@react-aria/ssr": "3.9.8",
-    "@react-aria/utils": "^3.28.1",
+    "@react-aria/utils": "^3.30.0",
     "@react-aria/visually-hidden": "3.8.26",
     "@react-stately/data": "^3.12.3",
     "@react-stately/utils": "^3.10.8",
