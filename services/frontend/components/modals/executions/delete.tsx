@@ -10,12 +10,12 @@ import {
   ModalHeader,
   Snippet,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React from "react";
 import { Icon } from "@iconify/react";
 
 import DeleteExecution from "@/lib/fetch/executions/DELETE/delete";
 import ErrorCard from "@/components/error/ErrorCard";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function DeleteExecutionModal({
   disclosure,
@@ -24,7 +24,7 @@ export default function DeleteExecutionModal({
   disclosure: UseDisclosureReturn;
   execution: any;
 }) {
-  const router = useRouter();
+  const { refreshAllExecutionCaches } = useRefreshCache();
 
   const { isOpen, onOpenChange } = disclosure;
 
@@ -57,7 +57,9 @@ export default function DeleteExecutionModal({
         color: "success",
         variant: "flat",
       });
-      router.refresh();
+
+      // Refresh all execution-related SWR caches
+      refreshAllExecutionCaches(execution.flow_id);
     } else {
       setError(true);
       setErrorText(res.error);

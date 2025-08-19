@@ -12,7 +12,6 @@ import {
 import NumberFlow from "@number-flow/react";
 import React from "react";
 
-import Reloader from "@/components/reloader/Reloader";
 import EditProjectModal from "@/components/modals/projects/edit";
 import canEditProject from "@/lib/functions/canEditProject";
 
@@ -56,9 +55,6 @@ export default function Project({
           >
             Edit
           </Button>
-          <div className="mt-2 lg:mt-0 lg:justify-self-end">
-            <Reloader circle refresh={20} />
-          </div>
         </div>
       </div>
       <Spacer y={2} />

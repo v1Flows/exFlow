@@ -16,6 +16,8 @@ import GetExecutionsWithAttention from "@/lib/fetch/executions/attention";
 import GetProjectAuditLogs from "@/lib/fetch/project/audit";
 import GetProjectApiKeys from "@/lib/fetch/project/tokens";
 import GetExecution from "@/lib/fetch/executions/execution";
+import GetExecutions from "@/lib/fetch/executions/all";
+import GetExecutionSteps from "@/lib/fetch/executions/steps";
 
 // Hook for fetching a single flow
 export function useFlow(flowId: string) {
@@ -37,6 +39,49 @@ export function useFlowExecutions(flowId: string) {
   const { data, error, mutate, isLoading } = useSWR(
     flowId ? `flow-executions-${flowId}` : null,
     () => GetFlowExecutions(flowId, 50, 0),
+  );
+
+  return {
+    executions: data?.success ? data.data.executions : [],
+    total: data?.success ? data.data.total : 0,
+    isLoading,
+    isError: error || (data && !data.success),
+    refresh: mutate,
+  };
+}
+
+// Hook for fetching paginated flow executions with filters
+export function useFlowExecutionsPaginated(
+  flowId: string,
+  limit: number = 10,
+  offset: number = 0,
+  status: string | null = null,
+) {
+  const { data, error, mutate, isLoading } = useSWR(
+    flowId
+      ? `flow-executions-paginated-${flowId}-${limit}-${offset}-${status || "all"}`
+      : null,
+    () => GetFlowExecutions(flowId, limit, offset, status),
+  );
+
+  return {
+    executions: data?.success ? data.data.executions : [],
+    total: data?.success ? data.data.total : 0,
+    isLoading,
+    isError: error || (data && !data.success),
+    refresh: mutate,
+  };
+}
+
+// Hook for fetching all executions with pagination and filters
+export function useExecutions(
+  limit: number = 10,
+  offset: number = 0,
+  status: string | null = null,
+) {
+  const { data, error, mutate, isLoading } = useSWR(
+    limit > 0 ? `executions-${limit}-${offset}-${status || "all"}` : null,
+    () => GetExecutions(limit, offset, status),
   );
 
   return {
@@ -243,6 +288,29 @@ export function useExecution(executionId: string) {
 
   return {
     execution: data?.success ? data.data.execution : null,
+    isLoading,
+    isError: error || (data && !data.success),
+    refresh: mutate,
+  };
+}
+
+// Hook for fetching execution steps with auto-refresh for running executions
+export function useExecutionSteps(
+  executionId: string,
+  isRunning: boolean = false,
+) {
+  const { data, error, mutate, isLoading } = useSWR(
+    executionId ? `execution-steps-${executionId}` : null,
+    () => GetExecutionSteps(executionId),
+    {
+      refreshInterval: isRunning ? 2000 : 0, // Refresh every 2 seconds if running
+      refreshWhenHidden: false,
+      refreshWhenOffline: false,
+    },
+  );
+
+  return {
+    steps: data?.success ? data.data.steps : [],
     isLoading,
     isError: error || (data && !data.success),
     refresh: mutate,

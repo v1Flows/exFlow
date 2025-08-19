@@ -13,7 +13,7 @@ export default function SWRProvider({ children }: SWRProviderProps) {
       value={{
         revalidateOnFocus: true,
         revalidateOnReconnect: true,
-        refreshInterval: 30000, // Refresh every 30 seconds
+        refreshInterval: 10000, // Refresh every 10 seconds
         errorRetryCount: 3,
         errorRetryInterval: 5000,
         dedupingInterval: 2000,

@@ -18,7 +18,6 @@ import {
   TableRow,
   Tooltip,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import InteractExecutionStep from "@/lib/fetch/executions/PUT/step_interact";
@@ -27,6 +26,7 @@ import {
   executionStatusName,
   executionStatusWrapper,
 } from "@/lib/functions/executionStyles";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 import AdminStepActions from "./adminStepActions";
 
@@ -37,7 +37,7 @@ export function ExecutionStepsTable({
   runners,
   userDetails,
 }: any) {
-  const router = useRouter();
+  const { refreshExecution, refreshExecutionSteps } = useRefreshCache();
 
   const [parSteps, setParSteps] = useState([] as any);
   const messagesContainerRef = useRef<{ [key: string]: any }>({});
@@ -328,7 +328,10 @@ export function ExecutionStepsTable({
         variant: "flat",
       });
       setPageAutoScrollEnabled(true);
-      router.refresh();
+      // wait 1 second
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await refreshExecutionSteps(execution.id);
+      await refreshExecution(execution.id);
     }
   }
 

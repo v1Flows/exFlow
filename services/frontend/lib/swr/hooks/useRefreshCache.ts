@@ -24,6 +24,20 @@ export function useRefreshCache() {
     refreshFlow: (flowId: string) => mutate(`flow-${flowId}`),
     refreshFlowExecutions: (flowId: string) =>
       mutate(`flow-executions-${flowId}`),
+    refreshFlowExecutionsPaginated: (
+      flowId: string,
+      limit: number,
+      offset: number,
+      status: string | null = null,
+    ) =>
+      mutate(
+        `flow-executions-paginated-${flowId}-${limit}-${offset}-${status || "all"}`,
+      ),
+    refreshExecutions: (
+      limit: number,
+      offset: number,
+      status: string | null = null,
+    ) => mutate(`executions-${limit}-${offset}-${status || "all"}`),
     refreshProject: (projectId: string) => mutate(`project-${projectId}`),
     refreshProjectRunners: (projectId: string) =>
       mutate(`project-runners-${projectId}`),
@@ -33,9 +47,41 @@ export function useRefreshCache() {
       mutate(`project-tokens-${projectId}`),
     refreshExecution: (executionId: string) =>
       mutate(`execution-${executionId}`),
+    refreshExecutionSteps: (executionId: string) =>
+      mutate(`execution-steps-${executionId}`),
     refreshFolder: (folderId: string) => mutate(`folder-${folderId}`),
     refreshFolderExecutions: (folderId: string) =>
       mutate(`folder-executions-${folderId}`),
+
+    // Helper to refresh all execution-related caches (useful after deletion)
+    refreshAllExecutionCaches: (flowId?: string) => {
+      // Refresh general execution caches
+      mutate("executions-with-attention");
+      mutate("running-executions");
+
+      // Refresh all paginated execution caches with common pagination values
+      const limits = [4, 6, 10]; // Common limits used in the app
+      const offsets = [0, 10, 20, 30]; // Common offset values
+      const statuses = [null, "all"]; // Common status filters
+
+      limits.forEach((limit) => {
+        offsets.forEach((offset) => {
+          statuses.forEach((status) => {
+            mutate(`executions-${limit}-${offset}-${status || "all"}`);
+            if (flowId) {
+              mutate(
+                `flow-executions-paginated-${flowId}-${limit}-${offset}-${status || "all"}`,
+              );
+            }
+          });
+        });
+      });
+
+      // Refresh specific flow executions if flowId provided
+      if (flowId) {
+        mutate(`flow-executions-${flowId}`);
+      }
+    },
 
     // Convenience methods for common combinations
     refreshAll: () => {

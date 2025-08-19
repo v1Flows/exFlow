@@ -6,9 +6,8 @@ import { Icon } from "@iconify/react";
 import ScheduleExecutionModal from "@/components/modals/executions/schedule";
 import EditFlowModal from "@/components/modals/flows/edit";
 import canEditProject from "@/lib/functions/canEditProject";
-import RefreshButton from "@/components/ui/refresh-button";
 import { startExecution } from "@/lib/swr/api/executions";
-import { useFlowExecutions } from "@/lib/swr/hooks/flows";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function FlowHeading({
   flow,
@@ -27,10 +26,7 @@ export default function FlowHeading({
 }) {
   const editFlowModal = useDisclosure();
   const scheduleExecutionModal = useDisclosure();
-
-  // Use SWR for auto-refreshing flow executions data
-  const { refresh: refreshExecutions, isLoading: executionsLoading } =
-    useFlowExecutions(flow.id);
+  const { refreshAllExecutionCaches } = useRefreshCache();
 
   const handleExecuteFlow = async () => {
     const result = await startExecution(flow.id);
@@ -41,7 +37,7 @@ export default function FlowHeading({
         color: "success",
       });
       // Immediately refresh executions data
-      refreshExecutions();
+      refreshAllExecutionCaches(flow.id);
     } else {
       addToast({
         title: "Execution start failed",
@@ -49,10 +45,6 @@ export default function FlowHeading({
         color: "danger",
       });
     }
-  };
-
-  const handleRefresh = async () => {
-    await refreshExecutions();
   };
 
   return (
@@ -105,12 +97,6 @@ export default function FlowHeading({
             >
               Edit
             </Button>
-            <Divider className="h-10 mr-1 ml-1" orientation="vertical" />
-            <RefreshButton
-              isIconOnly
-              isLoading={executionsLoading}
-              onRefresh={handleRefresh}
-            />
           </div>
 
           {/* Mobile */}
@@ -132,12 +118,6 @@ export default function FlowHeading({
               onPress={handleExecuteFlow}
             />
             <Divider className="h-10 mr-1 ml-1" orientation="vertical" />
-            <RefreshButton
-              isIconOnly
-              isLoading={executionsLoading}
-              size="sm"
-              onRefresh={handleRefresh}
-            />
             <Button
               isIconOnly
               color="warning"

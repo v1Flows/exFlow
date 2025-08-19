@@ -21,13 +21,13 @@ import {
   Spacer,
   Textarea,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 import UpdateFlowActions from "@/lib/fetch/flow/PUT/UpdateActions";
 import { cn } from "@/components/cn/cn";
 import ErrorCard from "@/components/error/ErrorCard";
 import UpdateFlowFailurePipelineActions from "@/lib/fetch/flow/PUT/UpdateFailurePipelineActions";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export const CustomRadio = (props: any) => {
   const { children, ...otherProps } = props;
@@ -64,8 +64,8 @@ export default function UpgradeActionModal({
   isFailurePipeline?: boolean;
   failurePipeline?: any;
 }) {
-  const router = useRouter();
   const { isOpen, onOpenChange } = disclosure;
+  const { refreshFlowData } = useRefreshCache();
 
   const [isLoading, setLoading] = useState(false);
 
@@ -209,7 +209,7 @@ export default function UpgradeActionModal({
         variant: "flat",
       });
       onOpenChange();
-      router.refresh();
+      refreshFlowData(flow.id); // Refresh SWR cache instead of router
     } else {
       setError(true);
       setErrorText(res.error);
@@ -281,7 +281,7 @@ export default function UpgradeActionModal({
         variant: "flat",
       });
       onOpenChange();
-      router.refresh();
+      refreshFlowData(flow.id); // Refresh SWR cache instead of router
     } else {
       setError(true);
       setErrorText(res.error);
