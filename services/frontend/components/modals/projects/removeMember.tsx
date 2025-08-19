@@ -13,12 +13,12 @@ import {
   ModalHeader,
   User,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { Icon } from "@iconify/react";
 
 import RemoveProjectMember from "@/lib/fetch/project/DELETE/removeProjectMember";
 import ErrorCard from "@/components/error/ErrorCard";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function DeleteProjectMemberModal({
   disclosure,
@@ -29,7 +29,7 @@ export default function DeleteProjectMemberModal({
   projectID: string;
   user: any;
 }) {
-  const router = useRouter();
+  const { refreshProject } = useRefreshCache();
   const { isOpen, onOpenChange } = disclosure;
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
 
@@ -75,7 +75,7 @@ export default function DeleteProjectMemberModal({
         color: "success",
         variant: "flat",
       });
-      router.refresh();
+      refreshProject(projectID);
     } else {
       setError(true);
       setErrorText(res.error);

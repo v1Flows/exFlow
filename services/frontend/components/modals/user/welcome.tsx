@@ -12,7 +12,6 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React from "react";
 
 import ErrorCard from "@/components/error/ErrorCard";
@@ -23,7 +22,6 @@ export default function WelcomeModal({
 }: {
   disclosure: UseDisclosureReturn;
 }) {
-  const router = useRouter();
   const { isOpen, onOpenChange } = disclosure;
 
   const [error, setError] = React.useState(false);
@@ -76,7 +74,7 @@ export default function WelcomeModal({
         onOpenChange={onOpenChange}
       >
         <ModalContent className="w-full">
-          {(onClose) => (
+          {() => (
             <>
               <ModalHeader className="flex-cols flex w-full items-center justify-center">
                 <div className="flex-cols flex gap-1 font-bold">

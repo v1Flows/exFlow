@@ -15,12 +15,12 @@ import {
   Snippet,
   useDisclosure,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { Icon } from "@iconify/react";
 
 import AddRunner from "@/lib/fetch/runner/POST/AddRunner";
 import ErrorCard from "@/components/error/ErrorCard";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function CreateRunnerModal({
   disclosure,
@@ -31,7 +31,7 @@ export default function CreateRunnerModal({
   project: any;
   shared_runner: any;
 }) {
-  const router = useRouter();
+  const { refreshProjectRunners } = useRefreshCache();
   const { isOpen, onOpenChange } = disclosure;
 
   // instructions modal
@@ -85,7 +85,7 @@ export default function CreateRunnerModal({
       setInApikey(res.data.token);
       setInRunnerId(res.data.runner.id);
       onOpenChangeInstructions();
-      router.refresh();
+      refreshProjectRunners(project.id);
       addToast({
         title: "Runner",
         description: "Runner created successfully",

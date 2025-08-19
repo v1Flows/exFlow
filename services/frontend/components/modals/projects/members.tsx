@@ -24,11 +24,11 @@ import {
   ModalContent,
   Spacer,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React from "react";
 
 import AddProjectMember from "@/lib/fetch/project/POST/AddProjectMember";
 import ErrorCard from "@/components/error/ErrorCard";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 import UserCell from "./user-cell";
 
@@ -39,7 +39,7 @@ export default function AddProjectMemberModal({
   disclosure: UseDisclosureReturn;
   project: any;
 }) {
-  const router = useRouter();
+  const { refreshProject } = useRefreshCache();
   const { isOpen, onOpenChange } = disclosure;
 
   const [email, setEmail] = React.useState("");
@@ -120,7 +120,7 @@ export default function AddProjectMemberModal({
       setErrorText("");
       setErrorMessage("");
       onOpenChange();
-      router.refresh();
+      refreshProject(project.id);
       addToast({
         title: "Project",
         description: "Member invited successfully",

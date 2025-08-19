@@ -11,12 +11,12 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React from "react";
 import { Icon } from "@iconify/react";
 
 import ErrorCard from "@/components/error/ErrorCard";
 import RotateAutoJoinToken from "@/lib/fetch/project/PUT/RotateAutoJoinToken";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function RotateAutoJoinTokenModal({
   disclosure,
@@ -25,7 +25,7 @@ export default function RotateAutoJoinTokenModal({
   disclosure: UseDisclosureReturn;
   projectID: any;
 }) {
-  const router = useRouter();
+  const { refreshProject } = useRefreshCache();
   const { isOpen, onOpenChange } = disclosure;
 
   const [isLoading, setIsLoading] = React.useState(false);
@@ -58,7 +58,7 @@ export default function RotateAutoJoinTokenModal({
       setError(false);
       setErrorText("");
       setErrorMessage("");
-      router.refresh();
+      refreshProject(projectID);
       onOpenChange();
       addToast({
         title: "Token",

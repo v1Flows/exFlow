@@ -12,12 +12,12 @@ import {
   ModalContent,
   ModalHeader,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { Icon } from "@iconify/react";
 
 import UpdateToken from "@/lib/fetch/tokens/update";
 import ErrorCard from "@/components/error/ErrorCard";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function EditTokenModal({
   token,
@@ -26,7 +26,7 @@ export default function EditTokenModal({
   token: any;
   disclosure: UseDisclosureReturn;
 }) {
-  const router = useRouter();
+  const { refreshProjectTokens } = useRefreshCache();
 
   // create modal
   const { isOpen, onOpenChange, onClose } = disclosure;
@@ -69,7 +69,7 @@ export default function EditTokenModal({
       setApiError(false);
       setApiErrorText("");
       setApiErrorMessage("");
-      router.refresh();
+      refreshProjectTokens(token.project_id);
       onOpenChange();
     } else {
       setIsLoading(false);
