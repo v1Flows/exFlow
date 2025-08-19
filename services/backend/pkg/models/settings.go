@@ -20,4 +20,5 @@ type Settings struct {
 	AllowSharedRunnerAutoJoin bool   `bun:"allow_shared_runner_auto_join,type:bool,default:true" json:"allow_shared_runner_auto_join"`
 	AllowSharedRunnerJoin     bool   `bun:"allow_shared_runner_join,type:bool,default:true" json:"allow_shared_runner_join"`
 	SharedRunnerAutoJoinToken string `bun:"shared_runner_auto_join_token,type:text,default:''" json:"shared_runner_auto_join_token"`
+	NewEncryptionMigrated     bool   `bun:"new_encryption_migrated,type:bool,default:false" json:"new_encryption_migrated"`
 }

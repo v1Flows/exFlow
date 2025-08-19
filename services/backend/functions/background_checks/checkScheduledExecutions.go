@@ -31,6 +31,15 @@ func checkScheduledExecutions(db *bun.DB) {
 		err = db.NewSelect().Model(&flow).Where("id = ?", execution.FlowID).Scan(context)
 		if err != nil {
 			log.Error("Bot: Error getting flow data", err)
+			continue
+		}
+
+		// get project data
+		var project models.Projects
+		err = db.NewSelect().Model(&project).Where("id = ?", flow.ProjectID).Scan(context)
+		if err != nil {
+			log.Error("Bot: Error getting project data", err)
+			continue
 		}
 
 		// update the scheduled step to success
@@ -38,6 +47,7 @@ func checkScheduledExecutions(db *bun.DB) {
 		err = db.NewSelect().Model(&steps).Where("execution_id = ?", execution.ID).Scan(context)
 		if err != nil {
 			log.Error("Bot: Error getting steps for execution", err)
+			continue
 		}
 
 		// mark all steps as canceled if they are not finished
@@ -47,10 +57,11 @@ func checkScheduledExecutions(db *bun.DB) {
 				step.FinishedAt = time.Now()
 
 				// check for encryption
-				if flow.EncryptExecutions && step.Messages != nil && len(step.Messages) > 0 {
-					step.Messages, err = encryption.DecryptExecutionStepActionMessage(step.Messages)
+				if project.EncryptionEnabled && step.Messages != nil && len(step.Messages) > 0 {
+					step.Messages, err = encryption.DecryptExecutionStepActionMessageWithProject(step.Messages, project.ID.String(), db)
 					if err != nil {
-						log.Error("Bot: Error encrypting execution step action messages", err)
+						log.Error("Bot: Error decrypting execution step action messages", err)
+						continue
 					}
 
 					step.Encrypted = true
@@ -68,10 +79,11 @@ func checkScheduledExecutions(db *bun.DB) {
 				})
 
 				// check for encryption
-				if flow.EncryptExecutions && step.Messages != nil && len(step.Messages) > 0 {
-					step.Messages, err = encryption.EncryptExecutionStepActionMessage(step.Messages)
+				if project.EncryptionEnabled && step.Messages != nil && len(step.Messages) > 0 {
+					step.Messages, err = encryption.EncryptExecutionStepActionMessageWithProject(step.Messages, project.ID.String(), db)
 					if err != nil {
 						log.Error("Bot: Error encrypting execution step action messages", err)
+						continue
 					}
 
 					step.Encrypted = true
@@ -80,6 +92,7 @@ func checkScheduledExecutions(db *bun.DB) {
 				_, err = db.NewUpdate().Model(&step).Set("status = ?, finished_at = ?, messages = ?", step.Status, step.FinishedAt, step.Messages).Where("id = ?", step.ID).Exec(context)
 				if err != nil {
 					log.Error("Bot: Error updating step", err)
+					continue
 				}
 
 				// create execution step which tells that the execution is registerd and waiting for runner to pick it up
@@ -106,10 +119,11 @@ func checkScheduledExecutions(db *bun.DB) {
 				}
 
 				// check for encryption
-				if flow.EncryptExecutions && step.Messages != nil && len(step.Messages) > 0 {
-					step.Messages, err = encryption.EncryptExecutionStepActionMessage(step.Messages)
+				if project.EncryptionEnabled && step.Messages != nil && len(step.Messages) > 0 {
+					step.Messages, err = encryption.EncryptExecutionStepActionMessageWithProject(step.Messages, project.ID.String(), db)
 					if err != nil {
 						log.Error("Bot: Error encrypting execution step action messages", err)
+						continue
 					}
 
 					step.Encrypted = true
@@ -118,6 +132,7 @@ func checkScheduledExecutions(db *bun.DB) {
 				_, err = db.NewInsert().Model(&step).Exec(context)
 				if err != nil {
 					log.Error("Bot: Error adding error step", err)
+					continue
 				}
 			}
 		}
@@ -125,6 +140,7 @@ func checkScheduledExecutions(db *bun.DB) {
 		_, err = db.NewUpdate().Model(&execution).Set("status = 'pending'").Where("id = ?", execution.ID).Exec(context)
 		if err != nil {
 			log.Error("Bot: Error updating execution", err)
+			continue
 		}
 	}
 }

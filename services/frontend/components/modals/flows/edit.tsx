@@ -104,8 +104,6 @@ export default function EditFlowModal({
       projectId,
       folderId,
       runnerLimit ? runnerId : "any",
-      targetFlow.encrypt_executions,
-      targetFlow.encrypt_action_params,
       targetFlow.exec_parallel,
       targetFlow.failure_pipeline_id,
       targetFlow.schedule_every_value,

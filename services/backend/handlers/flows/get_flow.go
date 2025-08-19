@@ -4,7 +4,6 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/v1Flows/exFlow/services/backend/config"
 	"github.com/v1Flows/exFlow/services/backend/functions/auth"
 	"github.com/v1Flows/exFlow/services/backend/functions/encryption"
 	"github.com/v1Flows/exFlow/services/backend/functions/gatekeeper"
@@ -23,6 +22,14 @@ func GetFlow(context *gin.Context, db *bun.DB) {
 	err := db.NewSelect().Model(&flow).Where("id = ?", flowID).Scan(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error collecting flow data from db", err)
+		return
+	}
+
+	// get project data
+	var project models.Projects
+	err = db.NewSelect().Model(&project).Where("id = ?", flow.ProjectID).Scan(context)
+	if err != nil {
+		httperror.InternalServerError(context, "Error collecting project data from db", err)
 		return
 	}
 
@@ -52,8 +59,8 @@ func GetFlow(context *gin.Context, db *bun.DB) {
 		decryptPasswords = true
 	}
 
-	if config.Config.Encryption.Enabled && flow.EncryptActionParams && len(flow.Actions) > 0 {
-		flow.Actions, err = encryption.DecryptParams(flow.Actions, decryptPasswords)
+	if project.EncryptionEnabled && len(flow.Actions) > 0 {
+		flow.Actions, err = encryption.DecryptParamsWithProject(flow.Actions, flow.ProjectID, decryptPasswords, db)
 		if err != nil {
 			httperror.InternalServerError(context, "Error decrypting action params", err)
 			return
@@ -62,7 +69,7 @@ func GetFlow(context *gin.Context, db *bun.DB) {
 		// decrypt failure pipeline actions
 		for i, pipeline := range flow.FailurePipelines {
 			if pipeline.Actions != nil {
-				flow.FailurePipelines[i].Actions, err = encryption.DecryptParams(pipeline.Actions, decryptPasswords)
+				flow.FailurePipelines[i].Actions, err = encryption.DecryptParamsWithProject(pipeline.Actions, flow.ProjectID, decryptPasswords, db)
 				if err != nil {
 					httperror.InternalServerError(context, "Error decrypting action params", err)
 					return

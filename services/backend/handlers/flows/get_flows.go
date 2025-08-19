@@ -3,7 +3,6 @@ package flows
 import (
 	"net/http"
 
-	"github.com/v1Flows/exFlow/services/backend/config"
 	"github.com/v1Flows/exFlow/services/backend/functions/auth"
 	"github.com/v1Flows/exFlow/services/backend/functions/encryption"
 	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
@@ -43,29 +42,36 @@ func GetFlows(context *gin.Context, db *bun.DB) {
 		decryptPasswords = true
 	}
 
-	if config.Config.Encryption.Enabled && len(flows) > 0 {
-		for i, flow := range flows {
-			if flow.EncryptActionParams && len(flow.Actions) > 0 {
-				flow.Actions, err = encryption.DecryptParams(flow.Actions, decryptPasswords)
-				if err != nil {
-					httperror.InternalServerError(context, "Error decrypting action params", err)
-					return
-				}
+	for i, flow := range flows {
 
-				flows[i].Actions = flow.Actions
+		// get project data
+		var project models.Projects
+		err = db.NewSelect().Model(&project).Where("id = ?", flow.ProjectID).Scan(context)
+		if err != nil {
+			httperror.InternalServerError(context, "Error collecting project data from db", err)
+			return
+		}
 
-				// decrypt failure pipeline actions
-				for i, pipeline := range flow.FailurePipelines {
-					if pipeline.Actions != nil {
-						flow.FailurePipelines[i].Actions, err = encryption.DecryptParams(pipeline.Actions, decryptPasswords)
-						if err != nil {
-							httperror.InternalServerError(context, "Error decrypting action params", err)
-							return
-						}
+		if project.EncryptionEnabled && len(flow.Actions) > 0 {
+			flow.Actions, err = encryption.DecryptParamsWithProject(flow.Actions, flow.ProjectID, decryptPasswords, db)
+			if err != nil {
+				httperror.InternalServerError(context, "Error decrypting action params", err)
+				return
+			}
+
+			flows[i].Actions = flow.Actions
+
+			// decrypt failure pipeline actions
+			for i, pipeline := range flow.FailurePipelines {
+				if pipeline.Actions != nil {
+					flow.FailurePipelines[i].Actions, err = encryption.DecryptParamsWithProject(pipeline.Actions, flow.ProjectID, decryptPasswords, db)
+					if err != nil {
+						httperror.InternalServerError(context, "Error decrypting action params", err)
+						return
 					}
-
-					flows[i].FailurePipelines = flow.FailurePipelines
 				}
+
+				flows[i].FailurePipelines = flow.FailurePipelines
 			}
 		}
 	}

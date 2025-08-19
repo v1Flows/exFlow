@@ -73,6 +73,6 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.20.1
 	github.com/uptrace/bun/dialect/pgdialect v1.2.15
-	github.com/v1Flows/shared-library v1.0.25
+	github.com/v1Flows/shared-library v1.0.27
 	golang.org/x/sys v0.35.0 // indirect
 )

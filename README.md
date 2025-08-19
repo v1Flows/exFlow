@@ -117,9 +117,10 @@ To get started with the exFlow project, follow these steps:
       password: postgres
 
     encryption:
-      enabled: true
-      # maximum 32 characters
-      key: null
+      # Minimum 32 characters, recommended 64+ characters
+      master_secret: "your-very-long-and-secure-master-secret-here"
+      # Fallback key for legacy data (optional)
+      key: "legacy-key-for-backward-compatibility"
 
     jwt:
       secret: null

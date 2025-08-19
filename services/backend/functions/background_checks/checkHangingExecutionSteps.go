@@ -42,13 +42,22 @@ func checkHangingExecutionSteps(db *bun.DB) {
 			continue
 		}
 
+		// get project data
+		var project models.Projects
+		err = db.NewSelect().Model(&project).Where("id = ?", flow.ProjectID).Scan(context)
+		if err != nil {
+			log.Error("Bot: Error getting project data for flow ", flow.ID, err)
+			continue
+		}
+
 		// if the execution is finished, let the step fail
 		if execution.Status == "success" || execution.Status == "error" || execution.Status == "canceled" || execution.Status == "noPatternMatch" || execution.Status == "recovered" {
 			// check for encryption and decrypt messages
-			if flow.EncryptExecutions && step.Messages != nil && len(step.Messages) > 0 {
-				step.Messages, err = encryption.DecryptExecutionStepActionMessage(step.Messages)
+			if project.EncryptionEnabled && step.Messages != nil && len(step.Messages) > 0 {
+				step.Messages, err = encryption.DecryptExecutionStepActionMessageWithProject(step.Messages, project.ID.String(), db)
 				if err != nil {
 					log.Error("Bot: Error encrypting execution step action messages", err)
+					continue
 				}
 
 				step.Encrypted = true
@@ -68,10 +77,11 @@ func checkHangingExecutionSteps(db *bun.DB) {
 			})
 
 			// check for encryption and encrypt messages
-			if flow.EncryptExecutions && step.Messages != nil && len(step.Messages) > 0 {
-				step.Messages, err = encryption.EncryptExecutionStepActionMessage(step.Messages)
+			if project.EncryptionEnabled && step.Messages != nil && len(step.Messages) > 0 {
+				step.Messages, err = encryption.EncryptExecutionStepActionMessageWithProject(step.Messages, project.ID.String(), db)
 				if err != nil {
 					log.Error("Bot: Error encrypting execution step action messages", err)
+					continue
 				}
 
 				step.Encrypted = true
@@ -80,6 +90,7 @@ func checkHangingExecutionSteps(db *bun.DB) {
 			_, err := db.NewUpdate().Model(&step).Column("status", "encrypted", "messages", "finished_at").Where("id = ?", step.ID).Exec(context)
 			if err != nil {
 				log.Error("Bot: Error updating step", err)
+				continue
 			}
 
 			// set execution status to error if it is not already set
@@ -93,6 +104,7 @@ func checkHangingExecutionSteps(db *bun.DB) {
 				_, err := db.NewUpdate().Model(&execution).Column("status", "finished_at").Where("id = ?", execution.ID).Exec(context)
 				if err != nil {
 					log.Error("Bot: Error updating execution status to error", err)
+					continue
 				}
 			}
 			continue

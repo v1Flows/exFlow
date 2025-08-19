@@ -21,9 +21,25 @@ func GetSteps(context *gin.Context, db *bun.DB) {
 		return
 	}
 
+	// get execution data
+	var execution models.Executions
+	err = db.NewSelect().Model(&execution).Where("id = ?", executionID).Scan(context)
+	if err != nil {
+		httperror.InternalServerError(context, "Error fetching execution data", err)
+		return
+	}
+
+	// get flow data
+	var flow models.Flows
+	err = db.NewSelect().Model(&flow).Where("id = ?", execution.FlowID).Scan(context)
+	if err != nil {
+		httperror.InternalServerError(context, "Error fetching flow data", err)
+		return
+	}
+
 	for i := range steps {
 		if steps[i].Encrypted {
-			steps[i].Messages, err = encryption.DecryptExecutionStepActionMessage(steps[i].Messages)
+			steps[i].Messages, err = encryption.DecryptExecutionStepActionMessageWithProject(steps[i].Messages, flow.ProjectID, db)
 			if err != nil {
 				httperror.InternalServerError(context, "Error decrypting execution step action messages", err)
 				return

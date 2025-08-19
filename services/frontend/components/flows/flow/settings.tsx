@@ -7,7 +7,6 @@ import {
   Select,
   SelectItem,
   Spacer,
-  Switch,
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -31,12 +30,6 @@ export default function FlowSettings({
   const [failurePipelineID, setFailurePipelineID] = useState(
     flow.failure_pipeline_id,
   );
-  const [encryptExecutions, setEncryptExecutions] = useState(
-    flow.encrypt_executions,
-  );
-  const [encryptActionParams, setEncryptActionParams] = useState(
-    flow.encrypt_action_params,
-  );
   const [scheduleEveryValue, setScheduleEveryValue] = useState(
     flow.schedule_every_value,
   );
@@ -55,8 +48,6 @@ export default function FlowSettings({
       flow.project_id,
       flow.folder_id,
       flow.runner_id,
-      encryptExecutions,
-      encryptActionParams,
       execParallel,
       failurePipelineID,
       scheduleEveryValue,
@@ -207,58 +198,6 @@ export default function FlowSettings({
                       <SelectItem key="weeks">Weeks</SelectItem>
                     </Select>
                   </div>
-                </div>
-              </CardBody>
-            </Card>
-          </div>
-        </div>
-        <div>
-          <p className="text-lg font-bold mb-2">Encryption</p>
-          <div className="grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-4">
-            <Card>
-              <CardBody>
-                <div className="flex flex-cols items-center justify-between gap-8">
-                  <div>
-                    <p className="text-md font-bold">Action Parameters</p>
-                    <p className="text-sm text-default-500">
-                      The parameters of actions will be encrypted stored on the
-                      db.
-                    </p>
-                  </div>
-                  <Switch
-                    isDisabled={
-                      (!canEdit || flow.disabled) && user.role !== "admin"
-                    }
-                    isSelected={encryptActionParams}
-                    size="sm"
-                    onValueChange={(value) => {
-                      setEncryptActionParams(value);
-                    }}
-                  />
-                </div>
-              </CardBody>
-            </Card>
-
-            <Card>
-              <CardBody>
-                <div className="flex flex-cols items-center justify-between gap-8">
-                  <div>
-                    <p className="text-md font-bold">Executions</p>
-                    <p className="text-sm text-default-500">
-                      All execution action messages will be stored encrypted on
-                      the db
-                    </p>
-                  </div>
-                  <Switch
-                    isDisabled={
-                      (!canEdit || flow.disabled) && user.role !== "admin"
-                    }
-                    isSelected={encryptExecutions}
-                    size="sm"
-                    onValueChange={(value) => {
-                      setEncryptExecutions(value);
-                    }}
-                  />
                 </div>
               </CardBody>
             </Card>

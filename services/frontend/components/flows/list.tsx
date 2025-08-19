@@ -314,7 +314,7 @@ export default function FlowList({
                           size="sm"
                           variant="flat"
                         >
-                          {flow.disabled ? "Disabled" : "Active"}
+                          {flow.disabled ? "Disabled" : "Enabled"}
                         </Chip>
                       </div>
                     </div>

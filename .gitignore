@@ -43,6 +43,7 @@ services/backend/*.exe~
 services/backend/*.dll
 services/backend/*.so
 services/backend/*.dylib
+services/backend/*.sql
 
 # Test binary, built with `go test -c`
 services/backend/*.test

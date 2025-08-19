@@ -80,5 +80,19 @@ func Projects(router *gin.RouterGroup, db *bun.DB) {
 		project.PUT("/:projectID/transfer_ownership", func(c *gin.Context) {
 			projects.TransferOwnership(c, db)
 		})
+
+		// encryption management
+		project.GET("/:projectID/encryption", func(c *gin.Context) {
+			projects.GetProjectEncryptionStatus(c, db)
+		})
+		project.PUT("/:projectID/encryption/enable", func(c *gin.Context) {
+			projects.EnableProjectEncryption(c, db)
+		})
+		project.PUT("/:projectID/encryption/disable", func(c *gin.Context) {
+			projects.DisableProjectEncryption(c, db)
+		})
+		project.PUT("/:projectID/encryption/rotate-key", func(c *gin.Context) {
+			projects.RotateProjectEncryptionKey(c, db)
+		})
 	}
 }
