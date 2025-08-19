@@ -14,13 +14,13 @@ import {
   ModalHeader,
   Snippet,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 import { Icon } from "@iconify/react";
 
 import GetRunnerFlowLinks from "@/lib/fetch/runner/GetRunnerFlowLinks";
 import DeleteProjectRunner from "@/lib/fetch/project/DELETE/DeleteRunner";
 import ErrorCard from "@/components/error/ErrorCard";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function DeleteRunnerModal({
   disclosure,
@@ -29,7 +29,7 @@ export default function DeleteRunnerModal({
   disclosure: UseDisclosureReturn;
   runner: any;
 }) {
-  const router = useRouter();
+  const { refreshRunners } = useRefreshCache();
   const { isOpen, onOpenChange } = disclosure;
 
   const [flowLinks, setFlowLinks] = React.useState([]);
@@ -49,7 +49,7 @@ export default function DeleteRunnerModal({
       setError(true);
       setErrorText("Failed to fetch runner flow links");
       setErrorMessage("An error occurred while fetching the runner flow links");
-      router.refresh();
+      refreshRunners();
       addToast({
         title: "Runner",
         description: "Failed to fetch runner flow links",
@@ -101,7 +101,7 @@ export default function DeleteRunnerModal({
         color: "success",
         variant: "flat",
       });
-      router.refresh();
+      refreshRunners();
     } else {
       setError(true);
       setErrorText(response.error);

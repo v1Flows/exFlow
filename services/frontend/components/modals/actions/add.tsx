@@ -29,7 +29,6 @@ import {
   Spacer,
   Textarea,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
@@ -38,6 +37,7 @@ import { cn } from "@/components/cn/cn";
 import ErrorCard from "@/components/error/ErrorCard";
 import MinimalRowSteps from "@/components/steps/minimal-row-steps";
 import AddFlowFailurePipelineActions from "@/lib/fetch/flow/POST/AddFlowFailurePipelineActions";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export const CustomRadio = (props: any) => {
   const { children, ...otherProps } = props;
@@ -72,7 +72,7 @@ export default function AddActionModal({
   isFailurePipeline?: boolean;
   failurePipeline?: any;
 }) {
-  const router = useRouter();
+  const { refreshFlowData } = useRefreshCache();
 
   const { isOpen, onOpenChange } = disclosure;
 
@@ -404,7 +404,7 @@ export default function AddActionModal({
       });
       setCurrentStep(0);
       onOpenChange();
-      router.refresh();
+      refreshFlowData(flow.id); // Refresh SWR cache with specific flow ID
       addToast({
         title: "Flow",
         description: "Action added successfully",
@@ -412,6 +412,7 @@ export default function AddActionModal({
         variant: "flat",
       });
     } else {
+      refreshFlowData(flow.id); // Refresh SWR cache with specific flow ID
       setError(true);
       setErrorText(res.error);
       setErrorMessage(res.message);
@@ -517,7 +518,7 @@ export default function AddActionModal({
       });
       setCurrentStep(0);
       onOpenChange();
-      router.refresh();
+      refreshFlowData(flow.id); // Refresh SWR cache with specific flow ID
       addToast({
         title: "Flow",
         description: "Action added successfully to failure pipeline",

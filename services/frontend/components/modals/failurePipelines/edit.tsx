@@ -12,12 +12,12 @@ import {
   Select,
   SelectItem,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
 
 import ErrorCard from "@/components/error/ErrorCard";
 import UpdateFlowFailurePipeline from "@/lib/fetch/flow/PUT/UpdateFailurePipeline";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function EditFailurePipelineModal({
   disclosure,
@@ -28,7 +28,7 @@ export default function EditFailurePipelineModal({
   flow: any;
   targetFailurePipeline: any;
 }) {
-  const router = useRouter();
+  const { refreshFlowData } = useRefreshCache();
   const { isOpen, onOpenChange } = disclosure;
 
   const [failurePipeline, setFailurePipeline] = useState(targetFailurePipeline);
@@ -94,7 +94,7 @@ export default function EditFailurePipelineModal({
         variant: "flat",
       });
       onOpenChange();
-      router.refresh();
+      refreshFlowData(flow.id);
     } else {
       setError(true);
       setErrorText(res.error);

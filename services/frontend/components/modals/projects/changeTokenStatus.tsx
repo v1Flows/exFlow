@@ -11,12 +11,12 @@ import {
   ModalHeader,
   Snippet,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React from "react";
 import { Icon } from "@iconify/react";
 
 import ErrorCard from "@/components/error/ErrorCard";
 import ChangeProjectTokenStatus from "@/lib/fetch/project/PUT/ChangeProjectTokenStatus";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function ChangeProjectTokenStatusModal({
   disclosure,
@@ -29,7 +29,7 @@ export default function ChangeProjectTokenStatusModal({
   token: any;
   disabled: any;
 }) {
-  const router = useRouter();
+  const { refreshProjectTokens } = useRefreshCache();
 
   const { isOpen, onOpenChange } = disclosure;
 
@@ -70,7 +70,7 @@ export default function ChangeProjectTokenStatusModal({
       setErrorText("");
       setErrorMessage("");
       onOpenChange();
-      router.refresh();
+      refreshProjectTokens(projectID);
       addToast({
         title: "Project",
         description: "Token status updated successfully",
@@ -82,7 +82,7 @@ export default function ChangeProjectTokenStatusModal({
       setError(true);
       setErrorText(res.error);
       setErrorMessage(res.message);
-      router.refresh();
+      refreshProjectTokens(projectID);
       addToast({
         title: "Project",
         description: "Failed to update token status",

@@ -14,12 +14,12 @@ import {
   Select,
   SelectItem,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { Icon } from "@iconify/react";
 
 import ErrorCard from "@/components/error/ErrorCard";
 import UpdateFolder from "@/lib/fetch/folder/update";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function UpdateFolderModal({
   disclosure,
@@ -32,8 +32,8 @@ export default function UpdateFolderModal({
   folders: any;
   folder: any;
 }) {
-  const router = useRouter();
   const { isOpen, onOpenChange } = disclosure;
+  const { refreshFolder } = useRefreshCache();
 
   const [errors] = useState({});
   const [apiError, setApiError] = useState(false);
@@ -78,7 +78,7 @@ export default function UpdateFolderModal({
       setApiErrorText("");
       setApiErrorMessage("");
 
-      router.refresh();
+      refreshFolder(folder.id); // Refresh SWR cache with specific folder ID
       addToast({
         title: "Folder",
         description: "Folder updated successfully",

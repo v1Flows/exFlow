@@ -11,11 +11,11 @@ import {
   ModalHeader,
   Snippet,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React from "react";
 
 import ChangeProjectStatus from "@/lib/fetch/admin/PUT/ChangeProjectStatus";
 import ErrorCard from "@/components/error/ErrorCard";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function ChangeProjectStatusModal({
   disclosure,
@@ -26,9 +26,8 @@ export default function ChangeProjectStatusModal({
   project: any;
   status: any;
 }) {
-  const router = useRouter();
-
   const { isOpen, onOpenChange } = disclosure;
+  const { refreshProjects } = useRefreshCache();
 
   const [disableReason, setDisableReason] = React.useState("");
   const [isLoading, setLoading] = React.useState(false);
@@ -66,7 +65,7 @@ export default function ChangeProjectStatusModal({
       setErrorText("");
       setErrorMessage("");
       onOpenChange();
-      router.refresh();
+      refreshProjects(); // Refresh SWR cache instead of router
       addToast({
         title: "Project",
         description: "Project status updated successfully",
@@ -78,7 +77,7 @@ export default function ChangeProjectStatusModal({
       setError(true);
       setErrorText(res.error);
       setErrorMessage(res.message);
-      router.refresh();
+      refreshProjects(); // Refresh SWR cache instead of router
       addToast({
         title: "Project",
         description: "Failed to update project status",

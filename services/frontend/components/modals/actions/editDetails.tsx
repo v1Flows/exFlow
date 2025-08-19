@@ -18,12 +18,12 @@ import {
   Spacer,
   Tooltip,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 import UpdateFlowActionsDetails from "@/lib/fetch/flow/PUT/UpdateActionsDetails";
 import { cn } from "@/components/cn/cn";
 import ErrorCard from "@/components/error/ErrorCard";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export const CustomRadio = (props: any) => {
   const { children, ...otherProps } = props;
@@ -51,8 +51,8 @@ export default function EditFlowActionsDetails({
   disclosure: UseDisclosureReturn;
   flow: any;
 }) {
-  const router = useRouter();
   const { isOpen, onOpenChange } = disclosure;
+  const { refreshFlowData } = useRefreshCache();
 
   const [isLoading, setLoading] = useState(false);
   const [encryptedActionParams, setEncryptedActionParams] = useState(true);
@@ -95,7 +95,7 @@ export default function EditFlowActionsDetails({
       setError(false);
       setErrorText("");
       setErrorMessage("");
-      router.refresh();
+      refreshFlowData(flow.id); // Refresh SWR cache instead of router
       addToast({
         title: "Flow",
         description: "Flow Actions Details updated successfully",

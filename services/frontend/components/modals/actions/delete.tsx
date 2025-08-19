@@ -10,13 +10,13 @@ import {
   ModalHeader,
   Snippet,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React from "react";
 import { Icon } from "@iconify/react";
 
 import DeleteAction from "@/lib/fetch/flow/DELETE/DeleteAction";
 import ErrorCard from "@/components/error/ErrorCard";
 import DeleteFailurePipelineAction from "@/lib/fetch/flow/DELETE/DeleteFailurePipelineAction";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function DeleteActionModal({
   disclosure,
@@ -31,7 +31,7 @@ export default function DeleteActionModal({
   isFailurePipeline?: boolean;
   failurePipeline?: any;
 }) {
-  const router = useRouter();
+  const { refreshFlowData } = useRefreshCache();
 
   const { isOpen, onOpenChange } = disclosure;
 
@@ -64,7 +64,7 @@ export default function DeleteActionModal({
         color: "success",
         variant: "flat",
       });
-      router.refresh();
+      refreshFlowData(flowID); // Refresh SWR cache with specific flow ID
     } else {
       setIsDeleteLoading(false);
       setError(true);
@@ -110,7 +110,7 @@ export default function DeleteActionModal({
         color: "success",
         variant: "flat",
       });
-      router.refresh();
+      refreshFlowData(flowID); // Refresh SWR cache with specific flow ID
     } else {
       setIsDeleteLoading(false);
       setError(true);

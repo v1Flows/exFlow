@@ -8,16 +8,16 @@ import {
   DropdownSection,
   DropdownTrigger,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 
 import UpdateExecution from "@/lib/fetch/executions/PUT/update";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function AdminExecutionActions({
   execution,
 }: {
   execution: any;
 }) {
-  const router = useRouter();
+  const { refreshExecution } = useRefreshCache();
 
   async function changeExecutionStatus(status: string) {
     const newExecution = { ...execution };
@@ -106,7 +106,7 @@ export default function AdminExecutionActions({
         color: "success",
         variant: "flat",
       });
-      router.refresh();
+      refreshExecution(execution.id);
     } else {
       addToast({
         title: "Execution",

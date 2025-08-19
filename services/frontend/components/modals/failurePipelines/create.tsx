@@ -14,12 +14,12 @@ import {
   Select,
   SelectItem,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { Icon } from "@iconify/react";
 
 import ErrorCard from "@/components/error/ErrorCard";
 import CreateFlowFailurePipeline from "@/lib/fetch/flow/POST/AddFlowFailurePipeline";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function CreateFailurePipelineModal({
   flow,
@@ -28,7 +28,7 @@ export default function CreateFailurePipelineModal({
   flow: any;
   disclosure: UseDisclosureReturn;
 }) {
-  const router = useRouter();
+  const { refreshFlowData } = useRefreshCache();
 
   // create modal
   const { isOpen, onOpenChange } = disclosure;
@@ -69,7 +69,7 @@ export default function CreateFailurePipelineModal({
     }
 
     if (response.success) {
-      router.refresh();
+      refreshFlowData(flow.id); // Refresh SWR cache with specific flow ID
       onOpenChange();
       setName("");
       setError(false);

@@ -11,11 +11,11 @@ import {
   ModalHeader,
   Snippet,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React from "react";
 
 import ChangeFlowMaintenance from "@/lib/fetch/flow/PUT/ChangeFlowMaintenance";
 import ErrorCard from "@/components/error/ErrorCard";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function ChangeFlowMaintenanceModal({
   disclosure,
@@ -26,7 +26,7 @@ export default function ChangeFlowMaintenanceModal({
   flow: any;
   maintenance: any;
 }) {
-  const router = useRouter();
+  const { refreshFlowData } = useRefreshCache();
 
   const { isOpen, onOpenChange } = disclosure;
 
@@ -59,7 +59,7 @@ export default function ChangeFlowMaintenanceModal({
       setErrorText("");
       setErrorMessage("");
       onOpenChange();
-      router.refresh();
+      refreshFlowData(); // Refresh SWR cache instead of router
       addToast({
         title: "Flow",
         description: "Flow maintenance updated successfully",
@@ -70,7 +70,7 @@ export default function ChangeFlowMaintenanceModal({
       setError(true);
       setErrorText(res.error);
       setErrorMessage(res.message);
-      router.refresh();
+      refreshFlowData(); // Refresh SWR cache instead of router
       addToast({
         title: "Flow",
         description: "Failed to update flow maintenance",

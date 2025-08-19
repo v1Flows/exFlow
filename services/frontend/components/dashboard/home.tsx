@@ -18,7 +18,6 @@ import ReactTimeago from "react-timeago";
 import WelcomeModal from "@/components/modals/user/welcome";
 import Stats from "@/components/dashboard/stats";
 
-import Reloader from "../reloader/Reloader";
 import Executions from "../executions/executions";
 
 export default function DashboardHome({
@@ -66,14 +65,11 @@ export default function DashboardHome({
 
   return (
     <main>
-      <div className="flex flex-cols items-center justify-between gap-2">
-        <div>
-          <p className="text-xl font-bold">Hello, {user.username} 👋</p>
-          <p className="text-default-500">
-            Here&apos;s the current status for today.
-          </p>
-        </div>
-        <Reloader circle refresh={10} />
+      <div>
+        <p className="text-xl font-bold">Hello, {user.username} 👋</p>
+        <p className="text-default-500">
+          Here&apos;s the current status for today.
+        </p>
       </div>
       <Spacer y={4} />
       <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-2 lg:grid-cols-3">

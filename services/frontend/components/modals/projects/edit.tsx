@@ -16,7 +16,6 @@ import {
   Select,
   SelectItem,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 import { ColorPicker, useColor } from "react-color-palette";
 import tinycolor from "tinycolor2";
@@ -24,6 +23,7 @@ import tinycolor from "tinycolor2";
 import UpdateProject from "@/lib/fetch/project/PUT/UpdateProject";
 import ErrorCard from "@/components/error/ErrorCard";
 import "react-color-palette/css";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function EditProjectModal({
   disclosure,
@@ -32,10 +32,10 @@ export default function EditProjectModal({
   disclosure: UseDisclosureReturn;
   project: any;
 }) {
-  const router = useRouter();
   const { isOpen, onOpenChange } = disclosure;
-  const [icons, setIcons] = React.useState<string[]>([]);
+  const { refreshProject } = useRefreshCache();
 
+  const [icons, setIcons] = React.useState<string[]>([]);
   const [color, setColor] = useColor("");
 
   const [errors] = React.useState({});
@@ -97,7 +97,7 @@ export default function EditProjectModal({
     }
 
     if (res.success) {
-      router.refresh();
+      refreshProject(project.id); // Refresh SWR cache instead of router
       onOpenChange();
       setApiError(false);
       setApiErrorText("");

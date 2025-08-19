@@ -12,12 +12,12 @@ import {
   ModalHeader,
   Snippet,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React from "react";
 import { Icon } from "@iconify/react";
 
 import ErrorCard from "@/components/error/ErrorCard";
 import DeleteFolder from "@/lib/fetch/folder/delete";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function DeleteFolderModal({
   disclosure,
@@ -26,8 +26,8 @@ export default function DeleteFolderModal({
   disclosure: UseDisclosureReturn;
   folder: any;
 }) {
-  const router = useRouter();
   const { isOpen, onOpenChange } = disclosure;
+  const { refreshFolders } = useRefreshCache();
 
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState(false);
@@ -54,7 +54,7 @@ export default function DeleteFolderModal({
     }
 
     if (res.success) {
-      router.refresh();
+      refreshFolders(); // Refresh SWR cache instead of router
       onOpenChange();
       setIsLoading(false);
       setError(false);

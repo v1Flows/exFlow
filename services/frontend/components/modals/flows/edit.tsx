@@ -17,13 +17,13 @@ import {
   SelectItem,
   Switch,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 import { Icon } from "@iconify/react";
 
 import GetProjectRunners from "@/lib/fetch/project/runners";
 import UpdateFlow from "@/lib/fetch/flow/PUT/UpdateFlow";
 import ErrorCard from "@/components/error/ErrorCard";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function EditFlowModal({
   targetFlow,
@@ -36,7 +36,7 @@ export default function EditFlowModal({
   folders: any;
   disclosure: UseDisclosureReturn;
 }) {
-  const router = useRouter();
+  const { refreshFlowData } = useRefreshCache();
 
   // create modal
   const { isOpen, onOpenChange, onClose } = disclosure;
@@ -120,7 +120,7 @@ export default function EditFlowModal({
     }
 
     if (response.success) {
-      router.refresh();
+      refreshFlowData(targetFlow.id); // Refresh SWR cache with specific flow ID
       onOpenChange();
       setIsLoading(false);
       addToast({

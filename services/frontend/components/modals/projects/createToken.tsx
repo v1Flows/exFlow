@@ -12,12 +12,12 @@ import {
   ModalContent,
   ModalHeader,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { Icon } from "@iconify/react";
 
 import ErrorCard from "@/components/error/ErrorCard";
 import CreateProjectToken from "@/lib/fetch/project/POST/CreateProjectToken";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function CreateProjectTokenModal({
   disclosure,
@@ -26,7 +26,7 @@ export default function CreateProjectTokenModal({
   disclosure: UseDisclosureReturn;
   projectID: any;
 }) {
-  const router = useRouter();
+  const { refreshProjectTokens } = useRefreshCache();
   const { isOpen, onOpenChange } = disclosure;
 
   const [errors] = useState({});
@@ -65,8 +65,14 @@ export default function CreateProjectTokenModal({
     }
 
     if (res.success) {
-      router.refresh();
+      refreshProjectTokens(projectID);
       onOpenChange();
+      addToast({
+        title: "Project",
+        description: "Token created successfully",
+        color: "success",
+        variant: "flat",
+      });
     } else {
       setApiError(true);
       setApiErrorText(res.error);

@@ -3,11 +3,11 @@
 import { addToast, Button, Divider, useDisclosure } from "@heroui/react";
 import { Icon } from "@iconify/react";
 
-import APIStartExecution from "@/lib/fetch/executions/start";
-import Reloader from "@/components/reloader/Reloader";
 import ScheduleExecutionModal from "@/components/modals/executions/schedule";
 import EditFlowModal from "@/components/modals/flows/edit";
 import canEditProject from "@/lib/functions/canEditProject";
+import { startExecution } from "@/lib/swr/api/executions";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function FlowHeading({
   flow,
@@ -26,6 +26,26 @@ export default function FlowHeading({
 }) {
   const editFlowModal = useDisclosure();
   const scheduleExecutionModal = useDisclosure();
+  const { refreshAllExecutionCaches } = useRefreshCache();
+
+  const handleExecuteFlow = async () => {
+    const result = await startExecution(flow.id);
+
+    if (result.success) {
+      addToast({
+        title: "Execution Started",
+        color: "success",
+      });
+      // Immediately refresh executions data
+      refreshAllExecutionCaches(flow.id);
+    } else {
+      addToast({
+        title: "Execution start failed",
+        description: result.error,
+        color: "danger",
+      });
+    }
+  };
 
   return (
     <main>
@@ -58,22 +78,7 @@ export default function FlowHeading({
               }
               startContent={<Icon icon="hugeicons:play" width={20} />}
               variant="solid"
-              onPress={() => {
-                APIStartExecution(flow.id)
-                  .then(() => {
-                    addToast({
-                      title: "Execution Started",
-                      color: "success",
-                    });
-                  })
-                  .catch((err) => {
-                    addToast({
-                      title: "Execution start failed",
-                      description: err.message,
-                      color: "danger",
-                    });
-                  });
-              }}
+              onPress={handleExecuteFlow}
             >
               Execute
             </Button>
@@ -92,8 +97,6 @@ export default function FlowHeading({
             >
               Edit
             </Button>
-            <Divider className="h-10 mr-1 ml-1" orientation="vertical" />
-            <Reloader circle refresh={20} />
           </div>
 
           {/* Mobile */}
@@ -112,25 +115,9 @@ export default function FlowHeading({
               color="primary"
               startContent={<Icon icon="solar:play-linear" width={18} />}
               variant="solid"
-              onPress={() => {
-                APIStartExecution(flow.id)
-                  .then(() => {
-                    addToast({
-                      title: "Execution Started",
-                      color: "success",
-                    });
-                  })
-                  .catch((err) => {
-                    addToast({
-                      title: "Execution start failed",
-                      description: err.message,
-                      color: "danger",
-                    });
-                  });
-              }}
+              onPress={handleExecuteFlow}
             />
             <Divider className="h-10 mr-1 ml-1" orientation="vertical" />
-            <Reloader circle refresh={20} />
             <Button
               isIconOnly
               color="warning"
