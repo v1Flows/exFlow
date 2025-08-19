@@ -1,6 +1,6 @@
 "use client";
 import { Icon } from "@iconify/react";
-import { Tab, Tabs } from "@heroui/react";
+import { Spacer, Tab, Tabs } from "@heroui/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 
@@ -112,19 +112,18 @@ export default function FlowTabs({
               runners={runners}
             />
           </Tab>
+
           <Tab
-            key="stats"
+            key="info"
             title={
               <div className="flex items-center space-x-2">
-                <Icon
-                  height="20"
-                  icon="hugeicons:chart-line-data-01"
-                  width="20"
-                />
-                <span>Stats</span>
+                <Icon icon="hugeicons:information-square" width={20} />
+                <span>Info</span>
               </div>
             }
           >
+            <FlowInfo flow={flow} />
+            <Spacer y={4} />
             <FlowStats flowID={flow.id} />
           </Tab>
           <Tab
@@ -141,17 +140,6 @@ export default function FlowTabs({
               flow={flow}
               user={user}
             />
-          </Tab>
-          <Tab
-            key="info"
-            title={
-              <div className="flex items-center space-x-2">
-                <Icon icon="hugeicons:information-square" width={20} />
-                <span>Info</span>
-              </div>
-            }
-          >
-            <FlowInfo flow={flow} />
           </Tab>
         </Tabs>
       </div>

@@ -94,9 +94,7 @@ export default function FlowHeading({
               onPress={() => {
                 editFlowModal.onOpen();
               }}
-            >
-              Edit
-            </Button>
+            />
           </div>
 
           {/* Mobile */}
