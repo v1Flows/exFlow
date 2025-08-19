@@ -65,7 +65,7 @@
     "eslint-plugin-testing-library": "^7.1.1",
     "eslint-plugin-unused-imports": "^4.2.0",
     "framer-motion": "^12.5.0",
-    "globals": "^15.15.0",
+    "globals": "^16.3.0",
     "intl-messageformat": "^10.7.16",
     "lodash": "^4.17.21",
     "lucide-react": "^0.536.0",
