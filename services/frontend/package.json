@@ -63,7 +63,7 @@
     "eslint-plugin-react-refresh": "^0.4.20",
     "eslint-plugin-tailwindcss": "^3.18.2",
     "eslint-plugin-testing-library": "^7.1.1",
-    "eslint-plugin-unused-imports": "^4.1.4",
+    "eslint-plugin-unused-imports": "^4.2.0",
     "framer-motion": "^12.5.0",
     "globals": "^15.15.0",
     "intl-messageformat": "^10.7.16",
