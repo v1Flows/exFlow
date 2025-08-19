@@ -116,7 +116,7 @@ export default function EditFailurePipelineModal({
         isDismissable={false}
         isOpen={isOpen}
         placement="center"
-        size="5xl"
+        size="lg"
         onOpenChange={onOpenChange}
       >
         <ModalContent>

@@ -10,6 +10,7 @@ import Actions from "./actions";
 import FlowStats from "./stats";
 import FlowSettings from "./settings";
 import FlowInfo from "./info";
+import FlowFailurePipelines from "./failure-pipelines";
 
 export default function FlowTabs({
   projects,
@@ -56,19 +57,37 @@ export default function FlowTabs({
           aria-label="Options"
           color="primary"
           selectedKey={selected}
-          variant="solid"
           onSelectionChange={handleTabChange}
         >
           <Tab
             key="actions"
             title={
               <div className="flex items-center space-x-2">
-                <Icon height={20} icon="hugeicons:blockchain-06" width="20" />
+                <Icon height={20} icon="hugeicons:structure-04" width="20" />
                 <span>Actions</span>
               </div>
             }
           >
             <Actions
+              canEdit={checkUserCanEdit()}
+              flow={flow}
+              flows={flows}
+              projects={projects}
+              runners={runners}
+              settings={settings}
+              user={user}
+            />
+          </Tab>
+          <Tab
+            key="failure-pipelines"
+            title={
+              <div className="flex items-center space-x-2">
+                <Icon height={20} icon="hugeicons:structure-fail" width="20" />
+                <span>Failure Pipelines</span>
+              </div>
+            }
+          >
+            <FlowFailurePipelines
               canEdit={checkUserCanEdit()}
               flow={flow}
               flows={flows}

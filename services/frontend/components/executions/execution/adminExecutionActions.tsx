@@ -121,7 +121,7 @@ export default function AdminExecutionActions({
     <Dropdown>
       <DropdownTrigger>
         <Button color="danger" variant="flat">
-          <Icon icon="solar:shield-up-broken" width={20} />
+          <Icon icon="hugeicons:shield-energy" width={20} />
           Admin Actions
         </Button>
       </DropdownTrigger>

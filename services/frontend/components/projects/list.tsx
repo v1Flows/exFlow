@@ -6,6 +6,7 @@ import {
   ButtonGroup,
   Card,
   CardBody,
+  CardFooter,
   Chip,
   Dropdown,
   DropdownItem,
@@ -141,7 +142,7 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
               router.push(`/projects/${project.id}`);
             }}
           >
-            <CardBody className="p-5">
+            <CardBody className="p-4">
               <div className="flex items-start justify-between">
                 <div className="flex gap-4">
                   <div
@@ -153,83 +154,86 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
                     <Icon className="text-2xl" icon={project.icon} />
                   </div>
                   <div className="flex-grow">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-lg">{project.name}</h3>
-                      <Chip
-                        color={project.disabled ? "danger" : "success"}
-                        radius="sm"
-                        size="sm"
-                        variant="flat"
-                      >
-                        {project.disabled ? "Disabled" : "Enabled"}
-                      </Chip>
-                    </div>
+                    <h3 className="font-semibold text-lg">{project.name}</h3>
                     <p className="text-default-500 text-sm line-clamp-2">
                       {project.description}
                     </p>
                   </div>
                 </div>
-                <Dropdown isDisabled={project.disabled} placement="bottom-end">
-                  <DropdownTrigger>
-                    <Button isIconOnly size="sm" variant="light">
-                      <Icon
-                        className="text-lg"
-                        icon="hugeicons:more-vertical-circle-01"
-                      />
-                    </Button>
-                  </DropdownTrigger>
-                  <DropdownMenu aria-label="Project actions" variant="flat">
-                    <DropdownItem
-                      key="copy"
-                      showDivider
-                      startContent={
-                        <Icon icon="hugeicons:copy-01" width={18} />
-                      }
-                      onPress={() => copyProjectIDtoClipboard(project.id)}
-                    >
-                      Copy ID
-                    </DropdownItem>
-                    <DropdownItem
-                      key="edit"
-                      color="warning"
-                      isDisabled={
-                        (!canEditProject(user.id, project.members) ||
-                          project.disabled) &&
-                        user.role !== "admin"
-                      }
-                      startContent={
-                        <Icon icon="hugeicons:pencil-edit-02" width={18} />
-                      }
-                      onPress={() => {
-                        setTargetProject(project);
-                        editProjectModal.onOpen();
-                      }}
-                    >
-                      Edit
-                    </DropdownItem>
-                    <DropdownItem
-                      key="delete"
-                      className="text-danger"
-                      color="danger"
-                      isDisabled={
-                        (!canEditProject(user.id, project.members) ||
-                          project.disabled) &&
-                        user.role !== "admin"
-                      }
-                      startContent={
-                        <Icon icon="hugeicons:delete-02" width={18} />
-                      }
-                      onPress={() => {
-                        setTargetProject(project);
-                        deleteProjectModal.onOpen();
-                      }}
-                    >
-                      Delete
-                    </DropdownItem>
-                  </DropdownMenu>
-                </Dropdown>
+                <Chip
+                  color={project.disabled ? "danger" : "success"}
+                  radius="sm"
+                  size="sm"
+                  variant="flat"
+                >
+                  {project.disabled ? "Disabled" : "Enabled"}
+                </Chip>
               </div>
             </CardBody>
+            <CardFooter className="justify-between gap-1 p-2">
+              <p className="text-xs text-foreground-400">
+                Created At:{" "}
+                {new Date(project.created_at).toLocaleString() || "Unknown"}
+              </p>
+              <Dropdown isDisabled={project.disabled} placement="bottom-end">
+                <DropdownTrigger>
+                  <Button isIconOnly size="sm" variant="light">
+                    <Icon
+                      className="text-lg"
+                      icon="hugeicons:more-vertical-circle-01"
+                      width={16}
+                    />
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu aria-label="Project actions" variant="flat">
+                  <DropdownItem
+                    key="copy"
+                    showDivider
+                    startContent={<Icon icon="hugeicons:copy-01" width={18} />}
+                    onPress={() => copyProjectIDtoClipboard(project.id)}
+                  >
+                    Copy ID
+                  </DropdownItem>
+                  <DropdownItem
+                    key="edit"
+                    color="warning"
+                    isDisabled={
+                      (!canEditProject(user.id, project.members) ||
+                        project.disabled) &&
+                      user.role !== "admin"
+                    }
+                    startContent={
+                      <Icon icon="hugeicons:pencil-edit-02" width={18} />
+                    }
+                    onPress={() => {
+                      setTargetProject(project);
+                      editProjectModal.onOpen();
+                    }}
+                  >
+                    Edit
+                  </DropdownItem>
+                  <DropdownItem
+                    key="delete"
+                    className="text-danger"
+                    color="danger"
+                    isDisabled={
+                      (!canEditProject(user.id, project.members) ||
+                        project.disabled) &&
+                      user.role !== "admin"
+                    }
+                    startContent={
+                      <Icon icon="hugeicons:delete-02" width={18} />
+                    }
+                    onPress={() => {
+                      setTargetProject(project);
+                      deleteProjectModal.onOpen();
+                    }}
+                  >
+                    Delete
+                  </DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
+            </CardFooter>
           </Card>
         ))}
       </div>

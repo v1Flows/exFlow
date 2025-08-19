@@ -8,6 +8,8 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { Icon } from "@iconify/react";
 import {
+  Accordion,
+  AccordionItem,
   addToast,
   Alert,
   Button,
@@ -21,6 +23,7 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
+  ScrollShadow,
   Snippet,
   Spacer,
   Switch,
@@ -36,17 +39,20 @@ import {
   useDisclosure,
 } from "@heroui/react";
 import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-import UpdateFlowActions from "@/lib/fetch/flow/PUT/UpdateActions";
-import EditFlowActionsDetails from "@/components/modals/actions/editDetails";
 import EditActionModal from "@/components/modals/actions/edit";
 import DeleteActionModal from "@/components/modals/actions/delete";
 import AddActionModal from "@/components/modals/actions/add";
+import CreateFailurePipelineModal from "@/components/modals/failurePipelines/create";
+import DeleteFailurePipelineModal from "@/components/modals/failurePipelines/delete";
+import EditFailurePipelineModal from "@/components/modals/failurePipelines/edit";
+import UpdateFlowFailurePipelineActions from "@/lib/fetch/flow/PUT/UpdateFailurePipelineActions";
 import CopyActionModal from "@/components/modals/actions/copy";
 import UpgradeActionModal from "@/components/modals/actions/upgrade";
 import CopyActionToDifferentFlowModal from "@/components/modals/actions/transferCopy";
 
-export default function Actions({
+export default function FlowFailurePipelines({
   projects,
   flows,
   flow,
@@ -63,23 +69,47 @@ export default function Actions({
   canEdit: boolean;
   settings: any;
 }) {
-  const [actions, setActions] = React.useState([] as any);
+  const router = useRouter();
+
   const [targetAction, setTargetAction] = React.useState({} as any);
   const [updatedAction, setUpdatedAction] = React.useState({} as any);
 
   const [showDefaultParams, setShowDefaultParams] = React.useState(false);
 
-  const editFlowActionsDetails = useDisclosure();
-  const addFlowActionModal = useDisclosure();
-  const editActionModal = useDisclosure();
-  const copyFlowActionModal = useDisclosure();
-  const upgradeFlowActionModal = useDisclosure();
-  const deleteActionModal = useDisclosure();
+  const [failurePipelines, setFailurePipelines] = React.useState([] as any);
+  const [targetFailurePipeline, setTargetFailurePipeline] = React.useState(
+    {} as any,
+  );
+
+  const [failurePipelineTab, setFailurePipelineTab] =
+    React.useState("add-pipeline");
+
+  const createFlowFailurePipelineModal = useDisclosure();
+  const editFlowFailurePipelineModal = useDisclosure();
+  const deleteFailurePipelineModal = useDisclosure();
+  const addFlowFailurePipelineActionModal = useDisclosure();
+  const editFlowFailurePipelineActionModal = useDisclosure();
+  const deleteFlowFailurePipelineActionModal = useDisclosure();
+  const copyFlowFailurePipelineActionModal = useDisclosure();
+  const upgradeFlowFailurePipelineActionModal = useDisclosure();
   const copyActionToDifferentFlowModal = useDisclosure();
+  const copyFailurePipelineActionToDifferentFlowModal = useDisclosure();
+
+  const [expandedParams, setExpandedParams] = React.useState([] as any);
 
   useEffect(() => {
-    setActions(flow.actions);
-  }, [flow.actions]);
+    if (flow.failure_pipelines !== null) {
+      setFailurePipelines(flow.failure_pipelines);
+
+      if (failurePipelineTab === "add-pipeline") {
+        setFailurePipelineTab(flow.failure_pipelines[0]?.id || "add-pipeline");
+      }
+    }
+  }, [flow]);
+
+  const handleFailurePipelineTabChange = (key: any) => {
+    setFailurePipelineTab(key);
+  };
 
   // function to get action from clipboard
   const getClipboardAction = async () => {
@@ -218,7 +248,17 @@ export default function Actions({
                             }
                             onPress={() => {
                               setTargetAction(action);
-                              copyFlowActionModal.onOpen();
+                              setTargetFailurePipeline(
+                                flow.failure_pipelines.filter(
+                                  (pipeline: any) =>
+                                    pipeline.actions !== null &&
+                                    pipeline.actions.some(
+                                      (pipelineAction: any) =>
+                                        pipelineAction.id === action.id,
+                                    ),
+                                )[0],
+                              );
+                              copyFlowFailurePipelineActionModal.onOpen();
                             }}
                           >
                             Local
@@ -233,8 +273,33 @@ export default function Actions({
                               />
                             }
                             onPress={() => {
-                              setTargetAction(action);
-                              copyActionToDifferentFlowModal.onOpen();
+                              // if action is in an failure pipeline, open the edit modal
+                              if (
+                                flow.failure_pipelines.some(
+                                  (pipeline: any) =>
+                                    pipeline.actions !== null &&
+                                    pipeline.actions.some(
+                                      (pipelineAction: any) =>
+                                        pipelineAction.id === action.id,
+                                    ),
+                                )
+                              ) {
+                                setTargetAction(action);
+                                setTargetFailurePipeline(
+                                  flow.failure_pipelines.filter(
+                                    (pipeline: any) =>
+                                      pipeline.actions !== null &&
+                                      pipeline.actions.some(
+                                        (pipelineAction: any) =>
+                                          pipelineAction.id === action.id,
+                                      ),
+                                  )[0],
+                                );
+                                copyFailurePipelineActionToDifferentFlowModal.onOpen();
+                              } else {
+                                setTargetAction(action);
+                                copyActionToDifferentFlowModal.onOpen();
+                              }
                             }}
                           >
                             Transfer
@@ -249,7 +314,17 @@ export default function Actions({
                         variant="light"
                         onPress={() => {
                           setTargetAction(action);
-                          editActionModal.onOpen();
+                          setTargetFailurePipeline(
+                            flow.failure_pipelines.filter(
+                              (pipeline: any) =>
+                                pipeline.actions !== null &&
+                                pipeline.actions.some(
+                                  (pipelineAction: any) =>
+                                    pipelineAction.id === action.id,
+                                ),
+                            )[0],
+                          );
+                          editFlowFailurePipelineActionModal.onOpen();
                         }}
                       >
                         <Icon icon="hugeicons:pencil-edit-02" width={18} />
@@ -263,7 +338,17 @@ export default function Actions({
                         variant="light"
                         onPress={() => {
                           setTargetAction(action.id);
-                          deleteActionModal.onOpen();
+                          setTargetFailurePipeline(
+                            flow.failure_pipelines.filter(
+                              (pipeline: any) =>
+                                pipeline.actions !== null &&
+                                pipeline.actions.some(
+                                  (pipelineAction: any) =>
+                                    pipelineAction.id === action.id,
+                                ),
+                            )[0],
+                          );
+                          deleteFlowFailurePipelineActionModal.onOpen();
                         }}
                       >
                         <Icon icon="hugeicons:delete-02" width={18} />
@@ -327,43 +412,58 @@ export default function Actions({
                         </Chip>
                       ))}
                 </div>
-                <Tabs isVertical aria-label="Options" variant="light">
-                  {action.update_available && (
-                    <Tab key="upgrade" className="w-full" title="Upgrade">
-                      <Alert
-                        hideIconWrapper
-                        className="mt-2 flex flex-wrap gap-2"
+                {action.update_available && (
+                  <Alert
+                    hideIconWrapper
+                    className="mt-2 flex flex-wrap gap-2"
+                    color="primary"
+                    description="Newer plugin version was found on one of the runners. Do you want to upgrade the action plugin version?"
+                    endContent={
+                      <Button
                         color="primary"
-                        description="Newer plugin version was found on one of the runners. Do you want to upgrade the action plugin version?"
-                        endContent={
-                          <Button
-                            color="primary"
-                            isDisabled={
-                              (!canEdit || flow.disabled) &&
-                              user.role !== "admin"
-                            }
-                            startContent={
-                              <Icon
-                                icon="hugeicons:system-update-02"
-                                width={20}
-                              />
-                            }
-                            variant="flat"
-                            onPress={() => {
-                              setTargetAction(action);
-                              setUpdatedAction(action.updated_action);
-                              upgradeFlowActionModal.onOpen();
-                            }}
-                          >
-                            Upgrade
-                          </Button>
+                        isDisabled={
+                          (!canEdit || flow.disabled) && user.role !== "admin"
                         }
-                        title={`Update to version ${action.update_version} available`}
-                        variant="faded"
-                      />
-                    </Tab>
-                  )}
-                  <Tab key="details" className="w-full" title="Details">
+                        startContent={
+                          <Icon icon="hugeicons:system-update-02" width={20} />
+                        }
+                        variant="flat"
+                        onPress={() => {
+                          setTargetAction(action);
+                          setUpdatedAction(action.updated_action);
+                          setTargetFailurePipeline(
+                            flow.failure_pipelines.filter(
+                              (pipeline: any) =>
+                                pipeline.actions !== null &&
+                                pipeline.actions.some(
+                                  (pipelineAction: any) =>
+                                    pipelineAction.id === action.id,
+                                ),
+                            )[0],
+                          );
+                          upgradeFlowFailurePipelineActionModal.onOpen();
+                        }}
+                      >
+                        Upgrade
+                      </Button>
+                    }
+                    title={`Update to version ${action.update_version} available`}
+                    variant="faded"
+                  />
+                )}
+                <Accordion
+                  isCompact
+                  selectedKeys={expandedParams}
+                  selectionMode="multiple"
+                  variant="light"
+                  onSelectionChange={setExpandedParams}
+                >
+                  <AccordionItem
+                    key={action.id + "-details"}
+                    aria-label="Details"
+                    subtitle="View action details (click to expand)"
+                    title="Details"
+                  >
                     <Table
                       removeWrapper
                       aria-label="Details"
@@ -414,9 +514,14 @@ export default function Actions({
                         </TableRow>
                       </TableBody>
                     </Table>
-                  </Tab>
+                  </AccordionItem>
                   {action.params.length > 0 && (
-                    <Tab key="params" className="w-full" title="Parameters">
+                    <AccordionItem
+                      key={action.id + "-params"}
+                      aria-label="Parameters"
+                      subtitle="View action parameters (click to expand)"
+                      title="Parameters"
+                    >
                       <div className="flex flex-cols w-full justify-end mb-2">
                         <Switch
                           isSelected={showDefaultParams}
@@ -465,10 +570,15 @@ export default function Actions({
                             ))}
                         </TableBody>
                       </Table>
-                    </Tab>
+                    </AccordionItem>
                   )}
                   {action.condition.selected_action_id !== "" && (
-                    <Tab key="conditions" className="w-full" title="Conditions">
+                    <AccordionItem
+                      key={action.id + "-conditions"}
+                      aria-label="Conditions"
+                      subtitle="View condition details (click to expand)"
+                      title="Conditions"
+                    >
                       <div className="mb-2">
                         <p>Options</p>
                         <Checkbox
@@ -554,9 +664,9 @@ export default function Actions({
                           )}
                         </TableBody>
                       </Table>
-                    </Tab>
+                    </AccordionItem>
                   )}
-                </Tabs>
+                </Accordion>
               </div>
             </div>
           </CardBody>
@@ -565,35 +675,37 @@ export default function Actions({
     );
   };
 
-  const handleDragEnd = (event: any) => {
+  const handleDragEndPipeline = (pipeline: any, event: any) => {
     const { active, over } = event;
 
     if (active.id !== over.id) {
-      const items = [...actions];
+      const items = [...pipeline.actions];
       const oldIndex = items.findIndex((item: any) => item.id === active.id);
       const newIndex = items.findIndex((item: any) => item.id === over.id);
 
       const newArray = arrayMove(items, oldIndex, newIndex);
 
-      updateFlowActions(newArray);
-      setActions(newArray);
+      updateFlowFailurePipelineActions(pipeline, newArray);
     }
   };
 
-  function updateFlowActions(items: any) {
-    UpdateFlowActions(flow.id, items)
+  function updateFlowFailurePipelineActions(pipeline: any, actions: any) {
+    UpdateFlowFailurePipelineActions(flow.id, pipeline.id, actions)
       .then(() => {
+        router.refresh();
         addToast({
           title: "Flow",
-          description: "Flow actions order updated successfully.",
+          description:
+            "Flow failure pipeline actions order updated successfully.",
           color: "success",
           variant: "flat",
         });
       })
       .catch(() => {
+        router.refresh();
         addToast({
           title: "Flow",
-          description: "Failed to update flow actions order.",
+          description: "Failed to update flow failure pipeline actions order.",
           color: "danger",
           variant: "flat",
         });
@@ -602,118 +714,268 @@ export default function Actions({
 
   return (
     <div>
-      <Card>
-        <CardBody>
-          <div className="flex-wrap flex items-center justify-between gap-2">
-            <div className="flex flex-col items-start">
-              <p className="text-md font-bold">Actions</p>
-              <p className="text-tiny text-default-500">
-                Common action settings can be found on the settings tab
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <Tooltip content="Add Action">
-                <Button
-                  isIconOnly
-                  color="primary"
-                  isDisabled={
-                    (!canEdit || !settings.add_flow_actions || flow.disabled) &&
-                    user.role !== "admin"
-                  }
-                  size="sm"
-                  startContent={
-                    <Icon icon="hugeicons:subnode-add" width={18} />
-                  }
-                  variant="solid"
-                  onPress={addFlowActionModal.onOpen}
-                />
-              </Tooltip>
-              <Tooltip content="Paste Copied Action">
-                <Button
-                  isIconOnly
-                  isDisabled={
-                    (!canEdit || !settings.add_flow_actions || flow.disabled) &&
-                    user.role !== "admin"
-                  }
-                  size="sm"
-                  startContent={<Icon icon="hugeicons:file-paste" width={18} />}
-                  variant="light"
-                  onPress={async () => {
-                    const parsedAction = await getClipboardAction();
-
-                    if (parsedAction) {
-                      setTargetAction(parsedAction);
-                      copyFlowActionModal.onOpen();
-                    } else {
-                      addToast({
-                        title: "Flow",
-                        description: "No action found in clipboard.",
-                        color: "danger",
-                        variant: "flat",
-                      });
-                    }
-                  }}
-                />
-              </Tooltip>
-            </div>
-          </div>
-        </CardBody>
-      </Card>
+      <p className="text-sm text-default-500">
+        With failure pipelines you have the ability to send notifications or
+        trigger any other action if a specific action or the whole execution
+        failed.
+      </p>
       <Spacer y={2} />
-      <div className="flex flex-col gap-2">
-        <DndContext
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext
-            items={actions}
-            strategy={verticalListSortingStrategy}
-          >
-            <div className="flex flex-col gap-2">
-              {actions.map((action: any) => (
-                <SortableItem key={action.id} action={action} />
-              ))}
+      <Tabs
+        aria-label="failure-pipelines"
+        selectedKey={failurePipelineTab}
+        variant="solid"
+        onSelectionChange={handleFailurePipelineTabChange}
+      >
+        {failurePipelines.map((pipeline: any) => (
+          <Tab key={pipeline.id} title={pipeline.name}>
+            <div className="flex flex-col gap-4">
+              <Card>
+                <CardBody>
+                  <div className="flex-wrap flex items-center justify-between gap-2">
+                    <div className="flex flex-col items-start gap-1">
+                      <div className="flex flex-cols items-center gap-2">
+                        <p className="text-md font-bold">{pipeline.name}</p>
+                        <div className="flex flex-cols gap-2">
+                          <Chip radius="sm" size="sm" variant="flat">
+                            {pipeline.exec_parallel ? "Parallel" : "Sequential"}
+                          </Chip>
+                          <Chip
+                            color={
+                              flow.failure_pipeline_id === pipeline.id
+                                ? "success"
+                                : flow.actions.filter(
+                                      (action: any) =>
+                                        action.failure_pipeline_id ===
+                                        pipeline.id,
+                                    ).length > 0
+                                  ? "success"
+                                  : "danger"
+                            }
+                            radius="sm"
+                            size="sm"
+                            variant="flat"
+                          >
+                            {flow.failure_pipeline_id === pipeline.id
+                              ? "Assigned to Flow"
+                              : flow.actions.filter(
+                                    (action: any) =>
+                                      action.failure_pipeline_id ===
+                                      pipeline.id,
+                                  ).length > 0
+                                ? "Assigned on Step"
+                                : "Not Assigned"}
+                          </Chip>
+                        </div>
+                      </div>
+                      <p className="text-tiny text-default-500">
+                        {pipeline.id}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Tooltip content="Add Action">
+                        <Button
+                          isIconOnly
+                          color="primary"
+                          isDisabled={
+                            (!canEdit ||
+                              !settings.add_flow_actions ||
+                              flow.disabled) &&
+                            user.role !== "admin"
+                          }
+                          size="sm"
+                          startContent={
+                            <Icon icon="hugeicons:subnode-add" width={18} />
+                          }
+                          variant="solid"
+                          onPress={() => {
+                            setTargetFailurePipeline(pipeline);
+                            addFlowFailurePipelineActionModal.onOpen();
+                          }}
+                        />
+                      </Tooltip>
+                      <Tooltip content="Paste Copied Action">
+                        <Button
+                          isIconOnly
+                          isDisabled={
+                            (!canEdit ||
+                              !settings.add_flow_actions ||
+                              flow.disabled) &&
+                            user.role !== "admin"
+                          }
+                          size="sm"
+                          startContent={
+                            <Icon icon="hugeicons:file-paste" width={18} />
+                          }
+                          variant="light"
+                          onPress={async () => {
+                            const parsedAction = await getClipboardAction();
+
+                            if (parsedAction) {
+                              setTargetAction(parsedAction);
+                              setTargetFailurePipeline(pipeline);
+                              copyFlowFailurePipelineActionModal.onOpen();
+                            } else {
+                              addToast({
+                                title: "Flow",
+                                description: "No action found in clipboard.",
+                                color: "danger",
+                                variant: "flat",
+                              });
+                            }
+                          }}
+                        />
+                      </Tooltip>
+                      <Tooltip content="Edit Pipeline">
+                        <Button
+                          isIconOnly
+                          isDisabled={
+                            (!canEdit || flow.disabled) && user.role !== "admin"
+                          }
+                          size="sm"
+                          startContent={
+                            <Icon icon="hugeicons:pencil-edit-02" width={18} />
+                          }
+                          variant="light"
+                          onPress={() => {
+                            setTargetFailurePipeline(pipeline);
+                            editFlowFailurePipelineModal.onOpen();
+                          }}
+                        />
+                      </Tooltip>
+                      <Tooltip content="Delete Pipeline">
+                        <Button
+                          isIconOnly
+                          color="danger"
+                          isDisabled={
+                            (!canEdit || flow.disabled) && user.role !== "admin"
+                          }
+                          size="sm"
+                          startContent={
+                            <Icon icon="hugeicons:delete-02" width={18} />
+                          }
+                          variant="light"
+                          onPress={() => {
+                            setTargetFailurePipeline(pipeline.id);
+                            deleteFailurePipelineModal.onOpen();
+                          }}
+                        />
+                      </Tooltip>
+                    </div>
+                  </div>
+                </CardBody>
+              </Card>
+              <ScrollShadow className="max-h-[calc(100vh-700px)]">
+                <DndContext
+                  collisionDetection={closestCenter}
+                  onDragEnd={(event) => handleDragEndPipeline(pipeline, event)}
+                >
+                  <SortableContext
+                    items={pipeline.actions !== null ? pipeline.actions : []}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <div className="flex flex-col gap-2">
+                      {pipeline.actions !== null &&
+                        pipeline.actions.length > 0 &&
+                        pipeline.actions.map((action: any) => (
+                          <SortableItem key={action.id} action={action} />
+                        ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
+              </ScrollShadow>
             </div>
-          </SortableContext>
-        </DndContext>
-      </div>
-      <EditFlowActionsDetails disclosure={editFlowActionsDetails} flow={flow} />
+          </Tab>
+        ))}
+        <Tab
+          key="add-pipeline"
+          title={
+            <Button
+              disableRipple
+              isIconOnly
+              color="primary"
+              isDisabled={(!canEdit || flow.disabled) && user.role !== "admin"}
+              variant="light"
+              onPress={() => {
+                createFlowFailurePipelineModal.onOpen();
+              }}
+            >
+              <Icon icon="hugeicons:plus-sign" width={20} />
+            </Button>
+          }
+        />
+      </Tabs>
+
+      {flow.failure_pipelines !== null &&
+        flow.failure_pipelines.length === 0 && (
+          <div className="flex items-center justify-center">
+            <p className="text-sm text-default-500">
+              No failure pipelines defined.
+            </p>
+          </div>
+        )}
+
+      <CreateFailurePipelineModal
+        disclosure={createFlowFailurePipelineModal}
+        flow={flow}
+      />
+      <EditFailurePipelineModal
+        disclosure={editFlowFailurePipelineModal}
+        flow={flow}
+        targetFailurePipeline={targetFailurePipeline}
+      />
+      <DeleteFailurePipelineModal
+        disclosure={deleteFailurePipelineModal}
+        failurePipeline={targetFailurePipeline}
+        flowID={flow.id}
+      />
+
       <AddActionModal
-        disclosure={addFlowActionModal}
+        isFailurePipeline
+        disclosure={addFlowFailurePipelineActionModal}
+        failurePipeline={targetFailurePipeline}
         flow={flow}
         runners={runners}
         user={user}
       />
       <EditActionModal
-        disclosure={editActionModal}
+        isFailurePipeline
+        disclosure={editFlowFailurePipelineActionModal}
+        failurePipeline={targetFailurePipeline}
         flow={flow}
         runners={runners}
         targetAction={targetAction}
       />
       <CopyActionModal
+        isFailurePipeline
         copyAction={targetAction}
-        disclosure={copyFlowActionModal}
+        disclosure={copyFlowFailurePipelineActionModal}
+        failurePipeline={targetFailurePipeline}
         flow={flow}
         runners={runners}
       />
       <CopyActionToDifferentFlowModal
+        isFailurePipeline
         copyAction={targetAction}
-        disclosure={copyActionToDifferentFlowModal}
+        disclosure={copyFailurePipelineActionToDifferentFlowModal}
         flow={flow}
         flows={flows}
         projects={projects}
         runners={runners}
       />
       <UpgradeActionModal
-        disclosure={upgradeFlowActionModal}
+        isFailurePipeline
+        disclosure={upgradeFlowFailurePipelineActionModal}
+        failurePipeline={targetFailurePipeline}
         flow={flow}
         runners={runners}
         targetAction={targetAction}
         updatedAction={updatedAction}
       />
       <DeleteActionModal
+        isFailurePipeline
         actionID={targetAction}
-        disclosure={deleteActionModal}
+        disclosure={deleteFlowFailurePipelineActionModal}
+        failurePipeline={targetFailurePipeline}
         flowID={flow.id}
       />
     </div>

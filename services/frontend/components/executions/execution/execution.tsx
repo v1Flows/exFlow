@@ -56,11 +56,7 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <Button
-          color="default"
-          variant="bordered"
-          onPress={() => router.back()}
-        >
+        <Button variant="flat" onPress={() => router.back()}>
           <Icon icon="hugeicons:link-backward" width={20} />
           Back
         </Button>

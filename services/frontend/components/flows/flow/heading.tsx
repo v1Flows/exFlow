@@ -57,7 +57,6 @@ export default function FlowHeading({
         <div className="flex items-center gap-4">
           <div className="hidden sm:flex items-center gap-2">
             <Button
-              color="secondary"
               isDisabled={
                 (flow.disabled || !settings.start_executions) &&
                 user.role !== "admin"
@@ -84,6 +83,7 @@ export default function FlowHeading({
             </Button>
             <Divider className="h-10 mr-1 ml-1" orientation="vertical" />
             <Button
+              isIconOnly
               color="warning"
               isDisabled={
                 (!canEditProject(user.id, project.members) || flow.disabled) &&
