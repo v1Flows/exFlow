@@ -4,7 +4,6 @@ import { addToast, Button, useDisclosure } from "@heroui/react";
 import { Icon } from "@iconify/react";
 
 import CreateProjectModal from "@/components/modals/projects/create";
-import Reloader from "@/components/reloader/Reloader";
 import RotateSharedAutoJoinTokenModal from "@/components/modals/admin/rotateSharedAutoJoinToken";
 
 export default function AdminRunnersHeading({ settings }: any) {
@@ -61,8 +60,6 @@ export default function AdminRunnersHeading({ settings }: any) {
               <Icon icon="hugeicons:key-02" width={18} />
             </Button>
           </div>
-
-          <Reloader circle refresh={10} />
         </div>
       </div>
       <CreateProjectModal disclosure={newProjectModal} />

@@ -1,7 +1,5 @@
 "use client";
 
-import Reloader from "@/components/reloader/Reloader";
-
 export default function AdminSettingsHeading() {
   return (
     <main>
@@ -10,9 +8,6 @@ export default function AdminSettingsHeading() {
           <p className="text-2xl font-bold mb-1">
             <span className="text-danger">Admin</span> | exFlow Settings
           </p>
-        </div>
-        <div className="flex flex-cols justify-end gap-2">
-          <Reloader circle refresh={10} />
         </div>
       </div>
     </main>
