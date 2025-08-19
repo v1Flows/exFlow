@@ -985,7 +985,7 @@ export default function Actions({
                                           action.failure_pipeline_id ===
                                           pipeline.id,
                                       ).length > 0
-                                    ? "Assigned on Step"
+                                    ? "Assigned on Action"
                                     : "Not Assigned"}
                               </Chip>
                             </div>
