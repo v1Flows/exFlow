@@ -224,7 +224,7 @@ const RowSteps = React.forwardRef<HTMLButtonElement, RowStepsProps>(
                         >
                           <div className="flex items-center justify-center">
                             {status === "complete" ? (
-                              <CheckIcon className="h-6 w-6 text-[var(--active-fg-color)]" />
+                              <CheckIcon className="h-6 w-6 text-(--active-fg-color)" />
                             ) : (
                               <span>{stepIdx + 1}</span>
                             )}
@@ -256,8 +256,8 @@ const RowSteps = React.forwardRef<HTMLButtonElement, RowStepsProps>(
                     >
                       <div
                         className={cn(
-                          "relative h-0.5 w-full bg-[var(--inactive-bar-color)] transition-colors duration-300",
-                          "after:absolute after:block after:h-full after:w-0 after:bg-[var(--active-border-color)] after:transition-[width] after:duration-300 after:content-['']",
+                          "relative h-0.5 w-full bg-(--inactive-bar-color) transition-colors duration-300",
+                          "after:absolute after:block after:h-full after:w-0 after:bg-(--active-border-color) after:transition-[width] after:duration-300 after:content-['']",
                           {
                             "after:w-full": stepIdx < currentStep,
                           },

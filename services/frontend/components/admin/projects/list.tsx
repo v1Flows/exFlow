@@ -55,7 +55,7 @@ export function AdminProjectList({ projects }: any) {
       case "icon":
         return (
           <div
-            className="flex-shrink-0 w-10 h-10 rounded-md flex items-center justify-center"
+            className="shrink-0 w-10 h-10 rounded-md flex items-center justify-center"
             style={{
               backgroundImage: `linear-gradient(45deg, ${project.color} 0%, ${project.color} 100%)`,
             }}

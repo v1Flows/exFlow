@@ -20,7 +20,7 @@ import SignUpAPI from "@/lib/auth/signup";
 import LoginAPI from "@/lib/auth/login";
 import CheckUserTaken from "@/lib/auth/checkTaken";
 
-import Particles from "../magicui/particles";
+import { Particles } from "../magicui/particles";
 
 export default function SignUpPage({ settings }: any) {
   const router = useRouter();

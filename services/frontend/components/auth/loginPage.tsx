@@ -17,7 +17,7 @@ import React, { useState } from "react";
 import { setSession } from "@/lib/setSession";
 import LoginAPI from "@/lib/auth/login";
 
-import Particles from "../magicui/particles";
+import { Particles } from "../magicui/particles";
 
 export default function LoginPageComponent({ settings }: { settings: any }) {
   const { theme } = useTheme();

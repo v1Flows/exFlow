@@ -224,7 +224,7 @@ export default function EditFlowModal({
                       "group-data-[selected=true]:ml-6",
                       // pressed
                       "group-data-[pressed=true]:w-7",
-                      "group-data-[selected]:group-data-[pressed]:ml-4",
+                      "group-data-selected:group-data-pressed:ml-4",
                     ),
                   }}
                   isSelected={runnerLimit}
