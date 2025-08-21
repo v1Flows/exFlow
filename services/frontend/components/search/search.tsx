@@ -796,16 +796,18 @@ export default function Search({
       <Button
         fullWidth
         endContent={<Kbd keys={[commandKey]}>K</Kbd>}
-        radius="sm"
+        radius="full"
         size="md"
+        startContent={
+          <Icon
+            className="text-default-400 [&>g]:stroke-[2px]"
+            icon="hugeicons:search-01"
+            width={18}
+          />
+        }
         variant="flat"
         onPress={handleOpenCmdk}
       >
-        <Icon
-          className="text-default-400 [&>g]:stroke-[2px]"
-          icon="hugeicons:search-01"
-          width={18}
-        />
         Search...
       </Button>
       <Modal

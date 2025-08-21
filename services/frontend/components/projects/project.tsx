@@ -44,6 +44,7 @@ export default function Project({
         </div>
         <div className="flex flex-cols items-center gap-4">
           <Button
+            isIconOnly
             color="warning"
             isDisabled={
               (project.disabled || !canEditProject(user.id, project.members)) &&
@@ -52,9 +53,7 @@ export default function Project({
             startContent={<Icon icon="hugeicons:pencil-edit-02" width={20} />}
             variant="flat"
             onPress={() => editProjectModal.onOpen()}
-          >
-            Edit
-          </Button>
+          />
         </div>
       </div>
       <Spacer y={2} />
@@ -104,7 +103,12 @@ export default function Project({
                     <Icon icon="hugeicons:workflow-square-10" width={24} />
                   </div>
                   <div>
-                    <p className="text-md font-bold">{flows.length}</p>
+                    <p className="text-md font-bold">
+                      {
+                        flows.filter((f: any) => f.project_id === project.id)
+                          .length
+                      }
+                    </p>
                     <p className="text-sm text-default-500">Flows</p>
                   </div>
                 </div>

@@ -84,14 +84,14 @@ export default function FlowSettings({
   return (
     <>
       {error && <ErrorCard error={error} message={errorMessage} />}
-      <div className="flex flex-col gap-4">
-        <div>
-          <p className="text-lg font-bold mb-2">Actions</p>
-          <div className="grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-4">
-            <Card>
-              <CardBody>
-                <div className="grid lg:grid-cols-2 grid-cols-1 items-center justify-between gap-8">
-                  <div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Card>
+          <CardBody>
+            <p className="text-lg font-bold mb-2">Actions</p>
+            <div className="grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-4">
+              <Card>
+                <CardBody className="bg-content2">
+                  <div className="mb-2">
                     <p className="text-md font-bold">Execution Strategy</p>
                     <p className="text-sm text-default-500">
                       Switch between parallel and sequential execution of
@@ -104,6 +104,7 @@ export default function FlowSettings({
                     }
                     placeholder="Select the execution strategy"
                     selectedKeys={[execParallel ? "parallel" : "sequential"]}
+                    variant="bordered"
                     onSelectionChange={(e) => {
                       if (e.currentKey === "parallel") {
                         setExecParallel(true);
@@ -115,14 +116,12 @@ export default function FlowSettings({
                     <SelectItem key="sequential">Sequential</SelectItem>
                     <SelectItem key="parallel">Parallel</SelectItem>
                   </Select>
-                </div>
-              </CardBody>
-            </Card>
+                </CardBody>
+              </Card>
 
-            <Card>
-              <CardBody>
-                <div className="grid lg:grid-cols-2 grid-cols-1 items-center justify-between gap-8">
-                  <div>
+              <Card>
+                <CardBody className="bg-content2">
+                  <div className="mb-2">
                     <p className="text-md font-bold">Common Failure Pipeline</p>
                     <p className="text-sm text-default-500">
                       Execute an failure pipeline when actions during an
@@ -140,6 +139,7 @@ export default function FlowSettings({
                     }
                     placeholder="Select an failure pipeline"
                     selectedKeys={[failurePipelineID]}
+                    variant="bordered"
                     onSelectionChange={(e) => {
                       if (e.currentKey === "none") {
                         setFailurePipelineID("");
@@ -153,56 +153,67 @@ export default function FlowSettings({
                       <SelectItem key={pipeline.id}>{pipeline.name}</SelectItem>
                     ))}
                   </Select>
-                </div>
-              </CardBody>
-            </Card>
-          </div>
-        </div>
-        <div>
-          <p className="text-lg font-bold mb-2">Executions</p>
-          <div className="grid grid-cols-1 gap-4">
-            <Card>
-              <CardBody>
-                <div className="grid lg:grid-cols-2 grid-cols-1 items-center justify-between gap-8">
-                  <div>
-                    <p className="text-md font-bold">Schedule Every</p>
-                    <p className="text-sm text-default-500">
-                      Schedule the flow to run every X minutes/hours/days.{" "}
-                      <br />
-                      The system will always schedule two executions at the
-                      time. The second one will be scheduled base on the
-                      scheduled time of the first one.
-                      <br />
-                      <span className="font-bold text-warning">
-                        Enter 0 to disable the schedule.
-                      </span>
-                    </p>
+                </CardBody>
+              </Card>
+            </div>
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardBody>
+            <p className="text-lg font-bold mb-2">Executions</p>
+            <div className="grid grid-cols-1 gap-4">
+              <Card>
+                <CardBody className="bg-content2">
+                  <div className="grid lg:grid-cols-2 grid-cols-1 items-center justify-between gap-8">
+                    <div>
+                      <p className="text-md font-bold">Schedule Every</p>
+                      <p className="text-sm text-default-500">
+                        Schedule the flow to run every X minutes/hours/days.{" "}
+                        <br />
+                        The system will always schedule two executions at the
+                        time. The second one will be scheduled base on the
+                        scheduled time of the first one.
+                        <br />
+                        <span className="font-bold text-warning">
+                          Enter 0 to disable the schedule.
+                        </span>
+                      </p>
+                    </div>
+                    <div className="flex flex-cols gap-2">
+                      <NumberInput
+                        defaultValue={scheduleEveryValue}
+                        isDisabled={
+                          (!canEdit || flow.disabled) && user.role !== "admin"
+                        }
+                        minValue={0}
+                        placeholder="Enter a number"
+                        variant="bordered"
+                        onValueChange={setScheduleEveryValue}
+                      />
+                      <Select
+                        isDisabled={
+                          (!canEdit || flow.disabled) && user.role !== "admin"
+                        }
+                        label="Select an unit"
+                        selectedKeys={[scheduleEveryUnit]}
+                        variant="bordered"
+                        onSelectionChange={(e) => {
+                          setScheduleEveryUnit(e.currentKey);
+                        }}
+                      >
+                        <SelectItem key="minutes">Minutes</SelectItem>
+                        <SelectItem key="hours">Hours</SelectItem>
+                        <SelectItem key="days">Days</SelectItem>
+                        <SelectItem key="weeks">Weeks</SelectItem>
+                      </Select>
+                    </div>
                   </div>
-                  <div className="flex flex-cols gap-2">
-                    <NumberInput
-                      defaultValue={scheduleEveryValue}
-                      minValue={0}
-                      placeholder="Enter a number"
-                      onValueChange={setScheduleEveryValue}
-                    />
-                    <Select
-                      label="Select an unit"
-                      selectedKeys={[scheduleEveryUnit]}
-                      onSelectionChange={(e) => {
-                        setScheduleEveryUnit(e.currentKey);
-                      }}
-                    >
-                      <SelectItem key="minutes">Minutes</SelectItem>
-                      <SelectItem key="hours">Hours</SelectItem>
-                      <SelectItem key="days">Days</SelectItem>
-                      <SelectItem key="weeks">Weeks</SelectItem>
-                    </Select>
-                  </div>
-                </div>
-              </CardBody>
-            </Card>
-          </div>
-        </div>
+                </CardBody>
+              </Card>
+            </div>
+          </CardBody>
+        </Card>
       </div>
       <Spacer y={4} />
       <Button
