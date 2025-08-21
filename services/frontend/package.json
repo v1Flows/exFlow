@@ -24,7 +24,7 @@
     "@heroui/theme": "2.4.20",
     "@heroui/use-disclosure": "2.2.15",
     "@iconify/react": "^6.0.0",
-    "@internationalized/date": "^3.8.0",
+    "@internationalized/date": "^3.7.0",
     "@number-flow/react": "^0.5.7",
     "@radix-ui/react-popover": "^1.1.15",
     "@react-aria/i18n": "^3.12.7",
