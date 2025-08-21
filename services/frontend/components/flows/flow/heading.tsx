@@ -101,7 +101,6 @@ export default function FlowHeading({
           <div className="flex sm:hidden items-center gap-2">
             <Button
               isIconOnly
-              color="secondary"
               startContent={<Icon icon="hugeicons:time-schedule" width={18} />}
               variant="flat"
               onPress={() => {

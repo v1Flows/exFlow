@@ -4,7 +4,7 @@ import { Spacer, Tab, Tabs } from "@heroui/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 
-import ProjectMembers from "@/components/projects/project/tables/UserTable";
+import ProjectMembers from "@/components/projects/project/members";
 import ProjectTokens from "@/components/projects/project/tables/TokensTable";
 import RunnersList from "@/components/runners/list";
 

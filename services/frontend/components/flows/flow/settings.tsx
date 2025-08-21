@@ -183,12 +183,18 @@ export default function FlowSettings({
                     <div className="flex flex-cols gap-2">
                       <NumberInput
                         defaultValue={scheduleEveryValue}
+                        isDisabled={
+                          (!canEdit || flow.disabled) && user.role !== "admin"
+                        }
                         minValue={0}
                         placeholder="Enter a number"
                         variant="bordered"
                         onValueChange={setScheduleEveryValue}
                       />
                       <Select
+                        isDisabled={
+                          (!canEdit || flow.disabled) && user.role !== "admin"
+                        }
                         label="Select an unit"
                         selectedKeys={[scheduleEveryUnit]}
                         variant="bordered"

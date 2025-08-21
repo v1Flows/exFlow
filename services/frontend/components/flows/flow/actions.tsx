@@ -9,29 +9,17 @@ import { CSS } from "@dnd-kit/utilities";
 import { Icon } from "@iconify/react";
 import {
   addToast,
-  Alert,
   Button,
   ButtonGroup,
   Card,
   CardBody,
-  Checkbox,
+  CardFooter,
   Chip,
-  Divider,
   Dropdown,
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
-  Snippet,
   Spacer,
-  Switch,
-  Tab,
-  Table,
-  TableBody,
-  TableCell,
-  TableColumn,
-  TableHeader,
-  TableRow,
-  Tabs,
   Tooltip,
   useDisclosure,
 } from "@heroui/react";
@@ -45,6 +33,7 @@ import AddActionModal from "@/components/modals/actions/add";
 import CopyActionModal from "@/components/modals/actions/copy";
 import UpgradeActionModal from "@/components/modals/actions/upgrade";
 import CopyActionToDifferentFlowModal from "@/components/modals/actions/transferCopy";
+import FlowActionDetails from "@/components/modals/actions/details";
 
 export default function Actions({
   projects,
@@ -67,8 +56,7 @@ export default function Actions({
   const [targetAction, setTargetAction] = React.useState({} as any);
   const [updatedAction, setUpdatedAction] = React.useState({} as any);
 
-  const [showDefaultParams, setShowDefaultParams] = React.useState(false);
-
+  const viewFlowActionDetails = useDisclosure();
   const editFlowActionsDetails = useDisclosure();
   const addFlowActionModal = useDisclosure();
   const editActionModal = useDisclosure();
@@ -108,458 +96,212 @@ export default function Actions({
 
     return (
       <div ref={setNodeRef} style={style} {...attributes}>
-        <Card key={action.id} fullWidth>
+        <Card
+          key={action.id}
+          fullWidth
+          isPressable
+          isDisabled={!action.active}
+          onPress={() => {
+            setTargetAction(action);
+            viewFlowActionDetails.onOpen();
+          }}
+        >
           <CardBody>
-            <div className="flex items-center justify-between gap-4">
-              <div className="w-full">
-                <div className="flex-cols flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
-                      <Icon icon={action.icon} width={26} />
-                    </div>
-                    <div>
-                      <div className="flex-cols flex gap-2">
-                        <p className="text-md font-bold">
-                          {action.custom_name
-                            ? action.custom_name
-                            : action.name}
-                        </p>
-                        <Chip
-                          className="max-lg:hidden"
-                          color="primary"
-                          radius="sm"
-                          size="sm"
-                          variant="flat"
-                        >
-                          Vers. {action.version}
-                        </Chip>
-                        <Chip
-                          className="max-lg:hidden"
-                          color={action.active ? "success" : "danger"}
-                          radius="sm"
-                          size="sm"
-                          variant="flat"
-                        >
-                          {action.active ? "Active" : "Disabled"}
-                        </Chip>
-                        {flow.failure_pipeline_id !== "" ||
-                          (flow.failure_pipeline_id !== null &&
-                            !flow.failure_pipelines.some(
-                              (pipeline: any) =>
-                                pipeline.id === action.failure_pipeline_id ||
-                                (pipeline.actions !== null &&
-                                  pipeline.actions.some(
-                                    (pipelineAction: any) =>
-                                      pipelineAction.id === action.id,
-                                  )),
-                            ) && (
-                              <Chip
-                                className="max-lg:hidden"
-                                color="warning"
-                                radius="sm"
-                                size="sm"
-                                variant="flat"
-                              >
-                                No Failure Pipeline Assigned
-                              </Chip>
-                            ))}
-                      </div>
-                      <p className="text-sm text-default-500">
-                        {action.custom_description
-                          ? action.custom_description
-                          : action.description}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex-cols flex items-center gap-2">
-                    <ButtonGroup size="sm">
-                      <Dropdown>
-                        <DropdownTrigger>
-                          <Button
-                            isIconOnly
-                            isDisabled={
-                              (!canEdit || flow.disabled) &&
-                              user.role !== "admin"
-                            }
-                            variant="light"
-                          >
-                            <Icon icon="hugeicons:copy-02" width={18} />
-                          </Button>
-                        </DropdownTrigger>
-                        <DropdownMenu aria-label="Copy Actions" variant="flat">
-                          <DropdownItem
-                            key="clipboard"
-                            description="Copy action to clipboard"
-                            startContent={
-                              <Icon icon="hugeicons:clipboard" width={20} />
-                            }
-                            onPress={() => {
-                              navigator.clipboard.writeText(
-                                JSON.stringify(action),
-                              );
-                              addToast({
-                                title: "Action",
-                                description: "Action copied to clipboard!",
-                                color: "success",
-                                variant: "flat",
-                              });
-                            }}
-                          >
-                            Clipboard
-                          </DropdownItem>
-                          <DropdownItem
-                            key="local"
-                            description="Copy action to the current flow"
-                            startContent={
-                              <Icon
-                                icon="hugeicons:pin-location-02"
-                                width={20}
-                              />
-                            }
-                            onPress={() => {
-                              setTargetAction(action);
-                              copyFlowActionModal.onOpen();
-                            }}
-                          >
-                            Local
-                          </DropdownItem>
-                          <DropdownItem
-                            key="different"
-                            description="Copy action to another flow"
-                            startContent={
-                              <Icon
-                                icon="hugeicons:delivery-sent-02"
-                                width={20}
-                              />
-                            }
-                            onPress={() => {
-                              setTargetAction(action);
-                              copyActionToDifferentFlowModal.onOpen();
-                            }}
-                          >
-                            Transfer
-                          </DropdownItem>
-                        </DropdownMenu>
-                      </Dropdown>
-                      <Button
-                        isIconOnly
-                        isDisabled={
-                          (!canEdit || flow.disabled) && user.role !== "admin"
-                        }
-                        variant="light"
-                        onPress={() => {
-                          setTargetAction(action);
-                          editActionModal.onOpen();
-                        }}
-                      >
-                        <Icon icon="hugeicons:pencil-edit-02" width={18} />
-                      </Button>
-                      <Button
-                        isIconOnly
-                        color="danger"
-                        isDisabled={
-                          (!canEdit || flow.disabled) && user.role !== "admin"
-                        }
-                        variant="light"
-                        onPress={() => {
-                          setTargetAction(action.id);
-                          deleteActionModal.onOpen();
-                        }}
-                      >
-                        <Icon icon="hugeicons:delete-02" width={18} />
-                      </Button>
-                    </ButtonGroup>
-                    <Tooltip content="Reorder action by dragging">
-                      <Button
-                        isIconOnly
-                        isDisabled={
-                          (!canEdit || flow.disabled) && user.role !== "admin"
-                        }
-                        size="sm"
-                        variant="flat"
-                        {...listeners}
-                        style={{ cursor: "grab", touchAction: "none" }}
-                      >
-                        <Icon icon="hugeicons:drag-02" width={18} />
-                      </Button>
-                    </Tooltip>
-                  </div>
+            <div className="flex flex-cols items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
+                  <Icon icon={action.icon} width={26} />
                 </div>
-                <Spacer y={2} />
-                <div className="flex-wrap flex gap-2">
-                  <Chip
-                    className="lg:hidden"
-                    color={action.active ? "success" : "danger"}
-                    radius="sm"
-                    size="sm"
-                    variant="flat"
-                  >
-                    {action.active ? "Active" : "Disabled"}
-                  </Chip>
-                  <Chip
-                    className="lg:hidden"
-                    color="primary"
-                    radius="sm"
-                    size="sm"
-                    variant="flat"
-                  >
-                    Vers. {action.version}
-                  </Chip>
-                  {flow.failure_pipeline_id !== "" ||
-                    (flow.failure_pipeline_id !== null &&
-                      !flow.failure_pipelines.some(
-                        (pipeline: any) =>
-                          pipeline.id === action.failure_pipeline_id ||
-                          (pipeline.actions !== null &&
-                            pipeline.actions.some(
-                              (pipelineAction: any) =>
-                                pipelineAction.id === action.id,
-                            )),
-                      ) && (
-                        <Chip
-                          className="lg:hidden"
-                          color="warning"
-                          radius="sm"
-                          size="sm"
-                          variant="flat"
-                        >
-                          No Failure Pipeline Assigned
-                        </Chip>
-                      ))}
+                <div>
+                  <p className="text-md font-bold">
+                    {action.custom_name ? action.custom_name : action.name}
+                  </p>
+                  <p className="text-sm text-default-500">
+                    {action.custom_description
+                      ? action.custom_description
+                      : action.description}
+                  </p>
                 </div>
-                <Tabs isVertical aria-label="Options" variant="light">
-                  {action.update_available && (
-                    <Tab key="upgrade" className="w-full" title="Upgrade">
-                      <Alert
-                        hideIconWrapper
-                        className="mt-2 flex flex-wrap gap-2"
-                        color="primary"
-                        description="Newer plugin version was found on one of the runners. Do you want to upgrade the action plugin version?"
-                        endContent={
-                          <Button
-                            color="primary"
-                            isDisabled={
-                              (!canEdit || flow.disabled) &&
-                              user.role !== "admin"
-                            }
-                            startContent={
-                              <Icon
-                                icon="hugeicons:system-update-02"
-                                width={20}
-                              />
-                            }
-                            variant="flat"
-                            onPress={() => {
-                              setTargetAction(action);
-                              setUpdatedAction(action.updated_action);
-                              upgradeFlowActionModal.onOpen();
-                            }}
-                          >
-                            Upgrade
-                          </Button>
-                        }
-                        title={`Update to version ${action.update_version} available`}
-                        variant="faded"
-                      />
-                    </Tab>
-                  )}
-                  <Tab key="details" className="w-full" title="Details">
-                    <Table
-                      removeWrapper
-                      aria-label="Details"
-                      className="w-full"
-                    >
-                      <TableHeader>
-                        <TableColumn align="center">Name</TableColumn>
-                        <TableColumn align="center">Value</TableColumn>
-                      </TableHeader>
-                      <TableBody emptyContent="No patterns defined.">
-                        <TableRow>
-                          <TableCell>ID</TableCell>
-                          <TableCell>
-                            <Snippet hideSymbol size="sm">
-                              {action.id}
-                            </Snippet>
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell>Plugin</TableCell>
-                          <TableCell>{action.plugin}</TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell>Plugin Name</TableCell>
-                          <TableCell>{action.name}</TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell>Plugin Description</TableCell>
-                          <TableCell>{action.description}</TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell>Failure Pipeline</TableCell>
-                          <TableCell>
-                            {flow.failure_pipeline_id === "" ||
-                            flow.failure_pipeline_id === null ? (
-                              flow.failure_pipelines.filter(
-                                (pipeline: any) =>
-                                  pipeline.id === action.failure_pipeline_id,
-                              )[0]?.name ||
-                              action.failure_pipeline_id ||
-                              "None"
-                            ) : (
-                              <span className="text-warning">
-                                Overwritten by Flow Setting
-                              </span>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      </TableBody>
-                    </Table>
-                  </Tab>
-                  {action.params.length > 0 && (
-                    <Tab key="params" className="w-full" title="Parameters">
-                      <div className="flex flex-cols w-full justify-end mb-2">
-                        <Switch
-                          isSelected={showDefaultParams}
-                          size="sm"
-                          onValueChange={setShowDefaultParams}
-                        >
-                          Show default parameters
-                        </Switch>
-                      </div>
-                      <Table
-                        removeWrapper
-                        aria-label="Parameters"
-                        className="w-full"
-                      >
-                        <TableHeader>
-                          <TableColumn align="center">Key</TableColumn>
-                          <TableColumn align="center">Value</TableColumn>
-                          <TableColumn align="center">Note</TableColumn>
-                        </TableHeader>
-                        <TableBody emptyContent="No params defined or default values are used.">
-                          {action.params
-                            .filter(
-                              (param: any) =>
-                                showDefaultParams ||
-                                param.value !== param.default,
-                            )
-                            .map((param: any, index: number) => (
-                              <TableRow key={index}>
-                                <TableCell>{param.key}</TableCell>
-                                <TableCell>
-                                  {param.type === "password"
-                                    ? "••••••••"
-                                    : param.value}
-                                </TableCell>
-                                <TableCell>
-                                  {param.type === "password" &&
-                                  param.value != "" ? (
-                                    <span className="text-success">
-                                      Encrypted
-                                    </span>
-                                  ) : (
-                                    ""
-                                  )}
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                        </TableBody>
-                      </Table>
-                    </Tab>
-                  )}
-                  {action.condition.selected_action_id !== "" && (
-                    <Tab key="conditions" className="w-full" title="Conditions">
-                      <div className="mb-2">
-                        <p>Options</p>
-                        <Checkbox
-                          isDisabled
-                          color="danger"
-                          isSelected={action.condition.cancel_execution}
-                        >
-                          <span className="text-danger font-bold">Cancel</span>{" "}
-                          Execution if conditions match and dont start any
-                          following action.
-                        </Checkbox>
-                      </div>
-                      <Divider className="mb-2" />
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
-                          <Icon
-                            icon={
-                              flow.actions.filter(
-                                (a: any) =>
-                                  a.id === action.condition.selected_action_id,
-                              )[0]?.icon
-                            }
-                            width={26}
-                          />
-                        </div>
-                        <div>
-                          <div className="flex-cols flex gap-2">
-                            <p className="text-md font-bold">
-                              {flow.actions.filter(
-                                (a: any) =>
-                                  a.id === action.condition.selected_action_id,
-                              )[0]?.custom_name ||
-                                flow.actions.filter(
-                                  (a: any) =>
-                                    a.id ===
-                                    action.condition.selected_action_id,
-                                )[0]?.name ||
-                                action.condition.selected_action_id}
-                            </p>
-                          </div>
-                          <p className="text-sm text-default-500">
-                            {flow.actions.filter(
-                              (a: any) =>
-                                a.id === action.condition.selected_action_id,
-                            )[0]?.custom_description ||
-                              flow.actions.filter(
-                                (a: any) =>
-                                  a.id === action.condition.selected_action_id,
-                              )[0]?.description ||
-                              "No description available"}
-                          </p>
-                        </div>
-                      </div>
-                      <Table
-                        removeWrapper
-                        aria-label="Details"
-                        className="w-full"
-                      >
-                        <TableHeader>
-                          <TableColumn align="center">Key</TableColumn>
-                          <TableColumn align="center">Type</TableColumn>
-                          <TableColumn align="center">Value</TableColumn>
-                          <TableColumn align="center">Logic</TableColumn>
-                        </TableHeader>
-                        <TableBody emptyContent="No patterns defined.">
-                          {action.condition.condition_items.map(
-                            (condition: any, index: number) => (
-                              <TableRow key={index}>
-                                <TableCell>{condition.condition_key}</TableCell>
-                                <TableCell>
-                                  {condition.condition_type}
-                                </TableCell>
-                                <TableCell>
-                                  {condition.condition_value}
-                                </TableCell>
-                                <TableCell className="text-primary font-semibold">
-                                  {condition.condition_logic === "and"
-                                    ? "&"
-                                    : "or"}
-                                </TableCell>
-                              </TableRow>
-                            ),
-                          )}
-                        </TableBody>
-                      </Table>
-                    </Tab>
-                  )}
-                </Tabs>
               </div>
+              <Tooltip content="Reorder action by dragging">
+                <Button
+                  isIconOnly
+                  isDisabled={
+                    (!canEdit || flow.disabled) && user.role !== "admin"
+                  }
+                  size="sm"
+                  variant="flat"
+                  {...listeners}
+                  style={{ cursor: "grab", touchAction: "none" }}
+                >
+                  <Icon icon="hugeicons:drag-02" width={18} />
+                </Button>
+              </Tooltip>
             </div>
           </CardBody>
+          <CardFooter className="flex flex-cols items-center justify-between">
+            <div className="flex flex-wrap gap-2 items-center">
+              <Chip color="primary" radius="sm" size="sm" variant="flat">
+                Vers. {action.version}
+              </Chip>
+              <Chip
+                color={action.active ? "success" : "danger"}
+                radius="sm"
+                size="sm"
+                variant="flat"
+              >
+                {action.active ? "Active" : "Disabled"}
+              </Chip>
+              {flow.failure_pipeline_id !== "" ||
+                (flow.failure_pipeline_id !== null &&
+                  !flow.failure_pipelines.some(
+                    (pipeline: any) =>
+                      pipeline.id === action.failure_pipeline_id ||
+                      (pipeline.actions !== null &&
+                        pipeline.actions.some(
+                          (pipelineAction: any) =>
+                            pipelineAction.id === action.id,
+                        )),
+                  ) && (
+                    <Chip color="warning" radius="sm" size="sm" variant="flat">
+                      No Failure Pipeline Assigned
+                    </Chip>
+                  ))}
+              {action.update_available && (
+                <Chip color="primary" radius="sm" size="sm" variant="solid">
+                  Upgrade Available
+                </Chip>
+              )}
+            </div>
+            <div>
+              <ButtonGroup size="sm">
+                {action.update_available && (
+                  <Tooltip content="Upgrade Plugin Version">
+                    <Button
+                      isIconOnly
+                      color="primary"
+                      isDisabled={
+                        (!canEdit || flow.disabled) && user.role !== "admin"
+                      }
+                      variant="flat"
+                      onPress={() => {
+                        setTargetAction(action);
+                        setUpdatedAction(action.updated_action);
+                        upgradeFlowActionModal.onOpen();
+                      }}
+                    >
+                      <Icon icon="hugeicons:system-update-02" width={18} />
+                    </Button>
+                  </Tooltip>
+                )}
+                <Tooltip content="View Action Details">
+                  <Button
+                    isIconOnly
+                    isDisabled={
+                      (!canEdit || flow.disabled) && user.role !== "admin"
+                    }
+                    variant="flat"
+                    onPress={() => {
+                      setTargetAction(action);
+                      viewFlowActionDetails.onOpen();
+                    }}
+                  >
+                    <Icon icon="hugeicons:view" width={18} />
+                  </Button>
+                </Tooltip>
+                <Dropdown>
+                  <DropdownTrigger>
+                    <Button
+                      isIconOnly
+                      isDisabled={
+                        (!canEdit || flow.disabled) && user.role !== "admin"
+                      }
+                      variant="flat"
+                    >
+                      <Icon icon="hugeicons:copy-02" width={18} />
+                    </Button>
+                  </DropdownTrigger>
+                  <DropdownMenu aria-label="Copy Actions" variant="flat">
+                    <DropdownItem
+                      key="clipboard"
+                      description="Copy action to clipboard"
+                      startContent={
+                        <Icon icon="hugeicons:clipboard" width={20} />
+                      }
+                      onPress={() => {
+                        navigator.clipboard.writeText(JSON.stringify(action));
+                        addToast({
+                          title: "Action",
+                          description: "Action copied to clipboard!",
+                          color: "success",
+                          variant: "flat",
+                        });
+                      }}
+                    >
+                      Clipboard
+                    </DropdownItem>
+                    <DropdownItem
+                      key="local"
+                      description="Copy action to the current flow"
+                      startContent={
+                        <Icon icon="hugeicons:pin-location-02" width={20} />
+                      }
+                      onPress={() => {
+                        setTargetAction(action);
+                        copyFlowActionModal.onOpen();
+                      }}
+                    >
+                      Local
+                    </DropdownItem>
+                    <DropdownItem
+                      key="different"
+                      description="Copy action to another flow"
+                      startContent={
+                        <Icon icon="hugeicons:delivery-sent-02" width={20} />
+                      }
+                      onPress={() => {
+                        setTargetAction(action);
+                        copyActionToDifferentFlowModal.onOpen();
+                      }}
+                    >
+                      Transfer
+                    </DropdownItem>
+                  </DropdownMenu>
+                </Dropdown>
+                <Tooltip content="Edit Action">
+                  <Button
+                    isIconOnly
+                    isDisabled={
+                      (!canEdit || flow.disabled) && user.role !== "admin"
+                    }
+                    variant="flat"
+                    onPress={() => {
+                      setTargetAction(action);
+                      editActionModal.onOpen();
+                    }}
+                  >
+                    <Icon icon="hugeicons:pencil-edit-02" width={18} />
+                  </Button>
+                </Tooltip>
+                <Tooltip content="Delete Action">
+                  <Button
+                    isIconOnly
+                    color="danger"
+                    isDisabled={
+                      (!canEdit || flow.disabled) && user.role !== "admin"
+                    }
+                    variant="flat"
+                    onPress={() => {
+                      setTargetAction(action.id);
+                      deleteActionModal.onOpen();
+                    }}
+                  >
+                    <Icon icon="hugeicons:delete-02" width={18} />
+                  </Button>
+                </Tooltip>
+              </ButtonGroup>
+            </div>
+          </CardFooter>
         </Card>
       </div>
     );
@@ -683,6 +425,11 @@ export default function Actions({
         flow={flow}
         runners={runners}
         user={user}
+      />
+      <FlowActionDetails
+        action={targetAction}
+        disclosure={viewFlowActionDetails}
+        flow={flow}
       />
       <EditActionModal
         disclosure={editActionModal}

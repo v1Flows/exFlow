@@ -16,8 +16,20 @@ module.exports = {
       animation: {
         "border-beam": "border-beam calc(var(--duration)*1s) infinite linear",
         gradient: "gradient 8s linear infinite",
+        shine: "shine var(--duration) infinite linear",
       },
       keyframes: {
+        shine: {
+          "0%": {
+            "background-position": "0% 0%",
+          },
+          "50%": {
+            "background-position": "100% 100%",
+          },
+          to: {
+            "background-position": "0% 0%",
+          },
+        },
         "border-beam": {
           "100%": {
             "offset-distance": "100%",

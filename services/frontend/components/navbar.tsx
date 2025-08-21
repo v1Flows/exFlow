@@ -66,6 +66,7 @@ export const Navbar = ({
 
   return (
     <HeroUINavbar
+      className="bg-content1 bg-opacity-80 rounded-b-lg"
       isMenuOpen={isMenuOpen}
       maxWidth="full"
       position="sticky"
@@ -255,7 +256,7 @@ export const Navbar = ({
               className="transition-transform"
               color="primary"
               name={userDetails.username}
-              radius="sm"
+              radius="full"
               size="sm"
             />
           </DropdownTrigger>
