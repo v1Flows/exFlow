@@ -115,7 +115,7 @@ export default async function RootLayout({
                 userDetails={userDetails.success ? userDetails.data.user : {}}
               />
             )}
-            <main className="pt-4 px-6 flex-grow">{children}</main>
+            <main className="pt-4 px-6 grow">{children}</main>
             <Footer />
           </div>
         </Providers>

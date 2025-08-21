@@ -31,7 +31,7 @@ export const NewChip: React.FC<
     <Chip
       classNames={{
         base: cn(
-          "drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] backdrop-blur-lg backdrop-saturate-150 bg-white/[.15]",
+          "drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] backdrop-blur-lg backdrop-saturate-150 bg-white/15",
           className,
         ),
         content: "text-foreground",

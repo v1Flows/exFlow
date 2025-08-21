@@ -25,7 +25,7 @@ import DeclineProjectInvite from "@/lib/fetch/project/PUT/DeclineProjectInvite";
 import canEditProject from "@/lib/functions/canEditProject";
 import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
-import { ShineBorder } from "../ui/shine-border";
+import { ShineBorder } from "../magicui/shine-border";
 
 export function ProjectsList({ projects, pending_projects, user }: any) {
   const router = useRouter();
@@ -165,14 +165,14 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
               <div className="flex items-start justify-between">
                 <div className="flex gap-4">
                   <div
-                    className="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center"
+                    className="shrink-0 w-12 h-12 rounded-lg flex items-center justify-center"
                     style={{
                       backgroundImage: `linear-gradient(45deg, ${project.color} 0%, ${project.color} 100%)`,
                     }}
                   >
                     <Icon className="text-2xl" icon={project.icon} />
                   </div>
-                  <div className="flex-grow">
+                  <div className="grow">
                     <h3 className="font-semibold text-lg">{project.name}</h3>
                     <p className="text-default-500 text-sm line-clamp-2">
                       {project.description}
@@ -272,14 +272,14 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
                   <div className="flex flex-wrap gap-4 items-center justify-between">
                     <div className="flex gap-4">
                       <div
-                        className="flex-shrink-0 w-12 h-12 rounded-md flex items-center justify-center"
+                        className="shrink-0 w-12 h-12 rounded-md flex items-center justify-center"
                         style={{
                           backgroundImage: `linear-gradient(45deg, ${project.color} 0%, ${project.color} 100%)`,
                         }}
                       >
                         <Icon className="text-2xl" icon={project.icon} />
                       </div>
-                      <div className="flex-grow">
+                      <div className="grow">
                         <h3 className="font-semibold text-lg">
                           {project.name}
                         </h3>

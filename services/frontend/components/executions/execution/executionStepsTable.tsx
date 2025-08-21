@@ -440,12 +440,12 @@ export function ExecutionStepsTable({
                                       key={`${dataIndex}-${lineIndex}`}
                                       className={`container flex items-start gap-3 py-0.3 hover:bg-default-100/50 transition-colors`}
                                     >
-                                      <div className="flex-shrink-0 w-8 text-right">
+                                      <div className="shrink-0 w-8 text-right">
                                         <span className="text-xs text-default-400 font-mono select-none">
                                           {currentLineNumber}
                                         </span>
                                       </div>
-                                      <div className="flex-shrink-0">
+                                      <div className="shrink-0">
                                         <span className="text-xs text-default-500 text-opacity-70 font-mono">
                                           {new Date(
                                             line.timestamp,
