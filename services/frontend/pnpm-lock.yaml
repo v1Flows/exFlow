@@ -132,8 +132,8 @@ importers:
         specifier: ^9.22.0
         version: 9.22.0(jiti@2.5.1)
       eslint-config-next:
-        specifier: 15.4.7
-        version: 15.4.7(eslint-plugin-import-x@4.10.0(eslint@9.22.0(jiti@2.5.1))(typescript@5.7.3))(eslint@9.22.0(jiti@2.5.1))(typescript@5.7.3)
+        specifier: 15.5.0
+        version: 15.5.0(eslint-plugin-import-x@4.10.0(eslint@9.22.0(jiti@2.5.1))(typescript@5.7.3))(eslint@9.22.0(jiti@2.5.1))(typescript@5.7.3)
       eslint-config-prettier:
         specifier: ^10.1.8
         version: 10.1.8(eslint@9.22.0(jiti@2.5.1))
@@ -1977,8 +1977,8 @@ packages:
   '@next/eslint-plugin-next@15.4.6':
     resolution: {integrity: sha512-2NOu3ln+BTcpnbIDuxx6MNq+pRrCyey4WSXGaJIyt0D2TYicHeO9QrUENNjcf673n3B1s7hsiV5xBYRCK1Q8kA==}
 
-  '@next/eslint-plugin-next@15.4.7':
-    resolution: {integrity: sha512-asj3RRiEruRLVr+k2ZC4hll9/XBzegMpFMr8IIRpNUYypG86m/a76339X2WETl1C53A512w2INOc2KZV769KPA==}
+  '@next/eslint-plugin-next@15.5.0':
+    resolution: {integrity: sha512-+k83U/fST66eQBjTltX2T9qUYd43ntAe+NZ5qeZVTQyTiFiHvTLtkpLKug4AnZAtuI/lwz5tl/4QDJymjVkybg==}
 
   '@next/swc-darwin-arm64@15.3.3':
     resolution: {integrity: sha512-WRJERLuH+O3oYB4yZNVahSVFmtxRNjNF1I1c34tYMoJb0Pve+7/RaLAJJizyYiFhjYNGHRAE1Ri2Fd23zgDqhg==}
@@ -4440,8 +4440,8 @@ packages:
     peerDependencies:
       eslint: ^9.5.0
 
-  eslint-config-next@15.4.7:
-    resolution: {integrity: sha512-tkKKNVJKI4zMIgTpvG2x6mmdhuOdgXUL3AaSPHwxLQkvzi4Yryqvk6B0R5Z4gkpe7FKopz3ZmlpePH3NTHy3gA==}
+  eslint-config-next@15.5.0:
+    resolution: {integrity: sha512-Yl4hlOdBqstAuHnlBfx2RimBzWQwysM2SJNu5EzYVa2qS2ItPs7lgxL0sJJDudEx5ZZHfWPZ/6U8+FtDFWs7/w==}
     peerDependencies:
       eslint: ^7.23.0 || ^8.0.0 || ^9.0.0
       typescript: '>=3.3.1'
@@ -5604,6 +5604,9 @@ packages:
   magic-string@0.30.17:
     resolution: {integrity: sha512-sNPKHvyjVf7gyjwS4xGTaW/mCnF8wnjtifKBEhxfZ7E/S8tQ0rssrwGNn6q8JH/ohItJfSQp9mBtQYuTlH5QnA==}
 
+  magic-string@0.30.18:
+    resolution: {integrity: sha512-yi8swmWbO17qHhwIBNeeZxTceJMeBvWJaId6dyvTSOwTipqeHhMhOrz6513r1sOKnpvQ7zkhlG8tPrpilwTxHQ==}
+
   make-dir@3.1.0:
     resolution: {integrity: sha512-g3FeP20LNwhALb/6Cz6Dd4F2ngze0jz7tbzrD2wAV+o9FeNHe4rL+yK2md0J/fiSf1sa1ADhXqi5+oVwOM/eGw==}
     engines: {node: '>=8'}
@@ -6727,6 +6730,10 @@ packages:
 
   tapable@2.2.2:
     resolution: {integrity: sha512-Re10+NauLTMCudc7T5WLFLAwDhQ0JWdrMK+9B2M8zR5hRExKmsRDCBA7/aV/pNJFltmBFO5BAMlQFi/vq3nKOg==}
+    engines: {node: '>=6'}
+
+  tapable@2.2.3:
+    resolution: {integrity: sha512-ZL6DDuAlRlLGghwcfmSn9sK3Hr6ArtyudlSAiCqQ6IfE+b+HHbydbYDIG15IfS5do+7XQQBdBiubF/cV2dnDzg==}
     engines: {node: '>=6'}
 
   tar@7.4.3:
@@ -9783,7 +9790,7 @@ snapshots:
     dependencies:
       fast-glob: 3.3.1
 
-  '@next/eslint-plugin-next@15.4.7':
+  '@next/eslint-plugin-next@15.5.0':
     dependencies:
       fast-glob: 3.3.1
 
@@ -11862,7 +11869,7 @@ snapshots:
       '@vue/compiler-ssr': 3.5.13
       '@vue/shared': 3.5.13
       estree-walker: 2.0.2
-      magic-string: 0.30.17
+      magic-string: 0.30.18
       postcss: 8.5.6
       source-map-js: 1.2.1
 
@@ -12701,9 +12708,9 @@ snapshots:
       '@eslint/compat': 1.2.7(eslint@9.22.0(jiti@2.5.1))
       eslint: 9.22.0(jiti@2.5.1)
 
-  eslint-config-next@15.4.7(eslint-plugin-import-x@4.10.0(eslint@9.22.0(jiti@2.5.1))(typescript@5.7.3))(eslint@9.22.0(jiti@2.5.1))(typescript@5.7.3):
+  eslint-config-next@15.5.0(eslint-plugin-import-x@4.10.0(eslint@9.22.0(jiti@2.5.1))(typescript@5.7.3))(eslint@9.22.0(jiti@2.5.1))(typescript@5.7.3):
     dependencies:
-      '@next/eslint-plugin-next': 15.4.7
+      '@next/eslint-plugin-next': 15.5.0
       '@rushstack/eslint-patch': 1.12.0
       '@typescript-eslint/eslint-plugin': 8.31.1(@typescript-eslint/parser@8.39.1(eslint@9.22.0(jiti@2.5.1))(typescript@5.7.3))(eslint@9.22.0(jiti@2.5.1))(typescript@5.7.3)
       '@typescript-eslint/parser': 8.39.1(eslint@9.22.0(jiti@2.5.1))(typescript@5.7.3)
@@ -14099,6 +14106,10 @@ snapshots:
       sourcemap-codec: 1.4.8
 
   magic-string@0.30.17:
+    dependencies:
+      '@jridgewell/sourcemap-codec': 1.5.5
+
+  magic-string@0.30.18:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
 
@@ -15570,6 +15581,8 @@ snapshots:
 
   tapable@2.2.2: {}
 
+  tapable@2.2.3: {}
+
   tar@7.4.3:
     dependencies:
       '@isaacs/fs-minipass': 4.0.1
@@ -15955,7 +15968,7 @@ snapshots:
       mime-types: 2.1.35
       neo-async: 2.6.2
       schema-utils: 4.3.2
-      tapable: 2.2.2
+      tapable: 2.2.3
       terser-webpack-plugin: 5.3.14(webpack@5.98.0)
       watchpack: 2.4.4
       webpack-sources: 3.3.3
