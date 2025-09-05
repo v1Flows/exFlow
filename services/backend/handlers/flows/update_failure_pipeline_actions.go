@@ -9,7 +9,6 @@ import (
 	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
 	functions_project "github.com/v1Flows/exFlow/services/backend/functions/project"
 	"github.com/v1Flows/exFlow/services/backend/pkg/models"
-	shared_models "github.com/v1Flows/shared-library/pkg/models"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
@@ -21,7 +20,7 @@ func UpdateFlowFailurePipelineActions(context *gin.Context, db *bun.DB) {
 	flowID := context.Param("flowID")
 	failurePipelineID := context.Param("failurePipelineID")
 
-	var failurePipeline shared_models.FailurePipeline
+	var failurePipeline models.FailurePipeline
 	if err := context.ShouldBindJSON(&failurePipeline); err != nil {
 		httperror.StatusBadRequest(context, "Error parsing incoming data", err)
 		return

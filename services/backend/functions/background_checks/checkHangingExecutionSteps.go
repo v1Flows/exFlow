@@ -6,7 +6,6 @@ import (
 
 	"github.com/v1Flows/exFlow/services/backend/functions/encryption"
 	"github.com/v1Flows/exFlow/services/backend/pkg/models"
-	shared_models "github.com/v1Flows/shared-library/pkg/models"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/uptrace/bun"
@@ -65,9 +64,9 @@ func checkHangingExecutionSteps(db *bun.DB) {
 
 			step.Status = "error"
 			step.FinishedAt = time.Now()
-			step.Messages = append(step.Messages, shared_models.Message{
+			step.Messages = append(step.Messages, models.Message{
 				Title: "Automated Check",
-				Lines: []shared_models.Line{
+				Lines: []models.Line{
 					{
 						Content:   "Execution is already finished, marking step as error",
 						Color:     "danger",

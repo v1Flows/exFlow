@@ -34,6 +34,7 @@ import CopyActionModal from "@/components/modals/actions/copy";
 import UpgradeActionModal from "@/components/modals/actions/upgrade";
 import CopyActionToDifferentFlowModal from "@/components/modals/actions/transferCopy";
 import FlowActionDetails from "@/components/modals/actions/details";
+import { Integrations } from "@/components/ui/integrations";
 
 export default function Actions({
   projects,
@@ -402,6 +403,11 @@ export default function Actions({
         </CardBody>
       </Card>
       <Spacer y={2} />
+      {actions.length === 0 && (
+        <div className="relative z-10 h-[500px] w-full overflow-hidden">
+          <Integrations />
+        </div>
+      )}
       <div className="flex flex-col gap-2">
         <DndContext
           collisionDetection={closestCenter}

@@ -11,7 +11,6 @@ import (
 	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
 	functions_runner "github.com/v1Flows/exFlow/services/backend/functions/runner"
 	"github.com/v1Flows/exFlow/services/backend/pkg/models"
-	shared_models "github.com/v1Flows/shared-library/pkg/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -43,7 +42,7 @@ func RegisterRunner(context *gin.Context, db *bun.DB) {
 	}
 
 	var runner models.Runners
-	var autoRunner shared_models.IncomingAutoRunners
+	var autoRunner models.IncomingAutoRunners
 
 	if runnerType == "project_auto_runner" {
 		if err := context.ShouldBindJSON(&autoRunner); err != nil {

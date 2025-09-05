@@ -5,6 +5,8 @@ import type { UseDisclosureReturn } from "@heroui/use-disclosure";
 import {
   addToast,
   Button,
+  Card,
+  CardBody,
   Input,
   Modal,
   ModalBody,
@@ -43,15 +45,18 @@ export default function CreateFlowModal({
   // stepper
   const [steps] = useState([
     {
+      title: "Type",
+    },
+    {
       title: "Details",
     },
     {
       title: "Runner",
     },
   ]);
-  const [disableNext, setDisableNext] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
 
+  const [type, setType] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [folderId, setFolderId] = useState("");
@@ -95,10 +100,22 @@ export default function CreateFlowModal({
     setRunnerId(e.currentKey);
   };
 
+  function isNextDisabled() {
+    if (currentStep === 0) {
+      return !type;
+    }
+    if (currentStep === 1) {
+      return !name || !projectId;
+    }
+
+    return false;
+  }
+
   async function createFlow() {
     setIsLoading(true);
 
     const response = (await CreateFlow(
+      type,
       name,
       description,
       folderId,
@@ -119,6 +136,7 @@ export default function CreateFlowModal({
       refreshFlowData(); // Refresh SWR cache (for new flows, no specific ID needed)
       onOpenChange();
       setName("");
+      setType("");
       setDescription("");
       setFolderId("");
       setProjectId("");
@@ -128,7 +146,6 @@ export default function CreateFlowModal({
       setErrorText("");
       setErrorMessage("");
       setCurrentStep(0);
-      setDisableNext(false);
       addToast({
         title: "Flow",
         description: "Flow created successfully",
@@ -152,6 +169,7 @@ export default function CreateFlowModal({
 
   function cancel() {
     setName("");
+    setType("");
     setDescription("");
     setFolderId("");
     setProjectId("");
@@ -194,6 +212,39 @@ export default function CreateFlowModal({
                   />
                 </div>
                 {currentStep === 0 && (
+                  <div className="relative grid grid-cols-1 gap-2 p-2 md:grid-cols-2">
+                    <Card
+                      isHoverable
+                      isPressable
+                      className={`border-1 hover:border-primary ${type === "default" ? "border-primary" : "border-default-500"}`}
+                      onPress={() => setType("default")}
+                    >
+                      <CardBody className="flex gap-2 text-center justify-center items-center">
+                        <Icon icon="hugeicons:play" width={32} />
+                        <p className="text-lg font-semibold">Default</p>
+                        <p className="text-default-500">
+                          Normal Flow with no specific triggers
+                        </p>
+                      </CardBody>
+                    </Card>
+                    <Card
+                      isHoverable
+                      isPressable
+                      className={`border-1 hover:border-primary ${type === "alert" ? "border-primary" : "border-default-500"}`}
+                      onPress={() => setType("alert")}
+                    >
+                      <CardBody className="flex gap-2 text-center justify-center items-center">
+                        <Icon icon="hugeicons:alert-02" width={32} />
+                        <p className="text-lg font-semibold">Alert Based</p>
+                        <p className="text-default-500">
+                          Flow will be triggered by incoming alerts and will
+                          show a dedicated alerting page
+                        </p>
+                      </CardBody>
+                    </Card>
+                  </div>
+                )}
+                {currentStep === 1 && (
                   <div className="flex flex-col gap-4">
                     <Input
                       isRequired
@@ -235,7 +286,7 @@ export default function CreateFlowModal({
                     </Select>
                   </div>
                 )}
-                {currentStep === 1 && (
+                {currentStep === 2 && (
                   <>
                     <div className="flex flex-cols items-center justify-between border-2 border-default-200 p-3 rounded-lg">
                       <div>
@@ -288,7 +339,6 @@ export default function CreateFlowModal({
                     variant="flat"
                     onPress={() => {
                       setCurrentStep(currentStep - 1);
-                      setDisableNext(false);
                     }}
                   >
                     Back
@@ -319,7 +369,7 @@ export default function CreateFlowModal({
                 ) : (
                   <Button
                     color="primary"
-                    isDisabled={disableNext}
+                    isDisabled={isNextDisabled()}
                     isLoading={isLoading}
                     startContent={
                       <Icon icon="hugeicons:forward-02" width={18} />

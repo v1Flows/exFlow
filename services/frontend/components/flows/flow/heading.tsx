@@ -8,6 +8,7 @@ import EditFlowModal from "@/components/modals/flows/edit";
 import canEditProject from "@/lib/functions/canEditProject";
 import { startExecution } from "@/lib/swr/api/executions";
 import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
+import SimulateAlertModal from "@/components/modals/alerts/simulate";
 
 export default function FlowHeading({
   flow,
@@ -26,6 +27,7 @@ export default function FlowHeading({
 }) {
   const editFlowModal = useDisclosure();
   const scheduleExecutionModal = useDisclosure();
+  const simulateAlertModal = useDisclosure();
   const { refreshAllExecutionCaches } = useRefreshCache();
 
   const handleExecuteFlow = async () => {
@@ -56,31 +58,52 @@ export default function FlowHeading({
         </div>
         <div className="flex items-center gap-4">
           <div className="hidden sm:flex items-center gap-2">
-            <Button
-              isDisabled={
-                (flow.disabled || !settings.start_executions) &&
-                user.role !== "admin"
-              }
-              startContent={<Icon icon="hugeicons:time-schedule" width={20} />}
-              variant="flat"
-              onPress={() => {
-                scheduleExecutionModal.onOpen();
-              }}
-            >
-              Schedule
-            </Button>
-            <Button
-              color="primary"
-              isDisabled={
-                (flow.disabled || !settings.start_executions) &&
-                user.role !== "admin"
-              }
-              startContent={<Icon icon="hugeicons:play" width={20} />}
-              variant="solid"
-              onPress={handleExecuteFlow}
-            >
-              Execute
-            </Button>
+            {flow.type === "alert" ? (
+              <Button
+                color="secondary"
+                isDisabled={
+                  (flow.disabled || !settings.start_executions) &&
+                  user.role !== "admin"
+                }
+                startContent={<Icon icon="hugeicons:alert-02" width={20} />}
+                variant="flat"
+                onPress={() => {
+                  simulateAlertModal.onOpen();
+                }}
+              >
+                Simulate Alert
+              </Button>
+            ) : (
+              <>
+                <Button
+                  isDisabled={
+                    (flow.disabled || !settings.start_executions) &&
+                    user.role !== "admin"
+                  }
+                  startContent={
+                    <Icon icon="hugeicons:time-schedule" width={20} />
+                  }
+                  variant="flat"
+                  onPress={() => {
+                    scheduleExecutionModal.onOpen();
+                  }}
+                >
+                  Schedule
+                </Button>
+                <Button
+                  color="primary"
+                  isDisabled={
+                    (flow.disabled || !settings.start_executions) &&
+                    user.role !== "admin"
+                  }
+                  startContent={<Icon icon="hugeicons:play" width={20} />}
+                  variant="solid"
+                  onPress={handleExecuteFlow}
+                >
+                  Execute
+                </Button>
+              </>
+            )}
             <Divider className="h-10 mr-1 ml-1" orientation="vertical" />
             <Button
               isIconOnly
@@ -99,35 +122,54 @@ export default function FlowHeading({
 
           {/* Mobile */}
           <div className="flex sm:hidden items-center gap-2">
-            <Button
-              isIconOnly
-              startContent={<Icon icon="hugeicons:time-schedule" width={18} />}
-              variant="flat"
-              onPress={() => {
-                scheduleExecutionModal.onOpen();
-              }}
-            />
-            <Button
-              isIconOnly
-              color="primary"
-              startContent={<Icon icon="solar:play-linear" width={18} />}
-              variant="solid"
-              onPress={handleExecuteFlow}
-            />
-            <Divider className="h-10 mr-1 ml-1" orientation="vertical" />
-            <Button
-              isIconOnly
-              color="warning"
-              startContent={<Icon icon="hugeicons:pencil-edit-02" width={18} />}
-              variant="flat"
-              onPress={() => {
-                editFlowModal.onOpen();
-              }}
-            />
+            {flow.type === "alert" ? (
+              <Button
+                isIconOnly
+                color="secondary"
+                startContent={<Icon icon="hugeicons:alert-02" width={18} />}
+                variant="flat"
+                onPress={() => {
+                  scheduleExecutionModal.onOpen();
+                }}
+              />
+            ) : (
+              <>
+                <Button
+                  isIconOnly
+                  startContent={
+                    <Icon icon="hugeicons:time-schedule" width={18} />
+                  }
+                  variant="flat"
+                  onPress={() => {
+                    scheduleExecutionModal.onOpen();
+                  }}
+                />
+                <Button
+                  isIconOnly
+                  color="primary"
+                  startContent={<Icon icon="solar:play-linear" width={18} />}
+                  variant="solid"
+                  onPress={handleExecuteFlow}
+                />
+                <Divider className="h-10 mr-1 ml-1" orientation="vertical" />
+                <Button
+                  isIconOnly
+                  color="warning"
+                  startContent={
+                    <Icon icon="hugeicons:pencil-edit-02" width={18} />
+                  }
+                  variant="flat"
+                  onPress={() => {
+                    editFlowModal.onOpen();
+                  }}
+                />
+              </>
+            )}
           </div>
         </div>
       </div>
       <ScheduleExecutionModal disclosure={scheduleExecutionModal} flow={flow} />
+      <SimulateAlertModal disclosure={simulateAlertModal} flow={flow} />
       <EditFlowModal
         disclosure={editFlowModal}
         folders={folders}

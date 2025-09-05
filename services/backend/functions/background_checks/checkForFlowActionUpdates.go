@@ -7,7 +7,6 @@ import (
 	"github.com/Masterminds/semver"
 	"github.com/v1Flows/exFlow/services/backend/functions/encryption"
 	"github.com/v1Flows/exFlow/services/backend/pkg/models"
-	shared_models "github.com/v1Flows/shared-library/pkg/models"
 
 	"github.com/mohae/deepcopy" // Import for deep copy
 	log "github.com/sirupsen/logrus"
@@ -81,7 +80,7 @@ func updateFlowActions(flow *models.Flows, runners []models.Runners, project mod
 			if action.UpdateAvailable {
 				action.UpdateAvailable = false
 				action.UpdateVersion = ""
-				action.UpdatedAction = &shared_models.Action{}
+				action.UpdatedAction = &models.Action{}
 				flow.Actions[j] = action
 			}
 		} else {
@@ -92,14 +91,14 @@ func updateFlowActions(flow *models.Flows, runners []models.Runners, project mod
 
 	// Check for action updates in the failure pipelines
 	for i, failurePipeline := range flow.FailurePipelines {
-		updatedPipeline := deepcopy.Copy(failurePipeline).(shared_models.FailurePipeline) // Deep copy the pipeline
+		updatedPipeline := deepcopy.Copy(failurePipeline).(models.FailurePipeline) // Deep copy the pipeline
 		for j, action := range updatedPipeline.Actions {
 
 			if len(runners) == 0 {
 				if action.UpdateAvailable {
 					action.UpdateAvailable = false
 					action.UpdateVersion = ""
-					action.UpdatedAction = &shared_models.Action{}
+					action.UpdatedAction = &models.Action{}
 					updatedPipeline.Actions[j] = action
 				}
 			} else {
@@ -111,7 +110,7 @@ func updateFlowActions(flow *models.Flows, runners []models.Runners, project mod
 	}
 }
 
-func updateActionIfNeeded(flow *models.Flows, action shared_models.Action, runners []models.Runners, project models.Projects, db *bun.DB) shared_models.Action {
+func updateActionIfNeeded(flow *models.Flows, action models.Action, runners []models.Runners, project models.Projects, db *bun.DB) models.Action {
 	for _, runner := range runners {
 		for _, plugin := range runner.Plugins {
 			if action.Plugin == strings.ToLower(plugin.Name) {
@@ -136,13 +135,13 @@ func updateActionIfNeeded(flow *models.Flows, action shared_models.Action, runne
 	return action
 }
 
-func createUpdatedAction(flow *models.Flows, action shared_models.Action, plugin shared_models.Plugin, project models.Projects, db *bun.DB) shared_models.Action {
-	updatedAction := deepcopy.Copy(action).(shared_models.Action) // Deep copy the action
+func createUpdatedAction(flow *models.Flows, action models.Action, plugin models.Plugin, project models.Projects, db *bun.DB) models.Action {
+	updatedAction := deepcopy.Copy(action).(models.Action) // Deep copy the action
 	updatedAction.UpdateAvailable = true
 	updatedAction.UpdateVersion = plugin.Version
 
 	// Create a deep copy of plugin.Action to avoid shared references
-	updatedPluginAction := deepcopy.Copy(plugin.Action).(shared_models.Action)
+	updatedPluginAction := deepcopy.Copy(plugin.Action).(models.Action)
 	updatedPluginAction.Version = plugin.Version
 	updatedAction.UpdatedAction = &updatedPluginAction
 

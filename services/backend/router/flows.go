@@ -75,6 +75,11 @@ func Flows(router *gin.RouterGroup, db *bun.DB) {
 			flows.DeleteFlowFailurePipelineAction(c, db)
 		})
 
+		// alerts
+		flow.GET("/:flowID/alerts", func(c *gin.Context) {
+			flows.GetFlowAlerts(c, db)
+		})
+
 		// executions
 		flow.GET("/:flowID/executions", func(c *gin.Context) {
 			flows.GetFlowExecutions(c, db)

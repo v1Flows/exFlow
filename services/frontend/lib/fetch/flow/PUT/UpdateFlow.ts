@@ -28,6 +28,9 @@ export default async function UpdateFlow(
   failurePipelineID: string,
   scheduleEveryValue: number,
   scheduleEveryUnit: string,
+  groupAlerts: boolean,
+  groupAlertsIdentifier: string,
+  alertThreshold: number,
 ): Promise<SuccessResponse | ErrorResponse> {
   try {
     const cookieStore = await cookies();
@@ -51,6 +54,9 @@ export default async function UpdateFlow(
           failure_pipeline_id: failurePipelineID,
           schedule_every_value: scheduleEveryValue,
           schedule_every_unit: scheduleEveryUnit,
+          group_alerts: groupAlerts,
+          group_alerts_identifier: groupAlertsIdentifier,
+          alert_threshold: alertThreshold,
         }),
       },
     );

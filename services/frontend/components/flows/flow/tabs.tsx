@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 
 import Executions from "@/components/executions/executions";
+import AlertsList from "@/components/alerts/list";
 
 import Actions from "./actions";
 import FlowStats from "./stats";
@@ -20,6 +21,7 @@ export default function FlowTabs({
   user,
   members,
   settings,
+  alerts,
 }: any) {
   const [selected, setSelected] = React.useState("actions");
 
@@ -112,6 +114,28 @@ export default function FlowTabs({
               runners={runners}
             />
           </Tab>
+
+          {flow.type === "alert" && (
+            <Tab
+              key="alerts"
+              title={
+                <div className="flex items-center space-x-2">
+                  <Icon height={20} icon="hugeicons:alert-02" width="20" />
+                  <span>Alerts</span>
+                </div>
+              }
+            >
+              <AlertsList
+                alerts={alerts}
+                canEdit={checkUserCanEdit()}
+                compactMode={false}
+                flows={[flow]}
+                maxAlerts={5}
+                runners={runners}
+                showDelete={true}
+              />
+            </Tab>
+          )}
 
           <Tab
             key="info"

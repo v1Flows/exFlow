@@ -21,7 +21,7 @@ export default function FlowDetails({
 
   return (
     <main>
-      <div className="grid grid-cols-2 items-stretch gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 items-stretch gap-4 lg:grid-cols-5 md:grid-cols-3">
         <div className="col-span-1">
           <Card fullWidth className="h-full">
             <CardBody>
@@ -77,6 +77,21 @@ export default function FlowDetails({
                       flow.runner_id}
                   </p>
                   <p className="text-sm text-default-500">Runner</p>
+                </div>
+              </div>
+            </CardBody>
+          </Card>
+        </div>
+        <div className="col-span-1">
+          <Card fullWidth className="h-full">
+            <CardBody>
+              <div className="flex items-center gap-2">
+                <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
+                  <Icon icon="hugeicons:tag-01" width={24} />
+                </div>
+                <div>
+                  <p className="text-md font-bold capitalize">{flow.type}</p>
+                  <p className="text-sm text-default-500">Type</p>
                 </div>
               </div>
             </CardBody>

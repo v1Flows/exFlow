@@ -18,6 +18,7 @@ import GetProjectApiKeys from "@/lib/fetch/project/tokens";
 import GetExecution from "@/lib/fetch/executions/execution";
 import GetExecutions from "@/lib/fetch/executions/all";
 import GetExecutionSteps from "@/lib/fetch/executions/steps";
+import GetFlowAlerts from "@/lib/fetch/flow/alerts";
 
 // Hook for fetching a single flow
 export function useFlow(flowId: string) {
@@ -28,6 +29,21 @@ export function useFlow(flowId: string) {
 
   return {
     flow: data?.success ? data.data.flow : null,
+    isLoading,
+    isError: error || (data && !data.success),
+    refresh: mutate,
+  };
+}
+
+// Hook for fetching flow alert
+export function useFlowAlerts(flowId: string) {
+  const { data, error, mutate, isLoading } = useSWR(
+    flowId ? `flow-alerts-${flowId}` : null,
+    () => GetFlowAlerts(flowId),
+  );
+
+  return {
+    alerts: data?.success ? data.data.alerts : [],
     isLoading,
     isError: error || (data && !data.success),
     refresh: mutate,

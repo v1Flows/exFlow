@@ -6,7 +6,6 @@ import (
 
 	"github.com/v1Flows/exFlow/services/backend/functions/encryption"
 	"github.com/v1Flows/exFlow/services/backend/pkg/models"
-	shared_models "github.com/v1Flows/shared-library/pkg/models"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/uptrace/bun"
@@ -47,16 +46,16 @@ func checkHangingExecutions(db *bun.DB) {
 				continue
 			}
 
-			step := shared_models.ExecutionSteps{
+			step := models.ExecutionSteps{
 				ExecutionID: execution.ID.String(),
-				Action: shared_models.Action{
+				Action: models.Action{
 					Name: "Automated Check",
 					Icon: "hugeicons:robotic",
 				},
-				Messages: []shared_models.Message{
+				Messages: []models.Message{
 					{
 						Title: "Automated Check",
-						Lines: []shared_models.Line{
+						Lines: []models.Line{
 							{
 								Content:   "Last execution heartbeat was more than 15 seconds ago",
 								Color:     "danger",
@@ -126,9 +125,9 @@ func checkHangingExecutions(db *bun.DB) {
 						step.Encrypted = true
 					}
 
-					step.Messages = append(step.Messages, shared_models.Message{
+					step.Messages = append(step.Messages, models.Message{
 						Title: "Automated Check",
-						Lines: []shared_models.Line{
+						Lines: []models.Line{
 							{
 								Content:   "Execution was marked as error, step will be canceled",
 								Color:     "danger",

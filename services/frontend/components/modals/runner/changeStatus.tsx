@@ -27,7 +27,7 @@ export default function ChangeRunnerStatusModal({
   runner: any;
   status: any;
 }) {
-  const { refreshRunners } = useRefreshCache();
+  const { refreshRunners, refreshProjectRunners } = useRefreshCache();
 
   const { isOpen, onOpenChange } = disclosure;
 
@@ -68,6 +68,9 @@ export default function ChangeRunnerStatusModal({
       setErrorMessage("");
       onOpenChange();
       refreshRunners();
+      if (runner.project_id) {
+        refreshProjectRunners(runner.project_id);
+      }
       addToast({
         title: "Runner",
         description: "Runner status updated successfully",

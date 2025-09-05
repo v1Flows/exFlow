@@ -56,6 +56,9 @@ func UpdateFlow(context *gin.Context, db *bun.DB) {
 
 	flow.UpdatedAt = time.Now()
 	columns := []string{}
+	if flow.Type != "" {
+		columns = append(columns, "type")
+	}
 	if flow.Name != "" {
 		columns = append(columns, "name")
 	}
@@ -73,6 +76,18 @@ func UpdateFlow(context *gin.Context, db *bun.DB) {
 	}
 	if flow.ScheduleEveryValue != flowDB.ScheduleEveryValue {
 		columns = append(columns, "schedule_every_value")
+	}
+	if flow.ScheduleEveryUnit != flowDB.ScheduleEveryUnit {
+		columns = append(columns, "schedule_every_unit")
+	}
+	if flow.GroupAlerts != flowDB.GroupAlerts {
+		columns = append(columns, "group_alerts")
+	}
+	if flow.GroupAlertsIdentifier != flowDB.GroupAlertsIdentifier {
+		columns = append(columns, "group_alerts_identifier")
+	}
+	if flow.AlertThreshold != flowDB.AlertThreshold {
+		columns = append(columns, "alert_threshold")
 	}
 	if flow.ScheduleEveryUnit != flowDB.ScheduleEveryUnit {
 		columns = append(columns, "schedule_every_unit")
