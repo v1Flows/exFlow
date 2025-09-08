@@ -2,7 +2,9 @@ package flows
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/v1Flows/exFlow/services/backend/functions/encryption"
 	"github.com/v1Flows/exFlow/services/backend/functions/gatekeeper"
@@ -16,6 +18,23 @@ import (
 
 func GetFlowAlerts(context *gin.Context, db *bun.DB) {
 	flowID := context.Param("flowID")
+
+	// Parse pagination params
+	limit := 20
+	offset := 0
+	if l := context.Query("limit"); l != "" {
+		fmt.Sscanf(l, "%d", &limit)
+	}
+	if o := context.Query("offset"); o != "" {
+		fmt.Sscanf(o, "%d", &offset)
+	}
+
+	// Parse status filter (comma-separated)
+	statusParam := context.Query("status")
+	var statusList []string
+	if statusParam != "" {
+		statusList = strings.Split(statusParam, ",")
+	}
 
 	// get flow
 	var flow models.Flows
@@ -37,9 +56,32 @@ func GetFlowAlerts(context *gin.Context, db *bun.DB) {
 	}
 
 	alerts := make([]models.Alerts, 0)
-	err = db.NewSelect().Model(&alerts).Where("flow_id = ?", flowID).Order("created_at DESC").Scan(context)
+	query := db.NewSelect().Model(&alerts).
+		Where("flow_id = ?", flowID)
+
+	if len(statusList) > 0 {
+		query = query.Where("status IN (?)", bun.In(statusList))
+	}
+
+	err = query.Order("created_at DESC").
+		Limit(limit).
+		Offset(offset).
+		Scan(context)
 	if err != nil {
-		httperror.InternalServerError(context, "Error collecting flow alerts from db", err)
+		httperror.InternalServerError(context, "Error collecting alerts from db", err)
+		return
+	}
+
+	// Count total alerts for pagination (with status filter)
+	countQuery := db.NewSelect().
+		Model((*models.Alerts)(nil)).
+		Where("flow_id = ?", flowID)
+	if len(statusList) > 0 {
+		countQuery = countQuery.Where("status IN (?)", bun.In(statusList))
+	}
+	totalAlerts, err := countQuery.Count(context)
+	if err != nil {
+		httperror.InternalServerError(context, "Error counting alerts", err)
 		return
 	}
 
@@ -53,5 +95,10 @@ func GetFlowAlerts(context *gin.Context, db *bun.DB) {
 		}
 	}
 
-	context.JSON(http.StatusOK, gin.H{"alerts": alerts})
+	context.JSON(http.StatusOK, gin.H{
+		"alerts": alerts,
+		"limit":  limit,
+		"offset": offset,
+		"total":  totalAlerts,
+	})
 }

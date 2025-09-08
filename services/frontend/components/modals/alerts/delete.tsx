@@ -10,11 +10,11 @@ import {
   ModalHeader,
   Snippet,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React from "react";
 
 import DeleteAlert from "@/lib/fetch/alert/DELETE/alert";
 import ErrorCard from "@/components/error/ErrorCard";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function DeleteAlertModal({
   disclosure,
@@ -23,8 +23,7 @@ export default function DeleteAlertModal({
   disclosure: UseDisclosureReturn;
   alert: any;
 }) {
-  const router = useRouter();
-
+  const { refreshAllAlertCaches } = useRefreshCache();
   const { isOpen, onOpenChange } = disclosure;
 
   const [isDeleteLoading, setIsDeleteLoading] = React.useState(false);
@@ -55,7 +54,7 @@ export default function DeleteAlertModal({
         color: "success",
         variant: "flat",
       });
-      router.refresh();
+      refreshAllAlertCaches(alert.flow_id);
       onOpenChange();
     } else {
       setError(true);

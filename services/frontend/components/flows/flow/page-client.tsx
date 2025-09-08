@@ -16,7 +16,6 @@ import {
   usePageSettings,
   useProjectRunners,
   useProject,
-  useFlowAlerts,
 } from "@/lib/swr/hooks/flows";
 
 interface FlowPageClientProps {
@@ -27,7 +26,6 @@ export default function FlowPageClient({ flowId }: FlowPageClientProps) {
   // Fetch all data using SWR hooks
   const { flow, isLoading: flowLoading, isError: flowError } = useFlow(flowId);
   const { flows } = useFlows();
-  const { alerts, isLoading: alertsLoading } = useFlowAlerts(flowId);
   const { projects, isLoading: projectsLoading } = useProjects();
   const { user, isLoading: userLoading } = useUserDetails();
   const { folders, isLoading: foldersLoading } = useFolders();
@@ -48,7 +46,6 @@ export default function FlowPageClient({ flowId }: FlowPageClientProps) {
     settingsLoading ||
     projectsLoading ||
     foldersLoading ||
-    alertsLoading ||
     !user ||
     !settings ||
     !projects ||
@@ -86,7 +83,6 @@ export default function FlowPageClient({ flowId }: FlowPageClientProps) {
       <FlowDetails flow={flow} project={project} runners={runners} />
       <Spacer y={4} />
       <FlowTabs
-        alerts={alerts}
         flow={flow}
         flows={flows}
         members={(project as any)?.members || []}

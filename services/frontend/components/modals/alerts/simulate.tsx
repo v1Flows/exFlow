@@ -16,6 +16,7 @@ import React from "react";
 
 import SimulateAlert from "@/lib/fetch/alert/POST/send";
 import ErrorCard from "@/components/error/ErrorCard";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function SimulateAlertModal({
   disclosure,
@@ -24,6 +25,7 @@ export default function SimulateAlertModal({
   disclosure: UseDisclosureReturn;
   flow: any;
 }) {
+  const { refreshAllAlertCaches } = useRefreshCache();
   const { isOpen, onOpenChange } = disclosure;
 
   const [isLoading, setIsLoading] = React.useState(false);
@@ -102,6 +104,7 @@ export default function SimulateAlertModal({
         variant: "flat",
       });
     } else {
+      refreshAllAlertCaches(flow.id);
       onOpenChange();
       setError(false);
       setErrorText("");

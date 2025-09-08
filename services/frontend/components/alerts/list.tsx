@@ -8,30 +8,25 @@ import {
   Chip,
   Listbox,
   ListboxItem,
-  Pagination,
   ScrollShadow,
   Spacer,
   useDisclosure,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import ReactTimeago from "react-timeago";
 
 import { IconWrapper } from "@/lib/IconWrapper";
 import AlertDrawer from "@/components/modals/alerts/details";
 
 export default function AlertsList({
-  compactMode,
   alerts,
   runners,
   flows,
-  maxAlerts,
   canEdit,
   showDelete,
   showFlowChip,
 }: {
-  compactMode: boolean;
-  maxAlerts: number;
   alerts: any;
   runners: any;
   flows?: any;
@@ -43,28 +38,15 @@ export default function AlertsList({
 
   const [targetAlert, setTargetAlert] = useState<any>(null);
 
-  // pagination
-  const [page, setPage] = useState(1);
-  const pages = Math.ceil(
-    alerts.filter((alert: any) => !alert.parent_id).length / maxAlerts,
-  );
-  const items = useMemo(() => {
-    const filteredAlerts = alerts.filter((alert: any) => !alert.parent_id);
-    const start = (page - 1) * maxAlerts;
-    const end = start + maxAlerts;
-
-    return filteredAlerts.slice(start, end);
-  }, [page, alerts]);
-
   return (
     <main>
-      <div className="flex flex-col gap-4">
-        {items.map((alert: any) => (
+      <div className="flex flex-col gap-4 p-4">
+        {alerts.map((alert: any) => (
           <Card
             key={alert.id}
             fullWidth
             isPressable
-            className={`border-1 border-${alert.status === "firing" ? "danger" : "success"}-200 `}
+            className={`border-1 border-default-200 bg-content2`}
             onPress={() => {
               setTargetAlert(alert);
               alertDrawer.onOpenChange();
@@ -74,7 +56,7 @@ export default function AlertsList({
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <div
-                    className={`flex size-10 items-center justify-center rounded-small bg-${alert.status === "firing" ? "danger" : "success"}/10 text-${alert.status === "firing" ? "danger" : "success"}`}
+                    className={`flex size-10 items-center justify-center rounded-small bg-${alert.status === "firing" ? "danger" : "success"}/20 text-${alert.status === "firing" ? "danger" : "success"}`}
                   >
                     <Icon
                       icon={
@@ -254,19 +236,6 @@ export default function AlertsList({
           </Card>
         ))}
       </div>
-      {!compactMode && (
-        <div className="flex w-full mt-4 justify-center">
-          <Pagination
-            isCompact
-            showControls
-            showShadow
-            color="primary"
-            page={page}
-            total={pages}
-            onChange={(page) => setPage(page)}
-          />
-        </div>
-      )}
       <AlertDrawer
         alert={targetAlert}
         canEdit={canEdit}

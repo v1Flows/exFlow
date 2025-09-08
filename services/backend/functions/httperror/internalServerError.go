@@ -7,6 +7,9 @@ import (
 )
 
 func InternalServerError(context *gin.Context, message string, err error) {
-	context.JSON(http.StatusInternalServerError, gin.H{"message": message, "error": err.Error()})
-	context.Abort()
+	errorMessage := "Unknown error"
+	if err != nil {
+		errorMessage = err.Error()
+	}
+	context.JSON(http.StatusInternalServerError, gin.H{"message": message, "error": errorMessage})
 }

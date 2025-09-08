@@ -8,6 +8,11 @@ interface ExecutionsStyleStore {
   setDisplayStyle: (style: DisplayStyle) => void;
 }
 
+interface AlertsStyleStore {
+  displayStyle: DisplayStyle;
+  setDisplayStyle: (style: DisplayStyle) => void;
+}
+
 export const useExecutionsStyleStore = create<ExecutionsStyleStore>()(
   persist(
     (set) => ({
@@ -16,6 +21,18 @@ export const useExecutionsStyleStore = create<ExecutionsStyleStore>()(
     }),
     {
       name: "executionsDisplayStyle", // key in localStorage
+    },
+  ),
+);
+
+export const useAlertsStyleStore = create<AlertsStyleStore>()(
+  persist(
+    (set) => ({
+      displayStyle: "list",
+      setDisplayStyle: (style) => set({ displayStyle: style }),
+    }),
+    {
+      name: "alertsDisplayStyle", // key in localStorage
     },
   ),
 );
