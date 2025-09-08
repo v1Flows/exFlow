@@ -23,12 +23,16 @@ import AlertsList from "./list";
 
 export default function Alerts({
   runners,
-  flow,
+  flows,
   canEdit,
+  flowID,
+  showFlow,
 }: {
   runners: any;
-  flow?: any;
+  flows: any;
   canEdit?: boolean;
+  flowID?: any;
+  showFlow?: boolean;
 }) {
   const { displayStyle, setDisplayStyle } = useAlertsStyleStore();
   const [statusFilter, setStatusFilter] = useState(new Set([]) as any);
@@ -46,15 +50,15 @@ export default function Alerts({
 
   // Always call both hooks but only use the relevant one
   const flowAlertsResult = useFlowAlertsPaginated(
-    flow.id || null,
+    flowID || null,
     limit,
     offset,
     statusFilterString,
   );
   const allAlertsResult = useAlerts(
-    flow.id ? 0 : limit,
-    flow.id ? 0 : offset,
-    flow.id ? null : statusFilterString,
+    flowID ? 0 : limit,
+    flowID ? 0 : offset,
+    flowID ? null : statusFilterString,
   );
 
   // Choose the right result based on whether we have a flowID
@@ -63,7 +67,7 @@ export default function Alerts({
     total: totalAlerts,
     isLoading: loading,
     refresh,
-  } = flow.id ? flowAlertsResult : allAlertsResult;
+  } = flowID ? flowAlertsResult : allAlertsResult;
 
   const items = useMemo(() => {
     return alerts || [];
@@ -180,9 +184,10 @@ export default function Alerts({
               <AlertsList
                 alerts={items}
                 canEdit={canEdit}
-                flows={[flow]}
+                flows={flows}
                 runners={runners}
                 showDelete={true}
+                showFlowChip={showFlow}
               />
             )}
           </>

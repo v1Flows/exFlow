@@ -126,7 +126,8 @@ export default function FlowTabs({
             >
               <Alerts
                 canEdit={checkUserCanEdit()}
-                flow={flow}
+                flowID={flow.id}
+                flows={[flow]}
                 runners={runners}
               />
             </Tab>

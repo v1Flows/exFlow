@@ -45,8 +45,9 @@ export default function AlertsList({
           <Card
             key={alert.id}
             fullWidth
+            isHoverable
             isPressable
-            className={`border-1 border-default-200 bg-content2`}
+            className={`border-1 border-default-200`}
             onPress={() => {
               setTargetAlert(alert);
               alertDrawer.onOpenChange();
