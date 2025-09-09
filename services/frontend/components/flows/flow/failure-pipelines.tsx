@@ -19,7 +19,6 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
-  ScrollShadow,
   Spacer,
   Tab,
   Tabs,
@@ -591,25 +590,23 @@ export default function FlowFailurePipelines({
                   </div>
                 </CardBody>
               </Card>
-              <ScrollShadow className="max-h-[calc(100vh-700px)]">
-                <DndContext
-                  collisionDetection={closestCenter}
-                  onDragEnd={(event) => handleDragEndPipeline(pipeline, event)}
+              <DndContext
+                collisionDetection={closestCenter}
+                onDragEnd={(event) => handleDragEndPipeline(pipeline, event)}
+              >
+                <SortableContext
+                  items={pipeline.actions !== null ? pipeline.actions : []}
+                  strategy={verticalListSortingStrategy}
                 >
-                  <SortableContext
-                    items={pipeline.actions !== null ? pipeline.actions : []}
-                    strategy={verticalListSortingStrategy}
-                  >
-                    <div className="flex flex-col gap-2">
-                      {pipeline.actions !== null &&
-                        pipeline.actions.length > 0 &&
-                        pipeline.actions.map((action: any) => (
-                          <SortableItem key={action.id} action={action} />
-                        ))}
-                    </div>
-                  </SortableContext>
-                </DndContext>
-              </ScrollShadow>
+                  <div className="flex flex-col gap-2">
+                    {pipeline.actions !== null &&
+                      pipeline.actions.length > 0 &&
+                      pipeline.actions.map((action: any) => (
+                        <SortableItem key={action.id} action={action} />
+                      ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
             </div>
           </Tab>
         ))}

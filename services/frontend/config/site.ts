@@ -18,6 +18,10 @@ export const siteConfig = {
       href: "/flows",
     },
     {
+      label: "Alerts",
+      href: "/alerts",
+    },
+    {
       label: "Runners",
       href: "/runners",
     },
@@ -34,6 +38,10 @@ export const siteConfig = {
     {
       label: "Flows",
       href: "/flows",
+    },
+    {
+      label: "Alerts",
+      href: "/alerts",
     },
     {
       label: "Runners",

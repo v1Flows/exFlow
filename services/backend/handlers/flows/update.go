@@ -3,6 +3,7 @@ package flows
 import (
 	"errors"
 	"net/http"
+	"reflect"
 	"time"
 
 	"github.com/v1Flows/exFlow/services/backend/functions/gatekeeper"
@@ -56,6 +57,9 @@ func UpdateFlow(context *gin.Context, db *bun.DB) {
 
 	flow.UpdatedAt = time.Now()
 	columns := []string{}
+	if flow.Type != "" {
+		columns = append(columns, "type")
+	}
 	if flow.Name != "" {
 		columns = append(columns, "name")
 	}
@@ -76,6 +80,21 @@ func UpdateFlow(context *gin.Context, db *bun.DB) {
 	}
 	if flow.ScheduleEveryUnit != flowDB.ScheduleEveryUnit {
 		columns = append(columns, "schedule_every_unit")
+	}
+	if flow.GroupAlerts != flowDB.GroupAlerts {
+		columns = append(columns, "group_alerts")
+	}
+	if flow.GroupAlertsIdentifier != flowDB.GroupAlertsIdentifier {
+		columns = append(columns, "group_alerts_identifier")
+	}
+	if flow.AlertThreshold != flowDB.AlertThreshold {
+		columns = append(columns, "alert_threshold")
+	}
+	if flow.ScheduleEveryUnit != flowDB.ScheduleEveryUnit {
+		columns = append(columns, "schedule_every_unit")
+	}
+	if !reflect.DeepEqual(flow.Patterns, flowDB.Patterns) {
+		columns = append(columns, "patterns")
 	}
 	columns = append(columns, "exec_parallel")
 	columns = append(columns, "failure_pipeline_id")

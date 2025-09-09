@@ -17,6 +17,7 @@ import {
   Button,
   Image,
   Alert,
+  User,
 } from "@heroui/react";
 import { link as linkStyles } from "@heroui/theme";
 import NextLink from "next/link";
@@ -250,14 +251,16 @@ export const Navbar = ({
 
         <Dropdown placement="bottom-end">
           <DropdownTrigger>
-            <Avatar
-              isBordered
-              as="button"
-              className="transition-transform"
-              color="primary"
+            <User
+              avatarProps={{
+                isBordered: true,
+                name: userDetails.username,
+                radius: "full",
+                size: "sm",
+                color: "primary",
+              }}
+              description={userDetails.email}
               name={userDetails.username}
-              radius="full"
-              size="sm"
             />
           </DropdownTrigger>
           <DropdownMenu aria-label="Profile Actions" variant="flat">

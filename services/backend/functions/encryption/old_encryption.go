@@ -10,10 +10,10 @@ import (
 	"fmt"
 
 	"github.com/v1Flows/exFlow/services/backend/config"
-	shared_models "github.com/v1Flows/shared-library/pkg/models"
+	"github.com/v1Flows/exFlow/services/backend/pkg/models"
 )
 
-func DecryptParams(actions []shared_models.Action, decryptPasswords bool) ([]shared_models.Action, error) {
+func DecryptParams(actions []models.Action, decryptPasswords bool) ([]models.Action, error) {
 	block, err := aes.NewCipher([]byte(config.Config.Encryption.Key))
 	if err != nil {
 		return nil, err
@@ -122,7 +122,7 @@ func DecryptParams(actions []shared_models.Action, decryptPasswords bool) ([]sha
 	return actions, nil
 }
 
-func DecryptExecutionStepActionMessage(encryptedMessage []shared_models.Message) ([]shared_models.Message, error) {
+func DecryptExecutionStepActionMessage(encryptedMessage []models.Message) ([]models.Message, error) {
 	block, err := aes.NewCipher([]byte(config.Config.Encryption.Key))
 	if err != nil {
 		return nil, err

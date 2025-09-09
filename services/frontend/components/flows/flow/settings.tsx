@@ -3,17 +3,26 @@ import {
   Button,
   Card,
   CardBody,
+  Code,
+  Input,
   NumberInput,
   Select,
   SelectItem,
   Spacer,
+  Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableColumn,
+  TableHeader,
+  TableRow,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Icon } from "@iconify/react";
 
 import UpdateFlow from "@/lib/fetch/flow/PUT/UpdateFlow";
 import ErrorCard from "@/components/error/ErrorCard";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function FlowSettings({
   flow,
@@ -24,7 +33,7 @@ export default function FlowSettings({
   user: any;
   canEdit: boolean;
 }) {
-  const router = useRouter();
+  const { refreshFlowData } = useRefreshCache();
 
   const [execParallel, setExecParallel] = useState(flow.exec_parallel);
   const [failurePipelineID, setFailurePipelineID] = useState(
@@ -36,6 +45,12 @@ export default function FlowSettings({
   const [scheduleEveryUnit, setScheduleEveryUnit] = useState(
     flow.schedule_every_unit,
   );
+  const [groupAlerts, setGroupAlerts] = useState(flow.group_alerts);
+  const [groupAlertsIdentifier, setGroupAlertsIdentifier] = useState(
+    flow.group_alerts_identifier,
+  );
+  const [alertThreshold, setAlertThreshold] = useState(flow.alert_threshold);
+  const [flowPatterns, setFlowPatterns] = useState(flow.patterns);
 
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -52,6 +67,10 @@ export default function FlowSettings({
       failurePipelineID,
       scheduleEveryValue,
       scheduleEveryUnit,
+      groupAlerts,
+      groupAlertsIdentifier,
+      alertThreshold,
+      flowPatterns,
     )) as any;
 
     if (!response) {
@@ -62,7 +81,7 @@ export default function FlowSettings({
     }
 
     if (response.success) {
-      router.refresh();
+      refreshFlowData(flow.id);
       addToast({
         title: "Flow",
         description: "Flow updated successfully",
@@ -84,77 +103,210 @@ export default function FlowSettings({
   return (
     <>
       {error && <ErrorCard error={error} message={errorMessage} />}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card>
+      <div className="flex flex-col gap-4">
+        <Card className="col-span-2">
           <CardBody>
             <p className="text-lg font-bold mb-2">Actions</p>
-            <div className="grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-4">
-              <Card>
-                <CardBody className="bg-content2">
-                  <div className="mb-2">
-                    <p className="text-md font-bold">Execution Strategy</p>
-                    <p className="text-sm text-default-500">
-                      Switch between parallel and sequential execution of
-                      actions
-                    </p>
-                  </div>
-                  <Select
-                    isDisabled={
-                      (!canEdit || flow.disabled) && user.role !== "admin"
-                    }
-                    placeholder="Select the execution strategy"
-                    selectedKeys={[execParallel ? "parallel" : "sequential"]}
-                    variant="bordered"
-                    onSelectionChange={(e) => {
-                      if (e.currentKey === "parallel") {
-                        setExecParallel(true);
-                      } else {
-                        setExecParallel(false);
+            <div
+              className={`grid ${flow.type == "alert" ? "lg:grid-cols-2" : "lg:grid-cols-1"}  grid-cols-1 gap-4`}
+            >
+              <div className="flex flex-col gap-4">
+                <Card>
+                  <CardBody className="bg-content2">
+                    <div className="mb-2">
+                      <p className="text-md font-bold">Execution Strategy</p>
+                      <p className="text-sm text-default-500">
+                        Switch between parallel and sequential execution of
+                        actions
+                      </p>
+                    </div>
+                    <Select
+                      isDisabled={
+                        (!canEdit || flow.disabled) && user.role !== "admin"
                       }
-                    }}
-                  >
-                    <SelectItem key="sequential">Sequential</SelectItem>
-                    <SelectItem key="parallel">Parallel</SelectItem>
-                  </Select>
-                </CardBody>
-              </Card>
+                      placeholder="Select the execution strategy"
+                      selectedKeys={[execParallel ? "parallel" : "sequential"]}
+                      variant="bordered"
+                      onSelectionChange={(e) => {
+                        if (e.currentKey === "parallel") {
+                          setExecParallel(true);
+                        } else {
+                          setExecParallel(false);
+                        }
+                      }}
+                    >
+                      <SelectItem key="sequential">Sequential</SelectItem>
+                      <SelectItem key="parallel">Parallel</SelectItem>
+                    </Select>
+                  </CardBody>
+                </Card>
 
-              <Card>
-                <CardBody className="bg-content2">
-                  <div className="mb-2">
-                    <p className="text-md font-bold">Common Failure Pipeline</p>
-                    <p className="text-sm text-default-500">
-                      Execute an failure pipeline when actions during an
-                      execution fail.
-                      <span className="font-bold text-warning">
-                        <br />
-                        CAUTION! This will override the per action failure
-                        pipeline
-                      </span>
-                    </p>
-                  </div>
-                  <Select
-                    isDisabled={
-                      (!canEdit || flow.disabled) && user.role !== "admin"
-                    }
-                    placeholder="Select an failure pipeline"
-                    selectedKeys={[failurePipelineID]}
-                    variant="bordered"
-                    onSelectionChange={(e) => {
-                      if (e.currentKey === "none") {
-                        setFailurePipelineID("");
-                      } else {
-                        setFailurePipelineID(e.currentKey);
+                <Card>
+                  <CardBody className="bg-content2">
+                    <div className="mb-2">
+                      <p className="text-md font-bold">
+                        Common Failure Pipeline
+                      </p>
+                      <p className="text-sm text-default-500">
+                        Execute an failure pipeline when actions during an
+                        execution fail.
+                        <span className="font-bold text-warning">
+                          <br />
+                          CAUTION! This will override the per action failure
+                          pipeline
+                        </span>
+                      </p>
+                    </div>
+                    <Select
+                      isDisabled={
+                        (!canEdit || flow.disabled) && user.role !== "admin"
                       }
-                    }}
+                      placeholder="Select an failure pipeline"
+                      selectedKeys={[failurePipelineID]}
+                      variant="bordered"
+                      onSelectionChange={(e) => {
+                        if (e.currentKey === "none") {
+                          setFailurePipelineID("");
+                        } else {
+                          setFailurePipelineID(e.currentKey);
+                        }
+                      }}
+                    >
+                      <SelectItem key="none">None</SelectItem>
+                      {flow.failure_pipelines.map((pipeline: any) => (
+                        <SelectItem key={pipeline.id}>
+                          {pipeline.name}
+                        </SelectItem>
+                      ))}
+                    </Select>
+                  </CardBody>
+                </Card>
+              </div>
+
+              {flow.type == "alert" && (
+                <div>
+                  <div className="flex flex-cols items-center justify-between mb-2">
+                    <div className="mb-2">
+                      <p className="text-md font-bold">Patterns</p>
+                      <p className="text-sm text-default-500">
+                        Patterns can be used to trigger executions only when the
+                        alert payload contains specified key value pairs.
+                      </p>
+                    </div>
+                    <Button
+                      isIconOnly
+                      color="primary"
+                      isDisabled={
+                        (!canEdit || flow.disabled) && user.role !== "admin"
+                      }
+                      startContent={
+                        <Icon icon="hugeicons:plus-sign" width={20} />
+                      }
+                      variant="flat"
+                      onPress={() => {
+                        const newPatterns = [...flowPatterns];
+
+                        newPatterns.push({
+                          key: "",
+                          type: "equals",
+                          value: "",
+                        });
+                        setFlowPatterns(newPatterns);
+                      }}
+                    />
+                  </div>
+                  <Table
+                    removeWrapper
+                    aria-label="Match Action Patterns"
+                    className="w-full"
                   >
-                    <SelectItem key="none">None</SelectItem>
-                    {flow.failure_pipelines.map((pipeline: any) => (
-                      <SelectItem key={pipeline.id}>{pipeline.name}</SelectItem>
-                    ))}
-                  </Select>
-                </CardBody>
-              </Card>
+                    <TableHeader>
+                      <TableColumn align="center">Key</TableColumn>
+                      <TableColumn align="center">Type</TableColumn>
+                      <TableColumn align="center">Value</TableColumn>
+                      <TableColumn align="center">Actions</TableColumn>
+                    </TableHeader>
+                    <TableBody emptyContent="No patterns defined.">
+                      {flowPatterns.map((pattern: any, index: number) => (
+                        <TableRow key={index}>
+                          <TableCell>
+                            <Input
+                              placeholder="Enter key"
+                              value={pattern.key}
+                              variant="bordered"
+                              onChange={(e) => {
+                                const newPatterns = [...flowPatterns];
+
+                                newPatterns[index].key = e.target.value;
+                                setFlowPatterns(newPatterns);
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Select
+                              isDisabled={
+                                (!canEdit || flow.disabled) &&
+                                user.role !== "admin"
+                              }
+                              placeholder="Select the type"
+                              selectedKeys={[pattern.type]}
+                              variant="bordered"
+                              onSelectionChange={(e) => {
+                                const newPatterns = [...flowPatterns];
+
+                                newPatterns[index].type = e.currentKey;
+                                setFlowPatterns(newPatterns);
+                              }}
+                            >
+                              <SelectItem key="equals">Equals</SelectItem>
+                              <SelectItem key="not_equals">
+                                Not Equals
+                              </SelectItem>
+                              <SelectItem key="contains">Contains</SelectItem>
+                              <SelectItem key="not_contains">
+                                Not Contains
+                              </SelectItem>
+                            </Select>
+                          </TableCell>
+                          <TableCell>
+                            <Input
+                              placeholder="Enter value"
+                              value={pattern.value}
+                              variant="bordered"
+                              onChange={(e) => {
+                                const newPatterns = [...flowPatterns];
+
+                                newPatterns[index].value = e.target.value;
+                                setFlowPatterns(newPatterns);
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              isIconOnly
+                              color="danger"
+                              isDisabled={
+                                (!canEdit || flow.disabled) &&
+                                user.role !== "admin"
+                              }
+                              startContent={
+                                <Icon icon="hugeicons:delete-02" width={20} />
+                              }
+                              variant="flat"
+                              onPress={() => {
+                                const newPatterns = [...flowPatterns];
+
+                                newPatterns.splice(index, 1);
+                                setFlowPatterns(newPatterns);
+                              }}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
             </div>
           </CardBody>
         </Card>
@@ -162,58 +314,147 @@ export default function FlowSettings({
         <Card>
           <CardBody>
             <p className="text-lg font-bold mb-2">Executions</p>
-            <div className="grid grid-cols-1 gap-4">
-              <Card>
-                <CardBody className="bg-content2">
-                  <div className="grid lg:grid-cols-2 grid-cols-1 items-center justify-between gap-8">
-                    <div>
-                      <p className="text-md font-bold">Schedule Every</p>
-                      <p className="text-sm text-default-500">
-                        Schedule the flow to run every X minutes/hours/days.{" "}
-                        <br />
-                        The system will always schedule two executions at the
-                        time. The second one will be scheduled base on the
-                        scheduled time of the first one.
-                        <br />
-                        <span className="font-bold text-warning">
-                          Enter 0 to disable the schedule.
-                        </span>
-                      </p>
-                    </div>
-                    <div className="flex flex-cols gap-2">
-                      <NumberInput
-                        defaultValue={scheduleEveryValue}
-                        isDisabled={
-                          (!canEdit || flow.disabled) && user.role !== "admin"
-                        }
-                        minValue={0}
-                        placeholder="Enter a number"
-                        variant="bordered"
-                        onValueChange={setScheduleEveryValue}
-                      />
-                      <Select
-                        isDisabled={
-                          (!canEdit || flow.disabled) && user.role !== "admin"
-                        }
-                        label="Select an unit"
-                        selectedKeys={[scheduleEveryUnit]}
-                        variant="bordered"
-                        onSelectionChange={(e) => {
-                          setScheduleEveryUnit(e.currentKey);
-                        }}
-                      >
-                        <SelectItem key="minutes">Minutes</SelectItem>
-                        <SelectItem key="hours">Hours</SelectItem>
-                        <SelectItem key="days">Days</SelectItem>
-                        <SelectItem key="weeks">Weeks</SelectItem>
-                      </Select>
-                    </div>
+            <Card>
+              <CardBody className="bg-content2">
+                <div className="grid lg:grid-cols-2 grid-cols-1 items-center justify-between gap-8">
+                  <div>
+                    <p className="text-md font-bold">Schedule Every</p>
+                    <p className="text-sm text-default-500">
+                      Schedule the flow to run every X minutes/hours/days.{" "}
+                      <br />
+                      The system will always schedule two executions at the
+                      time. The second one will be scheduled base on the
+                      scheduled time of the first one.
+                      <br />
+                      <span className="font-bold text-warning">
+                        Enter 0 to disable the schedule.
+                      </span>
+                    </p>
                   </div>
-                </CardBody>
-              </Card>
-            </div>
+                  <div className="flex flex-cols gap-2">
+                    <NumberInput
+                      defaultValue={scheduleEveryValue}
+                      isDisabled={
+                        (!canEdit || flow.disabled) && user.role !== "admin"
+                      }
+                      minValue={0}
+                      placeholder="Enter a number"
+                      variant="bordered"
+                      onValueChange={setScheduleEveryValue}
+                    />
+                    <Select
+                      isDisabled={
+                        (!canEdit || flow.disabled) && user.role !== "admin"
+                      }
+                      label="Select an unit"
+                      selectedKeys={[scheduleEveryUnit]}
+                      variant="bordered"
+                      onSelectionChange={(e) => {
+                        setScheduleEveryUnit(e.currentKey);
+                      }}
+                    >
+                      <SelectItem key="minutes">Minutes</SelectItem>
+                      <SelectItem key="hours">Hours</SelectItem>
+                      <SelectItem key="days">Days</SelectItem>
+                      <SelectItem key="weeks">Weeks</SelectItem>
+                    </Select>
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
           </CardBody>
         </Card>
+
+        {flow.type === "alert" && (
+          <Card className="col-span-2">
+            <CardBody>
+              <p className="text-lg font-bold mb-2">Alerting</p>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <Card>
+                  <CardBody className="bg-content2">
+                    <div className="flex flex-cols items-center justify-between gap-8">
+                      <div>
+                        <p className="text-md font-bold">Group Alerts</p>
+                        <p className="text-sm text-default-500">
+                          Group Alerts by an identifier. This will set the
+                          parentID of the alert to the first alert of the group.
+                          The identifier can be set by another setting
+                        </p>
+                      </div>
+                      <div className="flex justify-end">
+                        <Switch
+                          isDisabled={
+                            (!canEdit || flow.disabled) && user.role !== "admin"
+                          }
+                          isSelected={groupAlerts}
+                          onValueChange={setGroupAlerts}
+                        />
+                      </div>
+                    </div>
+                  </CardBody>
+                </Card>
+
+                <Card>
+                  <CardBody className="bg-content2">
+                    <div className="flex flex-cols items-center justify-between gap-8">
+                      <div>
+                        <p className="text-md font-bold">Group Identifier</p>
+                        <p className="text-sm text-default-500">
+                          Enter a unique identifier for the group of alerts. To
+                          access payload data use{" "}
+                          <Code color="primary" radius="sm" size="sm">
+                            payload.
+                          </Code>{" "}
+                          as prefix
+                        </p>
+                      </div>
+                      <Input
+                        className="min-w-[300px]"
+                        defaultValue={groupAlertsIdentifier}
+                        isDisabled={
+                          (!canEdit || flow.disabled) && user.role !== "admin"
+                        }
+                        placeholder="payload.commonLabels.alertname"
+                        variant="bordered"
+                        onValueChange={setGroupAlertsIdentifier}
+                      />
+                    </div>
+                  </CardBody>
+                </Card>
+
+                <Card>
+                  <CardBody className="bg-content2">
+                    <div className="flex flex-cols items-center justify-between gap-8">
+                      <div>
+                        <p className="text-md font-bold">Threshold</p>
+                        <p className="text-sm text-default-500">
+                          If an alert is resolved and reoccurs after which
+                          threshold should a new execution be accepted?
+                        </p>
+                      </div>
+                      <div className="flex flex-cols gap-2">
+                        <NumberInput
+                          className="min-w-[200px]"
+                          defaultValue={alertThreshold}
+                          endContent={
+                            <p className="text-sm text-default-500">minutes</p>
+                          }
+                          isDisabled={
+                            (!canEdit || flow.disabled) && user.role !== "admin"
+                          }
+                          minValue={0}
+                          placeholder="Enter a number"
+                          variant="bordered"
+                          onValueChange={setAlertThreshold}
+                        />
+                      </div>
+                    </div>
+                  </CardBody>
+                </Card>
+              </div>
+            </CardBody>
+          </Card>
+        )}
       </div>
       <Spacer y={4} />
       <Button

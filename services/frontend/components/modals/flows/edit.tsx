@@ -108,6 +108,10 @@ export default function EditFlowModal({
       targetFlow.failure_pipeline_id,
       targetFlow.schedule_every_value,
       targetFlow.schedule_every_unit,
+      targetFlow.patterns,
+      targetFlow.group_alerts,
+      targetFlow.group_alerts_identifier,
+      targetFlow.alert_threshold,
     )) as any;
 
     if (!response) {

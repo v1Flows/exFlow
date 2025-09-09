@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 
 import Executions from "@/components/executions/executions";
+import Alerts from "@/components/alerts/alerts";
 
 import Actions from "./actions";
 import FlowStats from "./stats";
@@ -21,7 +22,7 @@ export default function FlowTabs({
   members,
   settings,
 }: any) {
-  const [selected, setSelected] = React.useState("actions");
+  const [selected, setSelected] = React.useState("executions");
 
   const router = useRouter();
   const pathname = usePathname();
@@ -29,7 +30,7 @@ export default function FlowTabs({
   const params = new URLSearchParams(searchParams.toString());
 
   React.useEffect(() => {
-    const tab = params.get("tab") || "actions";
+    const tab = params.get("tab") || "executions";
 
     setSelected(tab);
   }, [params]);
@@ -59,6 +60,21 @@ export default function FlowTabs({
           selectedKey={selected}
           onSelectionChange={handleTabChange}
         >
+          <Tab
+            key="executions"
+            title={
+              <div className="flex items-center space-x-2">
+                <Icon height={20} icon="hugeicons:rocket-02" width="20" />
+                <span>Executions</span>
+              </div>
+            }
+          >
+            <Executions
+              canEdit={checkUserCanEdit()}
+              flowID={flow.id}
+              runners={runners}
+            />
+          </Tab>
           <Tab
             key="actions"
             title={
@@ -97,21 +113,25 @@ export default function FlowTabs({
               user={user}
             />
           </Tab>
-          <Tab
-            key="executions"
-            title={
-              <div className="flex items-center space-x-2">
-                <Icon height={20} icon="hugeicons:rocket-02" width="20" />
-                <span>Executions</span>
-              </div>
-            }
-          >
-            <Executions
-              canEdit={checkUserCanEdit()}
-              flowID={flow.id}
-              runners={runners}
-            />
-          </Tab>
+
+          {flow.type === "alert" && (
+            <Tab
+              key="alerts"
+              title={
+                <div className="flex items-center space-x-2">
+                  <Icon height={20} icon="hugeicons:alert-02" width="20" />
+                  <span>Alerts</span>
+                </div>
+              }
+            >
+              <Alerts
+                canEdit={checkUserCanEdit()}
+                flowID={flow.id}
+                flows={[flow]}
+                runners={runners}
+              />
+            </Tab>
+          )}
 
           <Tab
             key="info"

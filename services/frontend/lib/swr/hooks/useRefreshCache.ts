@@ -53,6 +53,32 @@ export function useRefreshCache() {
     refreshFolderExecutions: (folderId: string) =>
       mutate(`folder-executions-${folderId}`),
 
+    // Helper to refresh all alert-related caches (useful after deletion)
+    refreshAllAlertCaches: (flowId?: string) => {
+      // Refresh all paginated alert caches with common pagination values
+      const limits = [4, 6, 10]; // Common limits used in the app
+      const offsets = [0, 10, 20, 30]; // Common offset values
+      const statuses = [null, "all"]; // Common status filters
+
+      limits.forEach((limit) => {
+        offsets.forEach((offset) => {
+          statuses.forEach((status) => {
+            mutate(`alerts-${limit}-${offset}-${status || "all"}`);
+            if (flowId) {
+              mutate(
+                `flow-alerts-paginated-${flowId}-${limit}-${offset}-${status || "all"}`,
+              );
+            }
+          });
+        });
+      });
+
+      // Refresh specific flow alerts if flowId provided
+      if (flowId) {
+        mutate(`flow-alerts-${flowId}`);
+      }
+    },
+
     // Helper to refresh all execution-related caches (useful after deletion)
     refreshAllExecutionCaches: (flowId?: string) => {
       // Refresh general execution caches

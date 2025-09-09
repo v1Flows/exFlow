@@ -9,11 +9,11 @@ import (
 	"io"
 
 	"github.com/uptrace/bun"
-	shared_models "github.com/v1Flows/shared-library/pkg/models"
+	"github.com/v1Flows/exFlow/services/backend/pkg/models"
 )
 
 // EncryptExecutionStepActionMessageWithProject encrypts execution step messages using project-specific encryption
-func EncryptExecutionStepActionMessageWithProject(messages []shared_models.Message, projectID string, db *bun.DB) ([]shared_models.Message, error) {
+func EncryptExecutionStepActionMessageWithProject(messages []models.Message, projectID string, db *bun.DB) ([]models.Message, error) {
 	encryptionKey, err := getEncryptionKey(projectID, db)
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func EncryptExecutionStepActionMessageWithProject(messages []shared_models.Messa
 }
 
 // DecryptExecutionStepActionMessageWithProject decrypts execution step messages using project-specific encryption
-func DecryptExecutionStepActionMessageWithProject(encryptedMessage []shared_models.Message, projectID string, db *bun.DB) ([]shared_models.Message, error) {
+func DecryptExecutionStepActionMessageWithProject(encryptedMessage []models.Message, projectID string, db *bun.DB) ([]models.Message, error) {
 	encryptionKey, err := getEncryptionKey(projectID, db)
 	if err != nil {
 		return nil, err

@@ -29,7 +29,7 @@ export default function DeleteRunnerModal({
   disclosure: UseDisclosureReturn;
   runner: any;
 }) {
-  const { refreshRunners } = useRefreshCache();
+  const { refreshRunners, refreshProjectRunners } = useRefreshCache();
   const { isOpen, onOpenChange } = disclosure;
 
   const [flowLinks, setFlowLinks] = React.useState([]);
@@ -102,6 +102,9 @@ export default function DeleteRunnerModal({
         variant: "flat",
       });
       refreshRunners();
+      if (runner.project_id) {
+        refreshProjectRunners(runner.project_id);
+      }
     } else {
       setError(true);
       setErrorText(response.error);

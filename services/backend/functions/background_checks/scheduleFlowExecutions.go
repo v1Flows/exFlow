@@ -10,7 +10,6 @@ import (
 	"github.com/uptrace/bun"
 	"github.com/v1Flows/exFlow/services/backend/functions/encryption"
 	"github.com/v1Flows/exFlow/services/backend/pkg/models"
-	shared_models "github.com/v1Flows/shared-library/pkg/models"
 )
 
 func scheduleFlowExecutions(db *bun.DB) {
@@ -99,16 +98,16 @@ func createExecution(currentTime time.Time, flow models.Flows, db *bun.DB, conte
 	}
 
 	// create execution step which tells that the execution is registerd and waiting for runner to pick it up
-	step := shared_models.ExecutionSteps{
+	step := models.ExecutionSteps{
 		ExecutionID: execution.ID.String(),
-		Action: shared_models.Action{
+		Action: models.Action{
 			Name: "Scheduled",
 			Icon: "hugeicons:time-schedule",
 		},
-		Messages: []shared_models.Message{
+		Messages: []models.Message{
 			{
 				Title: "Scheduled",
-				Lines: []shared_models.Line{
+				Lines: []models.Line{
 					{
 						Content:   "Execution is registered and is waiting for the scheduled time to start",
 						Timestamp: time.Now(),

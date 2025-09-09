@@ -18,6 +18,7 @@ type SuccessResponse = {
 };
 
 export default async function CreateFlow(
+  type: string,
   name: string,
   description: string,
   folderId: string,
@@ -45,6 +46,7 @@ export default async function CreateFlow(
           Authorization: token.value,
         },
         body: JSON.stringify({
+          type,
           name,
           description,
           folder_id: folderId,

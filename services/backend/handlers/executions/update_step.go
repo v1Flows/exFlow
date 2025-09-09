@@ -7,7 +7,6 @@ import (
 	"github.com/v1Flows/exFlow/services/backend/functions/encryption"
 	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
 	"github.com/v1Flows/exFlow/services/backend/pkg/models"
-	shared_models "github.com/v1Flows/shared-library/pkg/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/uptrace/bun"
@@ -16,7 +15,7 @@ import (
 func UpdateStep(context *gin.Context, db *bun.DB) {
 	stepID := context.Param("stepID")
 
-	var step shared_models.ExecutionSteps
+	var step models.ExecutionSteps
 	if err := context.ShouldBindJSON(&step); err != nil {
 		httperror.StatusBadRequest(context, "Error parsing incoming data", err)
 		log.Error("Error parsing incoming data", err)
@@ -24,7 +23,7 @@ func UpdateStep(context *gin.Context, db *bun.DB) {
 	}
 
 	// get current action messages
-	var dbStep shared_models.ExecutionSteps
+	var dbStep models.ExecutionSteps
 	err := db.NewSelect().Model(&dbStep).Where("id = ?", stepID).Scan(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error collecting current step messages from db", err)

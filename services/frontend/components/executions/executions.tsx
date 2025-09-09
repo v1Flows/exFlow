@@ -14,6 +14,7 @@ import {
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useMemo, useState } from "react";
+import NumberFlow from "@number-flow/react";
 
 import { useExecutionsStyleStore } from "@/lib/functions/userExecutionsStyle";
 import {
@@ -92,7 +93,10 @@ export default function Executions({
   return (
     <Card>
       <CardBody className="p-0 h-full overflow-hidden">
-        <div className="p-4 border-b border-default-100 flex flex-wrap gap-4 justify-end items-center">
+        <div className="p-4 border-b border-default-100 flex flex-wrap gap-4 justify-between items-center">
+          <p className="text-default-500 font-semibold">
+            Total Executions: <NumberFlow value={totalExecutions} />
+          </p>
           <div className="flex gap-2">
             <Dropdown backdrop="transparent">
               <DropdownTrigger>

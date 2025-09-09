@@ -32,6 +32,7 @@ func StartRouter(db *bun.DB, port int) {
 		Executions(v1, db)
 		Flows(v1, db)
 		Page(v1, db)
+		Alerts(v1, db)
 		Projects(v1, db)
 		Runners(v1, db)
 		Token(v1, db)

@@ -18,6 +18,8 @@ import GetProjectApiKeys from "@/lib/fetch/project/tokens";
 import GetExecution from "@/lib/fetch/executions/execution";
 import GetExecutions from "@/lib/fetch/executions/all";
 import GetExecutionSteps from "@/lib/fetch/executions/steps";
+import GetFlowAlerts from "@/lib/fetch/flow/alerts";
+import GetAlerts from "@/lib/fetch/alert/alerts";
 
 // Hook for fetching a single flow
 export function useFlow(flowId: string) {
@@ -28,6 +30,64 @@ export function useFlow(flowId: string) {
 
   return {
     flow: data?.success ? data.data.flow : null,
+    isLoading,
+    isError: error || (data && !data.success),
+    refresh: mutate,
+  };
+}
+
+// Hook for fetching flow alert
+export function useFlowAlerts(flowId: string) {
+  const { data, error, mutate, isLoading } = useSWR(
+    flowId ? `flow-alerts-${flowId}` : null,
+    () => GetFlowAlerts(flowId),
+  );
+
+  return {
+    alerts: data?.success ? data.data.alerts : [],
+    isLoading,
+    isError: error || (data && !data.success),
+    refresh: mutate,
+  };
+}
+
+// Hook for fetching paginated flow alerts with filters
+export function useFlowAlertsPaginated(
+  flowId: string,
+  limit: number = 10,
+  offset: number = 0,
+  status: string | null = null,
+) {
+  const { data, error, mutate, isLoading } = useSWR(
+    flowId
+      ? `flow-alerts-paginated-${flowId}-${limit}-${offset}-${status || "all"}`
+      : null,
+    () => GetFlowAlerts(flowId, limit, offset, status),
+  );
+
+  return {
+    alerts: data?.success ? data.data.alerts : [],
+    total: data?.success ? data.data.total : 0,
+    isLoading,
+    isError: error || (data && !data.success),
+    refresh: mutate,
+  };
+}
+
+// Hook for fetching all alerts with pagination and filters
+export function useAlerts(
+  limit: number = 10,
+  offset: number = 0,
+  status: string | null = null,
+) {
+  const { data, error, mutate, isLoading } = useSWR(
+    limit > 0 ? `alerts-${limit}-${offset}-${status || "all"}` : null,
+    () => GetAlerts(limit, offset, status),
+  );
+
+  return {
+    alerts: data?.success ? data.data.alerts : [],
+    total: data?.success ? data.data.total : 0,
     isLoading,
     isError: error || (data && !data.success),
     refresh: mutate,

@@ -14,7 +14,6 @@ import (
 	"github.com/uptrace/bun"
 	"github.com/v1Flows/exFlow/services/backend/config"
 	"github.com/v1Flows/exFlow/services/backend/pkg/models"
-	shared_models "github.com/v1Flows/shared-library/pkg/models"
 )
 
 // getEncryptionKey returns the appropriate encryption key for a project
@@ -59,7 +58,7 @@ func getEncryptionKey(projectID string, db *bun.DB) ([]byte, error) {
 }
 
 // EncryptParamsWithProject encrypts action params using project-specific encryption
-func EncryptParamsWithProject(actions []shared_models.Action, projectID string, db *bun.DB) ([]shared_models.Action, error) {
+func EncryptParamsWithProject(actions []models.Action, projectID string, db *bun.DB) ([]models.Action, error) {
 	encryptionKey, err := getEncryptionKey(projectID, db)
 	if err != nil {
 		return nil, err
@@ -149,7 +148,7 @@ func EncryptParamsWithProject(actions []shared_models.Action, projectID string, 
 }
 
 // DecryptParamsWithProject decrypts action params using project-specific encryption
-func DecryptParamsWithProject(actions []shared_models.Action, projectID string, decryptPasswords bool, db *bun.DB) ([]shared_models.Action, error) {
+func DecryptParamsWithProject(actions []models.Action, projectID string, decryptPasswords bool, db *bun.DB) ([]models.Action, error) {
 	encryptionKey, err := getEncryptionKey(projectID, db)
 	if err != nil {
 		return nil, err
@@ -264,7 +263,7 @@ func DecryptParamsWithProject(actions []shared_models.Action, projectID string, 
 }
 
 // EncryptParamWithProject encrypts a single param using project-specific encryption
-func EncryptParamWithProject(param shared_models.Params, projectID string, db *bun.DB) (shared_models.Params, error) {
+func EncryptParamWithProject(param models.Params, projectID string, db *bun.DB) (models.Params, error) {
 	encryptionKey, err := getEncryptionKey(projectID, db)
 	if err != nil {
 		return param, err

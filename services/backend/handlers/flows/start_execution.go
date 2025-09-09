@@ -10,7 +10,6 @@ import (
 	"github.com/v1Flows/exFlow/services/backend/functions/encryption"
 	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
 	"github.com/v1Flows/exFlow/services/backend/pkg/models"
-	shared_models "github.com/v1Flows/shared-library/pkg/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/uptrace/bun"
@@ -59,16 +58,16 @@ func StartExecution(context *gin.Context, db *bun.DB) {
 	}
 
 	// create execution step which tells that the execution is registerd and waiting for runner to pick it up
-	step := shared_models.ExecutionSteps{
+	step := models.ExecutionSteps{
 		ExecutionID: execution.ID.String(),
-		Action: shared_models.Action{
+		Action: models.Action{
 			Name: "Pick Up",
 			Icon: "hugeicons:rocket",
 		},
-		Messages: []shared_models.Message{
+		Messages: []models.Message{
 			{
 				Title: "Pick Up",
-				Lines: []shared_models.Line{
+				Lines: []models.Line{
 					{
 						Content:   "Execution is registered and waiting for runner to pick it up",
 						Timestamp: time.Now(),

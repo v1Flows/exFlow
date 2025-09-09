@@ -16,9 +16,11 @@ import { useEffect, useState } from "react";
 import ReactTimeago from "react-timeago";
 
 import WelcomeModal from "@/components/modals/user/welcome";
-import Stats from "@/components/dashboard/stats";
 
 import Executions from "../executions/executions";
+import Alerts from "../alerts/alerts";
+
+import DashboardExecutionsStats from "./stats-charts";
 
 export default function DashboardHome({
   stats,
@@ -381,12 +383,16 @@ export default function DashboardHome({
 
       <Spacer y={4} />
 
-      {/* Stats */}
-      <Stats stats={stats} />
+      <DashboardExecutionsStats stats={stats} />
 
       <Spacer y={4} />
-      <p className="mb-2 text-2xl font-bold text-primary">Executions</p>
-      <Executions displayToFlow flows={flows} runners={runners} />
+      <p className="mb-2 text-2xl font-bold">Executions & Alerts</p>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Executions displayToFlow flows={flows} runners={runners} />
+
+        <Alerts showFlow flows={flows} runners={runners} />
+      </div>
 
       <WelcomeModal disclosure={welcomeModal} />
     </main>
