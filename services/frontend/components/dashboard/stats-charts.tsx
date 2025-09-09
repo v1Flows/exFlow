@@ -174,9 +174,9 @@ const BarChartCard = React.forwardRef<
                   {payload?.map((p, index) => {
                     const name = p.name;
                     const value = p.value;
-                    const category =
-                      categories.find((c) => c.title.toLowerCase() === name) ??
-                      name;
+                    const category = categories.find(
+                      (c) => c.title.toLowerCase() === name,
+                    ) ?? { title: name, color: "default" };
 
                     return (
                       <div
