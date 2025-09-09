@@ -1,7 +1,12 @@
 package main
 
 import (
+	"context"
+	"os"
+	"os/signal"
 	"strings"
+	"syscall"
+	"time"
 
 	"github.com/v1Flows/exFlow/services/backend/config"
 	"github.com/v1Flows/exFlow/services/backend/database"
@@ -43,10 +48,24 @@ func main() {
 
 	log.Info("Starting exFlow API. Version: ", version)
 
+	// Check if this is a restarted process
+	if os.Getenv("EXFLOW_RESTARTED") == "1" {
+		log.Info("Application restarted after setup completion")
+	}
+
+	// Check if config file exists
+	if _, err := os.Stat(*configFile); os.IsNotExist(err) {
+		log.Info("Config file not found, starting in setup mode")
+		startSetupMode()
+		return
+	}
+
 	log.Info("Loading Config File: ", *configFile)
 	err := config.GetInstance().LoadConfig(*configFile)
 	if err != nil {
-		panic(err)
+		log.Error("Failed to load config file, starting in setup mode: ", err)
+		startSetupMode()
+		return
 	}
 
 	cfg := config.Config
@@ -65,5 +84,45 @@ func main() {
 	}
 
 	go background_checks.Init(db)
-	router.StartRouter(db, cfg.Port)
+
+	// Set up signal handling for graceful shutdown
+	server := router.StartRouter(db, cfg.Port)
+
+	// Wait for interrupt signal to gracefully shutdown the server
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Info("Shutting down server...")
+
+	// The server has 30 seconds to finish the request it is currently handling
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	if err := server.Shutdown(ctx); err != nil {
+		log.Fatal("Server forced to shutdown:", err)
+	}
+
+	log.Info("Server exited")
+}
+
+func startSetupMode() {
+	log.Info("Starting in setup mode - limited functionality available")
+	logging("info") // Default to info level logging in setup mode
+
+	// Start router in setup mode (without database connection)
+	server := router.StartSetupRouter(8081) // Default port for setup
+
+	// Wait for interrupt signal to gracefully shutdown the server
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Info("Shutting down setup server...")
+
+	// The server has 30 seconds to finish the request it is currently handling
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	if err := server.Shutdown(ctx); err != nil {
+		log.Fatal("Setup server forced to shutdown:", err)
+	}
+
+	log.Info("Setup server exited")
 }
