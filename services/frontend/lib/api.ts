@@ -5,11 +5,13 @@ import { getApiUrl } from "./config";
  */
 export async function apiFetch(
   endpoint: string,
+  // eslint-disable-next-line no-undef
   options?: RequestInit,
 ): Promise<Response> {
   const apiUrl = await getApiUrl();
   const url = `${apiUrl}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
 
+  // eslint-disable-next-line no-undef
   const defaultOptions: RequestInit = {
     headers: {
       "Content-Type": "application/json",
@@ -25,6 +27,7 @@ export async function apiFetch(
  */
 export async function apiRequest<T>(
   endpoint: string,
+  // eslint-disable-next-line no-undef
   options?: RequestInit,
 ): Promise<T> {
   const response = await apiFetch(endpoint, options);

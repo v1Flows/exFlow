@@ -1,3 +1,4 @@
+/* eslint-disable import/order */
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
@@ -11,7 +12,6 @@ import { AppContent } from "@/components/app-content";
 import GetUserDetails from "@/lib/fetch/user/getDetails";
 import Footer from "@/components/footer/footer";
 import PageGetSettings from "@/lib/fetch/page/settings";
-
 import Favicon from "/public/favicon.ico";
 
 import GetFlows from "@/lib/fetch/flow/all";

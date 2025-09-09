@@ -52,7 +52,7 @@ export function useSetupCheck(options: UseSetupCheckOptions = {}) {
     } catch (err: any) {
       setError(err.message || "Failed to check setup status");
       setIsSetup(false);
-      
+
       // If we can't reach the backend, redirectToSetup is enabled, and we're not on setup page, go to setup
       if (redirectToSetup && pathname !== "/setup") {
         router.push("/setup");

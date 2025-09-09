@@ -37,9 +37,7 @@ export function AdminSettings({ settings }: any) {
   const [startExecutions, setStartExecutions] = React.useState(
     settings.start_executions,
   );
-  const [receiveAlerts, setReceiveAlerts] = React.useState(
-    settings.receive_alerts,
-  );
+  const [receiveAlerts] = React.useState(settings.receive_alerts);
 
   const [isLoading, setIsLoading] = React.useState(false);
 
