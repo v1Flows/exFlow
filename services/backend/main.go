@@ -109,7 +109,7 @@ func startSetupMode() {
 	logging("info") // Default to info level logging in setup mode
 
 	// Start router in setup mode (without database connection)
-	server := router.StartSetupRouter(8081) // Default port for setup
+	server := router.StartSetupRouter(8080) // Default port for setup
 
 	// Wait for interrupt signal to gracefully shutdown the server
 	quit := make(chan os.Signal, 1)

@@ -38,8 +38,8 @@ export default function SetupPageClient() {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [validationSuccess, setValidationSuccess] = useState<boolean>(false);
   const [setupData, setSetupData] = useState<SetupData>({
-    backend_url: "http://localhost:8081",
-    backend_port: 8081,
+    backend_url: "http://localhost:8080",
+    backend_port: 8080,
     database: {
       server: "localhost",
       port: 5432,
@@ -245,7 +245,7 @@ export default function SetupPageClient() {
                   <div>
                     <p className="text-sm">
                       The Backend started an endpoint on port{" "}
-                      <span className="text-primary font-bold">8081</span>. This
+                      <span className="text-primary font-bold">8080</span>. This
                       is the default backend port used during setup and{" "}
                       <span className="text-primary font-bold">
                         has to be accessible from the frontend
@@ -273,13 +273,13 @@ export default function SetupPageClient() {
                   <Input
                     description="Port on which the backend server will start. Keep the default value if ExFlow is running inside Docker."
                     label="Backend Port"
-                    placeholder="8081"
+                    placeholder="8080"
                     type="number"
                     value={setupData.backend_port.toString()}
                     onChange={(e) =>
                       handleInputChange(
                         "backend_port",
-                        Number.parseInt(e.target.value) || 8081,
+                        Number.parseInt(e.target.value) || 8080,
                       )
                     }
                   />
@@ -341,7 +341,7 @@ export default function SetupPageClient() {
                   <Input
                     description="URL used by the frontend to reach the backend. Keep the default value if ExFlow is running inside Docker."
                     label="Backend URL"
-                    placeholder="http://localhost:8081"
+                    placeholder="http://localhost:8080"
                     value={setupData.backend_url}
                     onChange={(e) =>
                       handleInputChange("backend_url", e.target.value)
