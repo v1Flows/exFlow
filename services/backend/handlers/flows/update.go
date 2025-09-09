@@ -3,6 +3,7 @@ package flows
 import (
 	"errors"
 	"net/http"
+	"reflect"
 	"time"
 
 	"github.com/v1Flows/exFlow/services/backend/functions/gatekeeper"
@@ -91,6 +92,9 @@ func UpdateFlow(context *gin.Context, db *bun.DB) {
 	}
 	if flow.ScheduleEveryUnit != flowDB.ScheduleEveryUnit {
 		columns = append(columns, "schedule_every_unit")
+	}
+	if !reflect.DeepEqual(flow.Patterns, flowDB.Patterns) {
+		columns = append(columns, "patterns")
 	}
 	columns = append(columns, "exec_parallel")
 	columns = append(columns, "failure_pipeline_id")

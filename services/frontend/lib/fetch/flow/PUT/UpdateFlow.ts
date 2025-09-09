@@ -31,6 +31,7 @@ export default async function UpdateFlow(
   groupAlerts: boolean,
   groupAlertsIdentifier: string,
   alertThreshold: number,
+  patterns: any,
 ): Promise<SuccessResponse | ErrorResponse> {
   try {
     const cookieStore = await cookies();
@@ -57,6 +58,7 @@ export default async function UpdateFlow(
           group_alerts: groupAlerts,
           group_alerts_identifier: groupAlertsIdentifier,
           alert_threshold: alertThreshold,
+          patterns,
         }),
       },
     );

@@ -14,6 +14,7 @@ import {
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useMemo, useState } from "react";
+import NumberFlow from "@number-flow/react";
 
 import { useExecutionsStyleStore } from "@/lib/functions/userExecutionsStyle";
 import {
@@ -30,7 +31,6 @@ import {
 import ExecutionsList from "./executionsList";
 import ExecutionsTable from "./executionsTable";
 import ExecutionsCompact from "./executionsCompact";
-import NumberFlow from "@number-flow/react";
 
 export default function Executions({
   runners,
