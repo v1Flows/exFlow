@@ -49,10 +49,7 @@ RUN mkdir .next \
 COPY --from=frontend-builder --chown=nextjs:nodejs /app/frontend/.next/standalone ./
 COPY --from=frontend-builder --chown=nextjs:nodejs /app/frontend/.next/static ./.next/static
 
-# Copy .env file to the working directory
-COPY --from=frontend-builder --chown=nextjs:nodejs /app/frontend/.env /app/.env
-
-RUN mkdir -p /etc/exflow
+RUN mkdir -p /etc/exflow && chown nextjs:nodejs /etc/exflow
 
 # Set environment variables
 ENV NODE_ENV=production
