@@ -21,8 +21,8 @@ import (
 const version string = "2.0.0"
 
 var (
-	configFile  = kingpin.Flag("config", "Config file").Short('c').Default("/app/config.yaml").String()
-	frontendEnv = kingpin.Flag("frontendEnv", "Path to frontend environment").Default("/app/.env").String()
+	configFile  = kingpin.Flag("config", "Config file").Short('c').Default("/etc/exflow/config.yaml").String()
+	frontendEnv = kingpin.Flag("frontendEnv", "Path to frontend environment").Default("/etc/exflow/.env").String()
 )
 
 func logging(logLevel string) {

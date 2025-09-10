@@ -51,7 +51,8 @@ COPY --from=frontend-builder --chown=nextjs:nodejs /app/frontend/.next/static ./
 
 RUN chown -R nextjs:nodejs /app
 
-RUN mkdir -p /etc/exflow
+RUN mkdir -p /etc/exflow \
+    && chown -R nextjs:nodejs /etc/exflow
 
 # Set environment variables
 ENV NODE_ENV=production
@@ -67,4 +68,4 @@ USER nextjs
 ENTRYPOINT ["/sbin/tini", "--"]
 
 # Start the backend and frontend
-CMD ["sh", "-c", "./exflow-backend --config /app/config.yaml & node /app/server.js"]
+CMD ["sh", "-c", "./exflow-backend --config /etc/exflow/config.yaml & node /app/server.js"]
