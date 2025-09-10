@@ -15,8 +15,13 @@ WORKDIR /app
 
 COPY --from=builder /app/backend/exflow-backend /app/
 
+RUN addgroup --system --gid 1001 exflow
+RUN adduser --system --uid 1001 exflow
+
 RUN mkdir -p /etc/exflow \
-    && chown -R nextjs:nodejs /etc/exflow
+    && chown -R exflow:exflow /etc/exflow
+
+RUN chown -R exflow:exflow /app
 
 VOLUME [ "/etc/exflow" ]
 
