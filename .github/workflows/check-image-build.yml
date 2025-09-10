@@ -3,7 +3,7 @@ name: Check Image Build
 on:
   pull_request:
     types: [opened, reopened, edited, synchronize]
-    branches: [ "release/**", "develop" ]
+    branches: [ "release/**", "develop", "v*" ]
     paths-ignore:
       - '.github/**'
       - '*.md'
