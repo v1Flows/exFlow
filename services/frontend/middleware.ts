@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 
 import { NextResponse } from "next/server";
 
+// eslint-disable-next-line import/order
 import PageGetSettings from "./lib/fetch/page/settings";
 
 import "./updateSessionInterval";
@@ -27,6 +28,18 @@ function isAuthRoute(pathname: string): boolean {
   );
 }
 
+function isSetupRoute(pathname: string): boolean {
+  return pathname.startsWith("/setup");
+}
+
+function createResponseWithPathname(pathname: string) {
+  const response = NextResponse.next();
+
+  response.headers.set("x-pathname", pathname);
+
+  return response;
+}
+
 export async function middleware(request: NextRequest) {
   try {
     const { pathname } = new URL(request.url);
@@ -37,7 +50,12 @@ export async function middleware(request: NextRequest) {
 
     // Skip public/static routes
     if (isPublicRoute(pathname)) {
-      return NextResponse.next();
+      return createResponseWithPathname(pathname);
+    }
+
+    // Allow setup routes without authentication
+    if (isSetupRoute(pathname)) {
+      return createResponseWithPathname(pathname);
     }
 
     // Validate token for protected routes
@@ -51,7 +69,7 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL("/auth/login", request.url));
       }
 
-      return NextResponse.next();
+      return createResponseWithPathname(pathname);
     }
 
     // Admin route protection
@@ -69,7 +87,7 @@ export async function middleware(request: NextRequest) {
 
     // Auth routes: allow access if not logged in
     if (isAuthRoute(pathname) && !hasSessionCookie) {
-      return NextResponse.next();
+      return createResponseWithPathname(pathname);
     }
 
     // Require login for protected routes
@@ -101,8 +119,10 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/", request.url));
     }
 
-    return NextResponse.next();
+    // Add pathname header for layout to use
+    return createResponseWithPathname(pathname);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Middleware error:", error);
 
     return new NextResponse("Internal Server Error", { status: 500 });

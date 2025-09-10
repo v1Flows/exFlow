@@ -1,7 +1,7 @@
-FROM node:23-alpine AS base
+FROM node:24.7-alpine AS base
 
 # Stage 1: Build the frontend
-FROM node:23-alpine AS frontend-builder
+FROM node:24.7-alpine AS frontend-builder
 RUN apk add --no-cache libc6-compat
 WORKDIR /app/frontend
 COPY services/frontend/package.json services/frontend/pnpm-lock.yaml ./
@@ -49,11 +49,10 @@ RUN mkdir .next \
 COPY --from=frontend-builder --chown=nextjs:nodejs /app/frontend/.next/standalone ./
 COPY --from=frontend-builder --chown=nextjs:nodejs /app/frontend/.next/static ./.next/static
 
-# Copy .env file to the working directory
-COPY --from=frontend-builder --chown=nextjs:nodejs /app/frontend/.env /app/.env
+RUN chown -R nextjs:nodejs /app
 
-RUN mkdir -p /etc/exflow
-COPY services/backend/config/config.yaml /etc/exflow/backend_config.yaml
+RUN mkdir -p /etc/exflow \
+    && chown -R nextjs:nodejs /etc/exflow
 
 # Set environment variables
 ENV NODE_ENV=production
@@ -69,4 +68,4 @@ USER nextjs
 ENTRYPOINT ["/sbin/tini", "--"]
 
 # Start the backend and frontend
-CMD ["sh", "-c", "./exflow-backend --config /etc/exflow/backend_config.yaml & node /app/server.js"]
+CMD ["sh", "-c", "./exflow-backend --config /etc/exflow/config.yaml & node /app/server.js"]

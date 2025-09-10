@@ -15,7 +15,7 @@ import React from "react";
 
 import { Logout } from "@/lib/logout";
 
-export default function Login({ user, session, showSignUp, settings }: any) {
+export default function Login({ user, _, showSignUp, settings }: any) {
   const router = useRouter();
 
   const userData = user;

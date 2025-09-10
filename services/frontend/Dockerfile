@@ -1,4 +1,4 @@
-FROM node:23-alpine AS base
+FROM node:24.7-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -43,8 +43,10 @@ RUN chown nextjs:nodejs .next
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Copy .env file to the working directory
-COPY --from=builder /app/.env .env
+RUN mkdir -p /etc/exflow \
+    && chown -R nextjs:nodejs /etc/exflow
+
+VOLUME [ "/etc/exflow" ]
 
 USER nextjs
 

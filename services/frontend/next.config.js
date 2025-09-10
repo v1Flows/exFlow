@@ -5,7 +5,9 @@ const {
 const dotenv = require('dotenv');
 
 // Load environment variables from .env file
-dotenv.config();
+dotenv.config({
+  path: '/etc/exflow/.env',
+});
 
 /** @type {(phase: string, defaultConfig: import("next").NextConfig) => Promise<import("next").NextConfig>} */
 module.exports = async (phase) => {

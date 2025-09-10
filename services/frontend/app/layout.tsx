@@ -1,16 +1,17 @@
+/* eslint-disable import/order */
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
 import { ReactNode } from "react";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
 import { Navbar } from "@/components/navbar";
+import { AppContent } from "@/components/app-content";
 import GetUserDetails from "@/lib/fetch/user/getDetails";
 import Footer from "@/components/footer/footer";
 import PageGetSettings from "@/lib/fetch/page/settings";
-
 import Favicon from "/public/favicon.ico";
 
 import GetFlows from "@/lib/fetch/flow/all";
@@ -75,6 +76,10 @@ export default async function RootLayout({
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get("session");
 
+  // get the current page the user is on
+  const headersList = await headers();
+  const currentPage = headersList.get("x-pathname") || "/";
+
   const userDetailsData = GetUserDetails();
   const settingsData = PageGetSettings();
   const flowsData = GetFlows();
@@ -104,20 +109,22 @@ export default async function RootLayout({
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-          <div className="relative flex h-screen flex-col">
-            {sessionCookie && (
-              <Navbar
-                flows={flows.success ? flows.data.flows : []}
-                folders={folders.success ? folders.data.folders : []}
-                projects={projects.success ? projects.data.projects : []}
-                session={session}
-                settings={settings.success ? settings.data.settings : {}}
-                userDetails={userDetails.success ? userDetails.data.user : {}}
-              />
-            )}
-            <main className="pt-4 px-6 grow">{children}</main>
-            <Footer />
-          </div>
+          <AppContent>
+            <div className="relative flex h-screen flex-col">
+              {sessionCookie && currentPage !== "/setup" && (
+                <Navbar
+                  flows={flows.success ? flows.data.flows : []}
+                  folders={folders.success ? folders.data.folders : []}
+                  projects={projects.success ? projects.data.projects : []}
+                  session={session}
+                  settings={settings.success ? settings.data.settings : {}}
+                  userDetails={userDetails.success ? userDetails.data.user : {}}
+                />
+              )}
+              <main className="pt-4 px-6 grow">{children}</main>
+              <Footer />
+            </div>
+          </AppContent>
         </Providers>
       </body>
     </html>
