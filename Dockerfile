@@ -49,7 +49,60 @@ RUN mkdir .next \
 COPY --from=frontend-builder --chown=nextjs:nodejs /app/frontend/.next/standalone ./
 COPY --from=frontend-builder --chown=nextjs:nodejs /app/frontend/.next/static ./.next/static
 
+# Create directories and set proper permissions
 RUN mkdir -p /etc/exflow && chown nextjs:nodejs /etc/exflow
+RUN mkdir -p /app/frontend && chown nextjs:nodejs /app/frontend
+RUN chown -R nextjs:nodejs /app
+
+# Create startup script to handle config file persistence
+COPY --chown=nextjs:nodejs <<'EOF' /app/start.sh
+#!/bin/sh
+
+# Function to restore config files from persistent volume if they exist
+restore_configs() {
+    if [ -f "/etc/exflow/config.yaml" ]; then
+        cp /etc/exflow/config.yaml /app/config.yaml
+        echo "Restored backend config from persistent volume"
+    fi
+    
+    if [ -f "/etc/exflow/frontend.env" ]; then
+        cp /etc/exflow/frontend.env /app/frontend/.env
+        echo "Restored frontend .env from persistent volume"
+    fi
+}
+
+# Function to backup config files to persistent volume
+backup_configs() {
+    while true; do
+        if [ -f "/app/config.yaml" ]; then
+            cp /app/config.yaml /etc/exflow/config.yaml
+        fi
+        
+        if [ -f "/app/frontend/.env" ]; then
+            cp /app/frontend/.env /etc/exflow/frontend.env
+        fi
+        
+        sleep 10
+    done
+}
+
+# Restore existing configs on startup
+restore_configs
+
+# Start background process to continuously backup new config files
+backup_configs &
+
+# Start the applications
+if [ -f "/etc/exflow/config.yaml" ]; then
+    ./exflow-backend --config /etc/exflow/config.yaml &
+else
+    ./exflow-backend &
+fi
+
+node /app/server.js
+EOF
+
+RUN chmod +x /app/start.sh
 
 # Set environment variables
 ENV NODE_ENV=production
@@ -64,5 +117,5 @@ USER nextjs
 # Use tini as the entrypoint
 ENTRYPOINT ["/sbin/tini", "--"]
 
-# Start the backend and frontend
-CMD ["sh", "-c", "./exflow-backend --config /etc/exflow/config.yaml & node /app/server.js"]
+# Start with our custom script
+CMD ["/app/start.sh"]
