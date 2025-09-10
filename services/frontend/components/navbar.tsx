@@ -67,7 +67,7 @@ export const Navbar = ({
 
   return (
     <HeroUINavbar
-      className="bg-content1 bg-opacity-80 rounded-b-lg"
+      className="bg-content1/70 rounded-b-lg"
       isMenuOpen={isMenuOpen}
       maxWidth="full"
       position="sticky"
@@ -131,6 +131,22 @@ export const Navbar = ({
                   base: "gap-4",
                 }}
               >
+                <DropdownItem
+                  key="system"
+                  description="Manage the exFlow system"
+                  startContent={
+                    <Icon
+                      className="text-danger"
+                      icon="hugeicons:configuration-01"
+                      width={24}
+                    />
+                  }
+                  onPress={() => {
+                    router.push("/admin/system");
+                  }}
+                >
+                  System
+                </DropdownItem>
                 <DropdownItem
                   key="projects"
                   description="Manage all projects"
@@ -210,22 +226,6 @@ export const Navbar = ({
                   }}
                 >
                   Users
-                </DropdownItem>
-                <DropdownItem
-                  key="page_settings"
-                  description="Manage the exFlow settings"
-                  startContent={
-                    <Icon
-                      className="text-danger"
-                      icon="hugeicons:settings-05"
-                      width={24}
-                    />
-                  }
-                  onPress={() => {
-                    router.push("/admin/page-settings");
-                  }}
-                >
-                  exFlow Settings
                 </DropdownItem>
               </DropdownMenu>
             </Dropdown>
