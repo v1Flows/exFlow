@@ -35,9 +35,6 @@ RUN apk update && apk add --no-cache \
 RUN addgroup --system --gid 1001 nodejs \
     && adduser --system --uid 1001 nextjs
 
-# Copy the backend binary
-COPY --from=backend-builder /app/backend/exflow-backend /app/
-
 # Copy the frontend build
 COPY --from=frontend-builder /app/frontend/public /app/public
 
@@ -61,7 +58,7 @@ COPY --chown=nextjs:nodejs <<'EOF' /app/start.sh
 # Function to restore config files from persistent volume if they exist
 restore_configs() {
     if [ -f "/etc/exflow/config.yaml" ]; then
-        cp /etc/exflow/config.yaml /app/config.yaml
+        cp /etc/exflow/config.yaml /app/backend/config.yaml
         echo "Restored backend config from persistent volume"
     fi
     
@@ -74,8 +71,8 @@ restore_configs() {
 # Function to backup config files to persistent volume
 backup_configs() {
     while true; do
-        if [ -f "/app/config.yaml" ]; then
-            cp /app/config.yaml /etc/exflow/config.yaml
+        if [ -f "/app/backend/config.yaml" ]; then
+            cp /app/backend/config.yaml /etc/exflow/config.yaml
         fi
         
         if [ -f "/app/frontend/.env" ]; then
@@ -94,9 +91,9 @@ backup_configs &
 
 # Start the applications
 if [ -f "/etc/exflow/config.yaml" ]; then
-    ./exflow-backend --config /etc/exflow/config.yaml &
+    /app/backend/exflow-backend --config /etc/exflow/config.yaml &
 else
-    ./exflow-backend &
+    /app/backend/exflow-backend &
 fi
 
 node /app/server.js
