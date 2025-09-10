@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 
 import { NextResponse } from "next/server";
 
+// eslint-disable-next-line import/order
 import PageGetSettings from "./lib/fetch/page/settings";
 
 import "./updateSessionInterval";
@@ -121,6 +122,7 @@ export async function middleware(request: NextRequest) {
     // Add pathname header for layout to use
     return createResponseWithPathname(pathname);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Middleware error:", error);
 
     return new NextResponse("Internal Server Error", { status: 500 });

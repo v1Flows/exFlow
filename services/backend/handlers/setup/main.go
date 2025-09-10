@@ -9,7 +9,6 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 	"syscall"
 	"time"
@@ -334,17 +333,17 @@ func SetupSystem(c *gin.Context, configFile string, frontendEnv string) {
 }
 
 // CheckSetupStatus checks if the system has been set up
-func CheckSetupStatus(c *gin.Context) {
+func CheckSetupStatus(c *gin.Context, configFile string, frontendEnv string) {
 	backendConfigExists := false
 	frontendEnvExists := false
 
 	// Check if backend config exists
-	if _, err := os.Stat(filepath.Join(".", "config.yaml")); err == nil {
+	if _, err := os.Stat(configFile); err == nil {
 		backendConfigExists = true
 	}
 
 	// Check if frontend .env exists
-	if _, err := os.Stat(filepath.Join("..", "frontend", ".env")); err == nil {
+	if _, err := os.Stat(frontendEnv); err == nil {
 		frontendEnvExists = true
 	}
 
