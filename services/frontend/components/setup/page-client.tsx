@@ -167,7 +167,7 @@ export default function SetupPageClient() {
             Setup Complete!
           </p>
           <p className="z-10 text-center text-lg text-gray-300 mb-4">
-            Your ExFlow application is now configured.
+            Your exFlow application is now configured.
           </p>
           <div className="z-10 text-center text-sm text-gray-400 mb-6 max-w-md">
             <p className="mb-2">
@@ -213,7 +213,7 @@ export default function SetupPageClient() {
       <div className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden rounded-lg bg-background">
         <div className="z-10 w-full max-w-md">
           <p className="text-center text-4xl font-semibold tracking-tighter text-white mb-2">
-            Setup <span className="text-primary font-bold">ExFlow</span>
+            Setup <span className="text-primary font-bold">exFlow</span>
           </p>
           <p className="text-center text-gray-300 mb-8">
             Configure your application settings
@@ -271,7 +271,7 @@ export default function SetupPageClient() {
               {currentStep === 1 && (
                 <>
                   <Input
-                    description="Port on which the backend server will start. Keep the default value if ExFlow is running inside Docker."
+                    description="Port on which the backend server will start. Keep the default value if exFlow is running inside Docker."
                     label="Backend Port"
                     placeholder="8080"
                     type="number"
@@ -339,7 +339,7 @@ export default function SetupPageClient() {
               {currentStep === 3 && (
                 <>
                   <Input
-                    description="URL used by the frontend to reach the backend. Keep the default value if ExFlow is running inside Docker."
+                    description="URL used by the frontend to reach the backend. Keep the default value if exFlow is running inside Docker."
                     label="Backend URL"
                     placeholder="http://localhost:8080"
                     value={setupData.backend_url}

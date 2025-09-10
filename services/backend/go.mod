@@ -7,6 +7,7 @@ require (
 	github.com/uptrace/bun/driver/pgdriver v1.2.15
 	github.com/uptrace/bun/extra/bunotel v1.2.15
 	golang.org/x/crypto v0.42.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -55,7 +56,6 @@ require (
 	golang.org/x/net v0.43.0 // indirect
 	golang.org/x/text v0.29.0 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 	mellium.im/sasl v0.3.2 // indirect
 )
 
@@ -72,6 +72,5 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.21.0
 	github.com/uptrace/bun/dialect/pgdialect v1.2.15
-	github.com/v1Flows/shared-library v1.0.27
 	golang.org/x/sys v0.36.0 // indirect
 )
