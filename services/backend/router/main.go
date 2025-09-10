@@ -12,7 +12,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func StartRouter(db *bun.DB, port int) *http.Server {
+func StartRouter(db *bun.DB, port int, configFile string, frontendEnv string) *http.Server {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 
@@ -39,7 +39,7 @@ func StartRouter(db *bun.DB, port int) *http.Server {
 		Token(v1, db)
 		User(v1, db)
 		Health(v1)
-		Setup(v1)
+		Setup(v1, configFile, frontendEnv)
 	}
 
 	server := &http.Server{
@@ -58,7 +58,7 @@ func StartRouter(db *bun.DB, port int) *http.Server {
 }
 
 // StartSetupRouter starts a minimal router for setup mode (no database required)
-func StartSetupRouter(port int) *http.Server {
+func StartSetupRouter(port int, configFile string, frontendEnv string) *http.Server {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 
@@ -75,7 +75,7 @@ func StartSetupRouter(port int) *http.Server {
 	{
 		// Only enable setup and health endpoints in setup mode
 		Health(v1)
-		Setup(v1)
+		Setup(v1, configFile, frontendEnv)
 	}
 
 	server := &http.Server{

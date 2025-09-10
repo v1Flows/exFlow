@@ -43,7 +43,7 @@ RUN mkdir .next \
     && chown nextjs:nodejs .next
 
 # Copy the backend build
-COPY --from=backend-builder /app/backend/exflow-backend /app/backend/exflow-backend
+COPY --from=backend-builder /app/backend/exflow-backend /app/exflow-backend
 
 # Automatically leverage output traces to reduce image size
 COPY --from=frontend-builder --chown=nextjs:nodejs /app/frontend/.next/standalone ./
@@ -61,7 +61,7 @@ COPY --chown=nextjs:nodejs <<'EOF' /app/start.sh
 # Function to restore config files from persistent volume if they exist
 restore_configs() {
     if [ -f "/etc/exflow/config.yaml" ]; then
-        cp /etc/exflow/config.yaml /app/backend/config.yaml
+        cp /etc/exflow/config.yaml /app/config.yaml
         echo "Restored backend config from persistent volume"
     fi
     
@@ -74,8 +74,8 @@ restore_configs() {
 # Function to backup config files to persistent volume
 backup_configs() {
     while true; do
-        if [ -f "/app/backend/config.yaml" ]; then
-            cp /app/backend/config.yaml /etc/exflow/config.yaml
+        if [ -f "/app/config.yaml" ]; then
+            cp /app/config.yaml /etc/exflow/config.yaml
         fi
         
         if [ -f "/app/frontend/.env" ]; then
@@ -94,9 +94,9 @@ backup_configs &
 
 # Start the applications
 if [ -f "/etc/exflow/config.yaml" ]; then
-    /app/backend/exflow-backend --config /etc/exflow/config.yaml &
+    /app/exflow-backend --config /etc/exflow/config.yaml &
 else
-    /app/backend/exflow-backend &
+    /app/exflow-backend &
 fi
 
 node /app/server.js

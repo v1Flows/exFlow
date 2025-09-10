@@ -21,7 +21,8 @@ import (
 const version string = "2.0.0"
 
 var (
-	configFile = kingpin.Flag("config", "Config file").Short('c').Default("config.yaml").String()
+	configFile  = kingpin.Flag("config", "Config file").Short('c').Default("/app/config.yaml").String()
+	frontendEnv = kingpin.Flag("frontendEnv", "Path to frontend environment").Default("/app/.env").String()
 )
 
 func logging(logLevel string) {
@@ -56,7 +57,7 @@ func main() {
 	// Check if config file exists
 	if _, err := os.Stat(*configFile); os.IsNotExist(err) {
 		log.Info("Config file not found, starting in setup mode")
-		startSetupMode()
+		startSetupMode(*configFile, *frontendEnv)
 		return
 	}
 
@@ -64,7 +65,7 @@ func main() {
 	err := config.GetInstance().LoadConfig(*configFile)
 	if err != nil {
 		log.Error("Failed to load config file, starting in setup mode: ", err)
-		startSetupMode()
+		startSetupMode(*configFile, *frontendEnv)
 		return
 	}
 
@@ -86,7 +87,7 @@ func main() {
 	go background_checks.Init(db)
 
 	// Set up signal handling for graceful shutdown
-	server := router.StartRouter(db, cfg.Port)
+	server := router.StartRouter(db, cfg.Port, *configFile, *frontendEnv)
 
 	// Wait for interrupt signal to gracefully shutdown the server
 	quit := make(chan os.Signal, 1)
@@ -104,12 +105,12 @@ func main() {
 	log.Info("Server exited")
 }
 
-func startSetupMode() {
+func startSetupMode(configFile string, frontendEnv string) {
 	log.Info("Starting in setup mode - limited functionality available")
 	logging("info") // Default to info level logging in setup mode
 
 	// Start router in setup mode (without database connection)
-	server := router.StartSetupRouter(8080) // Default port for setup
+	server := router.StartSetupRouter(8080, configFile, frontendEnv) // Default port for setup
 
 	// Wait for interrupt signal to gracefully shutdown the server
 	quit := make(chan os.Signal, 1)

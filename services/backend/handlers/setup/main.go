@@ -203,7 +203,7 @@ func validateBackendURL(backendURL string) error {
 }
 
 // SetupSystem handles the initial system setup
-func SetupSystem(c *gin.Context) {
+func SetupSystem(c *gin.Context, configFile string, frontendEnv string) {
 	var req SetupRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -294,7 +294,6 @@ func SetupSystem(c *gin.Context) {
 	}
 
 	// Write backend config.yaml
-	backendConfigPath := filepath.Join(".", "config.yaml")
 	configData, err := yaml.Marshal(&backendConfig)
 	if err != nil {
 		log.Error("Failed to marshal backend config: ", err)
@@ -302,7 +301,7 @@ func SetupSystem(c *gin.Context) {
 		return
 	}
 
-	err = os.WriteFile(backendConfigPath, configData, 0600)
+	err = os.WriteFile(configFile, configData, 0600)
 	if err != nil {
 		log.Error("Failed to write backend config: ", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to write backend config"})
@@ -310,10 +309,9 @@ func SetupSystem(c *gin.Context) {
 	}
 
 	// Create frontend .env file
-	frontendEnvPath := filepath.Join("..", "frontend", ".env")
 	envContent := "NEXT_PUBLIC_API_URL=\"" + req.BackendURL + "\"\n"
 
-	err = os.WriteFile(frontendEnvPath, []byte(envContent), 0644)
+	err = os.WriteFile(frontendEnv, []byte(envContent), 0644)
 	if err != nil {
 		log.Error("Failed to write frontend .env: ", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to write frontend config"})
@@ -323,8 +321,8 @@ func SetupSystem(c *gin.Context) {
 	log.Info("System setup completed successfully")
 	c.JSON(http.StatusOK, gin.H{
 		"message":             "Setup completed successfully. Application will restart in full mode.",
-		"backend_config_path": backendConfigPath,
-		"frontend_env_path":   frontendEnvPath,
+		"backend_config_path": configFile,
+		"frontend_env_path":   frontendEnv,
 		"restart_required":    true,
 	})
 
