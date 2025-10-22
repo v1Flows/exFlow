@@ -9,11 +9,11 @@ import { siteConfig } from "@/config/site";
 const navLinks = [
   {
     name: "GitHub",
-    href: "https://github.com/JustLABv1/justflow",
+    href: "https://github.com/v1Flows/exFlow",
   },
   {
     name: "Components",
-    href: "https://github.com/orgs/JustLABv1/repositories",
+    href: "https://github.com/orgs/v1Flows/repositories",
   },
 ];
 
@@ -30,9 +30,7 @@ export default function Footer() {
             src={`/images/ef_logo_512.png`}
             width={28}
           />
-          <span className="text-medium font-medium pl-1">
-            {siteConfig.name}
-          </span>
+          <span className="text-medium font-medium pl-1">exFlow</span>
         </div>
         <Spacer y={4} />
         <div className="flex flex-wrap justify-center gap-x-4 gap-y-1">
@@ -50,7 +48,7 @@ export default function Footer() {
         </div>
         <Spacer y={2} />
         <p className="mt-1 text-center text-small text-default-400">
-          &copy; 2025 JustLAB. All rights reserved. Version {siteConfig.version}
+          &copy; 2025 exFlow. All rights reserved. Version {siteConfig.version}
         </p>
         <p className="mt-1 flex gap-1 text-center text-small text-default-400">
           Made with <Icon icon="hugeicons:love-korean-finger" width={18} /> in
