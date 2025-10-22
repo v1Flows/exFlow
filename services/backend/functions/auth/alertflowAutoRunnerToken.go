@@ -3,14 +3,14 @@ package auth
 import (
 	"time"
 
-	"github.com/v1Flows/exFlow/services/backend/config"
-	"github.com/v1Flows/exFlow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/services/backend/config"
+	"github.com/JustLABv1/justflow/services/backend/pkg/models"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
 
-func GenerateExFlowAutoRunnerJWT(id uuid.UUID) (tokenString string, expirationTime time.Time, err error) {
+func GenerateJustFlowAutoRunnerJWT(id uuid.UUID) (tokenString string, expirationTime time.Time, err error) {
 	var jwtKey = []byte(config.Config.JWT.Secret)
 
 	expirationTime = time.Now().Add(50 * 365 * 24 * time.Hour) // 10 years

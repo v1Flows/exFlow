@@ -14,7 +14,7 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 
-	"github.com/v1Flows/exFlow/services/backend/database/migrations"
+	"github.com/JustLABv1/justflow/services/backend/database/migrations"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -27,7 +27,7 @@ func StartPostgres(dbServer string, dbPort int, dbUser string, dbPass string, db
 		pgdriver.WithUser(dbUser),
 		pgdriver.WithPassword(dbPass),
 		pgdriver.WithDatabase(dbName),
-		pgdriver.WithApplicationName("exflow"),
+		pgdriver.WithApplicationName("justflow"),
 		pgdriver.WithTLSConfig(nil),
 	)
 

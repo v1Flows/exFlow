@@ -9,7 +9,7 @@ import (
 	"io"
 
 	"github.com/uptrace/bun"
-	"github.com/v1Flows/exFlow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/services/backend/pkg/models"
 )
 
 // EncryptExecutionStepActionMessageWithProject encrypts execution step messages using project-specific encryption

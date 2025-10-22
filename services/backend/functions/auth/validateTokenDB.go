@@ -6,8 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/uptrace/bun"
-	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
-	"github.com/v1Flows/exFlow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/services/backend/functions/httperror"
+	"github.com/JustLABv1/justflow/services/backend/pkg/models"
 )
 
 func ValidateTokenDBEntry(token string, db *bun.DB, ctx *gin.Context) (valid bool, err error) {

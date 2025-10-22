@@ -1,6 +1,6 @@
-# Contributing to exFlow
+# Contributing to JustFlow
 
-We welcome contributions to the exFlow project! By contributing, you help make this project better for everyone. Here are some guidelines to help you get started.
+We welcome contributions to the JustFlow project! By contributing, you help make this project better for everyone. Here are some guidelines to help you get started.
 
 ## Table of Contents
 
@@ -17,8 +17,8 @@ We welcome contributions to the exFlow project! By contributing, you help make t
 1. Fork the repository on GitHub.
 2. Clone your forked repository:
     ```sh
-    git clone git@github.com:v1Flows/exflow.git
-    cd exflow
+    git clone git@github.com:v1Flows/justflow.git
+    cd justflow
     ```
 3. Create a new branch for your changes:
     ```sh
@@ -63,4 +63,4 @@ Please note that this project is released with a Contributor Code of Conduct. By
 
 ## License
 
-By contributing to exFlow, you agree that your contributions will be licensed under the GNU AFFERO GENERAL PUBLIC LICENSE Version 3.
+By contributing to JustFlow, you agree that your contributions will be licensed under the GNU AFFERO GENERAL PUBLIC LICENSE Version 3.

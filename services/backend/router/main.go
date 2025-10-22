@@ -17,7 +17,7 @@ func StartRouter(db *bun.DB, port int, configFile string, frontendEnv string) *h
 	router := gin.Default()
 
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://exflow.org", "http://localhost:3000", "http://localhost:4000"},
+		AllowOrigins:     []string{"https://justlab.xyz", "http://localhost:3000", "http://localhost:4000"},
 		AllowMethods:     []string{"GET", "HEAD", "POST", "PUT", "OPTIONS", "DELETE"},
 		AllowHeaders:     []string{"Origin", "Authorization", "X-Requested-With", "Content-Type"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -63,7 +63,7 @@ func StartSetupRouter(port int, configFile string, frontendEnv string) *http.Ser
 	router := gin.Default()
 
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://exflow.org", "http://localhost:3000", "http://localhost:4000"},
+		AllowOrigins:     []string{"https://justlab.xyz", "http://localhost:3000", "http://localhost:4000"},
 		AllowMethods:     []string{"GET", "HEAD", "POST", "PUT", "OPTIONS", "DELETE"},
 		AllowHeaders:     []string{"Origin", "Authorization", "X-Requested-With", "Content-Type"},
 		ExposeHeaders:    []string{"Content-Length"},

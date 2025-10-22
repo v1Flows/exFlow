@@ -1,11 +1,11 @@
 package projects
 
 import (
-	"github.com/v1Flows/exFlow/services/backend/functions/gatekeeper"
-	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
-	project_function "github.com/v1Flows/exFlow/services/backend/functions/project"
-	functions "github.com/v1Flows/exFlow/services/backend/functions/user"
-	"github.com/v1Flows/exFlow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/services/backend/functions/gatekeeper"
+	"github.com/JustLABv1/justflow/services/backend/functions/httperror"
+	project_function "github.com/JustLABv1/justflow/services/backend/functions/project"
+	functions "github.com/JustLABv1/justflow/services/backend/functions/user"
+	"github.com/JustLABv1/justflow/services/backend/pkg/models"
 	"errors"
 	"net/http"
 

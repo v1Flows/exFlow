@@ -1,8 +1,8 @@
 package router
 
 import (
+	"github.com/JustLABv1/justflow/services/backend/handlers/setup"
 	"github.com/gin-gonic/gin"
-	"github.com/v1Flows/exFlow/services/backend/handlers/setup"
 )
 
 func Setup(rg *gin.RouterGroup, configFile string, frontendEnv string) {

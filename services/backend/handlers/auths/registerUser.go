@@ -1,8 +1,8 @@
 package auths
 
 import (
-	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
-	"github.com/v1Flows/exFlow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/services/backend/functions/httperror"
+	"github.com/JustLABv1/justflow/services/backend/pkg/models"
 	"net/http"
 
 	_ "github.com/lib/pq"

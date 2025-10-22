@@ -3,9 +3,9 @@ package runners
 import (
 	"net/http"
 
-	"github.com/v1Flows/exFlow/services/backend/functions/auth"
-	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
-	"github.com/v1Flows/exFlow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/services/backend/functions/auth"
+	"github.com/JustLABv1/justflow/services/backend/functions/httperror"
+	"github.com/JustLABv1/justflow/services/backend/pkg/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/uptrace/bun"
@@ -25,14 +25,14 @@ func GetRunners(context *gin.Context, db *bun.DB) {
 		return
 	}
 
-	exflowRunners := make([]models.Runners, 0)
-	err = db.NewSelect().Model(&exflowRunners).Where("shared_runner = true").Scan(context)
+	justflowRunners := make([]models.Runners, 0)
+	err = db.NewSelect().Model(&justflowRunners).Where("shared_runner = true").Scan(context)
 	if err != nil {
-		httperror.InternalServerError(context, "Error collecting exflow runners from db", err)
+		httperror.InternalServerError(context, "Error collecting justflow runners from db", err)
 		return
 	}
 
-	runners := append(projectRunners, exflowRunners...)
+	runners := append(projectRunners, justflowRunners...)
 
 	context.JSON(http.StatusOK, gin.H{"runners": runners})
 }

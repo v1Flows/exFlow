@@ -47,7 +47,7 @@ export default function WelcomeModal({
     {
       title: "Create a flow",
       description:
-        "Flows are the core functionality of exFlow. They allow you to automate tasks and processes.",
+        "Flows are the core functionality of JustFlow. They allow you to automate tasks and processes.",
       details: [
         "Specify the actions that will be taken when the flow is triggered.",
         "Set up any conditions or filters to control the flow's behavior.",
@@ -61,17 +61,17 @@ export default function WelcomeModal({
       details: [
         "Actions are provided by the runner plugins.",
         "Use plugins like terraform, ansible, git and many more to manage your infrastructure.",
-        "Create custom actions using the exFlow API to extend functionality.",
+        "Create custom actions using the JustFlow API to extend functionality.",
       ],
     },
     {
       title: "Enjoy",
       description:
-        "Now that you have set up your project and flow, you can start using exFlow and we can't wait to see what you build.",
+        "Now that you have set up your project and flow, you can start using JustFlow and we can't wait to see what you build.",
       details: [
         "Open Source and self-hosted.",
         "Extensible with plugins to fit your needs.",
-        "Built with love by the exFlow team.",
+        "Built with love by the JustFlow team.",
       ],
     },
   ];
@@ -139,7 +139,7 @@ export default function WelcomeModal({
                 )}
                 <h1 className="mb-2 text-xl text-center font-medium">
                   Welcome to{" "}
-                  <span className="font-bold text-primary">exFlow</span>!
+                  <span className="font-bold text-primary">JustFlow</span>!
                 </h1>
                 <p className="text-center text-lg">
                   This is your first time here, so we&apos;ve prepared a short
