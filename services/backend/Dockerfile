@@ -8,23 +8,23 @@ RUN go mod download
 COPY services/backend/ ./
 
 # Build
-RUN go build -o exflow-backend
+RUN go build -o justflow-backend
 
 FROM alpine:3.22 as runner
 WORKDIR /app
 
-COPY --from=builder /app/backend/exflow-backend /app/
+COPY --from=builder /app/backend/justflow-backend /app/
 
-RUN addgroup --system --gid 1001 exflow
-RUN adduser --system --uid 1001 exflow
+RUN addgroup --system --gid 1001 justflow
+RUN adduser --system --uid 1001 justflow
 
-RUN mkdir -p /etc/exflow \
-    && chown -R exflow:exflow /etc/exflow
+RUN mkdir -p /etc/justflow \
+    && chown -R justflow:justflow /etc/justflow
 
-RUN chown -R exflow:exflow /app
+RUN chown -R justflow:justflow /app
 
-VOLUME [ "/etc/exflow" ]
+VOLUME [ "/etc/justflow" ]
 
 EXPOSE 8080
 
-CMD [ "/exflow-backend", "--config", "/etc/exflow/config.yaml" ]
+CMD [ "/justflow-backend", "--config", "/etc/justflow/config.yaml" ]
