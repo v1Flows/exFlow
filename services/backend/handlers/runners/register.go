@@ -175,7 +175,7 @@ func autoRunnerRegister(projectID string, runner models.Runners, context *gin.Co
 }
 
 func sharedAutoRunnerRegister(requiresToken bool, runner models.Runners, context *gin.Context, db *bun.DB) {
-	// check if runner join is disabled for exflow
+	// check if runner join is disabled for justflow
 	var settings models.Settings
 	err := db.NewSelect().Model(&settings).Where("id = 1").Scan(context)
 	if err != nil {
@@ -183,14 +183,14 @@ func sharedAutoRunnerRegister(requiresToken bool, runner models.Runners, context
 		return
 	}
 
-	// check if auto runners is disabled for exflow
+	// check if auto runners is disabled for justflow
 	if !settings.AllowSharedRunnerAutoJoin {
-		httperror.StatusBadRequest(context, "Auto runner join is disabled for ExFlow", errors.New("auto runner join is disabled for exflow"))
+		httperror.StatusBadRequest(context, "Auto runner join is disabled for JustFlow", errors.New("auto runner join is disabled for justflow"))
 		return
 	}
 
 	if !settings.AllowSharedRunnerJoin {
-		httperror.StatusBadRequest(context, "Runner join is not disabled for ExFlow", errors.New("runner join is not disabled for exflow"))
+		httperror.StatusBadRequest(context, "Runner join is not disabled for JustFlow", errors.New("runner join is not disabled for justflow"))
 		return
 	}
 

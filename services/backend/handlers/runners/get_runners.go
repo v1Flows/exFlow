@@ -25,14 +25,14 @@ func GetRunners(context *gin.Context, db *bun.DB) {
 		return
 	}
 
-	exflowRunners := make([]models.Runners, 0)
-	err = db.NewSelect().Model(&exflowRunners).Where("shared_runner = true").Scan(context)
+	justflowRunners := make([]models.Runners, 0)
+	err = db.NewSelect().Model(&justflowRunners).Where("shared_runner = true").Scan(context)
 	if err != nil {
-		httperror.InternalServerError(context, "Error collecting exflow runners from db", err)
+		httperror.InternalServerError(context, "Error collecting justflow runners from db", err)
 		return
 	}
 
-	runners := append(projectRunners, exflowRunners...)
+	runners := append(projectRunners, justflowRunners...)
 
 	context.JSON(http.StatusOK, gin.H{"runners": runners})
 }

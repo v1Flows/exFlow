@@ -151,11 +151,11 @@ func validateDatabaseConnection(server string, port int, name, user, password st
 
 	// Check if database is empty - if not, return an error
 	if result.IsEmpty {
-		result.Warning = "Database is empty - perfect for a fresh ExFlow installation"
+		result.Warning = "Database is empty - perfect for a fresh JustFlow installation"
 		return result, nil
 	} else {
 		// Database contains tables - this is an error for setup
-		result.Error = fmt.Sprintf("Database contains %d existing tables: %s. ExFlow setup requires an empty database.",
+		result.Error = fmt.Sprintf("Database contains %d existing tables: %s. JustFlow setup requires an empty database.",
 			len(tables), strings.Join(tables, ", "))
 		return result, fmt.Errorf("database must be empty for setup - found %d existing tables", len(tables))
 	}
@@ -429,7 +429,7 @@ func RestartApplication(c *gin.Context) {
 
 	// Set up environment for the new process
 	cmd.Env = os.Environ()
-	cmd.Env = append(cmd.Env, "EXFLOW_RESTARTED=1") // Flag to indicate this is a restarted process
+	cmd.Env = append(cmd.Env, "JUSTFLOW_RESTARTED=1") // Flag to indicate this is a restarted process
 
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

@@ -27,7 +27,7 @@ func StartPostgres(dbServer string, dbPort int, dbUser string, dbPass string, db
 		pgdriver.WithUser(dbUser),
 		pgdriver.WithPassword(dbPass),
 		pgdriver.WithDatabase(dbName),
-		pgdriver.WithApplicationName("exflow"),
+		pgdriver.WithApplicationName("justflow"),
 		pgdriver.WithTLSConfig(nil),
 	)
 

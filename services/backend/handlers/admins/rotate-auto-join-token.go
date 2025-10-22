@@ -15,7 +15,7 @@ import (
 func RotateAutoJoinToken(context *gin.Context, db *bun.DB) {
 	var settings models.Settings
 	var err error
-	settings.SharedRunnerAutoJoinToken, err = functions_runner.GenerateExFlowAutoJoinToken(db)
+	settings.SharedRunnerAutoJoinToken, err = functions_runner.GenerateJustFlowAutoJoinToken(db)
 	if err != nil {
 		httperror.InternalServerError(context, "Error rotating shared runner token", err)
 		return

@@ -23,7 +23,7 @@ func createDefaultSettings(db *bun.DB) {
 	if count == 0 {
 		log.Info("No existing settings found. Creating default...")
 		settings.ID = 1
-		settings.SharedRunnerAutoJoinToken, err = functions_runner.GenerateExFlowAutoJoinToken(db)
+		settings.SharedRunnerAutoJoinToken, err = functions_runner.GenerateJustFlowAutoJoinToken(db)
 		if err != nil {
 			panic(err)
 		}

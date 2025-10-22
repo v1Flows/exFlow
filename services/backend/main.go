@@ -21,8 +21,8 @@ import (
 const version string = "2.0.0"
 
 var (
-	configFile  = kingpin.Flag("config", "Config file").Short('c').Default("/etc/exflow/config.yaml").String()
-	frontendEnv = kingpin.Flag("frontendEnv", "Path to frontend environment").Default("/etc/exflow/.env").String()
+	configFile  = kingpin.Flag("config", "Config file").Short('c').Default("/etc/justflow/config.yaml").String()
+	frontendEnv = kingpin.Flag("frontendEnv", "Path to frontend environment").Default("/etc/justflow/.env").String()
 )
 
 func logging(logLevel string) {
@@ -47,10 +47,10 @@ func main() {
 	kingpin.HelpFlag.Short('h')
 	kingpin.Parse()
 
-	log.Info("Starting exFlow API. Version: ", version)
+	log.Info("Starting JustFlow API. Version: ", version)
 
 	// Check if this is a restarted process
-	if os.Getenv("EXFLOW_RESTARTED") == "1" {
+	if os.Getenv("JUSTFLOW_RESTARTED") == "1" {
 		log.Info("Application restarted after setup completion")
 	}
 

@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func GenerateExFlowAutoRunnerJWT(id uuid.UUID) (tokenString string, expirationTime time.Time, err error) {
+func GenerateJustFlowAutoRunnerJWT(id uuid.UUID) (tokenString string, expirationTime time.Time, err error) {
 	var jwtKey = []byte(config.Config.JWT.Secret)
 
 	expirationTime = time.Now().Add(50 * 365 * 24 * time.Hour) // 10 years
