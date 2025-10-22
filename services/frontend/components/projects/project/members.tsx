@@ -120,16 +120,14 @@ export default function ProjectMembers({ project, settings, user }: any) {
         {project.members.map((member: any) => (
           <Card
             key={member.id}
-            className={`border-2 ${member.invite_pending ? `bg-opacity-70 border-${statusColorMap[member.role]}-200` : `border-${statusColorMap[member.role]}`}`}
+            className={`${member.invite_pending && `bg-opacity-70`}`}
           >
             <CardBody className="flex items-start">
               <Tooltip content={member.role}>
                 <User
                   avatarProps={{
-                    isBordered: true,
-                    radius: "full",
+                    radius: "md",
                     name: member.username,
-                    color: statusColorMap[member.role],
                   }}
                   description={member.email}
                   name={
@@ -145,6 +143,14 @@ export default function ProjectMembers({ project, settings, user }: any) {
                           You
                         </Chip>
                       )}
+                      <Chip
+                        color={statusColorMap[member.role]}
+                        radius="sm"
+                        size="sm"
+                        variant="flat"
+                      >
+                        {member.role}
+                      </Chip>
                     </div>
                   }
                 >
