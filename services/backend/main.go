@@ -8,11 +8,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/v1Flows/exFlow/services/backend/config"
-	"github.com/v1Flows/exFlow/services/backend/database"
-	"github.com/v1Flows/exFlow/services/backend/functions/background_checks"
-	"github.com/v1Flows/exFlow/services/backend/functions/encryption"
-	"github.com/v1Flows/exFlow/services/backend/router"
+	"github.com/JustLABv1/justflow/services/backend/config"
+	"github.com/JustLABv1/justflow/services/backend/database"
+	"github.com/JustLABv1/justflow/services/backend/functions/background_checks"
+	"github.com/JustLABv1/justflow/services/backend/functions/encryption"
+	"github.com/JustLABv1/justflow/services/backend/router"
 
 	"github.com/alecthomas/kingpin/v2"
 	log "github.com/sirupsen/logrus"

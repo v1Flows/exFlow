@@ -4,10 +4,10 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/v1Flows/exFlow/services/backend/functions/encryption"
-	"github.com/v1Flows/exFlow/services/backend/functions/gatekeeper"
-	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
-	"github.com/v1Flows/exFlow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/services/backend/functions/encryption"
+	"github.com/JustLABv1/justflow/services/backend/functions/gatekeeper"
+	"github.com/JustLABv1/justflow/services/backend/functions/httperror"
+	"github.com/JustLABv1/justflow/services/backend/pkg/models"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"

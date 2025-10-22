@@ -1,7 +1,7 @@
 package router
 
 import (
-	"github.com/v1Flows/exFlow/services/backend/handlers/tokens"
+	"github.com/JustLABv1/justflow/services/backend/handlers/tokens"
 
 	"github.com/gin-gonic/gin"
 	"github.com/uptrace/bun"

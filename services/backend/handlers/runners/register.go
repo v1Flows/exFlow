@@ -6,11 +6,11 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/v1Flows/exFlow/services/backend/config"
-	"github.com/v1Flows/exFlow/services/backend/functions/auth"
-	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
-	functions_runner "github.com/v1Flows/exFlow/services/backend/functions/runner"
-	"github.com/v1Flows/exFlow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/services/backend/config"
+	"github.com/JustLABv1/justflow/services/backend/functions/auth"
+	"github.com/JustLABv1/justflow/services/backend/functions/httperror"
+	functions_runner "github.com/JustLABv1/justflow/services/backend/functions/runner"
+	"github.com/JustLABv1/justflow/services/backend/pkg/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

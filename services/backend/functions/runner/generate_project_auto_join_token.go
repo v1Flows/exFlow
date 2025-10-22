@@ -1,8 +1,8 @@
 package functions_runner
 
 import (
-	"github.com/v1Flows/exFlow/services/backend/functions/auth"
-	"github.com/v1Flows/exFlow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/services/backend/functions/auth"
+	"github.com/JustLABv1/justflow/services/backend/pkg/models"
 	"context"
 	"time"
 

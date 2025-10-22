@@ -1,8 +1,8 @@
 package router
 
 import (
-	"github.com/v1Flows/exFlow/services/backend/handlers/projects"
-	"github.com/v1Flows/exFlow/services/backend/middlewares"
+	"github.com/JustLABv1/justflow/services/backend/handlers/projects"
+	"github.com/JustLABv1/justflow/services/backend/middlewares"
 
 	"github.com/gin-gonic/gin"
 	"github.com/uptrace/bun"

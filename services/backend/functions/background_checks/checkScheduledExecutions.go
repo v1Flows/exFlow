@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/v1Flows/exFlow/services/backend/functions/encryption"
-	"github.com/v1Flows/exFlow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/services/backend/functions/encryption"
+	"github.com/JustLABv1/justflow/services/backend/pkg/models"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/uptrace/bun"

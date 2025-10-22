@@ -1,4 +1,4 @@
-module github.com/v1Flows/exFlow/services/backend
+module github.com/JustLABv1/justflow/services/backend
 
 go 1.24.0
 
