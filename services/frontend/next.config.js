@@ -6,7 +6,7 @@ const dotenv = require('dotenv');
 
 // Load environment variables from .env file
 dotenv.config({
-  path: '/etc/exflow/.env',
+  path: '/etc/justflow/.env',
 });
 
 /** @type {(phase: string, defaultConfig: import("next").NextConfig) => Promise<import("next").NextConfig>} */
@@ -21,7 +21,7 @@ module.exports = async (phase) => {
     reactStrictMode: true,
     images: {
       unoptimized: true,
-      domains: ['localhost', 'exflow.org'],
+      domains: ['localhost', 'justlab.xyz'],
     },
   };
   if (phase === PHASE_DEVELOPMENT_SERVER || phase === PHASE_PRODUCTION_BUILD) {

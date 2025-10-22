@@ -19,7 +19,7 @@ Even if an attacker gains access to your database, they only see:
 ### Option 1: Environment Variable (Recommended for Production)
 ```bash
 # Set the master secret as an environment variable
-export EXFLOW_ENCRYPTION_MASTER_SECRET="your-very-long-and-secure-master-secret-here"
+export JUSTFLOW_ENCRYPTION_MASTER_SECRET="your-very-long-and-secure-master-secret-here"
 ```
 
 ### Option 2: Configuration File
@@ -36,7 +36,7 @@ encryption:
 - **Length**: Minimum 32 characters, recommended 64+ characters
 - **Randomness**: Use a cryptographically secure random generator
 - **Characters**: Include letters, numbers, and symbols
-- **Uniqueness**: Must be unique per exFlow installation
+- **Uniqueness**: Must be unique per JustFlow installation
 
 ### Generate a Secure Master Secret
 
@@ -106,5 +106,5 @@ The system maintains backward compatibility:
 
 ```go
 // Environment variable
-masterSecret := os.Getenv("EXFLOW_ENCRYPTION_MASTER_SECRET")
+masterSecret := os.Getenv("JUSTFLOW_ENCRYPTION_MASTER_SECRET")
 ```

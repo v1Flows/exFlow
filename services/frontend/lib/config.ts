@@ -1,5 +1,5 @@
 /**
- * Dynamic configuration handler for ExFlow
+ * Dynamic configuration handler for JustFlow
  * Handles cases where .env might not exist during initial setup
  */
 

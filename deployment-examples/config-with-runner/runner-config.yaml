@@ -6,9 +6,9 @@ mode: master
 alertflow:
   enabled: false
 
-exflow:
+justflow:
   enabled: true
-  url: http://exflow:8080
+  url: http://justflow:8080
 
 plugins:
   - name: git

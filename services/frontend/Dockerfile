@@ -43,10 +43,10 @@ RUN chown nextjs:nodejs .next
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-RUN mkdir -p /etc/exflow \
-    && chown -R nextjs:nodejs /etc/exflow
+RUN mkdir -p /etc/justflow \
+    && chown -R nextjs:nodejs /etc/justflow
 
-VOLUME [ "/etc/exflow" ]
+VOLUME [ "/etc/justflow" ]
 
 USER nextjs
 

@@ -50,6 +50,6 @@ export const siteConfig = {
   ],
   links: {
     github: "https://github.com/JustLABv1/justflow",
-    docs: "https://exflow.org",
+    docs: "https://justlab.xyz",
   },
 };

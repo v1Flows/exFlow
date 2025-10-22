@@ -133,7 +133,7 @@ export const Navbar = ({
               >
                 <DropdownItem
                   key="system"
-                  description="Manage the exFlow system"
+                  description="Manage the JustFlow system"
                   startContent={
                     <Icon
                       className="text-danger"
@@ -527,7 +527,7 @@ export const Navbar = ({
                 </DropdownItem>
                 <DropdownItem
                   key="page_settings"
-                  description="Manage the exFlow settings"
+                  description="Manage the JustFlow settings"
                   startContent={
                     <Icon
                       className="text-danger"
@@ -539,7 +539,7 @@ export const Navbar = ({
                     router.push("/admin/page-settings");
                   }}
                 >
-                  exFlow Settings
+                  JustFlow Settings
                 </DropdownItem>
               </DropdownMenu>
             </Dropdown>
