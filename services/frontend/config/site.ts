@@ -1,9 +1,9 @@
 export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {
-  name: "exFlow",
-  description: "exFlow is an workflow automation tool",
-  version: "1.5.2",
+  name: "JustFlow",
+  description: "JustFlow is an workflow automation tool",
+  version: "2.0.0",
   navItems: [
     {
       label: "Dashboard",
@@ -41,7 +41,7 @@ export const siteConfig = {
     },
   ],
   links: {
-    github: "https://github.com/v1Flows/exFlow",
+    github: "https://github.com/JustLABv1/justflow",
     docs: "https://exflow.org",
   },
 };

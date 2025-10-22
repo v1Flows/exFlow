@@ -82,7 +82,7 @@ export const Navbar = ({
               src={`/images/ef_logo_512.png`}
               width={28}
             />
-            <p className="font-bold text-inherit">exFlow</p>
+            <p className="font-bold text-inherit">{siteConfig.name}</p>
           </NextLink>
         </NavbarBrand>
         <ul className="hidden lg:flex gap-4 justify-start ml-2">
