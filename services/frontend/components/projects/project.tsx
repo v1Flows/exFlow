@@ -1,7 +1,14 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { Alert, Button, Card, CardBody, useDisclosure } from "@heroui/react";
+import {
+  Alert,
+  Button,
+  Card,
+  CardBody,
+  Spacer,
+  useDisclosure,
+} from "@heroui/react";
 import NumberFlow from "@number-flow/react";
 import React from "react";
 
@@ -24,45 +31,43 @@ export default function Project({
 
   return (
     <main>
-      <Card
-        className="mb-4"
-        style={{
-          // use project.color as shadow color
-          boxShadow: `0 4px 6px -1px ${project.color}, 0 2px 4px -1px ${project.color}1A`,
-        }}
-      >
-        <CardBody>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Icon
-                className="h-full"
-                icon={
-                  project.icon ? project.icon : "solar:question-square-outline"
-                }
-                width={32}
-              />
-              <div className="flex flex-col items-start">
-                <p className="text-lg font-bold">{project.name}</p>
-                <p className="text-sm text-default-500">
-                  {project.description}
-                </p>
-              </div>
-            </div>
-            <Button
-              isIconOnly
-              color="warning"
-              isDisabled={
-                (project.disabled ||
-                  !canEditProject(user.id, project.members)) &&
-                user.role !== "admin"
-              }
-              startContent={<Icon icon="hugeicons:pencil-edit-02" width={20} />}
-              variant="flat"
-              onPress={() => editProjectModal.onOpen()}
-            />
+      <div className="flex flex-cols items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Icon
+            className="h-full"
+            icon={project.icon ? project.icon : "solar:question-square-outline"}
+            width={32}
+          />
+          <div className="flex flex-col items-start">
+            <p className="text-xl font-bold">{project.name}</p>
+            <p className="text-sm text-default-500">{project.description}</p>
           </div>
-        </CardBody>
-      </Card>
+        </div>
+        <div className="flex flex-cols items-center gap-4">
+          <Button
+            color="warning"
+            isDisabled={
+              (project.disabled || !canEditProject(user.id, project.members)) &&
+              user.role !== "admin"
+            }
+            startContent={<Icon icon="hugeicons:pencil-edit-02" width={20} />}
+            variant="flat"
+            onPress={() => editProjectModal.onOpen()}
+          >
+            Edit
+          </Button>
+          <div className="mt-2 lg:mt-0 lg:justify-self-end">
+            <Reloader circle refresh={20} />
+          </div>
+        </div>
+      </div>
+      <Spacer y={2} />
+      <div
+        className="p-0.5 rounded-full mb-4"
+        style={{
+          backgroundColor: project.color,
+        }}
+      />
       {project.disabled && (
         <div className="mb-4">
           <Alert
