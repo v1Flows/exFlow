@@ -234,14 +234,14 @@ export default function AddFlowActionModal({
     }
   }
 
-  function handleActionSelect(action: any) {
+  function handleActionSelect(action: any, type: string = "runner") {
     // add value field to action params
-    if (action.params && action.params.length > 0) {
+    if (type === "runner" && action.params && action.params.length > 0) {
       action.params.map((param: any) => {
         param.value = param.default;
         param.default = param.default.toString();
       });
-    } else {
+    } else if (type !== "project") {
       action.params = [];
     }
 
@@ -524,6 +524,7 @@ export default function AddFlowActionModal({
       setCurrentStep(0);
       onOpenChange();
       refreshFlowData(flow.id); // Refresh SWR cache with specific flow ID
+      setSearch("");
       addToast({
         title: "Flow",
         description: "Action added successfully to failure pipeline",
@@ -680,7 +681,10 @@ export default function AddFlowActionModal({
                           type="text"
                           value={search}
                           variant="flat"
-                          onValueChange={setSearch}
+                          onValueChange={(e) => {
+                            setSearch(e);
+                            setActionPage(1);
+                          }}
                         />
                         <Spacer y={2} />
                         <div className="grid grid-cols-1 lg:grid-cols-2 items-stretch gap-4">
@@ -697,7 +701,7 @@ export default function AddFlowActionModal({
                                         className={`border-2 border-default-200 ${act.id === action.id ? "border-primary" : ""}`}
                                         radius="md"
                                         onPress={() => {
-                                          handleActionSelect(act);
+                                          handleActionSelect(act, "project");
                                           setProjectActionSelected(true);
                                         }}
                                       >
@@ -712,7 +716,7 @@ export default function AddFlowActionModal({
                                             <div className="flex flex-col">
                                               <div className="flex flex-cols gap-2 items-center">
                                                 <p className="text-lg font-bold">
-                                                  {act.name}
+                                                  {act.custom_name || act.name}
                                                 </p>
                                                 <Chip
                                                   color="primary"
@@ -732,7 +736,8 @@ export default function AddFlowActionModal({
                                                 </Chip>
                                               </div>
                                               <p className="text-sm text-default-500 max-w-sm">
-                                                {act.description}
+                                                {act.custom_description ||
+                                                  act.description}
                                               </p>
                                             </div>
                                           </div>

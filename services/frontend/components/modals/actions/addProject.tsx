@@ -403,6 +403,7 @@ export default function AddProjectActionModal({
       setCurrentStep(0);
       onOpenChange();
       refreshProject(project.id); // Refresh SWR cache with specific project ID
+      setSearch("");
       addToast({
         title: "Project",
         description: "Predefined action added successfully",
@@ -517,7 +518,10 @@ export default function AddProjectActionModal({
                           type="text"
                           value={search}
                           variant="flat"
-                          onValueChange={setSearch}
+                          onValueChange={(e) => {
+                            setSearch(e);
+                            setActionPage(1);
+                          }}
                         />
                         <Spacer y={2} />
                         <div className="grid grid-cols-1 lg:grid-cols-2 items-stretch gap-4">
