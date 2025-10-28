@@ -58,16 +58,18 @@ export const CustomRadio = (props: any) => {
   );
 };
 
-export default function AddActionModal({
+export default function AddFlowActionModal({
   disclosure,
   runners,
   flow,
+  project,
   isFailurePipeline,
   failurePipeline,
 }: {
   disclosure: UseDisclosureReturn;
   runners: any;
-  flow: any;
+  flow?: any;
+  project?: any;
   user: any;
   isFailurePipeline?: boolean;
   failurePipeline?: any;
@@ -76,7 +78,7 @@ export default function AddActionModal({
 
   const { isOpen, onOpenChange } = disclosure;
 
-  const [steps] = useState(4);
+  const [steps] = useState(5);
   const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = React.useState(false);
@@ -84,6 +86,9 @@ export default function AddActionModal({
   const [errorMessage, setErrorMessage] = React.useState("");
 
   const [disableNext, setDisableNext] = useState(false);
+
+  const [actionBaseSelected, setActionBaseSelected] = useState("");
+  const [projectActionSelected, setProjectActionSelected] = useState(false);
 
   const [availableActions, setAvailableActions] = useState([] as any);
   const [availableCategories, setAvailableCategories] = useState([
@@ -563,7 +568,8 @@ export default function AddActionModal({
               <ModalHeader className="flex flex-wrap items-center">
                 <div className="flex flex-col">
                   <p className="text-lg font-bold">
-                    Add Action to Flow {isFailurePipeline && "Failure Pipeline"}
+                    Add Action to Flow
+                    {isFailurePipeline && "Failure Pipeline"}
                   </p>
                   <p className="text-sm text-default-500">
                     Actions are the building blocks of your flows. Those are the
@@ -586,8 +592,51 @@ export default function AddActionModal({
                   />
                 </div>
                 <div className="flex-cols flex w-full gap-4">
-                  {currentStep === 0 &&
-                    (countTotalAvailableActions() === 0 ? (
+                  {currentStep === 0 && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                      <Card
+                        fullWidth
+                        isPressable
+                        className="bg-content2 hover:bg-content3"
+                        isDisabled={
+                          project?.predefined_flow_actions.length === 0
+                        }
+                        onPress={() => {
+                          setActionBaseSelected("project");
+                          setCurrentStep(1);
+                        }}
+                      >
+                        <CardBody>
+                          <p className="text-md font-bold">Project Based</p>
+                          <p className="text-sm text-default-500">
+                            Choose an action that is predefined in the Flow
+                            Project.
+                          </p>
+                        </CardBody>
+                      </Card>
+
+                      <Card
+                        fullWidth
+                        isPressable
+                        className="bg-content2 hover:bg-content3"
+                        onPress={() => {
+                          setActionBaseSelected("runner");
+                          setCurrentStep(1);
+                        }}
+                      >
+                        <CardBody>
+                          <p className="text-md font-bold">Runner Based</p>
+                          <p className="text-sm text-default-500">
+                            Choose an action that is available within the
+                            Runners.
+                          </p>
+                        </CardBody>
+                      </Card>
+                    </div>
+                  )}
+                  {currentStep === 1 &&
+                    (actionBaseSelected === "runner" &&
+                    countTotalAvailableActions() === 0 ? (
                       <Alert
                         color="danger"
                         description="Please check if there are healthy and registered runners available for this flow."
@@ -635,42 +684,106 @@ export default function AddActionModal({
                         />
                         <Spacer y={2} />
                         <div className="grid grid-cols-1 lg:grid-cols-2 items-stretch gap-4">
-                          {actionItems.map((act: any) => (
-                            <Card
-                              key={act.type}
-                              isHoverable
-                              isPressable
-                              className={`border-2 border-default-200 ${act.plugin === action.plugin && act.version === action.version ? "border-primary" : ""}`}
-                              radius="sm"
-                              onPress={() => handleActionSelect(act)}
-                            >
-                              <CardBody>
-                                <div className="flex items-center gap-2">
-                                  <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
-                                    <Icon icon={act.icon} width={26} />
-                                  </div>
-                                  <div className="flex flex-col">
-                                    <div className="flex flex-cols gap-2 items-center">
-                                      <p className="text-lg font-bold">
-                                        {act.name}
-                                      </p>
-                                      <Chip
-                                        color="primary"
-                                        radius="sm"
-                                        size="sm"
-                                        variant="flat"
+                          {actionBaseSelected === "project" &&
+                            project.predefined_flow_actions.length > 0 && (
+                              <div className="col-span-2">
+                                <div className="grid grid-cols-1 lg:grid-cols-2 items-stretch gap-4 mb-4">
+                                  {project.predefined_flow_actions.map(
+                                    (act: any) => (
+                                      <Card
+                                        key={act.id}
+                                        isHoverable
+                                        isPressable
+                                        className={`border-2 border-default-200 ${act.id === action.id ? "border-primary" : ""}`}
+                                        radius="md"
+                                        onPress={() => {
+                                          handleActionSelect(act);
+                                          setProjectActionSelected(true);
+                                        }}
                                       >
-                                        Ver. {act.version}
-                                      </Chip>
-                                    </div>
-                                    <p className="text-sm text-default-500">
-                                      {act.description}
-                                    </p>
-                                  </div>
+                                        <CardBody>
+                                          <div className="flex items-center h-full gap-2">
+                                            <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
+                                              <Icon
+                                                icon={act.icon}
+                                                width={26}
+                                              />
+                                            </div>
+                                            <div className="flex flex-col">
+                                              <div className="flex flex-cols gap-2 items-center">
+                                                <p className="text-lg font-bold">
+                                                  {act.name}
+                                                </p>
+                                                <Chip
+                                                  color="primary"
+                                                  radius="sm"
+                                                  size="sm"
+                                                  variant="flat"
+                                                >
+                                                  Ver. {act.version}
+                                                </Chip>
+                                                <Chip
+                                                  color="secondary"
+                                                  radius="sm"
+                                                  size="sm"
+                                                  variant="flat"
+                                                >
+                                                  Project
+                                                </Chip>
+                                              </div>
+                                              <p className="text-sm text-default-500 max-w-sm">
+                                                {act.description}
+                                              </p>
+                                            </div>
+                                          </div>
+                                        </CardBody>
+                                      </Card>
+                                    ),
+                                  )}
                                 </div>
-                              </CardBody>
-                            </Card>
-                          ))}
+                              </div>
+                            )}
+
+                          {actionBaseSelected === "runner" &&
+                            actionItems.map((act: any) => (
+                              <Card
+                                key={act.type}
+                                isHoverable
+                                isPressable
+                                className={`border-2 border-default-200 ${act.plugin === action.plugin && act.version === action.version && !projectActionSelected ? "border-primary" : ""}`}
+                                radius="md"
+                                onPress={() => {
+                                  handleActionSelect(act);
+                                  setProjectActionSelected(false);
+                                }}
+                              >
+                                <CardBody>
+                                  <div className="flex items-center gap-2">
+                                    <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
+                                      <Icon icon={act.icon} width={26} />
+                                    </div>
+                                    <div className="flex flex-col">
+                                      <div className="flex flex-cols gap-2 items-center">
+                                        <p className="text-lg font-bold">
+                                          {act.name}
+                                        </p>
+                                        <Chip
+                                          color="primary"
+                                          radius="sm"
+                                          size="sm"
+                                          variant="flat"
+                                        >
+                                          Ver. {act.version}
+                                        </Chip>
+                                      </div>
+                                      <p className="text-sm text-default-500 max-w-sm">
+                                        {act.description}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </CardBody>
+                              </Card>
+                            ))}
                         </div>
                         <Spacer y={4} />
                         <div className="flex items-center justify-center">
@@ -684,11 +797,11 @@ export default function AddActionModal({
                         </div>
                       </div>
                     ))}
-                  {currentStep === 1 && (
+                  {currentStep === 2 && (
                     <div className="flex flex-col w-full">
                       <Card
                         className="border-2 border-default-200 border-primary"
-                        radius="sm"
+                        radius="md"
                       >
                         <CardBody>
                           <div className="flex items-center gap-2">
@@ -765,7 +878,7 @@ export default function AddActionModal({
                       </div>
                     </div>
                   )}
-                  {currentStep === 2 && (
+                  {currentStep === 3 && (
                     <div className="flex flex-col w-full">
                       <p className="text-lg font-bold">Parameters</p>
                       <Spacer y={2} />
@@ -974,7 +1087,7 @@ export default function AddActionModal({
                       </ScrollShadow>
                     </div>
                   )}
-                  {currentStep === 3 && (
+                  {currentStep === 4 && (
                     <div className="flex flex-col w-full">
                       <p className="text-lg font-bold">Conditional Execution</p>
                       <p className="text-default-500">
@@ -1381,7 +1494,7 @@ export default function AddActionModal({
                 >
                   Cancel
                 </Button>
-                {currentStep === 3 && (
+                {currentStep === 4 && (
                   <Button
                     color="warning"
                     startContent={

@@ -17,8 +17,8 @@ type SuccessResponse = {
   data: Result;
 };
 
-export default async function DeleteFlowAction(
-  flowID: any,
+export default async function DeleteProjectAction(
+  projectID: any,
   actionID: any,
 ): Promise<SuccessResponse | ErrorResponse> {
   try {
@@ -34,7 +34,7 @@ export default async function DeleteFlowAction(
     }
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/flows/${flowID}/actions/${actionID}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/projects/${projectID}/actions/${actionID}`,
       {
         method: "DELETE",
         headers: {

@@ -13,10 +13,11 @@ import {
 import React from "react";
 import { Icon } from "@iconify/react";
 
-import DeleteAction from "@/lib/fetch/flow/DELETE/DeleteAction";
 import ErrorCard from "@/components/error/ErrorCard";
 import DeleteFailurePipelineAction from "@/lib/fetch/flow/DELETE/DeleteFailurePipelineAction";
 import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
+import DeleteFlowAction from "@/lib/fetch/flow/DELETE/DeleteAction";
+import DeleteProjectAction from "@/lib/fetch/project/DELETE/DeleteAction";
 
 export default function DeleteActionModal({
   disclosure,
@@ -24,14 +25,18 @@ export default function DeleteActionModal({
   actionID,
   isFailurePipeline,
   failurePipeline,
+  isProjectAction,
+  projectID,
 }: {
   disclosure: UseDisclosureReturn;
-  flowID: any;
+  flowID?: any;
   actionID: any;
   isFailurePipeline?: boolean;
   failurePipeline?: any;
+  isProjectAction?: boolean;
+  projectID?: string;
 }) {
-  const { refreshFlowData } = useRefreshCache();
+  const { refreshFlowData, refreshProject } = useRefreshCache();
 
   const { isOpen, onOpenChange } = disclosure;
 
@@ -40,9 +45,16 @@ export default function DeleteActionModal({
   const [errorText, setErrorText] = React.useState("");
   const [errorMessage, setErrorMessage] = React.useState("");
 
-  async function deleteFlowAction() {
+  async function deleteAction() {
     setIsDeleteLoading(true);
-    const res = (await DeleteAction(flowID, actionID)) as any;
+
+    let res;
+
+    if (isProjectAction) {
+      res = await DeleteProjectAction(projectID, actionID);
+    } else {
+      res = (await DeleteFlowAction(flowID, actionID)) as any;
+    }
 
     if (!res) {
       setError(true);
@@ -64,7 +76,11 @@ export default function DeleteActionModal({
         color: "success",
         variant: "flat",
       });
-      refreshFlowData(flowID); // Refresh SWR cache with specific flow ID
+      if (isProjectAction) {
+        refreshProject(projectID);
+      } else {
+        refreshFlowData(flowID); // Refresh SWR cache with specific flow ID
+      }
     } else {
       setIsDeleteLoading(false);
       setError(true);
@@ -110,7 +126,12 @@ export default function DeleteActionModal({
         color: "success",
         variant: "flat",
       });
-      refreshFlowData(flowID); // Refresh SWR cache with specific flow ID
+
+      if (isProjectAction) {
+        refreshProject(projectID);
+      } else {
+        refreshFlowData(flowID); // Refresh SWR cache with specific flow ID
+      }
     } else {
       setIsDeleteLoading(false);
       setError(true);
@@ -175,7 +196,7 @@ export default function DeleteActionModal({
                   onPress={
                     isFailurePipeline
                       ? deleteFailurePipelineAction
-                      : deleteFlowAction
+                      : deleteAction
                   }
                 >
                   Delete

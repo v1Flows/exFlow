@@ -26,6 +26,7 @@ export default async function UpdateProject(
   color: string,
   enable_auto_runners: boolean,
   disable_runner_join: boolean,
+  predefined_flow_actions: any,
 ): Promise<SuccessResponse | ErrorResponse> {
   try {
     const cookieStore = await cookies();
@@ -55,6 +56,7 @@ export default async function UpdateProject(
           color,
           enable_auto_runners,
           disable_runner_join,
+          predefined_flow_actions,
         }),
       },
     );

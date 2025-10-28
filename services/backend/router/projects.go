@@ -94,5 +94,19 @@ func Projects(router *gin.RouterGroup, db *bun.DB) {
 		project.PUT("/:projectID/encryption/rotate-key", func(c *gin.Context) {
 			projects.RotateProjectEncryptionKey(c, db)
 		})
+
+		// actions
+		// flow.POST("/:flowID/actions", func(c *gin.Context) {
+		// 	flows.AddFlowActions(c, db)
+		// })
+		// flow.PUT("/:flowID/actions", func(c *gin.Context) {
+		// 	flows.UpdateFlowActions(c, db)
+		// })
+		// flow.PUT("/:flowID/actions/details", func(c *gin.Context) {
+		// 	flows.UpdateFlowActionsDetails(c, db)
+		// })
+		project.DELETE("/:projectID/actions/:actionID", func(c *gin.Context) {
+			projects.DeleteProjectAction(c, db)
+		})
 	}
 }

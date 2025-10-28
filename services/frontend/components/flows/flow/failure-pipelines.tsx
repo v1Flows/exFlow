@@ -30,7 +30,7 @@ import { useRouter } from "next/navigation";
 
 import EditActionModal from "@/components/modals/actions/edit";
 import DeleteActionModal from "@/components/modals/actions/delete";
-import AddActionModal from "@/components/modals/actions/add";
+import AddActionModal from "@/components/modals/actions/addProject";
 import CreateFailurePipelineModal from "@/components/modals/failurePipelines/create";
 import DeleteFailurePipelineModal from "@/components/modals/failurePipelines/delete";
 import EditFailurePipelineModal from "@/components/modals/failurePipelines/edit";

@@ -25,7 +25,7 @@ export default function FlowActionDetails({
   action,
 }: {
   disclosure: UseDisclosureReturn;
-  flow: any;
+  flow?: any;
   action: any;
 }) {
   const { isOpen, onOpenChange } = disclosure;
@@ -77,26 +77,28 @@ export default function FlowActionDetails({
                   {action.description}
                 </div>
               </div>
-              <div className="flex items-center justify-between">
-                <div className="text-small text-default-500">
-                  Failure Pipeline
+              {flow && (
+                <div className="flex items-center justify-between">
+                  <div className="text-small text-default-500">
+                    Failure Pipeline
+                  </div>
+                  <div className={"text-small font-medium"}>
+                    {flow.failure_pipeline_id === "" ||
+                    flow.failure_pipeline_id === null ? (
+                      flow.failure_pipelines.filter(
+                        (pipeline: any) =>
+                          pipeline.id === action.failure_pipeline_id,
+                      )[0]?.name ||
+                      action.failure_pipeline_id ||
+                      "None"
+                    ) : (
+                      <span className="text-warning">
+                        Overwritten by Flow Setting
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <div className={"text-small font-medium"}>
-                  {flow.failure_pipeline_id === "" ||
-                  flow.failure_pipeline_id === null ? (
-                    flow.failure_pipelines.filter(
-                      (pipeline: any) =>
-                        pipeline.id === action.failure_pipeline_id,
-                    )[0]?.name ||
-                    action.failure_pipeline_id ||
-                    "None"
-                  ) : (
-                    <span className="text-warning">
-                      Overwritten by Flow Setting
-                    </span>
-                  )}
-                </div>
-              </div>
+              )}
 
               {action.params.length > 0 && (
                 <>
@@ -150,7 +152,7 @@ export default function FlowActionDetails({
                 </>
               )}
 
-              {action.condition.selected_action_id !== "" && (
+              {flow && action.condition.selected_action_id !== "" && (
                 <>
                   <Divider />
                   <p className="font-semibold">Conditions</p>
