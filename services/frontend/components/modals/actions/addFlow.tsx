@@ -29,7 +29,7 @@ import {
   Spacer,
   Textarea,
 } from "@heroui/react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 import AddFlowActions from "@/lib/fetch/flow/POST/AddFlowActions";
@@ -112,6 +112,12 @@ export default function AddFlowActionModal({
         .slice(start, end);
     }
 
+    if (selectedCategory === "Uncategorized") {
+      return availableActions
+        .filter((action: any) => action.category === "")
+        .slice(start, end);
+    }
+
     if (selectedCategory !== "All") {
       return availableActions
         .filter((action: any) => action.category === selectedCategory)
@@ -170,59 +176,82 @@ export default function AddFlowActionModal({
   function countTotalAvailableActions() {
     let actions = 0;
 
-    for (let i = 0; i < runners.length; i++) {
-      const timeAgo =
-        (new Date(runners[i].last_heartbeat).getTime() - Date.now()) / 1000;
-
-      if (runners[i].disabled || !runners[i].registered || timeAgo <= -30) {
-        continue;
+    if (actionBaseSelected === "project") {
+      actions = project.predefined_flow_actions.length;
+      if (actions === 0) {
+        setDisableNext(true);
+      } else {
+        setDisableNext(false);
       }
 
-      if (runners[i].actions.length > 0) {
-        actions++;
+      return actions;
+    } else if (actionBaseSelected === "runner") {
+      for (let i = 0; i < runners.length; i++) {
+        const timeAgo =
+          (new Date(runners[i].last_heartbeat).getTime() - Date.now()) / 1000;
+
+        if (runners[i].disabled || !runners[i].registered || timeAgo <= -30) {
+          continue;
+        }
+
+        if (runners[i].actions.length > 0) {
+          actions++;
+        }
       }
-    }
 
-    if (actions === 0) {
-      setDisableNext(true);
-    } else {
-      setDisableNext(false);
-    }
+      if (actions === 0) {
+        setDisableNext(true);
+      } else {
+        setDisableNext(false);
+      }
 
-    return actions;
+      return actions;
+    }
   }
 
-  function getUniqueActions() {
-    for (let i = 0; i < runners.length; i++) {
-      for (let j = 0; j < runners[i].actions.length; j++) {
-        const action = runners[i].actions[j];
+  function getUniqueActions(type: string) {
+    setAvailableActions([]);
 
-        setAvailableActions((prev: any) => {
-          if (!action.version) {
+    if (type === "project") {
+      setAvailableActions(project.predefined_flow_actions);
+    } else if (type === "runner") {
+      for (let i = 0; i < runners.length; i++) {
+        for (let j = 0; j < runners[i].actions.length; j++) {
+          const action = runners[i].actions[j];
+
+          setAvailableActions((prev: any) => {
+            if (!action.version) {
+              return prev;
+            }
+
+            const actionSet = new Set(
+              prev.map((a: any) => `${a.plugin}-${a.version}`),
+            );
+
+            if (!actionSet.has(`${action.plugin}-${action.version}`)) {
+              return [...prev, action];
+            }
+
             return prev;
-          }
-
-          const actionSet = new Set(
-            prev.map((a: any) => `${a.plugin}-${a.version}`),
-          );
-
-          if (!actionSet.has(`${action.plugin}-${action.version}`)) {
-            return [...prev, action];
-          }
-
-          return prev;
-        });
+          });
+        }
       }
     }
   }
 
-  function getUniqueActionCategorys() {
-    for (let i = 0; i < runners.length; i++) {
-      for (let j = 0; j < runners[i].actions.length; j++) {
-        const action = runners[i].actions[j];
+  function getUniqueActionCategorys(type: string) {
+    setAvailableCategories(["All"]);
+
+    if (type === "project") {
+      for (let i = 0; i < project.predefined_flow_actions.length; i++) {
+        const action = project.predefined_flow_actions[i];
 
         setAvailableCategories((prev: any) => {
           const categorySet = new Set(prev);
+
+          if (action.category === "" && !categorySet.has("Uncategorized")) {
+            return [...prev, "Uncategorized"];
+          }
 
           if (!categorySet.has(action.category)) {
             return [...prev, action.category];
@@ -230,6 +259,30 @@ export default function AddFlowActionModal({
 
           return prev;
         });
+      }
+
+      return;
+    }
+
+    if (type === "runner") {
+      for (let i = 0; i < runners.length; i++) {
+        for (let j = 0; j < runners[i].actions.length; j++) {
+          const action = runners[i].actions[j];
+
+          setAvailableCategories((prev: any) => {
+            const categorySet = new Set(prev);
+
+            if (action.category === "" && !categorySet.has("Uncategorized")) {
+              return [...prev, "Uncategorized"];
+            }
+
+            if (!categorySet.has(action.category)) {
+              return [...prev, action.category];
+            }
+
+            return prev;
+          });
+        }
       }
     }
   }
@@ -546,14 +599,6 @@ export default function AddFlowActionModal({
     setLoading(false);
   }
 
-  useEffect(() => {
-    if (runners.length > 0) {
-      getUniqueActions();
-      getUniqueActionCategorys();
-    }
-  }),
-    [runners];
-
   return (
     <main>
       <Modal
@@ -597,13 +642,17 @@ export default function AddFlowActionModal({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                       <Card
                         fullWidth
-                        isPressable
                         className="bg-content2 hover:bg-content3"
                         isDisabled={
                           project?.predefined_flow_actions.length === 0
                         }
+                        isPressable={
+                          project?.predefined_flow_actions.length > 0
+                        }
                         onPress={() => {
                           setActionBaseSelected("project");
+                          getUniqueActions("project");
+                          getUniqueActionCategorys("project");
                           setCurrentStep(1);
                         }}
                       >
@@ -622,6 +671,8 @@ export default function AddFlowActionModal({
                         className="bg-content2 hover:bg-content3"
                         onPress={() => {
                           setActionBaseSelected("runner");
+                          getUniqueActions("runner");
+                          getUniqueActionCategorys("runner");
                           setCurrentStep(1);
                         }}
                       >
@@ -636,11 +687,10 @@ export default function AddFlowActionModal({
                     </div>
                   )}
                   {currentStep === 1 &&
-                    (actionBaseSelected === "runner" &&
-                    countTotalAvailableActions() === 0 ? (
+                    (countTotalAvailableActions() === 0 ? (
                       <Alert
                         color="danger"
-                        description="Please check if there are healthy and registered runners available for this flow."
+                        description="Please check if there are any predefined actions in the project or healthy and registered runners available for this flow."
                         icon={<Icon icon="hugeicons:alert-02" width={25} />}
                         title="No Actions Available"
                         variant="solid"
@@ -688,107 +738,56 @@ export default function AddFlowActionModal({
                         />
                         <Spacer y={2} />
                         <div className="grid grid-cols-1 lg:grid-cols-2 items-stretch gap-4">
-                          {actionBaseSelected === "project" &&
-                            project.predefined_flow_actions.length > 0 && (
-                              <div className="col-span-2">
-                                <div className="grid grid-cols-1 lg:grid-cols-2 items-stretch gap-4 mb-4">
-                                  {project.predefined_flow_actions.map(
-                                    (act: any) => (
-                                      <Card
-                                        key={act.id}
-                                        isHoverable
-                                        isPressable
-                                        className={`border-2 border-default-200 ${act.id === action.id ? "border-primary" : ""}`}
-                                        radius="md"
-                                        onPress={() => {
-                                          handleActionSelect(act, "project");
-                                          setProjectActionSelected(true);
-                                        }}
+                          {actionItems.map((act: any) => (
+                            <Card
+                              key={act.type}
+                              isHoverable
+                              isPressable
+                              className={`border-2 border-default-200 ${act.plugin === action.plugin && act.version === action.version && !projectActionSelected ? "border-primary" : ""}`}
+                              radius="md"
+                              onPress={() => {
+                                handleActionSelect(act);
+                                setProjectActionSelected(false);
+                              }}
+                            >
+                              <CardBody>
+                                <div className="flex items-center gap-2">
+                                  <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
+                                    <Icon icon={act.icon} width={26} />
+                                  </div>
+                                  <div className="flex flex-col">
+                                    <div className="flex flex-cols gap-2 items-center">
+                                      <p className="text-lg font-bold">
+                                        {act.custom_name || act.name}
+                                      </p>
+                                      <Chip
+                                        color="primary"
+                                        radius="sm"
+                                        size="sm"
+                                        variant="flat"
                                       >
-                                        <CardBody>
-                                          <div className="flex items-center h-full gap-2">
-                                            <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
-                                              <Icon
-                                                icon={act.icon}
-                                                width={26}
-                                              />
-                                            </div>
-                                            <div className="flex flex-col">
-                                              <div className="flex flex-cols gap-2 items-center">
-                                                <p className="text-lg font-bold">
-                                                  {act.custom_name || act.name}
-                                                </p>
-                                                <Chip
-                                                  color="primary"
-                                                  radius="sm"
-                                                  size="sm"
-                                                  variant="flat"
-                                                >
-                                                  Ver. {act.version}
-                                                </Chip>
-                                                <Chip
-                                                  color="secondary"
-                                                  radius="sm"
-                                                  size="sm"
-                                                  variant="flat"
-                                                >
-                                                  Project
-                                                </Chip>
-                                              </div>
-                                              <p className="text-sm text-default-500 max-w-sm">
-                                                {act.custom_description ||
-                                                  act.description}
-                                              </p>
-                                            </div>
-                                          </div>
-                                        </CardBody>
-                                      </Card>
-                                    ),
-                                  )}
-                                </div>
-                              </div>
-                            )}
-
-                          {actionBaseSelected === "runner" &&
-                            actionItems.map((act: any) => (
-                              <Card
-                                key={act.type}
-                                isHoverable
-                                isPressable
-                                className={`border-2 border-default-200 ${act.plugin === action.plugin && act.version === action.version && !projectActionSelected ? "border-primary" : ""}`}
-                                radius="md"
-                                onPress={() => {
-                                  handleActionSelect(act);
-                                  setProjectActionSelected(false);
-                                }}
-                              >
-                                <CardBody>
-                                  <div className="flex items-center gap-2">
-                                    <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
-                                      <Icon icon={act.icon} width={26} />
-                                    </div>
-                                    <div className="flex flex-col">
-                                      <div className="flex flex-cols gap-2 items-center">
-                                        <p className="text-lg font-bold">
-                                          {act.name}
-                                        </p>
+                                        Ver. {act.version}
+                                      </Chip>
+                                      {actionBaseSelected === "project" && (
                                         <Chip
-                                          color="primary"
+                                          color="secondary"
                                           radius="sm"
                                           size="sm"
                                           variant="flat"
                                         >
-                                          Ver. {act.version}
+                                          Project
                                         </Chip>
-                                      </div>
-                                      <p className="text-sm text-default-500 max-w-sm">
-                                        {act.description}
-                                      </p>
+                                      )}
                                     </div>
+                                    <p className="text-sm text-default-500 max-w-sm">
+                                      {act.custom_description ||
+                                        act.description}
+                                    </p>
                                   </div>
-                                </CardBody>
-                              </Card>
-                            ))}
+                                </div>
+                              </CardBody>
+                            </Card>
+                          ))}
                         </div>
                         <Spacer y={4} />
                         <div className="flex items-center justify-center">
