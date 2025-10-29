@@ -65,7 +65,6 @@ export default function ProjectMembers({ project, settings, user }: any) {
             <div className="flex flex-wrap items-center gap-2">
               <Tooltip content="Add Member">
                 <Button
-                  isIconOnly
                   color="primary"
                   isDisabled={
                     (!canEditProject(user.id, project.members) ||
@@ -79,7 +78,9 @@ export default function ProjectMembers({ project, settings, user }: any) {
                   }
                   variant="solid"
                   onPress={() => addProjectMemberModal.onOpen()}
-                />
+                >
+                  Add Member
+                </Button>
               </Tooltip>
 
               {checkLeaveProjectDisabled() ? (
