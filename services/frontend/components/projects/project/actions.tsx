@@ -1,16 +1,11 @@
 import { Icon } from "@iconify/react";
 import {
-  addToast,
   Button,
   ButtonGroup,
   Card,
   CardBody,
   CardFooter,
   Chip,
-  Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownTrigger,
   Spacer,
   Tooltip,
   useDisclosure,
@@ -38,56 +33,17 @@ export default function ProjectActions({
 }) {
   const [actions, setActions] = React.useState([] as any);
   const [targetAction, setTargetAction] = React.useState({} as any);
-  const [updatedAction, setUpdatedAction] = React.useState({} as any);
+  const [, setUpdatedAction] = React.useState({} as any);
 
   const viewFlowActionDetails = useDisclosure();
-  const editFlowActionsDetails = useDisclosure();
   const addFlowActionModal = useDisclosure();
   const editActionModal = useDisclosure();
-  const copyFlowActionModal = useDisclosure();
   const upgradeFlowActionModal = useDisclosure();
   const deleteActionModal = useDisclosure();
-  const copyActionToDifferentFlowModal = useDisclosure();
 
   useEffect(() => {
     setActions(project.predefined_flow_actions);
   }, [project.predefined_flow_actions]);
-
-  // function to get action from clipboard
-  const getClipboardAction = async () => {
-    try {
-      const clipboardText = await navigator.clipboard.readText();
-      const parsedAction = JSON.parse(clipboardText);
-
-      if (parsedAction && parsedAction.id && parsedAction.plugin) {
-        return parsedAction;
-      } else {
-        return null;
-      }
-    } catch {
-      return null;
-    }
-  };
-
-  // function updateFlowActions(items: any) {
-  //   UpdateFlowActions(flow.id, items)
-  //     .then(() => {
-  //       addToast({
-  //         title: "Flow",
-  //         description: "Flow actions order updated successfully.",
-  //         color: "success",
-  //         variant: "flat",
-  //       });
-  //     })
-  //     .catch(() => {
-  //       addToast({
-  //         title: "Flow",
-  //         description: "Failed to update flow actions order.",
-  //         color: "danger",
-  //         variant: "flat",
-  //       });
-  //     });
-  // }
 
   return (
     <div>
@@ -120,35 +76,6 @@ export default function ProjectActions({
                   {" "}
                   Add Action{" "}
                 </Button>
-              </Tooltip>
-              <Tooltip content="Paste Copied Action">
-                <Button
-                  isIconOnly
-                  isDisabled={
-                    (!canEdit ||
-                      !settings.add_flow_actions ||
-                      project.disabled) &&
-                    user.role !== "admin"
-                  }
-                  size="sm"
-                  startContent={<Icon icon="hugeicons:file-paste" width={18} />}
-                  variant="light"
-                  onPress={async () => {
-                    const parsedAction = await getClipboardAction();
-
-                    if (parsedAction) {
-                      setTargetAction(parsedAction);
-                      copyFlowActionModal.onOpen();
-                    } else {
-                      addToast({
-                        title: "Flow",
-                        description: "No action found in clipboard.",
-                        color: "danger",
-                        variant: "flat",
-                      });
-                    }
-                  }}
-                />
               </Tooltip>
             </div>
           </div>
