@@ -17,9 +17,9 @@ type SuccessResponse = {
   data: Result;
 };
 
-export default async function DeleteFlowAction(
-  flowID: any,
-  actionID: any,
+export default async function UpdateProjectActions(
+  projectID: string,
+  actions: any,
 ): Promise<SuccessResponse | ErrorResponse> {
   try {
     const cookieStore = await cookies();
@@ -34,13 +34,16 @@ export default async function DeleteFlowAction(
     }
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/flows/${flowID}/actions/${actionID}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/projects/${projectID}/actions`,
       {
-        method: "DELETE",
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: token.value,
         },
+        body: JSON.stringify({
+          predefined_flow_actions: actions,
+        }),
       },
     );
 
@@ -64,7 +67,7 @@ export default async function DeleteFlowAction(
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error occurred",
-      message: "Failed to delete action",
+      message: "Failed to update project actions",
     };
   }
 }

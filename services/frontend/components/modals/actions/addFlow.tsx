@@ -29,7 +29,7 @@ import {
   Spacer,
   Textarea,
 } from "@heroui/react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 import AddFlowActions from "@/lib/fetch/flow/POST/AddFlowActions";
@@ -58,16 +58,18 @@ export const CustomRadio = (props: any) => {
   );
 };
 
-export default function AddActionModal({
+export default function AddFlowActionModal({
   disclosure,
   runners,
   flow,
+  project,
   isFailurePipeline,
   failurePipeline,
 }: {
   disclosure: UseDisclosureReturn;
   runners: any;
-  flow: any;
+  flow?: any;
+  project?: any;
   user: any;
   isFailurePipeline?: boolean;
   failurePipeline?: any;
@@ -76,7 +78,7 @@ export default function AddActionModal({
 
   const { isOpen, onOpenChange } = disclosure;
 
-  const [steps] = useState(4);
+  const [steps] = useState(5);
   const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = React.useState(false);
@@ -84,6 +86,9 @@ export default function AddActionModal({
   const [errorMessage, setErrorMessage] = React.useState("");
 
   const [disableNext, setDisableNext] = useState(false);
+
+  const [actionBaseSelected, setActionBaseSelected] = useState("");
+  const [projectActionSelected, setProjectActionSelected] = useState(false);
 
   const [availableActions, setAvailableActions] = useState([] as any);
   const [availableCategories, setAvailableCategories] = useState([
@@ -104,6 +109,12 @@ export default function AddActionModal({
         .filter((action: any) =>
           action.name.toLowerCase().includes(search.toLowerCase()),
         )
+        .slice(start, end);
+    }
+
+    if (selectedCategory === "Uncategorized") {
+      return availableActions
+        .filter((action: any) => action.category === "")
         .slice(start, end);
     }
 
@@ -165,59 +176,82 @@ export default function AddActionModal({
   function countTotalAvailableActions() {
     let actions = 0;
 
-    for (let i = 0; i < runners.length; i++) {
-      const timeAgo =
-        (new Date(runners[i].last_heartbeat).getTime() - Date.now()) / 1000;
-
-      if (runners[i].disabled || !runners[i].registered || timeAgo <= -30) {
-        continue;
+    if (actionBaseSelected === "project") {
+      actions = project.predefined_flow_actions.length;
+      if (actions === 0) {
+        setDisableNext(true);
+      } else {
+        setDisableNext(false);
       }
 
-      if (runners[i].actions.length > 0) {
-        actions++;
+      return actions;
+    } else if (actionBaseSelected === "runner") {
+      for (let i = 0; i < runners.length; i++) {
+        const timeAgo =
+          (new Date(runners[i].last_heartbeat).getTime() - Date.now()) / 1000;
+
+        if (runners[i].disabled || !runners[i].registered || timeAgo <= -30) {
+          continue;
+        }
+
+        if (runners[i].actions.length > 0) {
+          actions++;
+        }
       }
-    }
 
-    if (actions === 0) {
-      setDisableNext(true);
-    } else {
-      setDisableNext(false);
-    }
+      if (actions === 0) {
+        setDisableNext(true);
+      } else {
+        setDisableNext(false);
+      }
 
-    return actions;
+      return actions;
+    }
   }
 
-  function getUniqueActions() {
-    for (let i = 0; i < runners.length; i++) {
-      for (let j = 0; j < runners[i].actions.length; j++) {
-        const action = runners[i].actions[j];
+  function getUniqueActions(type: string) {
+    setAvailableActions([]);
 
-        setAvailableActions((prev: any) => {
-          if (!action.version) {
+    if (type === "project") {
+      setAvailableActions(project.predefined_flow_actions);
+    } else if (type === "runner") {
+      for (let i = 0; i < runners.length; i++) {
+        for (let j = 0; j < runners[i].actions.length; j++) {
+          const action = runners[i].actions[j];
+
+          setAvailableActions((prev: any) => {
+            if (!action.version) {
+              return prev;
+            }
+
+            const actionSet = new Set(
+              prev.map((a: any) => `${a.plugin}-${a.version}`),
+            );
+
+            if (!actionSet.has(`${action.plugin}-${action.version}`)) {
+              return [...prev, action];
+            }
+
             return prev;
-          }
-
-          const actionSet = new Set(
-            prev.map((a: any) => `${a.plugin}-${a.version}`),
-          );
-
-          if (!actionSet.has(`${action.plugin}-${action.version}`)) {
-            return [...prev, action];
-          }
-
-          return prev;
-        });
+          });
+        }
       }
     }
   }
 
-  function getUniqueActionCategorys() {
-    for (let i = 0; i < runners.length; i++) {
-      for (let j = 0; j < runners[i].actions.length; j++) {
-        const action = runners[i].actions[j];
+  function getUniqueActionCategorys(type: string) {
+    setAvailableCategories(["All"]);
+
+    if (type === "project") {
+      for (let i = 0; i < project.predefined_flow_actions.length; i++) {
+        const action = project.predefined_flow_actions[i];
 
         setAvailableCategories((prev: any) => {
           const categorySet = new Set(prev);
+
+          if (action.category === "" && !categorySet.has("Uncategorized")) {
+            return [...prev, "Uncategorized"];
+          }
 
           if (!categorySet.has(action.category)) {
             return [...prev, action.category];
@@ -226,17 +260,41 @@ export default function AddActionModal({
           return prev;
         });
       }
+
+      return;
+    }
+
+    if (type === "runner") {
+      for (let i = 0; i < runners.length; i++) {
+        for (let j = 0; j < runners[i].actions.length; j++) {
+          const action = runners[i].actions[j];
+
+          setAvailableCategories((prev: any) => {
+            const categorySet = new Set(prev);
+
+            if (action.category === "" && !categorySet.has("Uncategorized")) {
+              return [...prev, "Uncategorized"];
+            }
+
+            if (!categorySet.has(action.category)) {
+              return [...prev, action.category];
+            }
+
+            return prev;
+          });
+        }
+      }
     }
   }
 
-  function handleActionSelect(action: any) {
+  function handleActionSelect(action: any, type: string = "runner") {
     // add value field to action params
-    if (action.params && action.params.length > 0) {
+    if (type === "runner" && action.params && action.params.length > 0) {
       action.params.map((param: any) => {
         param.value = param.default;
         param.default = param.default.toString();
       });
-    } else {
+    } else if (type !== "project") {
       action.params = [];
     }
 
@@ -519,6 +577,7 @@ export default function AddActionModal({
       setCurrentStep(0);
       onOpenChange();
       refreshFlowData(flow.id); // Refresh SWR cache with specific flow ID
+      setSearch("");
       addToast({
         title: "Flow",
         description: "Action added successfully to failure pipeline",
@@ -540,14 +599,6 @@ export default function AddActionModal({
     setLoading(false);
   }
 
-  useEffect(() => {
-    if (runners.length > 0) {
-      getUniqueActions();
-      getUniqueActionCategorys();
-    }
-  }),
-    [runners];
-
   return (
     <main>
       <Modal
@@ -563,7 +614,8 @@ export default function AddActionModal({
               <ModalHeader className="flex flex-wrap items-center">
                 <div className="flex flex-col">
                   <p className="text-lg font-bold">
-                    Add Action to Flow {isFailurePipeline && "Failure Pipeline"}
+                    Add Action to Flow
+                    {isFailurePipeline && "Failure Pipeline"}
                   </p>
                   <p className="text-sm text-default-500">
                     Actions are the building blocks of your flows. Those are the
@@ -586,11 +638,59 @@ export default function AddActionModal({
                   />
                 </div>
                 <div className="flex-cols flex w-full gap-4">
-                  {currentStep === 0 &&
+                  {currentStep === 0 && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                      <Card
+                        fullWidth
+                        className="bg-content2 hover:bg-content3"
+                        isDisabled={
+                          project?.predefined_flow_actions.length === 0
+                        }
+                        isPressable={
+                          project?.predefined_flow_actions.length > 0
+                        }
+                        onPress={() => {
+                          setActionBaseSelected("project");
+                          getUniqueActions("project");
+                          getUniqueActionCategorys("project");
+                          setCurrentStep(1);
+                        }}
+                      >
+                        <CardBody>
+                          <p className="text-md font-bold">Project Based</p>
+                          <p className="text-sm text-default-500">
+                            Choose an action that is predefined in the Flow
+                            Project.
+                          </p>
+                        </CardBody>
+                      </Card>
+
+                      <Card
+                        fullWidth
+                        isPressable
+                        className="bg-content2 hover:bg-content3"
+                        onPress={() => {
+                          setActionBaseSelected("runner");
+                          getUniqueActions("runner");
+                          getUniqueActionCategorys("runner");
+                          setCurrentStep(1);
+                        }}
+                      >
+                        <CardBody>
+                          <p className="text-md font-bold">Runner Based</p>
+                          <p className="text-sm text-default-500">
+                            Choose an action that is available within the
+                            Runners.
+                          </p>
+                        </CardBody>
+                      </Card>
+                    </div>
+                  )}
+                  {currentStep === 1 &&
                     (countTotalAvailableActions() === 0 ? (
                       <Alert
                         color="danger"
-                        description="Please check if there are healthy and registered runners available for this flow."
+                        description="Please check if there are any predefined actions in the project or healthy and registered runners available for this flow."
                         icon={<Icon icon="hugeicons:alert-02" width={25} />}
                         title="No Actions Available"
                         variant="solid"
@@ -631,7 +731,10 @@ export default function AddActionModal({
                           type="text"
                           value={search}
                           variant="flat"
-                          onValueChange={setSearch}
+                          onValueChange={(e) => {
+                            setSearch(e);
+                            setActionPage(1);
+                          }}
                         />
                         <Spacer y={2} />
                         <div className="grid grid-cols-1 lg:grid-cols-2 items-stretch gap-4">
@@ -640,9 +743,12 @@ export default function AddActionModal({
                               key={act.type}
                               isHoverable
                               isPressable
-                              className={`border-2 border-default-200 ${act.plugin === action.plugin && act.version === action.version ? "border-primary" : ""}`}
-                              radius="sm"
-                              onPress={() => handleActionSelect(act)}
+                              className={`border-2 border-default-200 ${act.plugin === action.plugin && act.version === action.version && !projectActionSelected ? "border-primary" : ""}`}
+                              radius="md"
+                              onPress={() => {
+                                handleActionSelect(act);
+                                setProjectActionSelected(false);
+                              }}
                             >
                               <CardBody>
                                 <div className="flex items-center gap-2">
@@ -652,7 +758,7 @@ export default function AddActionModal({
                                   <div className="flex flex-col">
                                     <div className="flex flex-cols gap-2 items-center">
                                       <p className="text-lg font-bold">
-                                        {act.name}
+                                        {act.custom_name || act.name}
                                       </p>
                                       <Chip
                                         color="primary"
@@ -662,9 +768,20 @@ export default function AddActionModal({
                                       >
                                         Ver. {act.version}
                                       </Chip>
+                                      {actionBaseSelected === "project" && (
+                                        <Chip
+                                          color="secondary"
+                                          radius="sm"
+                                          size="sm"
+                                          variant="flat"
+                                        >
+                                          Project
+                                        </Chip>
+                                      )}
                                     </div>
-                                    <p className="text-sm text-default-500">
-                                      {act.description}
+                                    <p className="text-sm text-default-500 max-w-sm">
+                                      {act.custom_description ||
+                                        act.description}
                                     </p>
                                   </div>
                                 </div>
@@ -684,11 +801,11 @@ export default function AddActionModal({
                         </div>
                       </div>
                     ))}
-                  {currentStep === 1 && (
+                  {currentStep === 2 && (
                     <div className="flex flex-col w-full">
                       <Card
                         className="border-2 border-default-200 border-primary"
-                        radius="sm"
+                        radius="md"
                       >
                         <CardBody>
                           <div className="flex items-center gap-2">
@@ -765,7 +882,7 @@ export default function AddActionModal({
                       </div>
                     </div>
                   )}
-                  {currentStep === 2 && (
+                  {currentStep === 3 && (
                     <div className="flex flex-col w-full">
                       <p className="text-lg font-bold">Parameters</p>
                       <Spacer y={2} />
@@ -974,7 +1091,7 @@ export default function AddActionModal({
                       </ScrollShadow>
                     </div>
                   )}
-                  {currentStep === 3 && (
+                  {currentStep === 4 && (
                     <div className="flex flex-col w-full">
                       <p className="text-lg font-bold">Conditional Execution</p>
                       <p className="text-default-500">
@@ -1381,7 +1498,7 @@ export default function AddActionModal({
                 >
                   Cancel
                 </Button>
-                {currentStep === 3 && (
+                {currentStep === 4 && (
                   <Button
                     color="warning"
                     startContent={

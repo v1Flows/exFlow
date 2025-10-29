@@ -10,6 +10,7 @@ import RunnersList from "@/components/runners/list";
 
 import ProjectAuditLogs from "./tables/AuditTable";
 import ProjectRunnerDetails from "./RunnerDetails";
+import ProjectActions from "./actions";
 
 export default function ProjectTabs({
   project,
@@ -81,6 +82,23 @@ export default function ProjectTabs({
             />
           </Tab>
           <Tab
+            key="predefined-flow-actions"
+            title={
+              <div className="flex items-center space-x-2">
+                <Icon icon="hugeicons:structure-folder" width={20} />
+                <span>Predefined Flow Actions</span>
+              </div>
+            }
+          >
+            <ProjectActions
+              canEdit
+              project={project}
+              runners={runners}
+              settings={settings}
+              user={user}
+            />
+          </Tab>
+          <Tab
             key="tokens"
             title={
               <div className="flex items-center space-x-2">
@@ -102,6 +120,17 @@ export default function ProjectTabs({
               <div className="flex items-center space-x-2">
                 <Icon icon="hugeicons:audit-01" width={20} />
                 <span>Audit</span>
+              </div>
+            }
+          >
+            <ProjectAuditLogs audit={audit} project={project} user={user} />
+          </Tab>
+          <Tab
+            key="settings"
+            title={
+              <div className="flex items-center space-x-2">
+                <Icon icon="hugeicons:settings-01" width={20} />
+                <span>Settings</span>
               </div>
             }
           >

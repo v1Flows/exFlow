@@ -29,12 +29,12 @@ import UpdateFlowActions from "@/lib/fetch/flow/PUT/UpdateActions";
 import EditFlowActionsDetails from "@/components/modals/actions/editDetails";
 import EditActionModal from "@/components/modals/actions/edit";
 import DeleteActionModal from "@/components/modals/actions/delete";
-import AddActionModal from "@/components/modals/actions/add";
 import CopyActionModal from "@/components/modals/actions/copy";
 import UpgradeActionModal from "@/components/modals/actions/upgrade";
 import CopyActionToDifferentFlowModal from "@/components/modals/actions/transferCopy";
 import FlowActionDetails from "@/components/modals/actions/details";
 import { Integrations } from "@/components/ui/integrations";
+import AddFlowActionModal from "@/components/modals/actions/addFlow";
 
 export default function Actions({
   projects,
@@ -357,7 +357,6 @@ export default function Actions({
             <div className="flex flex-wrap items-center gap-2">
               <Tooltip content="Add Action">
                 <Button
-                  isIconOnly
                   color="primary"
                   isDisabled={
                     (!canEdit || !settings.add_flow_actions || flow.disabled) &&
@@ -369,7 +368,10 @@ export default function Actions({
                   }
                   variant="solid"
                   onPress={addFlowActionModal.onOpen}
-                />
+                >
+                  {" "}
+                  Add Action{" "}
+                </Button>
               </Tooltip>
               <Tooltip content="Paste Copied Action">
                 <Button
@@ -426,9 +428,12 @@ export default function Actions({
         </DndContext>
       </div>
       <EditFlowActionsDetails disclosure={editFlowActionsDetails} flow={flow} />
-      <AddActionModal
+      <AddFlowActionModal
         disclosure={addFlowActionModal}
         flow={flow}
+        project={projects.find(
+          (project: any) => project.id === flow.project_id,
+        )}
         runners={runners}
         user={user}
       />
