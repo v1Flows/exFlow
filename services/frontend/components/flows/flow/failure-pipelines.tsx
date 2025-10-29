@@ -30,7 +30,6 @@ import { useRouter } from "next/navigation";
 
 import EditActionModal from "@/components/modals/actions/edit";
 import DeleteActionModal from "@/components/modals/actions/delete";
-import AddActionModal from "@/components/modals/actions/addProject";
 import CreateFailurePipelineModal from "@/components/modals/failurePipelines/create";
 import DeleteFailurePipelineModal from "@/components/modals/failurePipelines/delete";
 import EditFailurePipelineModal from "@/components/modals/failurePipelines/edit";
@@ -39,6 +38,7 @@ import CopyActionModal from "@/components/modals/actions/copy";
 import UpgradeActionModal from "@/components/modals/actions/upgrade";
 import CopyActionToDifferentFlowModal from "@/components/modals/actions/transferCopy";
 import FlowActionDetails from "@/components/modals/actions/details";
+import AddFlowActionModal from "@/components/modals/actions/addFlow";
 
 export default function FlowFailurePipelines({
   projects,
@@ -653,7 +653,7 @@ export default function FlowFailurePipelines({
         flowID={flow.id}
       />
 
-      <AddActionModal
+      <AddFlowActionModal
         isFailurePipeline
         disclosure={addFlowFailurePipelineActionModal}
         failurePipeline={targetFailurePipeline}
