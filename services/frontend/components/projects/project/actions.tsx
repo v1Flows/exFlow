@@ -21,6 +21,7 @@ import { Integrations } from "@/components/ui/integrations";
 import FlowActionDetails from "@/components/modals/actions/details";
 import DeleteActionModal from "@/components/modals/actions/delete";
 import AddProjectActionModal from "@/components/modals/actions/addProject";
+import EditActionModal from "@/components/modals/actions/edit";
 
 export default function ProjectActions({
   project,
@@ -238,54 +239,6 @@ export default function ProjectActions({
                       <Icon icon="hugeicons:view" width={18} />
                     </Button>
                   </Tooltip>
-
-                  <Dropdown>
-                    <DropdownTrigger>
-                      <Button
-                        isIconOnly
-                        isDisabled={
-                          (!canEdit || project.disabled) &&
-                          user.role !== "admin"
-                        }
-                        variant="flat"
-                      >
-                        <Icon icon="hugeicons:copy-02" width={18} />
-                      </Button>
-                    </DropdownTrigger>
-                    <DropdownMenu aria-label="Copy Actions" variant="flat">
-                      <DropdownItem
-                        key="clipboard"
-                        description="Copy action to clipboard"
-                        startContent={
-                          <Icon icon="hugeicons:clipboard" width={20} />
-                        }
-                        onPress={() => {
-                          navigator.clipboard.writeText(JSON.stringify(action));
-                          addToast({
-                            title: "Action",
-                            description: "Action copied to clipboard!",
-                            color: "success",
-                            variant: "flat",
-                          });
-                        }}
-                      >
-                        Clipboard
-                      </DropdownItem>
-                      <DropdownItem
-                        key="local"
-                        description="Copy action to the current flow"
-                        startContent={
-                          <Icon icon="hugeicons:pin-location-02" width={20} />
-                        }
-                        onPress={() => {
-                          setTargetAction(action);
-                          copyFlowActionModal.onOpen();
-                        }}
-                      >
-                        Local
-                      </DropdownItem>
-                    </DropdownMenu>
-                  </Dropdown>
                   <Tooltip content="Edit Action">
                     <Button
                       isIconOnly
@@ -323,7 +276,6 @@ export default function ProjectActions({
           </Card>
         ))}
       </div>
-      {/* <EditFlowActionsDetails disclosure={editFlowActionsDetails} flow={flow} /> */}
       <AddProjectActionModal
         disclosure={addFlowActionModal}
         project={project}
@@ -335,27 +287,13 @@ export default function ProjectActions({
         action={targetAction}
         disclosure={viewFlowActionDetails}
       />
-      {/* 
       <EditActionModal
+        isProject
         disclosure={editActionModal}
-        flow={flow}
+        project={project}
         runners={runners}
         targetAction={targetAction}
       />
-      <CopyActionModal
-        copyAction={targetAction}
-        disclosure={copyFlowActionModal}
-        flow={flow}
-        runners={runners}
-      />
-      <UpgradeActionModal
-        disclosure={upgradeFlowActionModal}
-        flow={flow}
-        runners={runners}
-        targetAction={targetAction}
-        updatedAction={updatedAction}
-      />
-      */}
       <DeleteActionModal
         isProjectAction
         actionID={targetAction}

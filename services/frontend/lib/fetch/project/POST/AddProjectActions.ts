@@ -17,15 +17,9 @@ type SuccessResponse = {
   data: Result;
 };
 
-export default async function UpdateProject(
-  id: string,
-  name: string,
-  description: string,
-  shared_runners: boolean,
-  icon: string,
-  color: string,
-  enable_auto_runners: boolean,
-  disable_runner_join: boolean,
+export default async function AddProjectActions(
+  projectID: string,
+  actions: any,
 ): Promise<SuccessResponse | ErrorResponse> {
   try {
     const cookieStore = await cookies();
@@ -40,21 +34,15 @@ export default async function UpdateProject(
     }
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/projects/${id}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/projects/${projectID}/actions`,
       {
-        method: "PUT",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: token.value,
         },
         body: JSON.stringify({
-          name,
-          description,
-          shared_runners,
-          icon,
-          color,
-          enable_auto_runners,
-          disable_runner_join,
+          predefined_flow_actions: actions,
         }),
       },
     );
@@ -79,7 +67,7 @@ export default async function UpdateProject(
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error occurred",
-      message: "Failed to update project",
+      message: "Failed to add project actions",
     };
   }
 }

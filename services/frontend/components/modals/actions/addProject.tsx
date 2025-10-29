@@ -32,7 +32,7 @@ import { cn } from "@/components/cn/cn";
 import ErrorCard from "@/components/error/ErrorCard";
 import MinimalRowSteps from "@/components/steps/minimal-row-steps";
 import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
-import UpdateProject from "@/lib/fetch/project/PUT/UpdateProject";
+import AddProjectActions from "@/lib/fetch/project/POST/AddProjectActions";
 
 export const CustomRadio = (props: any) => {
   const { children, ...otherProps } = props;
@@ -348,17 +348,7 @@ export default function AddProjectActionModal({
 
     const updatedActions = [...project.predefined_flow_actions, sendAction];
 
-    const res = (await UpdateProject(
-      project.id,
-      project.name,
-      project.description,
-      project.shared_runners,
-      project.icon,
-      project.color,
-      project.enable_auto_runners,
-      project.disable_runner_join,
-      updatedActions,
-    )) as any;
+    const res = (await AddProjectActions(project.id, updatedActions)) as any;
 
     if (!res) {
       setError(true);

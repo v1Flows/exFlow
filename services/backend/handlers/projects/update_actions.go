@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/JustLABv1/justflow/services/backend/functions/encryption"
 	"github.com/JustLABv1/justflow/services/backend/functions/gatekeeper"
 	"github.com/JustLABv1/justflow/services/backend/functions/httperror"
 	functions_project "github.com/JustLABv1/justflow/services/backend/functions/project"
@@ -15,8 +16,22 @@ import (
 	"github.com/uptrace/bun"
 )
 
-func UpdateProject(context *gin.Context, db *bun.DB) {
+func UpdateProjectActions(context *gin.Context, db *bun.DB) {
 	projectID := context.Param("projectID")
+
+	var project models.Projects
+	if err := context.ShouldBindJSON(&project); err != nil {
+		httperror.StatusBadRequest(context, "Error parsing incoming data", err)
+		return
+	}
+
+	// get project
+	var projectDB models.Projects
+	err := db.NewSelect().Model(&projectDB).Where("id = ?", projectID).Scan(context)
+	if err != nil {
+		httperror.InternalServerError(context, "Error collecting project data from db", err)
+		return
+	}
 
 	// check if user has access to project
 	access, err := gatekeeper.CheckUserProjectAccess(projectID, context, db)
@@ -40,19 +55,23 @@ func UpdateProject(context *gin.Context, db *bun.DB) {
 		return
 	}
 
-	var project models.Projects
-	if err := context.ShouldBindJSON(&project); err != nil {
-		httperror.StatusBadRequest(context, "Error parsing incoming data", err)
+	// encrypt action params
+	if projectDB.EncryptionEnabled {
+		project.PredefinedFlowActions, err = encryption.EncryptParamsWithProject(project.PredefinedFlowActions, projectID, db)
+		if err != nil {
+			httperror.InternalServerError(context, "Error encrypting action params", err)
+			return
+		}
+	}
+
+	_, err = db.NewUpdate().Model(&project).Set("predefined_flow_actions = ?", project.PredefinedFlowActions).Where("id = ?", projectID).Exec(context)
+	if err != nil {
+		httperror.InternalServerError(context, "Error updating action on db", err)
 		return
 	}
 
-	_, err = db.NewUpdate().Model(&project).Column("name", "description", "shared_runners", "icon", "color", "enable_auto_runners", "disable_runner_join").Where("id = ?", projectID).Exec(context)
-	if err != nil {
-		httperror.InternalServerError(context, "Error updating project informations on db", err)
-	}
-
 	// Audit
-	err = functions_project.CreateAuditEntry(projectID, "update", "Project got updated", db, context)
+	err = functions_project.CreateAuditEntry(projectID, "update", "Project predefined actions updated", db, context)
 	if err != nil {
 		log.Error(err)
 	}

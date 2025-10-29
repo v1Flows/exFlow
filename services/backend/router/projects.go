@@ -96,15 +96,12 @@ func Projects(router *gin.RouterGroup, db *bun.DB) {
 		})
 
 		// actions
-		// flow.POST("/:flowID/actions", func(c *gin.Context) {
-		// 	flows.AddFlowActions(c, db)
-		// })
-		// flow.PUT("/:flowID/actions", func(c *gin.Context) {
-		// 	flows.UpdateFlowActions(c, db)
-		// })
-		// flow.PUT("/:flowID/actions/details", func(c *gin.Context) {
-		// 	flows.UpdateFlowActionsDetails(c, db)
-		// })
+		project.POST("/:projectID/actions", func(c *gin.Context) {
+			projects.AddProjectActions(c, db)
+		})
+		project.PUT("/:projectID/actions", func(c *gin.Context) {
+			projects.UpdateProjectActions(c, db)
+		})
 		project.DELETE("/:projectID/actions/:actionID", func(c *gin.Context) {
 			projects.DeleteProjectAction(c, db)
 		})
