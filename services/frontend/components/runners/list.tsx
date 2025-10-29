@@ -97,7 +97,7 @@ export default function RunnersList({
                         key={runner.id}
                         fullWidth
                         isPressable
-                        className="bg-content2 hover:bg-content3 transition-colors"
+                        className="bg-content2 hover:bg-content1 transition-colors"
                         onPress={() => {
                           setTargetRunner(runner);
                           showRunnerDrawer.onOpen();
@@ -304,7 +304,7 @@ export default function RunnersList({
                         key={runner.id}
                         fullWidth
                         isPressable
-                        className="bg-content2 hover:bg-content3 transition-colors"
+                        className="bg-content2 hover:bg-content1 transition-colors"
                         onPress={() => {
                           setTargetRunner(runner);
                           showRunnerDrawer.onOpen();
