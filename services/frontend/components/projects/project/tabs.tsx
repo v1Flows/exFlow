@@ -11,6 +11,7 @@ import RunnersList from "@/components/runners/list";
 import ProjectAuditLogs from "./tables/AuditTable";
 import ProjectRunnerDetails from "./RunnerDetails";
 import ProjectActions from "./actions";
+import ProjectSettings from "./settings";
 
 export default function ProjectTabs({
   project,
@@ -68,16 +69,13 @@ export default function ProjectTabs({
               </div>
             }
           >
-            <ProjectRunnerDetails
-              project={project}
-              settings={settings}
-              user={user}
-            />
+            <ProjectRunnerDetails project={project} user={user} />
             <Spacer y={4} />
             <RunnersList
               singleProject
               projects={[project]}
               runners={runners}
+              settings={settings}
               user={user}
             />
           </Tab>
@@ -134,7 +132,7 @@ export default function ProjectTabs({
               </div>
             }
           >
-            <ProjectAuditLogs audit={audit} project={project} user={user} />
+            <ProjectSettings project={project} user={user} />
           </Tab>
         </Tabs>
       </div>

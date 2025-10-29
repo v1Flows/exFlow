@@ -184,7 +184,7 @@ export default function CreateFlowModal({
       <Modal
         isOpen={isOpen}
         placement="center"
-        size="3xl"
+        size="4xl"
         onOpenChange={onOpenChange}
       >
         <ModalContent className="w-full">
@@ -214,9 +214,8 @@ export default function CreateFlowModal({
                 {currentStep === 0 && (
                   <div className="relative grid grid-cols-1 gap-2 p-2 md:grid-cols-2">
                     <Card
-                      isHoverable
                       isPressable
-                      className={`border-1 hover:border-primary ${type === "default" ? "border-primary" : "border-default-500"}`}
+                      className={`bg-content2 hover:bg-content3 ${type === "default" && "border-1 border-primary"}`}
                       onPress={() => setType("default")}
                     >
                       <CardBody className="flex gap-2 text-center justify-center items-center">
@@ -228,9 +227,8 @@ export default function CreateFlowModal({
                       </CardBody>
                     </Card>
                     <Card
-                      isHoverable
                       isPressable
-                      className={`border-1 hover:border-primary ${type === "alert" ? "border-primary" : "border-default-500"}`}
+                      className={`bg-content2 hover:bg-content3 ${type === "alert" && "border-1 border-primary"}`}
                       onPress={() => setType("alert")}
                     >
                       <CardBody className="flex gap-2 text-center justify-center items-center">

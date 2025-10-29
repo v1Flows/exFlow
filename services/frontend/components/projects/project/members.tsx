@@ -63,25 +63,21 @@ export default function ProjectMembers({ project, settings, user }: any) {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <Tooltip content="Add Member">
-                <Button
-                  color="primary"
-                  isDisabled={
-                    (!canEditProject(user.id, project.members) ||
-                      !settings.add_project_members ||
-                      project.disabled) &&
-                    user.role !== "admin"
-                  }
-                  size="sm"
-                  startContent={
-                    <Icon icon="hugeicons:add-team-02" width={18} />
-                  }
-                  variant="solid"
-                  onPress={() => addProjectMemberModal.onOpen()}
-                >
-                  Add Member
-                </Button>
-              </Tooltip>
+              <Button
+                color="primary"
+                isDisabled={
+                  (!canEditProject(user.id, project.members) ||
+                    !settings.add_project_members ||
+                    project.disabled) &&
+                  user.role !== "admin"
+                }
+                size="sm"
+                startContent={<Icon icon="hugeicons:add-team-02" width={18} />}
+                variant="solid"
+                onPress={() => addProjectMemberModal.onOpen()}
+              >
+                Add Member
+              </Button>
 
               {checkLeaveProjectDisabled() ? (
                 <Tooltip content="Transfer Ownership">

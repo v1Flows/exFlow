@@ -21,6 +21,7 @@ import canEditProject from "@/lib/functions/canEditProject";
 
 import EditRunnerModal from "../modals/runner/edit";
 import ChangeRunnerStatusModal from "../modals/runner/changeStatus";
+import CreateRunnerModal from "../modals/runner/create";
 
 export default function RunnersList({
   runners,
@@ -28,12 +29,14 @@ export default function RunnersList({
   user,
   singleProject,
   globalView,
+  settings,
 }: {
   runners: any;
   projects: any;
   user: any;
   singleProject?: boolean;
   globalView?: boolean;
+  settings?: any;
 }) {
   const [targetRunner, setTargetRunner] = React.useState({} as any);
   const [targetRunnerStatus, setTargetRunnerStatus] = React.useState(false);
@@ -41,6 +44,7 @@ export default function RunnersList({
   const editRunnerModal = useDisclosure();
   const changeRunnerStatusModal = useDisclosure();
   const deleteRunnerModal = useDisclosure();
+  const addRunnerModal = useDisclosure();
 
   function heartbeatColor(runner: any) {
     const timeAgo =
@@ -234,6 +238,23 @@ export default function RunnersList({
                 Runners bound to projects
               </p>
             </div>
+            {singleProject && (
+              <Button
+                color="primary"
+                isDisabled={
+                  (!canEditProject(user.id, projects[0].members) ||
+                    !settings.create_runners ||
+                    projects[0].disabled) &&
+                  user.role !== "admin"
+                }
+                size="sm"
+                startContent={<Icon icon="hugeicons:plus-sign" width={18} />}
+                variant="solid"
+                onPress={() => addRunnerModal.onOpen()}
+              >
+                Add Runner
+              </Button>
+            )}
           </div>
 
           {projects.length === 0 && (
@@ -477,6 +498,11 @@ export default function RunnersList({
       />
       <EditRunnerModal disclosure={editRunnerModal} runner={targetRunner} />
       <DeleteRunnerModal disclosure={deleteRunnerModal} runner={targetRunner} />
+      <CreateRunnerModal
+        disclosure={addRunnerModal}
+        project={projects[0]}
+        shared_runner={false}
+      />
     </main>
   );
 }

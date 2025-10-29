@@ -73,7 +73,7 @@ export default function Project({
         </div>
       )}
       <div>
-        <div className="grid grid-cols-2 items-stretch gap-4 lg:grid-cols-5">
+        <div className="grid grid-cols-2 items-stretch gap-4 lg:grid-cols-4">
           <div className="col-span-1">
             <Card fullWidth className="h-full">
               <CardBody>
@@ -160,25 +160,6 @@ export default function Project({
                       />
                     </p>
                     <p className="text-sm text-default-500">Tokens</p>
-                  </div>
-                </div>
-              </CardBody>
-            </Card>
-          </div>
-          <div className="col-span-1">
-            <Card fullWidth className="h-full">
-              <CardBody>
-                <div className="flex items-center gap-2">
-                  <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
-                    <Icon icon="hugeicons:encrypt" width={24} />
-                  </div>
-                  <div>
-                    {project.encryption_enabled ? (
-                      <p className="text-md font-bold text-success">Enabled</p>
-                    ) : (
-                      <p className="text-md font-bold text-danger">Disabled</p>
-                    )}
-                    <p className="text-sm text-default-500">Encryption</p>
                   </div>
                 </div>
               </CardBody>

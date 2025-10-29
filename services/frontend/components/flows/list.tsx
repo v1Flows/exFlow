@@ -12,6 +12,7 @@ import {
   Chip,
   Button,
   addToast,
+  ButtonGroup,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -287,7 +288,7 @@ export default function FlowList({
               return (
                 <Card
                   key={flow.id}
-                  className="bg-content2 hover:bg-content3 transition-colors"
+                  className="bg-content2 hover:bg-content1"
                   isDisabled={flow.disabled}
                   isPressable={!flow.disabled}
                   onPress={() => router.push("/flows/" + flow.id)}
@@ -327,108 +328,105 @@ export default function FlowList({
                       Project: {project.name || "Unknown"}
                     </p>
                     <div className="flex gap-1">
-                      <Button
-                        isIconOnly
-                        size="sm"
-                        variant="light"
-                        onPress={() => {
-                          APIStartExecution(flow.id)
-                            .then(() => {
-                              addToast({
-                                title: "Execution Started",
-                                color: "success",
+                      <ButtonGroup size="sm" variant="flat">
+                        <Button
+                          isIconOnly
+                          onPress={() => {
+                            APIStartExecution(flow.id)
+                              .then(() => {
+                                addToast({
+                                  title: "Execution Started",
+                                  color: "success",
+                                });
+                              })
+                              .catch((err) => {
+                                addToast({
+                                  title: "Execution start failed",
+                                  description: err.message,
+                                  color: "danger",
+                                });
                               });
-                            })
-                            .catch((err) => {
-                              addToast({
-                                title: "Execution start failed",
-                                description: err.message,
-                                color: "danger",
-                              });
-                            });
-                        }}
-                      >
-                        <Icon
-                          className="text-success"
-                          icon="hugeicons:play"
-                          width={16}
+                          }}
+                        >
+                          <Icon
+                            className="text-success"
+                            icon="hugeicons:play"
+                            width={16}
+                          />
+                        </Button>
+                        <Button
+                          isIconOnly
+                          isDisabled={
+                            (!canEditProject(user.id, project.members) ||
+                              flow.disabled) &&
+                            user.role !== "admin"
+                          }
+                          onPress={() => {
+                            setTargetFlow(flow);
+                            editFlowModal.onOpen();
+                          }}
+                        >
+                          <Icon icon="hugeicons:pencil-edit-02" width={16} />
+                        </Button>
+                        <Button
+                          isIconOnly
+                          isDisabled={
+                            (!canEditProject(user.id, project.members) ||
+                              flow.disabled) &&
+                            user.role !== "admin"
+                          }
+                          startContent={
+                            <Icon icon="hugeicons:delete-02" width={16} />
+                          }
+                          onPress={() => {
+                            setTargetFlow(flow);
+                            deleteFlowModal.onOpen();
+                          }}
                         />
-                      </Button>
-                      <Button
-                        isIconOnly
-                        isDisabled={
-                          (!canEditProject(user.id, project.members) ||
-                            flow.disabled) &&
-                          user.role !== "admin"
-                        }
-                        size="sm"
-                        variant="light"
-                        onPress={() => {
-                          setTargetFlow(flow);
-                          editFlowModal.onOpen();
-                        }}
-                      >
-                        <Icon icon="hugeicons:pencil-edit-02" width={16} />
-                      </Button>
-                      <Dropdown placement="bottom-end">
-                        <DropdownTrigger>
-                          <Button isIconOnly size="sm" variant="light">
-                            <Icon
-                              className="text-lg"
-                              icon="hugeicons:more-vertical-circle-01"
-                              width={16}
-                            />
-                          </Button>
-                        </DropdownTrigger>
-                        <DropdownMenu aria-label="Flow actions" variant="flat">
-                          <DropdownItem
-                            key="copy"
-                            showDivider
-                            startContent={
-                              <Icon icon="hugeicons:copy-01" width={18} />
-                            }
-                            onPress={() => copyFlowIDtoClipboard(flow.id)}
+                        <Dropdown placement="bottom-end">
+                          <DropdownTrigger>
+                            <Button isIconOnly>
+                              <Icon
+                                className="text-lg"
+                                icon="hugeicons:more-vertical-circle-01"
+                                width={16}
+                              />
+                            </Button>
+                          </DropdownTrigger>
+                          <DropdownMenu
+                            aria-label="Flow actions"
+                            variant="flat"
                           >
-                            Copy ID
-                          </DropdownItem>
-                          <DropdownItem
-                            key="copy"
-                            isDisabled={
-                              (!canEditProject(user.id, project.members) ||
-                                flow.disabled) &&
-                              user.role !== "admin"
-                            }
-                            startContent={
-                              <Icon icon="hugeicons:copy-02" width={18} />
-                            }
-                            onPress={() => {
-                              setTargetFlow(flow);
-                              copyFlowModal.onOpen();
-                            }}
-                          >
-                            Copy
-                          </DropdownItem>
-                          <DropdownItem
-                            key="delete"
-                            className="text-danger"
-                            color="danger"
-                            isDisabled={
-                              (!canEditProject(user.id, project.members) ||
-                                flow.disabled) &&
-                              user.role !== "admin"
-                            }
-                            startContent={
-                              <Icon icon="hugeicons:delete-02" width={18} />
-                            }
-                            onPress={() => {
-                              setTargetFlow(flow);
-                              deleteFlowModal.onOpen();
-                            }}
-                          >
-                            Delete
-                          </DropdownItem>
-                        </DropdownMenu>
-                      </Dropdown>
+                            <DropdownItem
+                              key="copy"
+                              showDivider
+                              startContent={
+                                <Icon icon="hugeicons:copy-01" width={18} />
+                              }
+                              onPress={() => copyFlowIDtoClipboard(flow.id)}
+                            >
+                              Copy ID
+                            </DropdownItem>
+                            <DropdownItem
+                              key="copy"
+                              isDisabled={
+                                (!canEditProject(user.id, project.members) ||
+                                  flow.disabled) &&
+                                user.role !== "admin"
+                              }
+                              startContent={
+                                <Icon icon="hugeicons:copy-02" width={18} />
+                              }
+                              onPress={() => {
+                                setTargetFlow(flow);
+                                copyFlowModal.onOpen();
+                              }}
+                            >
+                              Copy Flow
+                            </DropdownItem>
+                          </DropdownMenu>
+                        </Dropdown>
+                      </ButtonGroup>
                     </div>
                   </CardFooter>
                 </Card>
