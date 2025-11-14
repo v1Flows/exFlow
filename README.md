@@ -34,14 +34,14 @@ JustFlow is a workflow automation platform like Jenkins but beautiful. This repo
 
 ## Self Hosting
 To run your own version of JustFlow we provide various docker images available at 
-[Docker Hub](https://hub.docker.com/repository/docker/justnz/justflow/general).
+[Docker Hub](https://hub.docker.com/repository/docker/ghcr.io/justlabv1/justflow/general).
 
 **!CAUTION! JustFlow requires an separately hosted PostgreSQL Database to connect to. There is no built-in database in the full version JustFlow image.**
 
-- **justnz/justflow:latest** - Full version including frontend and backend
-- **justnz/justflow:vx.x.x** - Versioned release. Also available for the single frontend and backend images
-- **justnz/justflow:frontend-latest** - Only frontend
-- **justnz/justflow:backend-latest** - Only backend
+- **ghcr.io/justlabv1/justflow:latest** - Full version including frontend and backend
+- **ghcr.io/justlabv1/justflow:vx.x.x** - Versioned release. Also available for the single frontend and backend images
+- **ghcr.io/justlabv1/justflow:frontend-latest** - Only frontend
+- **ghcr.io/justlabv1/justflow:backend-latest** - Only backend
 
 ### Docker Compose
 Use our [docker-compose.yaml](https://github.com/v1Flows/JustFlow/blob/develop/docker-compose.yaml) to get started with JustFlow. This contains an postgres database and the full version image of JustFlow.
@@ -56,18 +56,18 @@ Visit our [Helm Repo](https://github.com/v1Flows/helm-charts/tree/main) for more
 Config example: [config.yaml](https://github.com/v1Flows/JustFlow/blob/main/services/backend/config/config.yaml)
 
 ```sh
-docker run -p 80:3000 -v /your/config/path/config.yaml:/etc/justflow/backend_config.yaml justnz/justflow:latest
+docker run -p 80:3000 -v /your/config/path/config.yaml:/etc/justflow/backend_config.yaml ghcr.io/justlabv1/justflow:latest
 ```
 
 #### Frontend Only
 If you want to run only the frontend of JustFlow, please provide the backend endpoint via the below env flag.
 ```sh
-docker run -p 80:3000 -e NEXT_PUBLIC_API_URL=https://api-url.com justnz/justflow:frontend-latest
+docker run -p 80:3000 -e NEXT_PUBLIC_API_URL=https://api-url.com ghcr.io/justlabv1/justflow:frontend-latest
 ```
 
 #### Backend Only
 ```sh
-docker run -p 8080:8080 -v /your/config/path/config.yaml:/etc/justflow/backend_config.yaml justnz/justflow:backend-latest
+docker run -p 8080:8080 -v /your/config/path/config.yaml:/etc/justflow/backend_config.yaml ghcr.io/justlabv1/justflow:backend-latest
 ```
 
 ## Runners

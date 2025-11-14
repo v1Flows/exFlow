@@ -1,4 +1,5 @@
 FROM golang:1.24-alpine as builder
+LABEL org.opencontainers.image.source = "https://github.com/JustLabV1/justflow"
 
 WORKDIR /app/backend
 
@@ -11,6 +12,7 @@ COPY services/backend/ ./
 RUN go build -o justflow-backend
 
 FROM alpine:3.22 as runner
+LABEL org.opencontainers.image.source = "https://github.com/JustLabV1/justflow"
 WORKDIR /app
 
 COPY --from=builder /app/backend/justflow-backend /app/
