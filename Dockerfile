@@ -1,7 +1,9 @@
 FROM node:24.7-alpine AS base
+LABEL org.opencontainers.image.source = "https://github.com/JustLabV1/justflow"
 
 # Stage 1: Build the frontend
 FROM node:24.7-alpine AS frontend-builder
+LABEL org.opencontainers.image.source = "https://github.com/JustLabV1/justflow"
 RUN apk add --no-cache libc6-compat
 WORKDIR /app/frontend
 COPY services/frontend/package.json services/frontend/pnpm-lock.yaml ./
@@ -15,6 +17,7 @@ RUN pnpm run build
 
 # Stage 2: Build the backend
 FROM golang:1.24-alpine AS backend-builder
+LABEL org.opencontainers.image.source = "https://github.com/JustLabV1/justflow"
 WORKDIR /app/backend
 COPY services/backend/go.mod services/backend/go.sum ./
 RUN go mod download
@@ -23,6 +26,7 @@ RUN go build -o justflow-backend
 
 # Stage 3: Create the final image
 FROM base AS runner
+LABEL org.opencontainers.image.source = "https://github.com/JustLabV1/justflow"
 WORKDIR /app
 
 # Install necessary packages
