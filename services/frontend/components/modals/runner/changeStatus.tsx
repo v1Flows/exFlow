@@ -11,12 +11,12 @@ import {
   ModalHeader,
   Snippet,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React from "react";
 import { Icon } from "@iconify/react";
 
 import ErrorCard from "@/components/error/ErrorCard";
 import ChangeRunnerStatus from "@/lib/fetch/admin/PUT/ChangeRunnerStatus";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function ChangeRunnerStatusModal({
   disclosure,
@@ -27,7 +27,7 @@ export default function ChangeRunnerStatusModal({
   runner: any;
   status: any;
 }) {
-  const router = useRouter();
+  const { refreshRunners, refreshProjectRunners } = useRefreshCache();
 
   const { isOpen, onOpenChange } = disclosure;
 
@@ -67,7 +67,10 @@ export default function ChangeRunnerStatusModal({
       setErrorText("");
       setErrorMessage("");
       onOpenChange();
-      router.refresh();
+      refreshRunners();
+      if (runner.project_id) {
+        refreshProjectRunners(runner.project_id);
+      }
       addToast({
         title: "Runner",
         description: "Runner status updated successfully",
@@ -79,7 +82,7 @@ export default function ChangeRunnerStatusModal({
       setError(true);
       setErrorText(res.error);
       setErrorMessage(res.message);
-      router.refresh();
+      refreshRunners();
       addToast({
         title: "Runner",
         description: "Failed to update runner status",

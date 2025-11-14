@@ -8,9 +8,8 @@ import (
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 	"github.com/uptrace/bun"
-	"github.com/v1Flows/exFlow/services/backend/functions/encryption"
-	"github.com/v1Flows/exFlow/services/backend/pkg/models"
-	shared_models "github.com/v1Flows/shared-library/pkg/models"
+	"github.com/JustLABv1/justflow/services/backend/functions/encryption"
+	"github.com/JustLABv1/justflow/services/backend/pkg/models"
 )
 
 func scheduleFlowExecutions(db *bun.DB) {
@@ -27,6 +26,13 @@ func scheduleFlowExecutions(db *bun.DB) {
 
 	// schedule new executions for each flow based on the schedule
 	for _, flow := range flows {
+		// get project data
+		var project models.Projects
+		err = db.NewSelect().Model(&project).Where("id = ?", flow.ProjectID).Scan(context)
+		if err != nil {
+			return
+		}
+
 		// get all executions for that flow that are triggered by schedule
 		var lastScheduledExecution []models.Executions
 		count, err := db.NewSelect().
@@ -46,10 +52,10 @@ func scheduleFlowExecutions(db *bun.DB) {
 		var currentTime time.Time
 		if count == 0 {
 			currentTime = time.Now()
-			returnedExecutionTime := createExecution(currentTime, flow, db, context)
+			returnedExecutionTime := createExecution(currentTime, flow, db, context, project)
 
 			// directly schedule the next execution
-			createExecution(returnedExecutionTime, flow, db, context)
+			createExecution(returnedExecutionTime, flow, db, context, project)
 
 		} else {
 			currentTime = lastScheduledExecution[0].ScheduledAt
@@ -57,13 +63,13 @@ func scheduleFlowExecutions(db *bun.DB) {
 				currentTime = time.Now()
 			}
 
-			createExecution(currentTime, flow, db, context)
+			createExecution(currentTime, flow, db, context, project)
 		}
 
 	}
 }
 
-func createExecution(currentTime time.Time, flow models.Flows, db *bun.DB, context context.Context) (scheduledAt time.Time) {
+func createExecution(currentTime time.Time, flow models.Flows, db *bun.DB, context context.Context, project models.Projects) (scheduledAt time.Time) {
 	// calculate the next execution time
 	var nextExecutionTime time.Time
 	switch flow.ScheduleEveryUnit {
@@ -92,16 +98,16 @@ func createExecution(currentTime time.Time, flow models.Flows, db *bun.DB, conte
 	}
 
 	// create execution step which tells that the execution is registerd and waiting for runner to pick it up
-	step := shared_models.ExecutionSteps{
+	step := models.ExecutionSteps{
 		ExecutionID: execution.ID.String(),
-		Action: shared_models.Action{
+		Action: models.Action{
 			Name: "Scheduled",
 			Icon: "hugeicons:time-schedule",
 		},
-		Messages: []shared_models.Message{
+		Messages: []models.Message{
 			{
 				Title: "Scheduled",
-				Lines: []shared_models.Line{
+				Lines: []models.Line{
 					{
 						Content:   "Execution is registered and is waiting for the scheduled time to start",
 						Timestamp: time.Now(),
@@ -119,8 +125,8 @@ func createExecution(currentTime time.Time, flow models.Flows, db *bun.DB, conte
 	}
 
 	// check for encryption
-	if flow.EncryptExecutions && step.Messages != nil && len(step.Messages) > 0 {
-		step.Messages, err = encryption.EncryptExecutionStepActionMessage(step.Messages)
+	if project.EncryptionEnabled && step.Messages != nil && len(step.Messages) > 0 {
+		step.Messages, err = encryption.EncryptExecutionStepActionMessageWithProject(step.Messages, project.ID.String(), db)
 		if err != nil {
 			log.Error("Bot: Error encrypting execution step action messages. ", err)
 			return

@@ -12,21 +12,21 @@ services:
     ports:
       - "5432:5432"
 
-  exflow:
-    image: justnz/exflow:latest
+  justflow:
+    image: justnz/justflow:latest
     depends_on:
       - db
     ports:
-      - "3000:3000" # exFlow frontend
-      - "8080:8080" # exFlow backend
+      - "3000:3000" # JustFlow frontend
+      - "8080:8080" # JustFlow backend
     volumes:
-      - ./backend-config.yaml:/etc/exflow/backend_config.yaml
-    entrypoint: ["/bin/sh", "-c", "until pg_isready -h db -p 5432 -U postgres; do sleep 1; done; exec ./exflow-backend --config /etc/exflow/backend_config.yaml & exec node /app/server.js"]
+      - ./backend-config.yaml:/etc/justflow/backend_config.yaml
+    entrypoint: ["/bin/sh", "-c", "until pg_isready -h db -p 5432 -U postgres; do sleep 1; done; exec ./justflow-backend --config /etc/justflow/backend_config.yaml & exec node /app/server.js"]
 
   runner:
     image: justnz/runner:latest
     depends_on:
-      - exflow
+      - justflow
     ports:
       - "8081:8081"
     volumes:

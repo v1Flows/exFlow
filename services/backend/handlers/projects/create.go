@@ -7,10 +7,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/v1Flows/exFlow/services/backend/functions/auth"
-	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
-	functions_runner "github.com/v1Flows/exFlow/services/backend/functions/runner"
-	"github.com/v1Flows/exFlow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/services/backend/functions/auth"
+	"github.com/JustLABv1/justflow/services/backend/functions/encryption"
+	"github.com/JustLABv1/justflow/services/backend/functions/httperror"
+	functions_runner "github.com/JustLABv1/justflow/services/backend/functions/runner"
+	"github.com/JustLABv1/justflow/services/backend/pkg/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -55,7 +56,16 @@ func CreateProject(context *gin.Context, db *bun.DB) {
 		return
 	}
 
-	_, err = db.NewInsert().Model(&project).Column("id", "name", "description", "shared_runners", "icon", "color", "runner_auto_join_token").Exec(context)
+	// Generate encryption salt for the new project
+	encryptionSalt, err := encryption.GenerateProjectSalt()
+	if err != nil {
+		httperror.InternalServerError(context, "Error generating encryption salt", err)
+		return
+	}
+	project.EncryptionKey = encryptionSalt
+	project.EncryptionEnabled = true
+
+	_, err = db.NewInsert().Model(&project).Column("id", "name", "description", "shared_runners", "icon", "color", "runner_auto_join_token", "encryption_key", "encryption_enabled").Exec(context)
 	if err != nil {
 		log.Error(err)
 		httperror.InternalServerError(context, "Error creating project on db", err)

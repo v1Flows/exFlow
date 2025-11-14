@@ -4,12 +4,11 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/v1Flows/exFlow/services/backend/config"
-	"github.com/v1Flows/exFlow/services/backend/functions/encryption"
-	"github.com/v1Flows/exFlow/services/backend/functions/gatekeeper"
-	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
-	functions_project "github.com/v1Flows/exFlow/services/backend/functions/project"
-	"github.com/v1Flows/exFlow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/services/backend/functions/encryption"
+	"github.com/JustLABv1/justflow/services/backend/functions/gatekeeper"
+	"github.com/JustLABv1/justflow/services/backend/functions/httperror"
+	functions_project "github.com/JustLABv1/justflow/services/backend/functions/project"
+	"github.com/JustLABv1/justflow/services/backend/pkg/models"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
@@ -31,6 +30,14 @@ func UpdateFlowActionsDetails(context *gin.Context, db *bun.DB) {
 	err := db.NewSelect().Model(&flowDB).Where("id = ?", flowID).Scan(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error collecting flow data from db", err)
+		return
+	}
+
+	// get project data
+	var project models.Projects
+	err = db.NewSelect().Model(&project).Where("id = ?", flowDB.ProjectID).Scan(context)
+	if err != nil {
+		httperror.InternalServerError(context, "Error collecting project data from db", err)
 		return
 	}
 
@@ -56,23 +63,17 @@ func UpdateFlowActionsDetails(context *gin.Context, db *bun.DB) {
 		return
 	}
 
-	if (!flowDB.EncryptActionParams && flow.EncryptActionParams) && config.Config.Encryption.Enabled {
-		flow.Actions, err = encryption.EncryptParams(flowDB.Actions)
+	if project.EncryptionEnabled {
+		flow.Actions, err = encryption.EncryptParamsWithProject(flowDB.Actions, flowDB.ProjectID, db)
 		if err != nil {
 			httperror.InternalServerError(context, "Error encrypting action params", err)
-			return
-		}
-	} else if flowDB.EncryptActionParams && !flow.EncryptActionParams && config.Config.Encryption.Enabled {
-		flow.Actions, err = encryption.DecryptParams(flowDB.Actions, true)
-		if err != nil {
-			httperror.InternalServerError(context, "Error decrypting action params", err)
 			return
 		}
 	} else {
 		flow.Actions = flowDB.Actions
 	}
 
-	_, err = db.NewUpdate().Model(&flow).Column("encrypt_action_params", "exec_parallel", "patterns", "actions").Where("id = ?", flowID).Exec(context)
+	_, err = db.NewUpdate().Model(&flow).Column("exec_parallel", "patterns", "actions").Where("id = ?", flowID).Exec(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error updating actions details on db", err)
 		return

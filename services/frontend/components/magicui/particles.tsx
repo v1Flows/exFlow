@@ -1,12 +1,18 @@
-/* eslint-disable no-undef */
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, {
+  ComponentPropsWithoutRef,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
-type MousePosition = {
+import { cn } from "@/lib/utils";
+
+interface MousePosition {
   x: number;
   y: number;
-};
+}
 
 function MousePosition(): MousePosition {
   const [mousePosition, setMousePosition] = useState<MousePosition>({
@@ -15,13 +21,16 @@ function MousePosition(): MousePosition {
   });
 
   useEffect(() => {
+    // eslint-disable-next-line no-undef
     const handleMouseMove = (event: MouseEvent) => {
       setMousePosition({ x: event.clientX, y: event.clientY });
     };
 
+    // eslint-disable-next-line no-undef
     window.addEventListener("mousemove", handleMouseMove);
 
     return () => {
+      // eslint-disable-next-line no-undef
       window.removeEventListener("mousemove", handleMouseMove);
     };
   }, []);
@@ -29,7 +38,7 @@ function MousePosition(): MousePosition {
   return mousePosition;
 }
 
-type ParticlesProps = {
+interface ParticlesProps extends ComponentPropsWithoutRef<"div"> {
   className?: string;
   quantity?: number;
   staticity?: number;
@@ -39,7 +48,8 @@ type ParticlesProps = {
   color?: string;
   vx?: number;
   vy?: number;
-};
+}
+
 function hexToRgb(hex: string): number[] {
   hex = hex.replace("#", "");
 
@@ -50,7 +60,7 @@ function hexToRgb(hex: string): number[] {
       .join("");
   }
 
-  const hexInt = Number.parseInt(hex, 16);
+  const hexInt = parseInt(hex, 16);
   const red = (hexInt >> 16) & 255;
   const green = (hexInt >> 8) & 255;
   const blue = hexInt & 255;
@@ -58,7 +68,20 @@ function hexToRgb(hex: string): number[] {
   return [red, green, blue];
 }
 
-const Particles: React.FC<ParticlesProps> = ({
+type Circle = {
+  x: number;
+  y: number;
+  translateX: number;
+  translateY: number;
+  size: number;
+  alpha: number;
+  targetAlpha: number;
+  dx: number;
+  dy: number;
+  magnetism: number;
+};
+
+export const Particles: React.FC<ParticlesProps> = ({
   className = "",
   quantity = 100,
   staticity = 50,
@@ -68,15 +91,23 @@ const Particles: React.FC<ParticlesProps> = ({
   color = "#ffffff",
   vx = 0,
   vy = 0,
+  ...props
 }) => {
+  // eslint-disable-next-line no-undef
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  // eslint-disable-next-line no-undef
   const canvasContainerRef = useRef<HTMLDivElement>(null);
+  // eslint-disable-next-line no-undef
   const context = useRef<CanvasRenderingContext2D | null>(null);
-  const circles = useRef<any[]>([]);
+  const circles = useRef<Circle[]>([]);
   const mousePosition = MousePosition();
   const mouse = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const canvasSize = useRef<{ w: number; h: number }>({ w: 0, h: 0 });
+  // eslint-disable-next-line no-undef
   const dpr = typeof window !== "undefined" ? window.devicePixelRatio : 1;
+  const rafID = useRef<number | null>(null);
+  // eslint-disable-next-line no-undef
+  const resizeTimeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (canvasRef.current) {
@@ -84,10 +115,29 @@ const Particles: React.FC<ParticlesProps> = ({
     }
     initCanvas();
     animate();
-    window.addEventListener("resize", initCanvas);
+
+    const handleResize = () => {
+      if (resizeTimeout.current) {
+        clearTimeout(resizeTimeout.current);
+      }
+      resizeTimeout.current = setTimeout(() => {
+        initCanvas();
+      }, 200);
+    };
+
+    // eslint-disable-next-line no-undef
+    window.addEventListener("resize", handleResize);
 
     return () => {
-      window.removeEventListener("resize", initCanvas);
+      if (rafID.current != null) {
+        // eslint-disable-next-line no-undef
+        window.cancelAnimationFrame(rafID.current);
+      }
+      if (resizeTimeout.current) {
+        clearTimeout(resizeTimeout.current);
+      }
+      // eslint-disable-next-line no-undef
+      window.removeEventListener("resize", handleResize);
     };
   }, [color]);
 
@@ -119,29 +169,24 @@ const Particles: React.FC<ParticlesProps> = ({
     }
   };
 
-  type Circle = {
-    x: number;
-    y: number;
-    translateX: number;
-    translateY: number;
-    size: number;
-    alpha: number;
-    targetAlpha: number;
-    dx: number;
-    dy: number;
-    magnetism: number;
-  };
-
   const resizeCanvas = () => {
     if (canvasContainerRef.current && canvasRef.current && context.current) {
-      circles.current.length = 0;
       canvasSize.current.w = canvasContainerRef.current.offsetWidth;
       canvasSize.current.h = canvasContainerRef.current.offsetHeight;
+
       canvasRef.current.width = canvasSize.current.w * dpr;
       canvasRef.current.height = canvasSize.current.h * dpr;
       canvasRef.current.style.width = `${canvasSize.current.w}px`;
       canvasRef.current.style.height = `${canvasSize.current.h}px`;
       context.current.scale(dpr, dpr);
+
+      // Clear existing particles and create new ones with exact quantity
+      circles.current = [];
+      for (let i = 0; i < quantity; i++) {
+        const circle = circleParams();
+
+        drawCircle(circle);
+      }
     }
   };
 
@@ -152,9 +197,7 @@ const Particles: React.FC<ParticlesProps> = ({
     const translateY = 0;
     const pSize = Math.floor(Math.random() * 2) + size;
     const alpha = 0;
-    const targetAlpha = Number.parseFloat(
-      (Math.random() * 0.6 + 0.1).toFixed(1),
-    );
+    const targetAlpha = parseFloat((Math.random() * 0.6 + 0.1).toFixed(1));
     const dx = (Math.random() - 0.5) * 0.1;
     const dy = (Math.random() - 0.5) * 0.1;
     const magnetism = 0.1 + Math.random() * 4;
@@ -238,7 +281,7 @@ const Particles: React.FC<ParticlesProps> = ({
         canvasSize.current.h - circle.y - circle.translateY - circle.size, // distance from bottom edge
       ];
       const closestEdge = edge.reduce((a, b) => Math.min(a, b));
-      const remapClosestEdge = Number.parseFloat(
+      const remapClosestEdge = parseFloat(
         remapValue(closestEdge, 0, 20, 0, 1).toFixed(2),
       );
 
@@ -274,17 +317,20 @@ const Particles: React.FC<ParticlesProps> = ({
         const newCircle = circleParams();
 
         drawCircle(newCircle);
-        // update the circle position
       }
     });
-    window.requestAnimationFrame(animate);
+    // eslint-disable-next-line no-undef
+    rafID.current = window.requestAnimationFrame(animate);
   };
 
   return (
-    <div ref={canvasContainerRef} aria-hidden="true" className={className}>
+    <div
+      ref={canvasContainerRef}
+      aria-hidden="true"
+      className={cn("pointer-events-none", className)}
+      {...props}
+    >
       <canvas ref={canvasRef} className="size-full" />
     </div>
   );
 };
-
-export default Particles;

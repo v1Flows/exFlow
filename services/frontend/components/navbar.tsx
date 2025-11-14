@@ -17,6 +17,7 @@ import {
   Button,
   Image,
   Alert,
+  User,
 } from "@heroui/react";
 import { link as linkStyles } from "@heroui/theme";
 import NextLink from "next/link";
@@ -66,6 +67,7 @@ export const Navbar = ({
 
   return (
     <HeroUINavbar
+      className="bg-content1/70 rounded-b-lg"
       isMenuOpen={isMenuOpen}
       maxWidth="full"
       position="sticky"
@@ -82,7 +84,7 @@ export const Navbar = ({
               src={`/images/ef_logo_512.png`}
               width={28}
             />
-            <p className="font-bold text-inherit">exFlow</p>
+            <p className="font-bold text-inherit">{siteConfig.name}</p>
           </NextLink>
         </NavbarBrand>
         <ul className="hidden lg:flex gap-4 justify-start ml-2">
@@ -129,6 +131,22 @@ export const Navbar = ({
                   base: "gap-4",
                 }}
               >
+                <DropdownItem
+                  key="system"
+                  description="Manage the JustFlow system"
+                  startContent={
+                    <Icon
+                      className="text-danger"
+                      icon="hugeicons:configuration-01"
+                      width={24}
+                    />
+                  }
+                  onPress={() => {
+                    router.push("/admin/system");
+                  }}
+                >
+                  System
+                </DropdownItem>
                 <DropdownItem
                   key="projects"
                   description="Manage all projects"
@@ -209,22 +227,6 @@ export const Navbar = ({
                 >
                   Users
                 </DropdownItem>
-                <DropdownItem
-                  key="page_settings"
-                  description="Manage the exFlow settings"
-                  startContent={
-                    <Icon
-                      className="text-danger"
-                      icon="hugeicons:settings-05"
-                      width={24}
-                    />
-                  }
-                  onPress={() => {
-                    router.push("/admin/page-settings");
-                  }}
-                >
-                  exFlow Settings
-                </DropdownItem>
               </DropdownMenu>
             </Dropdown>
           )}
@@ -249,14 +251,16 @@ export const Navbar = ({
 
         <Dropdown placement="bottom-end">
           <DropdownTrigger>
-            <Avatar
-              isBordered
-              as="button"
-              className="transition-transform"
-              color="primary"
+            <User
+              avatarProps={{
+                isBordered: true,
+                name: userDetails.username,
+                radius: "full",
+                size: "sm",
+                color: "primary",
+              }}
+              description={userDetails.email}
               name={userDetails.username}
-              radius="sm"
-              size="sm"
             />
           </DropdownTrigger>
           <DropdownMenu aria-label="Profile Actions" variant="flat">
@@ -523,7 +527,7 @@ export const Navbar = ({
                 </DropdownItem>
                 <DropdownItem
                   key="page_settings"
-                  description="Manage the exFlow settings"
+                  description="Manage the JustFlow settings"
                   startContent={
                     <Icon
                       className="text-danger"
@@ -535,7 +539,7 @@ export const Navbar = ({
                     router.push("/admin/page-settings");
                   }}
                 >
-                  exFlow Settings
+                  JustFlow Settings
                 </DropdownItem>
               </DropdownMenu>
             </Dropdown>

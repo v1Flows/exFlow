@@ -18,7 +18,6 @@ import {
   TableRow,
   Tooltip,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import InteractExecutionStep from "@/lib/fetch/executions/PUT/step_interact";
@@ -27,6 +26,7 @@ import {
   executionStatusName,
   executionStatusWrapper,
 } from "@/lib/functions/executionStyles";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 import AdminStepActions from "./adminStepActions";
 
@@ -37,7 +37,7 @@ export function ExecutionStepsTable({
   runners,
   userDetails,
 }: any) {
-  const router = useRouter();
+  const { refreshExecution, refreshExecutionSteps } = useRefreshCache();
 
   const [parSteps, setParSteps] = useState([] as any);
   const messagesContainerRef = useRef<{ [key: string]: any }>({});
@@ -328,7 +328,10 @@ export function ExecutionStepsTable({
         variant: "flat",
       });
       setPageAutoScrollEnabled(true);
-      router.refresh();
+      // wait 1 second
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await refreshExecutionSteps(execution.id);
+      await refreshExecution(execution.id);
     }
   }
 
@@ -437,12 +440,12 @@ export function ExecutionStepsTable({
                                       key={`${dataIndex}-${lineIndex}`}
                                       className={`container flex items-start gap-3 py-0.3 hover:bg-default-100/50 transition-colors`}
                                     >
-                                      <div className="flex-shrink-0 w-8 text-right">
+                                      <div className="shrink-0 w-8 text-right">
                                         <span className="text-xs text-default-400 font-mono select-none">
                                           {currentLineNumber}
                                         </span>
                                       </div>
-                                      <div className="flex-shrink-0">
+                                      <div className="shrink-0">
                                         <span className="text-xs text-default-500 text-opacity-70 font-mono">
                                           {new Date(
                                             line.timestamp,

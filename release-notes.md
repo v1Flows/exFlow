@@ -17,4 +17,4 @@
 
 ---
 
-*Thank you for using exFlow!*
+*Thank you for using JustFlow!*

@@ -1,0 +1,9 @@
+{
+  "name": "restart-frontend",
+  "version": "1.0.0",
+  "description": "Helper script to restart frontend after setup",
+  "main": "restart.js",
+  "scripts": {
+    "restart": "node restart.js"
+  }
+}

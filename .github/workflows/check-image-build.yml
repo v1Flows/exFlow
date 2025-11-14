@@ -10,30 +10,58 @@ on:
       - 'deployment-examples/**'
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      frontend: ${{ steps.changes.outputs.frontend }}
+      backend: ${{ steps.changes.outputs.backend }}
+      justflow: ${{ steps.changes.outputs.justflow }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            frontend:
+              - 'services/frontend/**'
+            backend:
+              - 'services/backend/**'
+            justflow:
+              - 'Dockerfile'
   frontend:
     name: Check Standalone Frontend Build
     runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Build Frontend Docker Image
-        run: docker build . --file services/frontend/Dockerfile --tag justnz/exflow:frontend-test
+        run: docker build . --file services/frontend/Dockerfile --tag justnz/justflow:frontend-test
   backend:
     name: Check Standalone Backend Build
     runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.backend == 'true' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Build Backend Docker Image
-        run: docker build . --file services/backend/Dockerfile --tag justnz/exflow:backend-test
-  exflow:
-    name: Check exFlow Build
+        run: docker build . --file services/backend/Dockerfile --tag justnz/justflow:backend-test
+  justflow:
+    name: Check justFlow Build
     runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.justflow == 'true' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build exFlow Docker Image
-        run: docker build . --file Dockerfile --tag justnz/exflow:test
+      - name: Build justFlow Docker Image
+        run: docker build . --file Dockerfile --tag justnz/justflow:test

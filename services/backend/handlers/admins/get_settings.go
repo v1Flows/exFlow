@@ -3,9 +3,9 @@ package admins
 import (
 	"net/http"
 
-	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
-	functions_runner "github.com/v1Flows/exFlow/services/backend/functions/runner"
-	"github.com/v1Flows/exFlow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/services/backend/functions/httperror"
+	functions_runner "github.com/JustLABv1/justflow/services/backend/functions/runner"
+	"github.com/JustLABv1/justflow/services/backend/pkg/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/uptrace/bun"
@@ -19,16 +19,16 @@ func GetSettings(context *gin.Context, db *bun.DB) {
 		return
 	}
 
-	// regenerate ExFlowRunnerAutoJoinToken if it got deleted or is not existing
+	// regenerate JustFlowRunnerAutoJoinToken if it got deleted or is not existing
 	if settings.SharedRunnerAutoJoinToken == "" {
-		settings.SharedRunnerAutoJoinToken, err = functions_runner.GenerateExFlowAutoJoinToken(db)
+		settings.SharedRunnerAutoJoinToken, err = functions_runner.GenerateJustFlowAutoJoinToken(db)
 		if err != nil {
-			httperror.InternalServerError(context, "Error generating ExFlowRunnerAutoJoinToken", err)
+			httperror.InternalServerError(context, "Error generating JustFlowRunnerAutoJoinToken", err)
 			return
 		}
 		_, err = db.NewUpdate().Model(&settings).Set("shared_runner_auto_join_token = ?", settings.SharedRunnerAutoJoinToken).Where("id = 1").Exec(context)
 		if err != nil {
-			httperror.InternalServerError(context, "Error updating ExFlowRunnerAutoJoinToken on db", err)
+			httperror.InternalServerError(context, "Error updating JustFlowRunnerAutoJoinToken on db", err)
 			return
 		}
 	}

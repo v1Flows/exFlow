@@ -12,11 +12,11 @@ import {
   ModalHeader,
   Snippet,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React from "react";
 
 import DeleteRunnerToken from "@/lib/fetch/project/DELETE/DeleteRunnerToken";
 import ErrorCard from "@/components/error/ErrorCard";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function DeleteRunnerTokenModal({
   disclosure,
@@ -25,7 +25,7 @@ export default function DeleteRunnerTokenModal({
   disclosure: UseDisclosureReturn;
   token: any;
 }) {
-  const router = useRouter();
+  const { refreshProjectTokens } = useRefreshCache();
   const { isOpen, onOpenChange } = disclosure;
 
   const [isLoading, setIsLoading] = React.useState(false);
@@ -58,7 +58,7 @@ export default function DeleteRunnerTokenModal({
       setError(false);
       setErrorText("");
       setErrorMessage("");
-      router.refresh();
+      refreshProjectTokens(token.project_id);
       onOpenChange();
       addToast({
         title: "Token",

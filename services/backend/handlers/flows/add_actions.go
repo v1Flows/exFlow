@@ -5,12 +5,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/v1Flows/exFlow/services/backend/config"
-	"github.com/v1Flows/exFlow/services/backend/functions/encryption"
-	"github.com/v1Flows/exFlow/services/backend/functions/gatekeeper"
-	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
-	functions_project "github.com/v1Flows/exFlow/services/backend/functions/project"
-	"github.com/v1Flows/exFlow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/services/backend/functions/encryption"
+	"github.com/JustLABv1/justflow/services/backend/functions/gatekeeper"
+	"github.com/JustLABv1/justflow/services/backend/functions/httperror"
+	functions_project "github.com/JustLABv1/justflow/services/backend/functions/project"
+	"github.com/JustLABv1/justflow/services/backend/pkg/models"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
@@ -31,6 +30,14 @@ func AddFlowActions(context *gin.Context, db *bun.DB) {
 	err := db.NewSelect().Model(&flowDB).Where("id = ?", flowID).Scan(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error collecting flow data from db", err)
+		return
+	}
+
+	// get project data
+	var project models.Projects
+	err = db.NewSelect().Model(&project).Where("id = ?", flowDB.ProjectID).Scan(context)
+	if err != nil {
+		httperror.InternalServerError(context, "Error collecting project data from db", err)
 		return
 	}
 
@@ -57,8 +64,8 @@ func AddFlowActions(context *gin.Context, db *bun.DB) {
 	}
 
 	// encrypt action params
-	if config.Config.Encryption.Enabled && flowDB.EncryptActionParams {
-		flow.Actions, err = encryption.EncryptParams(flow.Actions)
+	if project.EncryptionEnabled {
+		flow.Actions, err = encryption.EncryptParamsWithProject(flow.Actions, flowDB.ProjectID, db)
 		if err != nil {
 			httperror.InternalServerError(context, "Error encrypting action params", err)
 			fmt.Println(err)

@@ -17,13 +17,13 @@ import {
   SelectItem,
   Switch,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 import { Icon } from "@iconify/react";
 
 import GetProjectRunners from "@/lib/fetch/project/runners";
 import UpdateFlow from "@/lib/fetch/flow/PUT/UpdateFlow";
 import ErrorCard from "@/components/error/ErrorCard";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function EditFlowModal({
   targetFlow,
@@ -36,7 +36,7 @@ export default function EditFlowModal({
   folders: any;
   disclosure: UseDisclosureReturn;
 }) {
-  const router = useRouter();
+  const { refreshFlowData } = useRefreshCache();
 
   // create modal
   const { isOpen, onOpenChange, onClose } = disclosure;
@@ -104,12 +104,14 @@ export default function EditFlowModal({
       projectId,
       folderId,
       runnerLimit ? runnerId : "any",
-      targetFlow.encrypt_executions,
-      targetFlow.encrypt_action_params,
       targetFlow.exec_parallel,
       targetFlow.failure_pipeline_id,
       targetFlow.schedule_every_value,
       targetFlow.schedule_every_unit,
+      targetFlow.patterns,
+      targetFlow.group_alerts,
+      targetFlow.group_alerts_identifier,
+      targetFlow.alert_threshold,
     )) as any;
 
     if (!response) {
@@ -122,7 +124,7 @@ export default function EditFlowModal({
     }
 
     if (response.success) {
-      router.refresh();
+      refreshFlowData(targetFlow.id); // Refresh SWR cache with specific flow ID
       onOpenChange();
       setIsLoading(false);
       addToast({
@@ -226,7 +228,7 @@ export default function EditFlowModal({
                       "group-data-[selected=true]:ml-6",
                       // pressed
                       "group-data-[pressed=true]:w-7",
-                      "group-data-[selected]:group-data-[pressed]:ml-4",
+                      "group-data-selected:group-data-pressed:ml-4",
                     ),
                   }}
                   isSelected={runnerLimit}

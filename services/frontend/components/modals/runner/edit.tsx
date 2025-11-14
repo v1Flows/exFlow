@@ -12,12 +12,12 @@ import {
   ModalContent,
   ModalHeader,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { Icon } from "@iconify/react";
 
 import EditRunner from "@/lib/fetch/runner/PUT/Edit";
 import ErrorCard from "@/components/error/ErrorCard";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function EditRunnerModal({
   disclosure,
@@ -26,7 +26,7 @@ export default function EditRunnerModal({
   disclosure: UseDisclosureReturn;
   runner: any;
 }) {
-  const router = useRouter();
+  const { refreshRunners, refreshProjectRunners } = useRefreshCache();
   const { isOpen, onOpenChange } = disclosure;
 
   const [isLoading, setIsLoading] = useState(false);
@@ -71,7 +71,10 @@ export default function EditRunnerModal({
         color: "success",
         variant: "flat",
       });
-      router.refresh();
+      refreshRunners();
+      if (runner.project_id) {
+        refreshProjectRunners(runner.project_id);
+      }
     } else {
       setApiError(true);
       setApiErrorText(res.error);

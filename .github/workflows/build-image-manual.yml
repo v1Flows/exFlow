@@ -1,0 +1,43 @@
+name: Build Image Manual Branch
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to build and release'
+        required: true
+        default: 'develop'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.inputs.branch }}
+
+      - name: Build Frontend Docker Image
+        run: docker build . --file services/frontend/Dockerfile --tag justnz/exflow:frontend-${{ github.sha }} --tag justnz/exflow:frontend-${{ github.ref_name }}
+
+      - name: Build Backend Docker Image
+        run: docker build . --file services/backend/Dockerfile --tag justnz/exflow:backend-${{ github.sha }} --tag justnz/exflow:backend-${{ github.ref_name }}
+
+      - name: Build exFlow Docker Image
+        run: docker build . --file Dockerfile --tag justnz/exflow:${{ github.sha }} --tag justnz/exflow:${{ github.ref_name }}
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Push Docker Images
+        run: |
+          docker push justnz/exflow:frontend-${{ github.sha }}
+          docker push justnz/exflow:frontend-${{ github.ref_name }}
+          docker push justnz/exflow:backend-${{ github.sha }}
+          docker push justnz/exflow:backend-${{ github.ref_name }}
+          docker push justnz/exflow:${{ github.sha }}
+          docker push justnz/exflow:${{ github.ref_name }}

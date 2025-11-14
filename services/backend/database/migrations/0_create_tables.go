@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/v1Flows/exFlow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/services/backend/pkg/models"
 
 	"github.com/uptrace/bun"
 )

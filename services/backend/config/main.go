@@ -46,8 +46,8 @@ type JWTConf struct {
 }
 
 type EncryptionConf struct {
-	Enabled bool   `mapstructure:"enabled" validate:"required"`
-	Key     string `mapstructure:"key"`
+	Key          string `mapstructure:"key"`
+	MasterSecret string `mapstructure:"master_secret" validate:"required"`
 }
 
 type RunnerConf struct {
@@ -84,8 +84,8 @@ func (cm *ConfigurationManager) LoadConfig(configFile string) error {
 		"database.name":               "BACKEND_DATABASE_NAME",
 		"database.user":               "BACKEND_DATABASE_USER",
 		"database.password":           "BACKEND_DATABASE_PASSWORD",
-		"encryption.enabled":          "BACKEND_ENCRYPTION_ENABLED",
 		"encryption.key":              "BACKEND_ENCRYPTION_KEY",
+		"encryption.master_secret":    "BACKEND_ENCRYPTION_MASTER_SECRET",
 		"jwt.secret":                  "BACKEND_JWT_SECRET",
 		"runner.shared_runner_secret": "BACKEND_RUNNER_SHARED_RUNNER_SECRET",
 	}
@@ -117,6 +117,10 @@ func (cm *ConfigurationManager) LoadConfig(configFile string) error {
 
 	// Assign to package-level variable for global access
 	Config = &config
+
+	if config.Encryption.MasterSecret == "" {
+		log.Fatal("Master secret is required for encryption")
+	}
 
 	log.WithFields(log.Fields{
 		"file":    configFile,

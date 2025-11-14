@@ -12,12 +12,12 @@ import {
   ModalHeader,
   Snippet,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React from "react";
 import { Icon } from "@iconify/react";
 
 import ErrorCard from "@/components/error/ErrorCard";
 import DeleteProjectToken from "@/lib/fetch/project/DELETE/DeleteProjectToken";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function DeleteProjectTokenModal({
   disclosure,
@@ -28,7 +28,7 @@ export default function DeleteProjectTokenModal({
   projectID: any;
   token: any;
 }) {
-  const router = useRouter();
+  const { refreshProjectTokens } = useRefreshCache();
   const { isOpen, onOpenChange } = disclosure;
 
   const [isLoading, setIsLoading] = React.useState(false);
@@ -61,7 +61,7 @@ export default function DeleteProjectTokenModal({
       setError(false);
       setErrorText("");
       setErrorMessage("");
-      router.refresh();
+      refreshProjectTokens(projectID);
       onOpenChange();
       addToast({
         title: "Token",

@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import * as React from "react";
 import { ToastProvider } from "@heroui/react";
 
+import SWRProvider from "@/lib/swr/provider";
+
 type ThemeProviderProps = React.ComponentProps<typeof NextThemesProvider>;
 
 export type ProvidersProps = {
@@ -17,9 +19,11 @@ export function Providers({ children, themeProps }: ProvidersProps) {
   const router = useRouter();
 
   return (
-    <HeroUIProvider navigate={router.push}>
-      <ToastProvider />
-      <NextThemesProvider {...themeProps}>{children}</NextThemesProvider>
-    </HeroUIProvider>
+    <SWRProvider>
+      <HeroUIProvider navigate={router.push}>
+        <ToastProvider />
+        <NextThemesProvider {...themeProps}>{children}</NextThemesProvider>
+      </HeroUIProvider>
+    </SWRProvider>
   );
 }

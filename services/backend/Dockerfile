@@ -1,6 +1,6 @@
 FROM golang:1.24-alpine as builder
 
-WORKDIR /backend
+WORKDIR /app/backend
 
 COPY services/backend/go.mod services/backend/go.sum ./
 RUN go mod download
@@ -8,18 +8,23 @@ RUN go mod download
 COPY services/backend/ ./
 
 # Build
-RUN CGO_ENABLED=0 GOOS=linux go build -o /exflow-backend
+RUN go build -o justflow-backend
 
-FROM alpine:3.12 as runner
+FROM alpine:3.22 as runner
 WORKDIR /app
 
-COPY --from=builder /exflow-backend /exflow-backend
+COPY --from=builder /app/backend/justflow-backend /app/
 
-RUN mkdir /app/config
-COPY services/backend/config/config.yaml /etc/exflow/backend_config.yaml
+RUN addgroup --system --gid 1001 justflow
+RUN adduser --system --uid 1001 justflow
 
-VOLUME [ "/etc/exflow" ]
+RUN mkdir -p /etc/justflow \
+    && chown -R justflow:justflow /etc/justflow
+
+RUN chown -R justflow:justflow /app
+
+VOLUME [ "/etc/justflow" ]
 
 EXPOSE 8080
 
-CMD [ "/exflow-backend", "--config", "/etc/exflow/backend_config.yaml" ]
+CMD [ "/justflow-backend", "--config", "/etc/justflow/config.yaml" ]

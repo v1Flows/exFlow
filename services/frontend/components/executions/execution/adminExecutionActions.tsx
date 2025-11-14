@@ -8,16 +8,16 @@ import {
   DropdownSection,
   DropdownTrigger,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 
 import UpdateExecution from "@/lib/fetch/executions/PUT/update";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function AdminExecutionActions({
   execution,
 }: {
   execution: any;
 }) {
-  const router = useRouter();
+  const { refreshExecution } = useRefreshCache();
 
   async function changeExecutionStatus(status: string) {
     const newExecution = { ...execution };
@@ -106,7 +106,7 @@ export default function AdminExecutionActions({
         color: "success",
         variant: "flat",
       });
-      router.refresh();
+      refreshExecution(execution.id);
     } else {
       addToast({
         title: "Execution",
@@ -121,7 +121,7 @@ export default function AdminExecutionActions({
     <Dropdown>
       <DropdownTrigger>
         <Button color="danger" variant="flat">
-          <Icon icon="solar:shield-up-broken" width={20} />
+          <Icon icon="hugeicons:shield-energy" width={20} />
           Admin Actions
         </Button>
       </DropdownTrigger>

@@ -2,11 +2,11 @@
 <a href="https://buymeacoffee.com/justnz" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
 </p>
 
-# exFlow
+# JustFlow
 
-exFlow is a workflow automation platform like Jenkins but beautiful. This repository contains both the frontend and backend code for the exFlow application.
+JustFlow is a workflow automation platform like Jenkins but beautiful. This repository contains both the frontend and backend code for the JustFlow application.
 
-![Dashboard Image](https://github.com/v1Flows/exFlow/blob/develop/services/frontend/public/images/full_dashboard.png?raw=true)
+![Dashboard Image](https://github.com/v1Flows/JustFlow/blob/develop/services/frontend/public/images/full_dashboard.png?raw=true)
 
 ## Table of Contents
 
@@ -28,52 +28,52 @@ exFlow is a workflow automation platform like Jenkins but beautiful. This reposi
 - **Failure Pipelines**: Trigger separate pipelines in case your flows fail and recover in case needed.
 - **Runners**: Runners execute your flows. They can also be self-hosted and expanded with plugins.
 - **Shared Runners**: Create runners which can be used for all projects across the platform.
-- **Scalable to your Needs**: Scale exFlow and the runners according to your workload.
+- **Scalable to your Needs**: Scale JustFlow and the runners according to your workload.
 - **Team Collaboration**: Invite team members, assign roles, and manage permissions.
 - **Audit Logs**: Track changes and activities within projects and flows.
 
 ## Self Hosting
-To run your own version of exFlow we provide various docker images available at 
-[Docker Hub](https://hub.docker.com/repository/docker/justnz/exflow/general).
+To run your own version of JustFlow we provide various docker images available at 
+[Docker Hub](https://hub.docker.com/repository/docker/justnz/justflow/general).
 
-**!CAUTION! exFlow requires an separately hosted PostgreSQL Database to connect to. There is no built-in database in the full version exFlow image.**
+**!CAUTION! JustFlow requires an separately hosted PostgreSQL Database to connect to. There is no built-in database in the full version JustFlow image.**
 
-- **justnz/exflow:latest** - Full version including frontend and backend
-- **justnz/exflow:vx.x.x** - Versioned release. Also available for the single frontend and backend images
-- **justnz/exflow:frontend-latest** - Only frontend
-- **justnz/exflow:backend-latest** - Only backend
+- **justnz/justflow:latest** - Full version including frontend and backend
+- **justnz/justflow:vx.x.x** - Versioned release. Also available for the single frontend and backend images
+- **justnz/justflow:frontend-latest** - Only frontend
+- **justnz/justflow:backend-latest** - Only backend
 
 ### Docker Compose
-Use our [docker-compose.yaml](https://github.com/v1Flows/exFlow/blob/develop/docker-compose.yaml) to get started with exFlow. This contains an postgres database and the full version image of exFlow.
+Use our [docker-compose.yaml](https://github.com/v1Flows/JustFlow/blob/develop/docker-compose.yaml) to get started with JustFlow. This contains an postgres database and the full version image of JustFlow.
 
 ### Helm Chart
-We also offer an Helm Chart for exFlow which includes exFlow itself, an postgres and the option for project/shared runners. <br />
+We also offer an Helm Chart for JustFlow which includes JustFlow itself, an postgres and the option for project/shared runners. <br />
 Visit our [Helm Repo](https://github.com/v1Flows/helm-charts/tree/main) for more details
 
 ### Docker run
 #### Full Version
 
-Config example: [config.yaml](https://github.com/v1Flows/exFlow/blob/main/services/backend/config/config.yaml)
+Config example: [config.yaml](https://github.com/v1Flows/JustFlow/blob/main/services/backend/config/config.yaml)
 
 ```sh
-docker run -p 80:3000 -v /your/config/path/config.yaml:/etc/exflow/backend_config.yaml justnz/exflow:latest
+docker run -p 80:3000 -v /your/config/path/config.yaml:/etc/justflow/backend_config.yaml justnz/justflow:latest
 ```
 
 #### Frontend Only
-If you want to run only the frontend of exFlow, please provide the backend endpoint via the below env flag.
+If you want to run only the frontend of JustFlow, please provide the backend endpoint via the below env flag.
 ```sh
-docker run -p 80:3000 -e NEXT_PUBLIC_API_URL=https://api-url.com justnz/exflow:frontend-latest
+docker run -p 80:3000 -e NEXT_PUBLIC_API_URL=https://api-url.com justnz/justflow:frontend-latest
 ```
 
 #### Backend Only
 ```sh
-docker run -p 8080:8080 -v /your/config/path/config.yaml:/etc/exflow/backend_config.yaml justnz/exflow:backend-latest
+docker run -p 8080:8080 -v /your/config/path/config.yaml:/etc/justflow/backend_config.yaml justnz/justflow:backend-latest
 ```
 
 ## Runners
-The execution engine of exFlow is the v1Flows Runner. This component provides the functionality as a workflow engine and will execute your flows.
+The execution engine of JustFlow is the v1Flows Runner. This component provides the functionality as a workflow engine and will execute your flows.
 
-exFlow can only run flows when at least one runner is connected. After you created your exFlow instance either create an project and add an persistent/auto runner or as an admin visit the admin runner page.
+JustFlow can only run flows when at least one runner is connected. After you created your JustFlow instance either create an project and add an persistent/auto runner or as an admin visit the admin runner page.
 
 Please see the [Runner](https://github.com/v1Flows/runner) Repo for more informations.
 
@@ -86,14 +86,14 @@ The project structure is organized as follows:
 
 ## Local Development
 
-To get started with the exFlow project, follow these steps:
+To get started with the JustFlow project, follow these steps:
 
 ### Backend
 
 1. Clone the repository:
     ```sh
-    git clone git@github.com:v1Flows/exFlow.git
-    cd exflow
+    git clone git@github.com:v1Flows/JustFlow.git
+    cd justflow
     ```
 
 2. Install dependencies:
@@ -101,7 +101,7 @@ To get started with the exFlow project, follow these steps:
     cd services/backend && go mod download
     ```
 
-3. Create a [config.yaml](https://github.com/v1Flows/exFlow/blob/main/services/backend/config/config.yaml) file and add the necessary configuration:
+3. Create a [config.yaml](https://github.com/v1Flows/JustFlow/blob/main/services/backend/config/config.yaml) file and add the necessary configuration:
     ```yaml
     ---
 
@@ -117,9 +117,10 @@ To get started with the exFlow project, follow these steps:
       password: postgres
 
     encryption:
-      enabled: true
-      # maximum 32 characters
-      key: null
+      # Minimum 32 characters, recommended 64+ characters
+      master_secret: "your-very-long-and-secure-master-secret-here"
+      # Fallback key for legacy data (optional)
+      key: "legacy-key-for-backward-compatibility"
 
     jwt:
       secret: null
@@ -127,8 +128,8 @@ To get started with the exFlow project, follow these steps:
 
 4. Build and run the backend server:
     ```sh
-    $ go build -o exflow-backend
-    $ ./exflow-backend --config config/config.yaml
+    $ go build -o justflow-backend
+    $ ./justflow-backend --config config/config.yaml
     ```
 
 ### Frontend
@@ -155,7 +156,7 @@ To get started with the exFlow project, follow these steps:
 
 ## Contributing
 
-We welcome contributions to the exFlow project! To contribute, follow these steps:
+We welcome contributions to the JustFlow project! To contribute, follow these steps:
 
 1. Fork the repository.
 2. Create a new branch:
@@ -174,4 +175,4 @@ We welcome contributions to the exFlow project! To contribute, follow these step
 
 ## License
 
-This project is licensed under the GNU AFFERO GENERAL PUBLIC LICENSE Version 3. See the [LICENSE](https://github.com/v1Flows/exFlow/blob/main/LICENSE) file for details.
+This project is licensed under the GNU AFFERO GENERAL PUBLIC LICENSE Version 3. See the [LICENSE](https://github.com/v1Flows/JustFlow/blob/main/LICENSE) file for details.

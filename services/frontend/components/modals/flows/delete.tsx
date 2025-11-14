@@ -12,12 +12,12 @@ import {
   ModalHeader,
   Snippet,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React from "react";
 import { Icon } from "@iconify/react";
 
 import ErrorCard from "@/components/error/ErrorCard";
 import DeleteFlow from "@/lib/fetch/flow/DELETE/DeleteFlow";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function DeleteFlowModal({
   disclosure,
@@ -26,8 +26,8 @@ export default function DeleteFlowModal({
   disclosure: UseDisclosureReturn;
   flow: any;
 }) {
-  const router = useRouter();
   const { isOpen, onOpenChange } = disclosure;
+  const { refreshFlowData } = useRefreshCache();
 
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState(false);
@@ -54,7 +54,7 @@ export default function DeleteFlowModal({
     }
 
     if (res.success) {
-      router.refresh();
+      refreshFlowData(); // Refresh SWR cache instead of router
       onOpenChange();
       setIsLoading(false);
       setError(false);

@@ -4,14 +4,14 @@ import (
 	"context"
 	"time"
 
-	"github.com/v1Flows/exFlow/services/backend/functions/auth"
-	"github.com/v1Flows/exFlow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/services/backend/functions/auth"
+	"github.com/JustLABv1/justflow/services/backend/pkg/models"
 
 	"github.com/google/uuid"
 	"github.com/uptrace/bun"
 )
 
-func GenerateExFlowAutoJoinToken(db *bun.DB) (token string, err error) {
+func GenerateJustFlowAutoJoinToken(db *bun.DB) (token string, err error) {
 	var key models.Tokens
 
 	key.ID = uuid.New()
@@ -20,7 +20,7 @@ func GenerateExFlowAutoJoinToken(db *bun.DB) (token string, err error) {
 	key.Type = "shared_auto_runner"
 	key.Description = "Token for Shared Auto Runner Join"
 
-	key.Key, key.ExpiresAt, err = auth.GenerateExFlowAutoRunnerJWT(key.ID)
+	key.Key, key.ExpiresAt, err = auth.GenerateJustFlowAutoRunnerJWT(key.ID)
 	if err != nil {
 		return "", err
 	}

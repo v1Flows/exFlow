@@ -201,7 +201,7 @@ export default function ExecutionsCompact({
                   >
                     {execution.steps.map((step, index) => (
                       <div
-                        key={step.key}
+                        key={step.id}
                         className="flex flex-cols items-center justify-center min-w-[100px]"
                         data-step-index={index}
                       >

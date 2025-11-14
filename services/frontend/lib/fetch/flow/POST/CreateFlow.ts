@@ -18,13 +18,12 @@ type SuccessResponse = {
 };
 
 export default async function CreateFlow(
+  type: string,
   name: string,
   description: string,
   folderId: string,
   projectId: string,
   runnerId: string,
-  encryptExecutions: boolean,
-  encryptActionParams: boolean,
 ): Promise<SuccessResponse | ErrorResponse> {
   try {
     const cookieStore = await cookies();
@@ -47,13 +46,12 @@ export default async function CreateFlow(
           Authorization: token.value,
         },
         body: JSON.stringify({
+          type,
           name,
           description,
           folder_id: folderId,
           project_id: projectId,
           runner_id: runnerId,
-          encrypt_executions: encryptExecutions,
-          encrypt_action_params: encryptActionParams,
         }),
       },
     );

@@ -1,15 +1,17 @@
 "use client";
 import { Icon } from "@iconify/react";
-import { Tab, Tabs } from "@heroui/react";
+import { Spacer, Tab, Tabs } from "@heroui/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 
 import Executions from "@/components/executions/executions";
+import Alerts from "@/components/alerts/alerts";
 
 import Actions from "./actions";
 import FlowStats from "./stats";
 import FlowSettings from "./settings";
 import FlowInfo from "./info";
+import FlowFailurePipelines from "./failure-pipelines";
 
 export default function FlowTabs({
   projects,
@@ -20,7 +22,7 @@ export default function FlowTabs({
   members,
   settings,
 }: any) {
-  const [selected, setSelected] = React.useState("actions");
+  const [selected, setSelected] = React.useState("executions");
 
   const router = useRouter();
   const pathname = usePathname();
@@ -28,7 +30,7 @@ export default function FlowTabs({
   const params = new URLSearchParams(searchParams.toString());
 
   React.useEffect(() => {
-    const tab = params.get("tab") || "actions";
+    const tab = params.get("tab") || "executions";
 
     setSelected(tab);
   }, [params]);
@@ -56,28 +58,8 @@ export default function FlowTabs({
           aria-label="Options"
           color="primary"
           selectedKey={selected}
-          variant="solid"
           onSelectionChange={handleTabChange}
         >
-          <Tab
-            key="actions"
-            title={
-              <div className="flex items-center space-x-2">
-                <Icon height={20} icon="hugeicons:blockchain-06" width="20" />
-                <span>Actions</span>
-              </div>
-            }
-          >
-            <Actions
-              canEdit={checkUserCanEdit()}
-              flow={flow}
-              flows={flows}
-              projects={projects}
-              runners={runners}
-              settings={settings}
-              user={user}
-            />
-          </Tab>
           <Tab
             key="executions"
             title={
@@ -94,18 +76,74 @@ export default function FlowTabs({
             />
           </Tab>
           <Tab
-            key="stats"
+            key="actions"
             title={
               <div className="flex items-center space-x-2">
-                <Icon
-                  height="20"
-                  icon="hugeicons:chart-line-data-01"
-                  width="20"
-                />
-                <span>Stats</span>
+                <Icon height={20} icon="hugeicons:structure-04" width="20" />
+                <span>Actions</span>
               </div>
             }
           >
+            <Actions
+              canEdit={checkUserCanEdit()}
+              flow={flow}
+              flows={flows}
+              projects={projects}
+              runners={runners}
+              settings={settings}
+              user={user}
+            />
+          </Tab>
+          <Tab
+            key="failure-pipelines"
+            title={
+              <div className="flex items-center space-x-2">
+                <Icon height={20} icon="hugeicons:structure-fail" width="20" />
+                <span>Failure Pipelines</span>
+              </div>
+            }
+          >
+            <FlowFailurePipelines
+              canEdit={checkUserCanEdit()}
+              flow={flow}
+              flows={flows}
+              projects={projects}
+              runners={runners}
+              settings={settings}
+              user={user}
+            />
+          </Tab>
+
+          {flow.type === "alert" && (
+            <Tab
+              key="alerts"
+              title={
+                <div className="flex items-center space-x-2">
+                  <Icon height={20} icon="hugeicons:alert-02" width="20" />
+                  <span>Alerts</span>
+                </div>
+              }
+            >
+              <Alerts
+                canEdit={checkUserCanEdit()}
+                flowID={flow.id}
+                flows={[flow]}
+                runners={runners}
+              />
+            </Tab>
+          )}
+
+          <Tab
+            key="info"
+            title={
+              <div className="flex items-center space-x-2">
+                <Icon icon="hugeicons:information-square" width={20} />
+                <span>Info</span>
+              </div>
+            }
+          >
+            <FlowInfo flow={flow} />
+            <Spacer y={4} />
             <FlowStats flowID={flow.id} />
           </Tab>
           <Tab
@@ -122,17 +160,6 @@ export default function FlowTabs({
               flow={flow}
               user={user}
             />
-          </Tab>
-          <Tab
-            key="info"
-            title={
-              <div className="flex items-center space-x-2">
-                <Icon icon="hugeicons:information-square" width={20} />
-                <span>Info</span>
-              </div>
-            }
-          >
-            <FlowInfo flow={flow} />
           </Tab>
         </Tabs>
       </div>

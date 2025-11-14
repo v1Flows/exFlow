@@ -12,15 +12,15 @@ services:
     ports:
       - "5432:5432"
 
-  exflow:
-    image: justnz/exflow:latest
+  justflow:
+    image: justnz/justflow:latest
     depends_on:
       - db
     ports:
-      - "3000:3000" # exFlow frontend
-      - "8080:8080" # exFlow backend
+      - "3000:3000" # JustFlow frontend
+      - "8080:8080" # JustFlow backend
     # volumes:
-    #   - ./config.yaml:/etc/exflow/backend_config.yaml
+    #   - ./config.yaml:/etc/justflow/backend_config.yaml
     environment:
       # Adjust these if your config.yaml uses different DB settings
       # BACKEND_LOG_LEVEL: info
@@ -34,12 +34,12 @@ services:
       BACKEND_ENCRYPTION_KEY: "change-me"
       BACKEND_JWT_SECRET: "change-me"
       BACKEND_RUNNER_SHARED_RUNNER_SECRET: "change-me"
-    entrypoint: ["/bin/sh", "-c", "until pg_isready -h db -p 5432 -U postgres; do sleep 1; done; exec ./exflow-backend --config /etc/exflow/backend_config.yaml & exec node /app/server.js"]
+    entrypoint: ["/bin/sh", "-c", "until pg_isready -h db -p 5432 -U postgres; do sleep 1; done; exec ./justflow-backend --config /etc/justflow/backend_config.yaml & exec node /app/server.js"]
 
   runner:
     image: justnz/runner:latest
     depends_on:
-      - exflow
+      - justflow
     ports:
       - "8081:8081"
     # volumes:
@@ -51,10 +51,10 @@ services:
       # RUNNER_ALERTFLOW_URL: ""
       # RUNNER_ALERTFLOW_RUNNER_ID: ""
       # RUNNER_ALERTFLOW_API_KEY: ""
-      RUNNER_EXFLOW_ENABLED: "true"
-      RUNNER_EXFLOW_URL: "http://exflow:8080"
-      # RUNNER_EXFLOW_RUNNER_ID: ""
-      # RUNNER_EXFLOW_API_KEY: ""
+      RUNNER_JUSTFLOW_ENABLED: "true"
+      RUNNER_JUSTFLOW_URL: "http://justflow:8080"
+      # RUNNER_JUSTFLOW_RUNNER_ID: ""
+      # RUNNER_JUSTFLOW_API_KEY: ""
       RUNNER_API_ENDPOINT_PORT: 8081
       # RUNNER_WORKSPACE_DIR: ""
       # RUNNER_PLUGIN_DIR: ""

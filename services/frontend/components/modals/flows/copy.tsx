@@ -15,13 +15,13 @@ import {
   SelectItem,
   Switch,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
 
 import GetProjectRunners from "@/lib/fetch/project/runners";
 import ErrorCard from "@/components/error/ErrorCard";
 import CopyFlow from "@/lib/fetch/flow/POST/CopyFlow";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 import RowSteps from "../../steps/row-steps";
 
@@ -36,7 +36,8 @@ export default function CopyFlowModal({
   projects: any;
   disclosure: UseDisclosureReturn;
 }) {
-  const router = useRouter();
+  const { refreshFlowData, refreshFolders, refreshProjects } =
+    useRefreshCache();
 
   // create modal
   const { isOpen, onOpenChange } = disclosure;
@@ -49,9 +50,6 @@ export default function CopyFlowModal({
     {
       title: "Runner",
     },
-    {
-      title: "Encryption",
-    },
   ]);
   const [disableNext, setDisableNext] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
@@ -62,8 +60,6 @@ export default function CopyFlowModal({
   const [projectId, setProjectId] = useState("");
   const [runnerId, setRunnerId] = useState("");
   const [runnerLimit, setRunnerLimit] = useState(false);
-  const [encryptExecutions, setEncryptExecutions] = useState(true);
-  const [encryptActionParameters, setEncryptActionParameters] = useState(true);
 
   // loading
   const [isLoading, setIsLoading] = useState(false);
@@ -81,8 +77,6 @@ export default function CopyFlowModal({
       setFolderId(flow.folder_id);
       setRunnerId(flow.runner_id);
       setRunnerLimit(flow.runner_id !== "any");
-      setEncryptExecutions(flow.encrypt_executions);
-      setEncryptActionParameters(flow.encrypt_action_params);
     }
   }, [disclosure.isOpen]);
 
@@ -111,8 +105,6 @@ export default function CopyFlowModal({
       folderId,
       projectId,
       runnerLimit ? runnerId : "any",
-      encryptExecutions,
-      encryptActionParameters,
       flow.actions,
       flow.failure_pipelines,
       flow.failure_pipeline_id,
@@ -129,7 +121,9 @@ export default function CopyFlowModal({
     }
 
     if (response.success) {
-      router.refresh();
+      refreshFlowData(); // Refresh SWR cache instead of router
+      refreshProjects(); // Refresh SWR cache instead of router
+      refreshFolders();
       onOpenChange();
       setName("");
       setDescription("");
@@ -281,36 +275,6 @@ export default function CopyFlowModal({
                           ))}
                       </Select>
                     )}
-                  </>
-                )}
-                {currentStep === 2 && (
-                  <>
-                    <div className="flex flex-cols items-center justify-between border-2 border-default-200 p-3 rounded-lg">
-                      <div>
-                        <p className="font-bold">Executions</p>
-                        <p className="text-sm text-default-500">
-                          All execution action messages will be stored encrypted
-                          on the db
-                        </p>
-                      </div>
-                      <Switch
-                        isSelected={encryptExecutions}
-                        onValueChange={setEncryptExecutions}
-                      />
-                    </div>
-                    <div className="flex flex-cols items-center justify-between border-2 border-default-200 p-3 rounded-lg">
-                      <div>
-                        <p className="font-bold">Action Params</p>
-                        <p className="text-sm text-default-500">
-                          All action parameters will be stored encrypted on the
-                          db
-                        </p>
-                      </div>
-                      <Switch
-                        isSelected={encryptActionParameters}
-                        onValueChange={setEncryptActionParameters}
-                      />
-                    </div>
                   </>
                 )}
               </ModalBody>

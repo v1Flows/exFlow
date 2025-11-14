@@ -23,7 +23,6 @@ import {
   Spacer,
   Textarea,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 import UpdateFlowActions from "@/lib/fetch/flow/PUT/UpdateActions";
@@ -31,6 +30,8 @@ import { cn } from "@/components/cn/cn";
 import ErrorCard from "@/components/error/ErrorCard";
 import UpdateFlowFailurePipelineActions from "@/lib/fetch/flow/PUT/UpdateFailurePipelineActions";
 import MinimalRowSteps from "@/components/steps/minimal-row-steps";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
+import UpdateProjectActions from "@/lib/fetch/project/PUT/UpdateActions";
 
 export const CustomRadio = (props: any) => {
   const { children, ...otherProps } = props;
@@ -57,18 +58,22 @@ export default function EditActionModal({
   targetAction,
   isFailurePipeline,
   failurePipeline,
+  isProject,
+  project,
 }: {
   disclosure: UseDisclosureReturn;
   runners: any;
-  flow: any;
+  flow?: any;
   targetAction: any;
   isFailurePipeline?: boolean;
   failurePipeline?: any;
+  isProject?: boolean;
+  project?: any;
 }) {
-  const router = useRouter();
   const { isOpen, onOpenChange } = disclosure;
+  const { refreshFlowData, refreshProject } = useRefreshCache();
 
-  const [steps] = useState(3);
+  const [steps] = useState(isProject ? 2 : 3);
   const [currentStep, setCurrentStep] = useState(0);
   const [disableNext, setDisableNext] = useState(false);
 
@@ -202,13 +207,85 @@ export default function EditActionModal({
       });
       setCurrentStep(0);
       onOpenChange();
-      router.refresh();
+      refreshFlowData(flow.id); // Refresh SWR cache with specific flow ID
     } else {
       setError(true);
       setErrorText(res.error);
       setErrorMessage(res.message);
       addToast({
         title: "Flow",
+        description: "An error occurred while updating the action.",
+        color: "danger",
+        variant: "flat",
+      });
+    }
+
+    setLoading(false);
+  }
+
+  async function updateProjectAction() {
+    setLoading(true);
+
+    const requiredParamsFilled = checkRequiredParams();
+
+    if (!requiredParamsFilled) {
+      setError(true);
+      setErrorText("Required parameters not filled");
+      setErrorMessage(
+        "Please fill all required parameters before creating the action",
+      );
+      setLoading(false);
+
+      return;
+    }
+
+    project.predefined_flow_actions.map((projectAction: any) => {
+      if (projectAction.id === action.id) {
+        projectAction.active = action.active;
+        projectAction.params = action.params;
+        projectAction.custom_name = action.custom_name;
+        projectAction.custom_description = action.custom_description;
+        projectAction.failure_pipeline_id =
+          action.failure_pipeline_id === "none"
+            ? ""
+            : action.failure_pipeline_id;
+        projectAction.condition = action.condition;
+      }
+    });
+
+    const res = (await UpdateProjectActions(
+      project.id,
+      project.predefined_flow_actions,
+    )) as any;
+
+    if (!res) {
+      setError(true);
+      setErrorText("Error");
+      setErrorMessage("An error occurred while updating the action.");
+      setLoading(false);
+
+      return;
+    }
+
+    if (res.success) {
+      setError(false);
+      setErrorText("");
+      setErrorMessage("");
+      addToast({
+        title: "Project",
+        description: "Action updated successfully",
+        color: "success",
+        variant: "flat",
+      });
+      setCurrentStep(0);
+      onOpenChange();
+      refreshProject(project.id); // Refresh SWR cache with specific project ID
+    } else {
+      setError(true);
+      setErrorText(res.error);
+      setErrorMessage(res.message);
+      addToast({
+        title: "Project",
         description: "An error occurred while updating the action.",
         color: "danger",
         variant: "flat",
@@ -269,7 +346,7 @@ export default function EditActionModal({
         variant: "flat",
       });
       onOpenChange();
-      router.refresh();
+      refreshFlowData(flow.id); // Refresh SWR cache with specific flow ID
     } else {
       setError(true);
       setErrorText(res.error);
@@ -401,7 +478,7 @@ export default function EditActionModal({
                             Disabled
                           </SelectItem>
                         </Select>
-                        {!isFailurePipeline && (
+                        {!isProject && !isFailurePipeline && (
                           <Select
                             label="Failure Pipeline"
                             placeholder="Select an failure pipeline"
@@ -637,7 +714,7 @@ export default function EditActionModal({
                       </ScrollShadow>
                     </div>
                   )}
-                  {currentStep === 2 && (
+                  {!isProject && currentStep === 2 && (
                     <div>
                       <p className="text-lg font-bold text-default-600">
                         Conditional Execution
@@ -1109,9 +1186,11 @@ export default function EditActionModal({
                     }
                     variant="solid"
                     onPress={
-                      isFailurePipeline
-                        ? updateFlowFailurePipelineAction
-                        : updateFlowAction
+                      !isProject
+                        ? isFailurePipeline
+                          ? updateFlowFailurePipelineAction
+                          : updateFlowAction
+                        : updateProjectAction
                     }
                   >
                     Save Changes

@@ -204,7 +204,11 @@ export default function ProjectRunnerDetails({
                 <Button
                   isIconOnly
                   color="warning"
-                  isDisabled={project.disabled && user.role !== "admin"}
+                  isDisabled={
+                    (!canEditProject(user.id, project.members) ||
+                      project.disabled) &&
+                    user.role !== "admin"
+                  }
                   size="sm"
                   variant="flat"
                   onPress={rotateAutoJoinTokenModal.onOpen}

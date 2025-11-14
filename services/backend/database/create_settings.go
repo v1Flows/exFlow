@@ -3,9 +3,9 @@ package database
 import (
 	"context"
 
-	"github.com/v1Flows/exFlow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/services/backend/pkg/models"
 
-	functions_runner "github.com/v1Flows/exFlow/services/backend/functions/runner"
+	functions_runner "github.com/JustLABv1/justflow/services/backend/functions/runner"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/uptrace/bun"
@@ -23,7 +23,7 @@ func createDefaultSettings(db *bun.DB) {
 	if count == 0 {
 		log.Info("No existing settings found. Creating default...")
 		settings.ID = 1
-		settings.SharedRunnerAutoJoinToken, err = functions_runner.GenerateExFlowAutoJoinToken(db)
+		settings.SharedRunnerAutoJoinToken, err = functions_runner.GenerateJustFlowAutoJoinToken(db)
 		if err != nil {
 			panic(err)
 		}

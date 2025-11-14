@@ -17,7 +17,7 @@ type SuccessResponse = {
   data: Result;
 };
 
-export default async function DeleteAction(
+export default async function DeleteFlowAction(
   flowID: any,
   actionID: any,
 ): Promise<SuccessResponse | ErrorResponse> {

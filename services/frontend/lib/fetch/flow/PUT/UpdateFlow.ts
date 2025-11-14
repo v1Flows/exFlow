@@ -24,12 +24,14 @@ export default async function UpdateFlow(
   projectID: string,
   folderID: string,
   runnerID: string,
-  encryptExecutions: boolean,
-  encryptActionParams: boolean,
   execParallel: boolean,
   failurePipelineID: string,
   scheduleEveryValue: number,
   scheduleEveryUnit: string,
+  groupAlerts: boolean,
+  groupAlertsIdentifier: string,
+  alertThreshold: number,
+  patterns: any,
 ): Promise<SuccessResponse | ErrorResponse> {
   try {
     const cookieStore = await cookies();
@@ -49,12 +51,14 @@ export default async function UpdateFlow(
           project_id: projectID,
           runner_id: runnerID,
           folder_id: folderID,
-          encrypt_executions: encryptExecutions,
-          encrypt_action_params: encryptActionParams,
           exec_parallel: execParallel,
           failure_pipeline_id: failurePipelineID,
           schedule_every_value: scheduleEveryValue,
           schedule_every_unit: scheduleEveryUnit,
+          group_alerts: groupAlerts,
+          group_alerts_identifier: groupAlertsIdentifier,
+          alert_threshold: alertThreshold,
+          patterns,
         }),
       },
     );

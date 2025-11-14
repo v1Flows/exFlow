@@ -11,11 +11,11 @@ import {
   ModalHeader,
   Snippet,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React from "react";
 
 import ChangeFlowStatus from "@/lib/fetch/admin/PUT/ChangeFlowStatus";
 import ErrorCard from "@/components/error/ErrorCard";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function ChangeFlowStatusModal({
   disclosure,
@@ -26,7 +26,7 @@ export default function ChangeFlowStatusModal({
   flow: any;
   status: any;
 }) {
-  const router = useRouter();
+  const { refreshFlowData } = useRefreshCache();
 
   const { isOpen, onOpenChange } = disclosure;
 
@@ -59,7 +59,7 @@ export default function ChangeFlowStatusModal({
       setErrorMessage("");
       setErrorText("");
       onOpenChange();
-      router.refresh();
+      refreshFlowData(); // Refresh SWR cache instead of router
       addToast({
         title: "Flow",
         description: "Flow status updated successfully",
@@ -70,7 +70,7 @@ export default function ChangeFlowStatusModal({
       setError(true);
       setErrorText(res.error);
       setErrorMessage(res.message);
-      router.refresh();
+      refreshFlowData(); // Refresh SWR cache instead of router
       addToast({
         title: "Flow",
         description: "Failed to update flow status",

@@ -5,12 +5,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/v1Flows/exFlow/services/backend/config"
-	"github.com/v1Flows/exFlow/services/backend/functions/encryption"
-	"github.com/v1Flows/exFlow/services/backend/functions/gatekeeper"
-	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
-	functions_project "github.com/v1Flows/exFlow/services/backend/functions/project"
-	"github.com/v1Flows/exFlow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/services/backend/functions/encryption"
+	"github.com/JustLABv1/justflow/services/backend/functions/gatekeeper"
+	"github.com/JustLABv1/justflow/services/backend/functions/httperror"
+	functions_project "github.com/JustLABv1/justflow/services/backend/functions/project"
+	"github.com/JustLABv1/justflow/services/backend/pkg/models"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
@@ -32,6 +31,14 @@ func UpdateFlowFailurePipelines(context *gin.Context, db *bun.DB) {
 	err := db.NewSelect().Model(&flowDB).Where("id = ?", flowID).Scan(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error collecting flow data from db", err)
+		return
+	}
+
+	// get project data
+	var project models.Projects
+	err = db.NewSelect().Model(&project).Where("id = ?", flowDB.ProjectID).Scan(context)
+	if err != nil {
+		httperror.InternalServerError(context, "Error collecting project data from db", err)
 		return
 	}
 
@@ -60,10 +67,10 @@ func UpdateFlowFailurePipelines(context *gin.Context, db *bun.DB) {
 	flow.UpdatedAt = time.Now()
 
 	// encrypt the actions for each failure pipeline
-	if config.Config.Encryption.Enabled && flowDB.EncryptActionParams {
+	if project.EncryptionEnabled {
 		for i := range flow.FailurePipelines {
 			if flow.FailurePipelines[i].Actions != nil {
-				flow.FailurePipelines[i].Actions, err = encryption.EncryptParams(flow.FailurePipelines[i].Actions)
+				flow.FailurePipelines[i].Actions, err = encryption.EncryptParamsWithProject(flow.FailurePipelines[i].Actions, project.ID.String(), db)
 				if err != nil {
 					httperror.InternalServerError(context, "Error encrypting actions", err)
 					return

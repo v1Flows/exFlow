@@ -1,7 +1,7 @@
-FROM node:23-alpine AS base
+FROM node:24.7-alpine AS base
 
 # Stage 1: Build the frontend
-FROM node:23-alpine AS frontend-builder
+FROM node:24.7-alpine AS frontend-builder
 RUN apk add --no-cache libc6-compat
 WORKDIR /app/frontend
 COPY services/frontend/package.json services/frontend/pnpm-lock.yaml ./
@@ -19,7 +19,7 @@ WORKDIR /app/backend
 COPY services/backend/go.mod services/backend/go.sum ./
 RUN go mod download
 COPY services/backend/ ./
-RUN go build -o exflow-backend
+RUN go build -o justflow-backend
 
 # Stage 3: Create the final image
 FROM base AS runner
@@ -36,7 +36,7 @@ RUN addgroup --system --gid 1001 nodejs \
     && adduser --system --uid 1001 nextjs
 
 # Copy the backend binary
-COPY --from=backend-builder /app/backend/exflow-backend /app/
+COPY --from=backend-builder /app/backend/justflow-backend /app/
 
 # Copy the frontend build
 COPY --from=frontend-builder /app/frontend/public /app/public
@@ -49,16 +49,15 @@ RUN mkdir .next \
 COPY --from=frontend-builder --chown=nextjs:nodejs /app/frontend/.next/standalone ./
 COPY --from=frontend-builder --chown=nextjs:nodejs /app/frontend/.next/static ./.next/static
 
-# Copy .env file to the working directory
-COPY --from=frontend-builder --chown=nextjs:nodejs /app/frontend/.env /app/.env
+RUN chown -R nextjs:nodejs /app
 
-RUN mkdir -p /etc/exflow
-COPY services/backend/config/config.yaml /etc/exflow/backend_config.yaml
+RUN mkdir -p /etc/justflow \
+    && chown -R nextjs:nodejs /etc/justflow
 
 # Set environment variables
 ENV NODE_ENV=production
 
-VOLUME [ "/etc/exflow" ]
+VOLUME [ "/etc/justflow" ]
 
 # Expose ports
 EXPOSE 8080 3000
@@ -69,4 +68,4 @@ USER nextjs
 ENTRYPOINT ["/sbin/tini", "--"]
 
 # Start the backend and frontend
-CMD ["sh", "-c", "./exflow-backend --config /etc/exflow/backend_config.yaml & node /app/server.js"]
+CMD ["sh", "-c", "./justflow-backend --config /etc/justflow/config.yaml & node /app/server.js"]

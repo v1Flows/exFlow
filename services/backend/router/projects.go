@@ -1,8 +1,8 @@
 package router
 
 import (
-	"github.com/v1Flows/exFlow/services/backend/handlers/projects"
-	"github.com/v1Flows/exFlow/services/backend/middlewares"
+	"github.com/JustLABv1/justflow/services/backend/handlers/projects"
+	"github.com/JustLABv1/justflow/services/backend/middlewares"
 
 	"github.com/gin-gonic/gin"
 	"github.com/uptrace/bun"
@@ -79,6 +79,31 @@ func Projects(router *gin.RouterGroup, db *bun.DB) {
 
 		project.PUT("/:projectID/transfer_ownership", func(c *gin.Context) {
 			projects.TransferOwnership(c, db)
+		})
+
+		// encryption management
+		project.GET("/:projectID/encryption", func(c *gin.Context) {
+			projects.GetProjectEncryptionStatus(c, db)
+		})
+		project.PUT("/:projectID/encryption/enable", func(c *gin.Context) {
+			projects.EnableProjectEncryption(c, db)
+		})
+		project.PUT("/:projectID/encryption/disable", func(c *gin.Context) {
+			projects.DisableProjectEncryption(c, db)
+		})
+		project.PUT("/:projectID/encryption/rotate-key", func(c *gin.Context) {
+			projects.RotateProjectEncryptionKey(c, db)
+		})
+
+		// actions
+		project.POST("/:projectID/actions", func(c *gin.Context) {
+			projects.AddProjectActions(c, db)
+		})
+		project.PUT("/:projectID/actions", func(c *gin.Context) {
+			projects.UpdateProjectActions(c, db)
+		})
+		project.DELETE("/:projectID/actions/:actionID", func(c *gin.Context) {
+			projects.DeleteProjectAction(c, db)
 		})
 	}
 }

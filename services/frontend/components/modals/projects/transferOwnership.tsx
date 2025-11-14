@@ -21,12 +21,12 @@ import {
   Spacer,
   User,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { Icon } from "@iconify/react";
 
 import ProjectTransferOwnershipAPI from "@/lib/fetch/project/PUT/transferOwnership";
 import ErrorCard from "@/components/error/ErrorCard";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function ProjectTransferOwnership({
   disclosure,
@@ -37,7 +37,7 @@ export default function ProjectTransferOwnership({
   project: any;
   user: any;
 }) {
-  const router = useRouter();
+  const { refreshProject } = useRefreshCache();
   const { isOpen, onOpenChange } = disclosure;
 
   const [isLoading, setIsLoading] = useState(false);
@@ -88,7 +88,7 @@ export default function ProjectTransferOwnership({
       setError(false);
       setErrorText("");
       setErrorMessage("");
-      router.refresh();
+      refreshProject(project.id);
       addToast({
         title: "Project",
         description: "Owner transferred successfully",

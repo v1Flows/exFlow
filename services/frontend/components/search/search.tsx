@@ -135,7 +135,7 @@ const cmdk = tv({
       "w-[120px]",
       "border-white/10",
       "bg-black/20",
-      "data-[active=true]:bg-white/[.05]",
+      "data-[active=true]:bg-white/5",
       "data-[active=true]:text-primary-foreground",
     ],
   },
@@ -796,16 +796,18 @@ export default function Search({
       <Button
         fullWidth
         endContent={<Kbd keys={[commandKey]}>K</Kbd>}
-        radius="sm"
+        radius="full"
         size="md"
+        startContent={
+          <Icon
+            className="text-default-400 [&>g]:stroke-[2px]"
+            icon="hugeicons:search-01"
+            width={18}
+          />
+        }
         variant="flat"
         onPress={handleOpenCmdk}
       >
-        <Icon
-          className="text-default-400 [&>g]:stroke-[2px]"
-          icon="hugeicons:search-01"
-          width={18}
-        />
         Search...
       </Button>
       <Modal
@@ -817,8 +819,8 @@ export default function Search({
             "border-small",
             "dark:border-default-100",
             "bg-content1",
-            "supports-[backdrop-filter]:backdrop-blur-md",
-            "supports-[backdrop-filter]:backdrop-saturate-150",
+            "supports-backdrop-filter:backdrop-blur-md",
+            "supports-backdrop-filter:backdrop-saturate-150",
           ],
           backdrop: ["bg-black/80"],
         }}
@@ -864,7 +866,7 @@ export default function Search({
             <div className="relative grid grid-cols-12 gap-4">
               {/* Category (Web) */}
               {!isMobile && isEmpty(query) && (
-                <div className="col-span-4 flex flex-col gap-2 border-r-1 border-white/10 px-4 py-2">
+                <div className="col-span-4 flex flex-col gap-2 border-r border-white/10 px-4 py-2">
                   <p className={slots.sectionTitle()}>Categories</p>
                   {renderCategories()}
                 </div>

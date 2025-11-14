@@ -13,12 +13,12 @@ import {
   Select,
   SelectItem,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
 
 import EditProjectMember from "@/lib/fetch/project/PUT/editProjectMember";
 import ErrorCard from "@/components/error/ErrorCard";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function EditProjectMemberModal({
   disclosure,
@@ -29,7 +29,7 @@ export default function EditProjectMemberModal({
   projectID: string;
   user: any;
 }) {
-  const router = useRouter();
+  const { refreshProject } = useRefreshCache();
   const { isOpen, onOpenChange } = disclosure;
   const [isLoginLoading, setIsLoginLoading] = useState(false);
   const [role, setRole] = React.useState(user.role);
@@ -82,7 +82,7 @@ export default function EditProjectMemberModal({
         color: "success",
         variant: "flat",
       });
-      router.refresh();
+      refreshProject(projectID);
     } else {
       setError(true);
       setErrorText(response.error);

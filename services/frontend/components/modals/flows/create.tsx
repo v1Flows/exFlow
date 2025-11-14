@@ -5,6 +5,8 @@ import type { UseDisclosureReturn } from "@heroui/use-disclosure";
 import {
   addToast,
   Button,
+  Card,
+  CardBody,
   Input,
   Modal,
   ModalBody,
@@ -15,13 +17,14 @@ import {
   SelectItem,
   Switch,
 } from "@heroui/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
 
 import GetProjectRunners from "@/lib/fetch/project/runners";
 import CreateFlow from "@/lib/fetch/flow/POST/CreateFlow";
 import ErrorCard from "@/components/error/ErrorCard";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 import RowSteps from "../../steps/row-steps";
 
@@ -34,7 +37,7 @@ export default function CreateFlowModal({
   projects: any;
   disclosure: UseDisclosureReturn;
 }) {
-  const router = useRouter();
+  const { refreshFlowData } = useRefreshCache();
 
   // create modal
   const { isOpen, onOpenChange } = disclosure;
@@ -42,26 +45,24 @@ export default function CreateFlowModal({
   // stepper
   const [steps] = useState([
     {
+      title: "Type",
+    },
+    {
       title: "Details",
     },
     {
       title: "Runner",
     },
-    {
-      title: "Encryption",
-    },
   ]);
-  const [disableNext, setDisableNext] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
 
+  const [type, setType] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [folderId, setFolderId] = useState("");
   const [projectId, setProjectId] = useState("");
   const [runnerId, setRunnerId] = useState("");
   const [runnerLimit, setRunnerLimit] = useState(false);
-  const [encryptExecutions, setEncryptExecutions] = useState(true);
-  const [encryptActionParameters, setEncryptActionParameters] = useState(true);
 
   // loading
   const [isLoading, setIsLoading] = useState(false);
@@ -99,17 +100,27 @@ export default function CreateFlowModal({
     setRunnerId(e.currentKey);
   };
 
+  function isNextDisabled() {
+    if (currentStep === 0) {
+      return !type;
+    }
+    if (currentStep === 1) {
+      return !name || !projectId;
+    }
+
+    return false;
+  }
+
   async function createFlow() {
     setIsLoading(true);
 
     const response = (await CreateFlow(
+      type,
       name,
       description,
       folderId,
       projectId,
       runnerLimit ? runnerId : "any",
-      encryptExecutions,
-      encryptActionParameters,
     )) as any;
 
     if (!response) {
@@ -122,9 +133,10 @@ export default function CreateFlowModal({
     }
 
     if (response.success) {
-      router.refresh();
+      refreshFlowData(); // Refresh SWR cache (for new flows, no specific ID needed)
       onOpenChange();
       setName("");
+      setType("");
       setDescription("");
       setFolderId("");
       setProjectId("");
@@ -134,7 +146,6 @@ export default function CreateFlowModal({
       setErrorText("");
       setErrorMessage("");
       setCurrentStep(0);
-      setDisableNext(false);
       addToast({
         title: "Flow",
         description: "Flow created successfully",
@@ -158,6 +169,7 @@ export default function CreateFlowModal({
 
   function cancel() {
     setName("");
+    setType("");
     setDescription("");
     setFolderId("");
     setProjectId("");
@@ -200,6 +212,39 @@ export default function CreateFlowModal({
                   />
                 </div>
                 {currentStep === 0 && (
+                  <div className="relative grid grid-cols-1 gap-2 p-2 md:grid-cols-2">
+                    <Card
+                      isHoverable
+                      isPressable
+                      className={`border-1 hover:border-primary ${type === "default" ? "border-primary" : "border-default-500"}`}
+                      onPress={() => setType("default")}
+                    >
+                      <CardBody className="flex gap-2 text-center justify-center items-center">
+                        <Icon icon="hugeicons:play" width={32} />
+                        <p className="text-lg font-semibold">Default</p>
+                        <p className="text-default-500">
+                          Normal Flow with no specific triggers
+                        </p>
+                      </CardBody>
+                    </Card>
+                    <Card
+                      isHoverable
+                      isPressable
+                      className={`border-1 hover:border-primary ${type === "alert" ? "border-primary" : "border-default-500"}`}
+                      onPress={() => setType("alert")}
+                    >
+                      <CardBody className="flex gap-2 text-center justify-center items-center">
+                        <Icon icon="hugeicons:alert-02" width={32} />
+                        <p className="text-lg font-semibold">Alert Based</p>
+                        <p className="text-default-500">
+                          Flow will be triggered by incoming alerts and will
+                          show a dedicated alerting page
+                        </p>
+                      </CardBody>
+                    </Card>
+                  </div>
+                )}
+                {currentStep === 1 && (
                   <div className="flex flex-col gap-4">
                     <Input
                       isRequired
@@ -241,7 +286,7 @@ export default function CreateFlowModal({
                     </Select>
                   </div>
                 )}
-                {currentStep === 1 && (
+                {currentStep === 2 && (
                   <>
                     <div className="flex flex-cols items-center justify-between border-2 border-default-200 p-3 rounded-lg">
                       <div>
@@ -276,36 +321,6 @@ export default function CreateFlowModal({
                     )}
                   </>
                 )}
-                {currentStep === 2 && (
-                  <>
-                    <div className="flex flex-cols items-center justify-between border-2 border-default-200 p-3 rounded-lg">
-                      <div>
-                        <p className="font-bold">Executions</p>
-                        <p className="text-sm text-default-500">
-                          All execution action messages will be stored encrypted
-                          on the db
-                        </p>
-                      </div>
-                      <Switch
-                        isSelected={encryptExecutions}
-                        onValueChange={setEncryptExecutions}
-                      />
-                    </div>
-                    <div className="flex flex-cols items-center justify-between border-2 border-default-200 p-3 rounded-lg">
-                      <div>
-                        <p className="font-bold">Action Params</p>
-                        <p className="text-sm text-default-500">
-                          All action parameters will be stored encrypted on the
-                          db
-                        </p>
-                      </div>
-                      <Switch
-                        isSelected={encryptActionParameters}
-                        onValueChange={setEncryptActionParameters}
-                      />
-                    </div>
-                  </>
-                )}
               </ModalBody>
               <ModalFooter>
                 <Button
@@ -324,7 +339,6 @@ export default function CreateFlowModal({
                     variant="flat"
                     onPress={() => {
                       setCurrentStep(currentStep - 1);
-                      setDisableNext(false);
                     }}
                   >
                     Back
@@ -355,7 +369,7 @@ export default function CreateFlowModal({
                 ) : (
                   <Button
                     color="primary"
-                    isDisabled={disableNext}
+                    isDisabled={isNextDisabled()}
                     isLoading={isLoading}
                     startContent={
                       <Icon icon="hugeicons:forward-02" width={18} />

@@ -1,9 +1,9 @@
 package admins
 
 import (
-	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
-	functions "github.com/v1Flows/exFlow/services/backend/functions/user"
-	"github.com/v1Flows/exFlow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/services/backend/functions/httperror"
+	functions "github.com/JustLABv1/justflow/services/backend/functions/user"
+	"github.com/JustLABv1/justflow/services/backend/pkg/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

@@ -6,11 +6,10 @@ import (
 
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
-	"github.com/v1Flows/exFlow/services/backend/functions/auth"
-	"github.com/v1Flows/exFlow/services/backend/functions/encryption"
-	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
-	"github.com/v1Flows/exFlow/services/backend/pkg/models"
-	shared_models "github.com/v1Flows/shared-library/pkg/models"
+	"github.com/JustLABv1/justflow/services/backend/functions/auth"
+	"github.com/JustLABv1/justflow/services/backend/functions/encryption"
+	"github.com/JustLABv1/justflow/services/backend/functions/httperror"
+	"github.com/JustLABv1/justflow/services/backend/pkg/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/uptrace/bun"
@@ -24,6 +23,14 @@ func StartExecution(context *gin.Context, db *bun.DB) {
 	err := db.NewSelect().Model(&flow).Where("id = ?", flowID).Scan(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error fetching flow data", err)
+		return
+	}
+
+	// get project data
+	var project models.Projects
+	err = db.NewSelect().Model(&project).Where("id = ?", flow.ProjectID).Scan(context)
+	if err != nil {
+		httperror.InternalServerError(context, "Error collecting project data from db", err)
 		return
 	}
 
@@ -51,16 +58,16 @@ func StartExecution(context *gin.Context, db *bun.DB) {
 	}
 
 	// create execution step which tells that the execution is registerd and waiting for runner to pick it up
-	step := shared_models.ExecutionSteps{
+	step := models.ExecutionSteps{
 		ExecutionID: execution.ID.String(),
-		Action: shared_models.Action{
+		Action: models.Action{
 			Name: "Pick Up",
 			Icon: "hugeicons:rocket",
 		},
-		Messages: []shared_models.Message{
+		Messages: []models.Message{
 			{
 				Title: "Pick Up",
-				Lines: []shared_models.Line{
+				Lines: []models.Line{
 					{
 						Content:   "Execution is registered and waiting for runner to pick it up",
 						Timestamp: time.Now(),
@@ -74,8 +81,8 @@ func StartExecution(context *gin.Context, db *bun.DB) {
 	}
 
 	// check for encryption
-	if flow.EncryptExecutions && step.Messages != nil && len(step.Messages) > 0 {
-		step.Messages, err = encryption.EncryptExecutionStepActionMessage(step.Messages)
+	if project.EncryptionEnabled && step.Messages != nil && len(step.Messages) > 0 {
+		step.Messages, err = encryption.EncryptExecutionStepActionMessageWithProject(step.Messages, project.ID.String(), db)
 		if err != nil {
 			httperror.InternalServerError(context, "Error encrypting execution step action messages", err)
 			return

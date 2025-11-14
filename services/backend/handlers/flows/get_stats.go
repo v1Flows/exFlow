@@ -3,8 +3,8 @@ package flows
 import (
 	"net/http"
 
-	"github.com/v1Flows/exFlow/services/backend/functions/flow_stats"
-	"github.com/v1Flows/exFlow/services/backend/functions/httperror"
+	"github.com/JustLABv1/justflow/services/backend/functions/flow_stats"
+	"github.com/JustLABv1/justflow/services/backend/functions/httperror"
 
 	"github.com/gin-gonic/gin"
 	"github.com/uptrace/bun"

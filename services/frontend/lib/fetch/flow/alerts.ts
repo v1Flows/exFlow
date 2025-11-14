@@ -4,6 +4,9 @@ import { cookies } from "next/headers";
 
 type Alerts = {
   alerts: [];
+  limit: number;
+  offset: number;
+  total: number;
 };
 
 type ErrorResponse = {
@@ -19,6 +22,9 @@ type SuccessResponse = {
 
 export async function GetFlowAlerts(
   flowID: any,
+  limit: number = 10,
+  offset: number = 0,
+  status: string | null = null,
 ): Promise<SuccessResponse | ErrorResponse> {
   try {
     const cookieStore = await cookies();
@@ -33,7 +39,7 @@ export async function GetFlowAlerts(
     }
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/flows/${flowID}/alerts`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/flows/${flowID}/alerts?limit=${limit}&offset=${offset}&status=${status || ""}`,
       {
         method: "GET",
         headers: {

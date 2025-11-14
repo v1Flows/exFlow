@@ -14,12 +14,12 @@ import {
   Select,
   SelectItem,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { Icon } from "@iconify/react";
 
 import ErrorCard from "@/components/error/ErrorCard";
 import CreateFolder from "@/lib/fetch/folder/POST/create";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function CreateFolderModal({
   disclosure,
@@ -30,8 +30,8 @@ export default function CreateFolderModal({
   projects: any;
   folders: any;
 }) {
-  const router = useRouter();
   const { isOpen, onOpenChange } = disclosure;
+  const { refreshFolders } = useRefreshCache();
 
   const [errors] = useState({});
   const [apiError, setApiError] = useState(false);
@@ -75,7 +75,7 @@ export default function CreateFolderModal({
       setApiErrorText("");
       setApiErrorMessage("");
 
-      router.refresh();
+      refreshFolders(); // Refresh SWR cache instead of router
       addToast({
         title: "Folder",
         description: "Folder created successfully",

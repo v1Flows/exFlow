@@ -1,8 +1,8 @@
 package router
 
 import (
-	"github.com/v1Flows/exFlow/services/backend/handlers/flows"
-	"github.com/v1Flows/exFlow/services/backend/middlewares"
+	"github.com/JustLABv1/justflow/services/backend/handlers/flows"
+	"github.com/JustLABv1/justflow/services/backend/middlewares"
 
 	"github.com/gin-gonic/gin"
 	"github.com/uptrace/bun"
@@ -73,6 +73,11 @@ func Flows(router *gin.RouterGroup, db *bun.DB) {
 		})
 		flow.DELETE("/:flowID/failure-pipelines/:failurePipelineID/actions/:actionID", func(c *gin.Context) {
 			flows.DeleteFlowFailurePipelineAction(c, db)
+		})
+
+		// alerts
+		flow.GET("/:flowID/alerts", func(c *gin.Context) {
+			flows.GetFlowAlerts(c, db)
 		})
 
 		// executions

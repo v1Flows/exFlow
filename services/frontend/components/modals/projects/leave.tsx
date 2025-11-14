@@ -11,12 +11,12 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { Icon } from "@iconify/react";
 
 import LeaveProject from "@/lib/fetch/project/DELETE/leave";
 import ErrorCard from "@/components/error/ErrorCard";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 export default function LeaveProjectModal({
   disclosure,
@@ -25,7 +25,7 @@ export default function LeaveProjectModal({
   disclosure: UseDisclosureReturn;
   projectID: string;
 }) {
-  const router = useRouter();
+  const { refreshProject } = useRefreshCache();
   const { isOpen, onOpenChange } = disclosure;
   const [isLeaveLoading, setIsLeaveLoading] = useState(false);
 
@@ -65,7 +65,7 @@ export default function LeaveProjectModal({
         color: "success",
         variant: "flat",
       });
-      router.push("/projects");
+      refreshProject(projectID);
     } else {
       setIsLeaveLoading(false);
       setError(true);

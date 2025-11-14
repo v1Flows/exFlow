@@ -5,22 +5,23 @@ import { Icon } from "@iconify/react";
 import NumberFlow from "@number-flow/react";
 import { useRouter } from "next/navigation";
 
+import { useFlowExecutions } from "@/lib/swr/hooks/flows";
+
 export default function FlowDetails({
   flow,
   project,
-  totalExecutions,
   runners,
 }: {
   flow: any;
   project: any;
-  totalExecutions: any;
   runners: any;
 }) {
   const router = useRouter();
+  const { total: totalExecutions } = useFlowExecutions(flow.id);
 
   return (
     <main>
-      <div className="grid grid-cols-2 items-stretch gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 items-stretch gap-4 lg:grid-cols-5 md:grid-cols-3">
         <div className="col-span-1">
           <Card fullWidth className="h-full">
             <CardBody>
@@ -86,10 +87,28 @@ export default function FlowDetails({
             <CardBody>
               <div className="flex items-center gap-2">
                 <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
+                  <Icon icon="hugeicons:tag-01" width={24} />
+                </div>
+                <div>
+                  <p className="text-md font-bold capitalize">{flow.type}</p>
+                  <p className="text-sm text-default-500">Type</p>
+                </div>
+              </div>
+            </CardBody>
+          </Card>
+        </div>
+        <div className="col-span-1">
+          <Card fullWidth className="h-full">
+            <CardBody>
+              <div className="flex items-center gap-2">
+                <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
                   <Icon icon="hugeicons:rocket-02" width={24} />
                 </div>
                 <div>
-                  <NumberFlow className="font-bold" value={totalExecutions} />
+                  <NumberFlow
+                    className="font-bold"
+                    value={totalExecutions || 0}
+                  />
                   <p className="text-sm text-default-500">Executions</p>
                 </div>
               </div>

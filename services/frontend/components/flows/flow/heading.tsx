@@ -3,11 +3,12 @@
 import { addToast, Button, Divider, useDisclosure } from "@heroui/react";
 import { Icon } from "@iconify/react";
 
-import APIStartExecution from "@/lib/fetch/executions/start";
-import Reloader from "@/components/reloader/Reloader";
 import ScheduleExecutionModal from "@/components/modals/executions/schedule";
 import EditFlowModal from "@/components/modals/flows/edit";
 import canEditProject from "@/lib/functions/canEditProject";
+import { startExecution } from "@/lib/swr/api/executions";
+import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
+import SimulateAlertModal from "@/components/modals/alerts/simulate";
 
 export default function FlowHeading({
   flow,
@@ -26,6 +27,27 @@ export default function FlowHeading({
 }) {
   const editFlowModal = useDisclosure();
   const scheduleExecutionModal = useDisclosure();
+  const simulateAlertModal = useDisclosure();
+  const { refreshAllExecutionCaches } = useRefreshCache();
+
+  const handleExecuteFlow = async () => {
+    const result = await startExecution(flow.id);
+
+    if (result.success) {
+      addToast({
+        title: "Execution Started",
+        color: "success",
+      });
+      // Immediately refresh executions data
+      refreshAllExecutionCaches(flow.id);
+    } else {
+      addToast({
+        title: "Execution start failed",
+        description: result.error,
+        color: "danger",
+      });
+    }
+  };
 
   return (
     <main>
@@ -36,49 +58,55 @@ export default function FlowHeading({
         </div>
         <div className="flex items-center gap-4">
           <div className="hidden sm:flex items-center gap-2">
-            <Button
-              color="secondary"
-              isDisabled={
-                (flow.disabled || !settings.start_executions) &&
-                user.role !== "admin"
-              }
-              startContent={<Icon icon="hugeicons:time-schedule" width={20} />}
-              variant="flat"
-              onPress={() => {
-                scheduleExecutionModal.onOpen();
-              }}
-            >
-              Schedule
-            </Button>
-            <Button
-              color="primary"
-              isDisabled={
-                (flow.disabled || !settings.start_executions) &&
-                user.role !== "admin"
-              }
-              startContent={<Icon icon="hugeicons:play" width={20} />}
-              variant="solid"
-              onPress={() => {
-                APIStartExecution(flow.id)
-                  .then(() => {
-                    addToast({
-                      title: "Execution Started",
-                      color: "success",
-                    });
-                  })
-                  .catch((err) => {
-                    addToast({
-                      title: "Execution start failed",
-                      description: err.message,
-                      color: "danger",
-                    });
-                  });
-              }}
-            >
-              Execute
-            </Button>
+            {flow.type === "alert" ? (
+              <Button
+                color="secondary"
+                isDisabled={
+                  (flow.disabled || !settings.start_executions) &&
+                  user.role !== "admin"
+                }
+                startContent={<Icon icon="hugeicons:alert-02" width={20} />}
+                variant="flat"
+                onPress={() => {
+                  simulateAlertModal.onOpen();
+                }}
+              >
+                Simulate Alert
+              </Button>
+            ) : (
+              <>
+                <Button
+                  isDisabled={
+                    (flow.disabled || !settings.start_executions) &&
+                    user.role !== "admin"
+                  }
+                  startContent={
+                    <Icon icon="hugeicons:time-schedule" width={20} />
+                  }
+                  variant="flat"
+                  onPress={() => {
+                    scheduleExecutionModal.onOpen();
+                  }}
+                >
+                  Schedule
+                </Button>
+                <Button
+                  color="primary"
+                  isDisabled={
+                    (flow.disabled || !settings.start_executions) &&
+                    user.role !== "admin"
+                  }
+                  startContent={<Icon icon="hugeicons:play" width={20} />}
+                  variant="solid"
+                  onPress={handleExecuteFlow}
+                >
+                  Execute
+                </Button>
+              </>
+            )}
             <Divider className="h-10 mr-1 ml-1" orientation="vertical" />
             <Button
+              isIconOnly
               color="warning"
               isDisabled={
                 (!canEditProject(user.id, project.members) || flow.disabled) &&
@@ -89,61 +117,59 @@ export default function FlowHeading({
               onPress={() => {
                 editFlowModal.onOpen();
               }}
-            >
-              Edit
-            </Button>
-            <Divider className="h-10 mr-1 ml-1" orientation="vertical" />
-            <Reloader circle refresh={20} />
+            />
           </div>
 
           {/* Mobile */}
           <div className="flex sm:hidden items-center gap-2">
-            <Button
-              isIconOnly
-              color="secondary"
-              startContent={<Icon icon="hugeicons:time-schedule" width={18} />}
-              variant="flat"
-              onPress={() => {
-                scheduleExecutionModal.onOpen();
-              }}
-            />
-            <Button
-              isIconOnly
-              color="primary"
-              startContent={<Icon icon="solar:play-linear" width={18} />}
-              variant="solid"
-              onPress={() => {
-                APIStartExecution(flow.id)
-                  .then(() => {
-                    addToast({
-                      title: "Execution Started",
-                      color: "success",
-                    });
-                  })
-                  .catch((err) => {
-                    addToast({
-                      title: "Execution start failed",
-                      description: err.message,
-                      color: "danger",
-                    });
-                  });
-              }}
-            />
-            <Divider className="h-10 mr-1 ml-1" orientation="vertical" />
-            <Reloader circle refresh={20} />
-            <Button
-              isIconOnly
-              color="warning"
-              startContent={<Icon icon="hugeicons:pencil-edit-02" width={18} />}
-              variant="flat"
-              onPress={() => {
-                editFlowModal.onOpen();
-              }}
-            />
+            {flow.type === "alert" ? (
+              <Button
+                isIconOnly
+                color="secondary"
+                startContent={<Icon icon="hugeicons:alert-02" width={18} />}
+                variant="flat"
+                onPress={() => {
+                  scheduleExecutionModal.onOpen();
+                }}
+              />
+            ) : (
+              <>
+                <Button
+                  isIconOnly
+                  startContent={
+                    <Icon icon="hugeicons:time-schedule" width={18} />
+                  }
+                  variant="flat"
+                  onPress={() => {
+                    scheduleExecutionModal.onOpen();
+                  }}
+                />
+                <Button
+                  isIconOnly
+                  color="primary"
+                  startContent={<Icon icon="solar:play-linear" width={18} />}
+                  variant="solid"
+                  onPress={handleExecuteFlow}
+                />
+                <Divider className="h-10 mr-1 ml-1" orientation="vertical" />
+                <Button
+                  isIconOnly
+                  color="warning"
+                  startContent={
+                    <Icon icon="hugeicons:pencil-edit-02" width={18} />
+                  }
+                  variant="flat"
+                  onPress={() => {
+                    editFlowModal.onOpen();
+                  }}
+                />
+              </>
+            )}
           </div>
         </div>
       </div>
       <ScheduleExecutionModal disclosure={scheduleExecutionModal} flow={flow} />
+      <SimulateAlertModal disclosure={simulateAlertModal} flow={flow} />
       <EditFlowModal
         disclosure={editFlowModal}
         folders={folders}

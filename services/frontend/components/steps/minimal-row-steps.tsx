@@ -223,7 +223,7 @@ const MinimalRowSteps = ({
                       >
                         <div className="flex items-center justify-center">
                           {status === "complete" ? (
-                            <CheckIcon className="size-5 text-[var(--active-fg-color)]" />
+                            <CheckIcon className="size-5 text-(--active-fg-color)" />
                           ) : (
                             <span />
                           )}
@@ -235,7 +235,7 @@ const MinimalRowSteps = ({
                 {stepIdx < stepsCount - 1 && !hideProgressBars && (
                   <div
                     aria-hidden="true"
-                    className="pointer-events-none absolute inset-x-0 left-[26px] w-[calc(100%_-_13px)] flex-none items-center"
+                    className="pointer-events-none absolute inset-x-0 left-[26px] w-[calc(100%-13px)] flex-none items-center"
                     style={{
                       // @ts-ignore
                       "--idx": stepIdx,
@@ -244,7 +244,7 @@ const MinimalRowSteps = ({
                     <div
                       className={cn(
                         "relative h-0.5 w-full bg-default-200 transition-colors duration-300",
-                        "after:absolute after:block after:h-full after:w-0 after:bg-[var(--active-border-color)] after:transition-[width] after:duration-300 after:content-['']",
+                        "after:absolute after:block after:h-full after:w-0 after:bg-(--active-border-color) after:transition-[width] after:duration-300 after:content-['']",
                         {
                           "after:w-full": stepIdx < currentStep,
                         },
