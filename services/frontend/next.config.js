@@ -21,7 +21,7 @@ module.exports = async (phase) => {
     reactStrictMode: true,
     images: {
       unoptimized: true,
-      domains: ['localhost', 'justlab.xyz'],
+      domains: ['localhost', 'justlab.app'],
     },
   };
   if (phase === PHASE_DEVELOPMENT_SERVER || phase === PHASE_PRODUCTION_BUILD) {
