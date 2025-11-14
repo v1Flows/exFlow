@@ -3,7 +3,6 @@ import {
   Button,
   Card,
   CardBody,
-  Code,
   Input,
   NumberInput,
   Select,
@@ -400,12 +399,7 @@ export default function FlowSettings({
                       <div>
                         <p className="text-md font-bold">Group Identifier</p>
                         <p className="text-sm text-default-500">
-                          Enter a unique identifier for the group of alerts. To
-                          access payload data use{" "}
-                          <Code color="primary" radius="sm" size="sm">
-                            payload.
-                          </Code>{" "}
-                          as prefix
+                          Enter a unique identifier for the group of alerts.
                         </p>
                       </div>
                       <Input
@@ -414,7 +408,7 @@ export default function FlowSettings({
                         isDisabled={
                           (!canEdit || flow.disabled) && user.role !== "admin"
                         }
-                        placeholder="payload.commonLabels.alertname"
+                        placeholder="commonLabels.alertname"
                         variant="bordered"
                         onValueChange={setGroupAlertsIdentifier}
                       />

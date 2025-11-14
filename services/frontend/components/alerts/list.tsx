@@ -3,8 +3,6 @@
 import {
   Accordion,
   AccordionItem,
-  Card,
-  CardBody,
   Chip,
   Listbox,
   ListboxItem,
@@ -40,20 +38,89 @@ export default function AlertsList({
 
   return (
     <main>
+      <Accordion showDivider variant="shadow">
+        {alerts
+          .filter((a: any) => a.parent_id === "")
+          .map((alert: any) => (
+            <AccordionItem
+              key={alert.id}
+              aria-label={alert.name || "N/A"}
+              startContent={
+                <div
+                  className={`flex size-10 items-center justify-center rounded-small bg-${alert.status === "firing" ? "danger" : "success"}/20 text-${alert.status === "firing" ? "danger" : "success"}`}
+                >
+                  <Icon
+                    icon={
+                      alert.status === "firing"
+                        ? "hugeicons:fire"
+                        : "hugeicons:checkmark-badge-01"
+                    }
+                    width={24}
+                  />
+                </div>
+              }
+              subtitle={
+                <div className="flex items-center gap-2">
+                  <p
+                    className={`text-sm text-${alert.status === "firing" ? "danger" : "success"} capitalize`}
+                  >
+                    {alert.status || "N/A"}
+                  </p>
+
+                  <Chip radius="sm" size="sm" variant="flat">
+                    <span className="text-default-600">
+                      Created: <ReactTimeago date={alert.created_at} />
+                    </span>
+                  </Chip>
+                  {alert.updated_at !== "0001-01-01T00:00:00Z" && (
+                    <Chip radius="sm" size="sm" variant="flat">
+                      <span className="text-default-600">
+                        Last Update: <ReactTimeago date={alert.updated_at} />
+                      </span>
+                    </Chip>
+                  )}
+                </div>
+              }
+              title={alert.name || "N/A"}
+            >
+              <div className="flex items-center gap-2">
+                <div>
+                  <p className="text-md font-bold">{alert.name || "N/A"}</p>
+                  <p
+                    className={`text-sm text-${alert.status === "firing" ? "danger" : "success"} capitalize`}
+                  >
+                    {alert.status || "N/A"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {showFlowChip && (
+                  <Chip color="default" radius="sm" size="sm" variant="flat">
+                    Flow:{" "}
+                    {flows.filter((f: any) => f.id === alert.flow_id)[0]?.name}
+                  </Chip>
+                )}
+                {alert.execution_id !== "" && (
+                  <Chip color="primary" radius="sm" size="sm" variant="flat">
+                    Executed
+                  </Chip>
+                )}
+              </div>
+            </AccordionItem>
+          ))}
+      </Accordion>
       <div className="flex flex-col gap-4 p-4">
-        {alerts.map((alert: any) => (
-          <Card
-            key={alert.id}
-            fullWidth
-            isHoverable
-            isPressable
-            className={`border-1 border-default-200`}
-            onPress={() => {
-              setTargetAlert(alert);
-              alertDrawer.onOpenChange();
-            }}
-          >
-            <CardBody>
+        {alerts
+          .filter((a: any) => a.parent_id === "")
+          .map((alert: any) => (
+            <div
+              key={alert.id}
+              // onClick={() => {
+              //   setTargetAlert(alert);
+              //   alertDrawer.onOpenChange();
+              // }}
+            >
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <div
@@ -137,7 +204,7 @@ export default function AlertsList({
 
               {alerts.filter((a: any) => a.parent_id === alert.id).length >
                 0 && (
-                <Accordion isCompact variant="bordered">
+                <Accordion variant="shadow">
                   <AccordionItem
                     key="grouped_alerts"
                     aria-label="Grouped Alerts"
@@ -233,9 +300,8 @@ export default function AlertsList({
                   </AccordionItem>
                 </Accordion>
               )}
-            </CardBody>
-          </Card>
-        ))}
+            </div>
+          ))}
       </div>
       <AlertDrawer
         alert={targetAlert}

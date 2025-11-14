@@ -4,13 +4,12 @@ import { Icon } from "@iconify/react";
 import {
   Alert,
   Button,
+  ButtonGroup,
   Card,
   CardBody,
+  CardFooter,
   Chip,
-  Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownTrigger,
+  Tooltip,
   useDisclosure,
 } from "@heroui/react";
 import React from "react";
@@ -22,6 +21,7 @@ import canEditProject from "@/lib/functions/canEditProject";
 
 import EditRunnerModal from "../modals/runner/edit";
 import ChangeRunnerStatusModal from "../modals/runner/changeStatus";
+import CreateRunnerModal from "../modals/runner/create";
 
 export default function RunnersList({
   runners,
@@ -29,12 +29,14 @@ export default function RunnersList({
   user,
   singleProject,
   globalView,
+  settings,
 }: {
   runners: any;
   projects: any;
   user: any;
   singleProject?: boolean;
   globalView?: boolean;
+  settings?: any;
 }) {
   const [targetRunner, setTargetRunner] = React.useState({} as any);
   const [targetRunnerStatus, setTargetRunnerStatus] = React.useState(false);
@@ -42,6 +44,7 @@ export default function RunnersList({
   const editRunnerModal = useDisclosure();
   const changeRunnerStatusModal = useDisclosure();
   const deleteRunnerModal = useDisclosure();
+  const addRunnerModal = useDisclosure();
 
   function heartbeatColor(runner: any) {
     const timeAgo =
@@ -94,58 +97,16 @@ export default function RunnersList({
                         key={runner.id}
                         fullWidth
                         isPressable
-                        className="bg-content2 hover:bg-content3 transition-colors"
+                        className="bg-content2 hover:bg-content1 transition-colors"
                         onPress={() => {
                           setTargetRunner(runner);
                           showRunnerDrawer.onOpen();
                         }}
                       >
                         <CardBody className="p-5">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h3 className="text-lg font-semibold">
-                                {runner.name}
-                              </h3>
-                              <p className="text-small text-default-500 mt-1">
-                                ID: {runner.id}
-                              </p>
-                            </div>
-
-                            {user.role === "admin" && (
-                              <Dropdown>
-                                <DropdownTrigger>
-                                  <Button isIconOnly size="sm" variant="light">
-                                    <Icon
-                                      className="text-lg"
-                                      icon="hugeicons:more-vertical-circle-01"
-                                    />
-                                  </Button>
-                                </DropdownTrigger>
-                                <DropdownMenu
-                                  aria-label="Runner Actions"
-                                  variant="flat"
-                                >
-                                  <DropdownItem
-                                    key="delete"
-                                    className="text-danger"
-                                    color="danger"
-                                    startContent={
-                                      <Icon
-                                        icon="hugeicons:delete-02"
-                                        width={18}
-                                      />
-                                    }
-                                    onPress={() => {
-                                      setTargetRunner(runner);
-                                      deleteRunnerModal.onOpen();
-                                    }}
-                                  >
-                                    Delete
-                                  </DropdownItem>
-                                </DropdownMenu>
-                              </Dropdown>
-                            )}
-                          </div>
+                          <h3 className="text-lg font-semibold">
+                            {runner.name}
+                          </h3>
 
                           <Alert
                             className="mt-4"
@@ -232,6 +193,29 @@ export default function RunnersList({
                             </div>
                           </div>
                         </CardBody>
+                        <CardFooter className="flex flex-cols items-center justify-between">
+                          <p className="text-tiny text-default-500">
+                            {runner.id}
+                          </p>
+                          <ButtonGroup
+                            isDisabled={user.role !== "admin"}
+                            size="sm"
+                          >
+                            <Tooltip content="Delete">
+                              <Button
+                                isIconOnly
+                                color="danger"
+                                variant="flat"
+                                onPress={() => {
+                                  setTargetRunner(runner);
+                                  deleteRunnerModal.onOpen();
+                                }}
+                              >
+                                <Icon icon="hugeicons:delete-02" width={18} />
+                              </Button>
+                            </Tooltip>
+                          </ButtonGroup>
+                        </CardFooter>
                       </Card>
                     ),
                 )}
@@ -254,6 +238,23 @@ export default function RunnersList({
                 Runners bound to projects
               </p>
             </div>
+            {singleProject && (
+              <Button
+                color="primary"
+                isDisabled={
+                  (!canEditProject(user.id, projects[0].members) ||
+                    !settings.create_runners ||
+                    projects[0].disabled) &&
+                  user.role !== "admin"
+                }
+                size="sm"
+                startContent={<Icon icon="hugeicons:plus-sign" width={18} />}
+                variant="solid"
+                onPress={() => addRunnerModal.onOpen()}
+              >
+                Add Runner
+              </Button>
+            )}
           </div>
 
           {projects.length === 0 && (
@@ -303,7 +304,7 @@ export default function RunnersList({
                         key={runner.id}
                         fullWidth
                         isPressable
-                        className="bg-content2 hover:bg-content3 transition-colors"
+                        className="bg-content2 hover:bg-content1 transition-colors"
                         onPress={() => {
                           setTargetRunner(runner);
                           showRunnerDrawer.onOpen();
@@ -327,97 +328,7 @@ export default function RunnersList({
                                   </Chip>
                                 )}
                               </div>
-                              <p className="text-small text-default-500 mt-1">
-                                ID: {runner.id}
-                              </p>
                             </div>
-                            {canEditProject(user.id, project.members) && (
-                              <Dropdown>
-                                <DropdownTrigger>
-                                  <Button isIconOnly size="sm" variant="light">
-                                    <Icon
-                                      className="text-lg"
-                                      icon="hugeicons:more-vertical-circle-01"
-                                    />
-                                  </Button>
-                                </DropdownTrigger>
-                                <DropdownMenu
-                                  aria-label="Runner Actions"
-                                  variant="flat"
-                                >
-                                  {runner.disabled ? (
-                                    <DropdownItem
-                                      key="enable"
-                                      color="success"
-                                      startContent={
-                                        <Icon
-                                          icon="hugeicons:play"
-                                          width={18}
-                                        />
-                                      }
-                                      onPress={() => {
-                                        setTargetRunner(runner);
-                                        setTargetRunnerStatus(false);
-                                        changeRunnerStatusModal.onOpen();
-                                      }}
-                                    >
-                                      Enable
-                                    </DropdownItem>
-                                  ) : (
-                                    <DropdownItem
-                                      key="disable"
-                                      color="danger"
-                                      startContent={
-                                        <Icon
-                                          icon="hugeicons:pause"
-                                          width={18}
-                                        />
-                                      }
-                                      onPress={() => {
-                                        setTargetRunner(runner);
-                                        setTargetRunnerStatus(true);
-                                        changeRunnerStatusModal.onOpen();
-                                      }}
-                                    >
-                                      Disable
-                                    </DropdownItem>
-                                  )}
-                                  <DropdownItem
-                                    key="edit"
-                                    color="warning"
-                                    startContent={
-                                      <Icon
-                                        icon="hugeicons:pencil-edit-02"
-                                        width={18}
-                                      />
-                                    }
-                                    onPress={() => {
-                                      setTargetRunner(runner);
-                                      editRunnerModal.onOpen();
-                                    }}
-                                  >
-                                    Edit
-                                  </DropdownItem>
-                                  <DropdownItem
-                                    key="delete"
-                                    className="text-danger"
-                                    color="danger"
-                                    startContent={
-                                      <Icon
-                                        icon="hugeicons:delete-02"
-                                        width={18}
-                                      />
-                                    }
-                                    onPress={() => {
-                                      setTargetRunner(runner);
-                                      deleteRunnerModal.onOpen();
-                                    }}
-                                  >
-                                    Delete
-                                  </DropdownItem>
-                                </DropdownMenu>
-                              </Dropdown>
-                            )}
                           </div>
 
                           <Alert
@@ -501,6 +412,75 @@ export default function RunnersList({
                             </div>
                           </div>
                         </CardBody>
+                        <CardFooter className="flex flex-cols items-center justify-between">
+                          <p className="text-tiny text-default-500">
+                            {runner.id}
+                          </p>
+                          <ButtonGroup
+                            isDisabled={
+                              !canEditProject(user.id, project.members)
+                            }
+                            size="sm"
+                          >
+                            {runner.disabled ? (
+                              <Tooltip content="Enable">
+                                <Button
+                                  isIconOnly
+                                  variant="flat"
+                                  onPress={() => {
+                                    setTargetRunner(runner);
+                                    setTargetRunnerStatus(false);
+                                    changeRunnerStatusModal.onOpen();
+                                  }}
+                                >
+                                  <Icon icon="hugeicons:play" width={18} />
+                                </Button>
+                              </Tooltip>
+                            ) : (
+                              <Tooltip content="Disable">
+                                <Button
+                                  isIconOnly
+                                  variant="flat"
+                                  onPress={() => {
+                                    setTargetRunner(runner);
+                                    setTargetRunnerStatus(true);
+                                    changeRunnerStatusModal.onOpen();
+                                  }}
+                                >
+                                  <Icon icon="hugeicons:pause" width={18} />
+                                </Button>
+                              </Tooltip>
+                            )}
+                            <Tooltip content="Edit">
+                              <Button
+                                isIconOnly
+                                variant="flat"
+                                onPress={() => {
+                                  setTargetRunner(runner);
+                                  editRunnerModal.onOpen();
+                                }}
+                              >
+                                <Icon
+                                  icon="hugeicons:pencil-edit-02"
+                                  width={18}
+                                />
+                              </Button>
+                            </Tooltip>
+                            <Tooltip content="Delete">
+                              <Button
+                                isIconOnly
+                                color="danger"
+                                variant="flat"
+                                onPress={() => {
+                                  setTargetRunner(runner);
+                                  deleteRunnerModal.onOpen();
+                                }}
+                              >
+                                <Icon icon="hugeicons:delete-02" width={18} />
+                              </Button>
+                            </Tooltip>
+                          </ButtonGroup>
+                        </CardFooter>
                       </Card>
                     ))}
                 </div>
@@ -518,6 +498,11 @@ export default function RunnersList({
       />
       <EditRunnerModal disclosure={editRunnerModal} runner={targetRunner} />
       <DeleteRunnerModal disclosure={deleteRunnerModal} runner={targetRunner} />
+      <CreateRunnerModal
+        disclosure={addRunnerModal}
+        project={projects[0]}
+        shared_runner={false}
+      />
     </main>
   );
 }
