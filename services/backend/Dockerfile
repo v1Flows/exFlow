@@ -3,10 +3,10 @@ LABEL org.opencontainers.image.source = "https://github.com/JustLabV1/justflow"
 
 WORKDIR /app/backend
 
-COPY services/backend/go.mod services/backend/go.sum ./
+COPY go.mod go.sum ./
 RUN go mod download
 
-COPY services/backend/ ./
+COPY . .
 
 # Build
 RUN go build -o justflow-backend

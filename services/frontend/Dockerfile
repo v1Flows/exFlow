@@ -9,7 +9,7 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
-COPY services/frontend/package.json services/frontend/pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml ./
 RUN corepack enable pnpm && pnpm --version
 RUN pnpm install
 
@@ -18,7 +18,7 @@ FROM base AS builder
 LABEL org.opencontainers.image.source = "https://github.com/JustLabV1/justflow"
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY services/frontend/ ./
+COPY . .
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
