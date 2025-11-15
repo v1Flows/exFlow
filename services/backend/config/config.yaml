@@ -22,3 +22,40 @@ jwt:
 
 runner:
   shared_runner_secret: null
+
+# OIDC Configuration for authentication providers
+oidc:
+  enabled: false
+  # Base redirect URL for OIDC callbacks (your app's URL)
+  redirect_url: "http://localhost:3000"
+  
+  providers:
+    # Google OAuth2 example
+    google:
+      client_id: "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
+      client_secret: "YOUR_GOOGLE_CLIENT_SECRET"
+      discovery_url: "https://accounts.google.com"
+      scopes:
+        - openid
+        - profile
+        - email
+
+    # GitHub OAuth2 example
+    github:
+      client_id: "YOUR_GITHUB_CLIENT_ID"
+      client_secret: "YOUR_GITHUB_CLIENT_SECRET"
+      discovery_url: "https://github.com"
+      scopes:
+        - openid
+        - profile
+        - email
+
+    # Keycloak example (adjust URL to your Keycloak instance)
+    keycloak:
+      client_id: "justflow"
+      client_secret: "YOUR_KEYCLOAK_CLIENT_SECRET"
+      discovery_url: "https://keycloak.example.com/realms/master"
+      scopes:
+        - openid
+        - profile
+        - email

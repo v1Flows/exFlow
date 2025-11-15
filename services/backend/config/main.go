@@ -30,6 +30,7 @@ type RestfulConf struct {
 	JWT        JWTConf        `mapstructure:"jwt" validate:"required"`
 	Encryption EncryptionConf `mapstructure:"encryption" validate:"required"`
 	Runner     RunnerConf     `mapstructure:"runner"`
+	OIDC       OIDCConf       `mapstructure:"oidc"`
 }
 
 type DatabaseConf struct {
@@ -52,6 +53,19 @@ type EncryptionConf struct {
 
 type RunnerConf struct {
 	SharedRunnerSecret string `mapstructure:"shared_runner_secret"`
+}
+
+type OIDCConf struct {
+	Enabled     bool                    `mapstructure:"enabled"`
+	Providers   map[string]OIDCProvider `mapstructure:"providers"`
+	RedirectURL string                  `mapstructure:"redirect_url"` // Base redirect URL like http://localhost:3000
+}
+
+type OIDCProvider struct {
+	ClientID     string   `mapstructure:"client_id"`
+	ClientSecret string   `mapstructure:"client_secret"`
+	DiscoveryURL string   `mapstructure:"discovery_url"`
+	Scopes       []string `mapstructure:"scopes"`
 }
 
 // GetInstance returns the singleton configuration manager instance
@@ -88,6 +102,8 @@ func (cm *ConfigurationManager) LoadConfig(configFile string) error {
 		"encryption.master_secret":    "BACKEND_ENCRYPTION_MASTER_SECRET",
 		"jwt.secret":                  "BACKEND_JWT_SECRET",
 		"runner.shared_runner_secret": "BACKEND_RUNNER_SHARED_RUNNER_SECRET",
+		"oidc.enabled":                "BACKEND_OIDC_ENABLED",
+		"oidc.redirect_url":           "BACKEND_OIDC_REDIRECT_URL",
 	}
 
 	for configKey, envVar := range envBindings {

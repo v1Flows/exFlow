@@ -148,6 +148,29 @@ export default function LoginPageComponent({ settings }: { settings: any }) {
           </Button>
         </form>
         <Divider className="my-2" />
+        <div className="flex flex-col gap-2">
+          <p className="text-center text-sm text-default-500">
+            Or continue with
+          </p>
+          <div className="grid grid-cols-3 gap-2">
+            <OIDCProviderButton
+              icon="mdi:github"
+              label="GitHub"
+              provider="github"
+            />
+            <OIDCProviderButton
+              icon="mdi:google"
+              label="Google"
+              provider="google"
+            />
+            <OIDCProviderButton
+              icon="mdi:key"
+              label="Keycloak"
+              provider="keycloak"
+            />
+          </div>
+        </div>
+        <Divider className="my-2" />
         {!settings.signup && (
           <Alert
             color="danger"
@@ -164,5 +187,57 @@ export default function LoginPageComponent({ settings }: { settings: any }) {
         </p>
       </div>
     </div>
+  );
+}
+
+interface OIDCProviderButtonProps {
+  provider: string;
+  icon: string;
+  label: string;
+}
+
+function OIDCProviderButton({
+  icon,
+  label: _label,
+  provider,
+}: OIDCProviderButtonProps) {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleOIDCLogin = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/api/auth/oidc/authorize/${provider}`, {
+        credentials: "include",
+        method: "GET",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to initiate OIDC login");
+      }
+
+      const data = await response.json();
+
+      // Redirect to provider's authorization endpoint
+      if (data.auth_url) {
+        if (typeof globalThis !== "undefined" && globalThis.window) {
+          globalThis.window.location.href = data.auth_url;
+        }
+      }
+    } catch {
+      setIsLoading(false);
+      // Error handled silently - user will see loading state reset
+    }
+  };
+
+  return (
+    <Button
+      isIconOnly
+      isLoading={isLoading}
+      size="lg"
+      variant="bordered"
+      onPress={handleOIDCLogin}
+    >
+      <Icon icon={icon} width={20} />
+    </Button>
   );
 }
