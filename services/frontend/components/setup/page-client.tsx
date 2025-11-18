@@ -9,20 +9,13 @@ import {
   Code,
   Divider,
   Input,
-  Spinner,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useEffect, useState } from "react";
 
-import { setupApi } from "@/lib/api";
-
 import { Ripple } from "../magicui/ripple";
 
-type SetupPhase =
-  | "backend-detection"
-  | "deployment-scenario"
-  | "configuration"
-  | "complete";
+type SetupPhase = "backend-detection" | "configuration" | "complete";
 type DeploymentScenario = "combined" | "independent" | null;
 
 interface SetupData {
@@ -58,9 +51,8 @@ export default function SetupPageClient() {
   const [isCheckingBackendStatus, setIsCheckingBackendStatus] = useState(false);
 
   // Configuration steps
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [runtimeEnvironment, setRuntimeEnvironment] = useState<string>("");
 
   // Validation
   const [error, setError] = useState<string>("");
@@ -90,8 +82,17 @@ export default function SetupPageClient() {
   // ============================================================
 
   useEffect(() => {
-    detectRuntimeEnvironment();
+    // Check backend detection on mount
   }, []);
+
+  // Auto-compute backend URL when backend port changes (combined container only)
+  useEffect(() => {
+    if (deploymentScenario === "combined" && setupPhase === "configuration") {
+      const computedUrl = computeBackendUrlFromPort(setupData.backend_port);
+
+      handleInputChange("backend_url", computedUrl);
+    }
+  }, [setupData.backend_port, deploymentScenario, setupPhase]);
 
   // ============================================================
   // PHASE 1: Backend Detection Functions
@@ -218,7 +219,7 @@ export default function SetupPageClient() {
 
         // Skip scenario selection, go straight to configuration
         setSetupPhase("configuration");
-        setCurrentStep(0);
+        setCurrentStep(1);
       }
     } catch (err) {
       setError(
@@ -235,14 +236,19 @@ export default function SetupPageClient() {
   // PHASE 2+: Configuration Helpers
   // ============================================================
 
-  const detectRuntimeEnvironment = async () => {
-    if (process.env.JUSTFLOW_RUNTIME_ENVIRONMENT) {
-      setRuntimeEnvironment(process.env.JUSTFLOW_RUNTIME_ENVIRONMENT);
+  // Auto-compute backend URL from detected hostname and port (combined container only)
+  const computeBackendUrlFromPort = (port: number): string => {
+    try {
+      // Extract hostname from detected backend URL
+      // e.g., "http://justflow-backend:8080" -> "justflow-backend"
+      const url = new URL(detectedBackendUrl);
+      const hostname = url.hostname;
 
-      return;
+      return `http://${hostname}:${port}`;
+    } catch {
+      // Fallback if URL parsing fails
+      return `http://localhost:${port}`;
     }
-
-    setRuntimeEnvironment("unknown");
   };
 
   const handleInputChange = (field: string, value: string | number) => {
@@ -270,14 +276,33 @@ export default function SetupPageClient() {
     setValidationSuccess(false);
 
     try {
-      const result = await setupApi.validate(setupData);
+      // Use the detected backend URL for validation, not the global API URL
+      const response = await fetch(
+        `${detectedBackendUrl}/api/v1/setup/validate`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(setupData),
+        },
+      );
 
-      if (result.all_valid) {
-        setValidationSuccess(true);
-        setValidationErrors([]);
+      // For validation, both 200 (valid) and 400 (invalid) are expected responses
+      if (response.status === 200 || response.status === 400) {
+        const result = await response.json();
+
+        if (result.all_valid) {
+          setValidationSuccess(true);
+          setValidationErrors([]);
+        } else {
+          setValidationErrors(result.validation_errors);
+          setValidationSuccess(false);
+        }
       } else {
-        setValidationErrors(result.validation_errors);
-        setValidationSuccess(false);
+        throw new Error(
+          `API request failed: ${response.status} ${response.statusText}`,
+        );
       }
     } catch (error: any) {
       setValidationErrors([
@@ -294,9 +319,27 @@ export default function SetupPageClient() {
     setError("");
 
     try {
-      const result = await setupApi.configure(setupData);
+      // Use the detected backend URL for configuration
+      const response = await fetch(
+        `${detectedBackendUrl}/api/v1/setup/configure`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(setupData),
+        },
+      );
 
-      if (result.restart_required) {
+      if (!response.ok) {
+        throw new Error(
+          `API request failed: ${response.status} ${response.statusText}`,
+        );
+      }
+
+      const result = await response.json();
+
+      if (result.restart_required || result.message) {
         setSetupComplete(true);
       }
     } catch (error: any) {
@@ -356,7 +399,8 @@ export default function SetupPageClient() {
               <div className="flex justify-between items-center w-full">
                 <h3 className="text-lg font-semibold">
                   {setupPhase === "backend-detection" && "Find Your Backend"}
-                  {setupPhase === "configuration" && "Configure JustFlow"}
+                  {setupPhase === "configuration" &&
+                    "Configure Your Application"}
                   {setupPhase === "complete" && "Setup Complete!"}
                 </h3>
               </div>
@@ -439,18 +483,12 @@ export default function SetupPageClient() {
                                   />
                                 ) : null
                               }
-                              variant={
-                                detectedBackendUrl === backend
-                                  ? "flat"
-                                  : "bordered"
-                              }
+                              variant="faded"
                               onPress={() => {
                                 selectBackendAndCheckStatus(backend);
                               }}
                             >
-                              <Code color="success" size="sm">
-                                {backend}
-                              </Code>
+                              <span className="font-semibold">{backend}</span>
                             </Button>
                           ))}
                         </div>
@@ -470,14 +508,18 @@ export default function SetupPageClient() {
                             className="bg-primary text-white"
                             isLoading={isCheckingBackendStatus}
                             size="sm"
+                            startContent={
+                              <Icon
+                                icon="hugeicons:arrow-right-01"
+                                width={16}
+                              />
+                            }
                             onPress={() => {
                               if (customBackendUrl) {
                                 selectBackendAndCheckStatus(customBackendUrl);
                               }
                             }}
-                          >
-                            <Icon icon="hugeicons:arrow-right-01" width={16} />
-                          </Button>
+                          />
                         }
                         placeholder="http://backend.example.com:8080"
                         size="sm"
@@ -494,73 +536,35 @@ export default function SetupPageClient() {
               {/* ============================================================ */}
               {setupPhase === "configuration" && deploymentScenario && (
                 <>
-                  {/* Step 0: Welcome & Runtime Detection */}
-                  {currentStep === 0 && (
-                    <div className="flex flex-col gap-4">
-                      <p>
-                        Let us first check on which environment you are running
-                        JustFlow<span className="text-primary">.</span>
-                      </p>
-                      {runtimeEnvironment === "" && (
-                        <Spinner label="Detecting Runtime Environment..." />
-                      )}
-                      {runtimeEnvironment && (
-                        <>
-                          <div className="flex flex-cols items-center gap-1">
-                            <Code
-                              color={
-                                runtimeEnvironment === "unknown"
-                                  ? "danger"
-                                  : "success"
-                              }
-                            >
-                              {runtimeEnvironment}
-                            </Code>{" "}
-                            got detected as the runtime environment.
-                          </div>
-                          {runtimeEnvironment === "docker" && (
-                            <Alert
-                              color="warning"
-                              description="Please make sure that you are using volumes for your Docker containers. Otherwise the configuration may not persist across container restarts."
-                              title="Docker Information"
-                            />
-                          )}
-                          <p>
-                            Please make sure to follow the instructions in the
-                            next steps to ensure proper configuration.
-                          </p>
-                        </>
-                      )}
-                    </div>
-                  )}
-
                   {/* Step 1: Backend Port (Combined) OR Frontend URL (Independent) */}
                   {currentStep === 1 && deploymentScenario === "combined" && (
-                    <div>
-                      <p className="font-semibold">Backend Configuration</p>
-                      <p className="text-sm mb-4">
-                        The Backend started by default an endpoint on port{" "}
-                        <span className="text-primary font-bold">8080</span>.
-                        This is the default backend port used during setup and{" "}
-                        <span className="text-primary font-bold">
-                          has to be accessible from the frontend
-                        </span>
-                        . During the setup you can change the backend port.
-                      </p>
-                      <Divider className="my-4" />
-                      <Input
-                        description="Port on which the backend server will start. Keep the default value if JustFlow is running inside Docker."
-                        label="Backend Port"
-                        placeholder="8080"
-                        type="number"
-                        value={setupData.backend_port.toString()}
-                        onChange={(e) =>
-                          handleInputChange(
-                            "backend_port",
-                            Number.parseInt(e.target.value) || 8080,
-                          )
-                        }
+                    <div className="space-y-4">
+                      <div>
+                        <p className="font-semibold">Backend Configuration</p>
+                        <p className="text-sm mb-4">
+                          Your backend is running at port{" "}
+                          <span className="text-primary font-bold">
+                            {setupData.backend_port}
+                          </span>
+                          . This port was detected when we found your backend
+                          and will be used for the configuration.
+                        </p>
+                      </div>
+
+                      <Alert
+                        color="warning"
+                        description={`Port ${setupData.backend_port} was detected when we found your backend. The configuration will use this port.`}
+                        title="Backend Port (Detected)"
                       />
+
+                      <div>
+                        <p className="text-xs font-semibold text-gray-600">
+                          Backend will be available at:
+                        </p>
+                        <Code className="mt-2">
+                          {computeBackendUrlFromPort(setupData.backend_port)}
+                        </Code>
+                      </div>
                     </div>
                   )}
 
@@ -644,15 +648,6 @@ export default function SetupPageClient() {
                     (deploymentScenario === "independent" &&
                       currentStep === 2)) && (
                     <>
-                      <Input
-                        description="URL used by the frontend to reach the backend. Keep the default value if JustFlow is running inside Docker."
-                        label="Backend URL"
-                        placeholder="http://localhost:8080"
-                        value={setupData.backend_url}
-                        onChange={(e) =>
-                          handleInputChange("backend_url", e.target.value)
-                        }
-                      />
                       <div className="pt-4">
                         <p className="text-sm text-gray-600 mb-2">
                           Review your configuration:
@@ -733,16 +728,31 @@ export default function SetupPageClient() {
 
                   {/* Navigation for configuration phase */}
                   <div className="flex justify-between pt-4">
-                    <Button
-                      isDisabled={currentStep === 0}
-                      startContent={
-                        <Icon icon="hugeicons:arrow-left-01" width={16} />
-                      }
-                      variant="ghost"
-                      onPress={() => setCurrentStep(currentStep - 1)}
-                    >
-                      Previous
-                    </Button>
+                    {currentStep === 1 ? (
+                      <Button
+                        startContent={
+                          <Icon icon="hugeicons:arrow-left-01" width={16} />
+                        }
+                        variant="ghost"
+                        onPress={() => {
+                          setSetupPhase("backend-detection");
+                          setDeploymentScenario(null);
+                          setError("");
+                        }}
+                      >
+                        Back to Backend Selection
+                      </Button>
+                    ) : (
+                      <Button
+                        startContent={
+                          <Icon icon="hugeicons:arrow-left-01" width={16} />
+                        }
+                        variant="ghost"
+                        onPress={() => setCurrentStep(currentStep - 1)}
+                      >
+                        Previous
+                      </Button>
+                    )}
 
                     {deploymentScenario === "combined" && currentStep < 3 ? (
                       <Button
@@ -750,7 +760,6 @@ export default function SetupPageClient() {
                         endContent={
                           <Icon icon="hugeicons:arrow-right-01" width={16} />
                         }
-                        isDisabled={runtimeEnvironment === ""}
                         onPress={() => setCurrentStep(currentStep + 1)}
                       >
                         Next
@@ -763,7 +772,6 @@ export default function SetupPageClient() {
                         endContent={
                           <Icon icon="hugeicons:arrow-right-01" width={16} />
                         }
-                        isDisabled={runtimeEnvironment === ""}
                         onPress={() => setCurrentStep(currentStep + 1)}
                       >
                         Next
