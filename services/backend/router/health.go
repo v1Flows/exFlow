@@ -6,6 +6,6 @@ import (
 
 func Health(router *gin.RouterGroup) {
 	router.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{"status": "ok"})
+		c.JSON(200, gin.H{"status": "ok", "message": "Service is healthy", "service": "backend"})
 	})
 }
