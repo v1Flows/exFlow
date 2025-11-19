@@ -115,7 +115,7 @@ const BarChartCard = React.forwardRef<
     <Card
       ref={ref}
       className={cn(
-        "dark:border-default-100 h-[300px] border border-transparent",
+        "bg-content1/60 backdrop-blur-md shadow-lg border border-default-100 h-[300px]",
         className,
       )}
       {...props}

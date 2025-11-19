@@ -5,6 +5,7 @@ import { addToast, Button, Chip, Tooltip, useDisclosure } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect, useRef } from "react";
 import ReactTimeago from "react-timeago";
+import { motion } from "framer-motion";
 
 import DeleteExecutionModal from "@/components/modals/executions/delete";
 import {
@@ -146,11 +147,22 @@ export default function ExecutionsList({
 
   return (
     <>
-      <div className="divide-y divide-default-100">
+      <motion.div
+        animate="visible"
+        className="flex flex-col gap-2 p-2"
+        initial="hidden"
+        variants={{
+          visible: { transition: { staggerChildren: 0.05 } },
+        }}
+      >
         {executions.map((execution: any) => (
-          <div
+          <motion.div
             key={execution.id}
-            className="p-4 hover:bg-default-100 bg-default-50 transition-colors"
+            className="p-4 rounded-medium bg-content2/30 hover:bg-content2/50 transition-colors border border-default-100/50"
+            variants={{
+              hidden: { y: 10, opacity: 0 },
+              visible: { y: 0, opacity: 1 },
+            }}
           >
             <div className="flex items-start">
               <div className="flex-1 overflow-x-auto">
@@ -338,9 +350,9 @@ export default function ExecutionsList({
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       <DeleteExecutionModal
         disclosure={deleteExecutionModal}
