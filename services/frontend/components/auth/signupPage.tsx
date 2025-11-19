@@ -2,16 +2,16 @@
 
 import { Icon } from "@iconify/react";
 import {
+  Alert,
   Button,
-  Image,
+  Card,
+  CardBody,
   Input,
   Link,
   Tooltip,
-  Alert,
   addToast,
 } from "@heroui/react";
 import { AnimatePresence, domAnimation, LazyMotion, m } from "framer-motion";
-import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import React from "react";
 
@@ -20,11 +20,10 @@ import SignUpAPI from "@/lib/auth/signup";
 import LoginAPI from "@/lib/auth/login";
 import CheckUserTaken from "@/lib/auth/checkTaken";
 
-import { Particles } from "../magicui/particles";
+import { Ripple } from "../magicui/ripple";
 
 export default function SignUpPage({ settings }: any) {
   const router = useRouter();
-  const { theme } = useTheme();
 
   const [isPasswordVisible, setIsPasswordVisible] = React.useState(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
@@ -196,205 +195,226 @@ export default function SignUpPage({ settings }: any) {
   };
 
   return (
-    <div className="flex size-full flex-col items-center justify-center">
-      <Particles
-        refresh
-        className="absolute inset-0"
-        color={theme === "light" ? "#000" : "#fff"}
-        ease={80}
-        quantity={100}
-      />
-      <div className="flex flex-col items-center pb-2">
-        <Image
-          alt="Logo"
-          height={28}
-          radius="none"
-          shadow="none"
-          src={`/images/ef_logo_512.png`}
-          width={28}
-        />
-        <p className="text-xl font-medium">Welcome</p>
-        <p className="text-small text-default-500">
-          Create your account to get started
-        </p>
-      </div>
-      <div className="mt-2 flex w-full max-w-sm flex-col gap-4 rounded-large bg-content1 px-8 py-6 shadow-small">
-        <LazyMotion features={domAnimation}>
-          <m.div className="flex min-h-[40px] items-center gap-2 pb-2">
-            <AnimatePresence initial={false} mode="popLayout">
-              {page >= 1 && (
-                <m.div
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -10 }}
-                  initial={{ opacity: 0, x: -10 }}
-                >
-                  <Tooltip content="Go back" delay={3000}>
-                    <Button
-                      isIconOnly
-                      size="sm"
-                      variant="flat"
-                      onPress={() => paginate(-1)}
+    <main className="min-h-screen flex flex-col items-center justify-center p-4 bg-background relative overflow-hidden">
+      <div className="z-10 w-full max-w-md space-y-8">
+        {/* Header */}
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center justify-center p-3 mb-4 rounded-2xl bg-primary/10 ring-1 ring-primary/20">
+            <Icon
+              className="text-3xl text-primary"
+              icon="hugeicons:user-add-01"
+            />
+          </div>
+          <h1 className="text-4xl font-bold tracking-tight">
+            Create <span className="text-primary">Account</span>
+          </h1>
+          <p className="text-gray-400 text-lg">Join JustFlow to get started</p>
+        </div>
+
+        <Card className="w-full border-none shadow-2xl bg-content1/60 backdrop-blur-md">
+          <CardBody className="px-8 py-8 space-y-6">
+            <LazyMotion features={domAnimation}>
+              <m.div className="flex min-h-[40px] items-center gap-2 pb-2">
+                <AnimatePresence initial={false} mode="popLayout">
+                  {page >= 1 && (
+                    <m.div
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -10 }}
+                      initial={{ opacity: 0, x: -10 }}
                     >
-                      <Icon
-                        className="text-default-500"
-                        icon="solar:alt-arrow-left-linear"
-                        width={16}
-                      />
-                    </Button>
-                  </Tooltip>
-                </m.div>
-              )}
-            </AnimatePresence>
-            <m.div className="flex flex-col gap-4">
-              <AnimatePresence custom={direction} initial={false} mode="wait">
-                <Title>{titleContent}</Title>
-              </AnimatePresence>
-              {error && (
-                <AnimatePresence custom={direction} initial={false} mode="wait">
-                  <Alert color="danger" description={errorText} title="Error" />
+                      <Tooltip content="Go back" delay={3000}>
+                        <Button
+                          isIconOnly
+                          size="sm"
+                          variant="flat"
+                          onPress={() => paginate(-1)}
+                        >
+                          <Icon
+                            className="text-default-500"
+                            icon="hugeicons:arrow-left-01"
+                            width={16}
+                          />
+                        </Button>
+                      </Tooltip>
+                    </m.div>
+                  )}
                 </AnimatePresence>
-              )}
-              {!settings.signup && (
-                <Alert
-                  color="danger"
-                  description="Sign up is currently disabled. Please check back later."
-                  title="Sign Up Disabled"
-                  variant="faded"
-                />
-              )}
-            </m.div>
-          </m.div>
-          <AnimatePresence custom={direction} initial={false} mode="wait">
-            <m.form
-              key={page}
-              animate="center"
-              className="flex flex-col gap-3"
-              custom={direction}
-              exit="exit"
-              initial="enter"
-              transition={{ duration: 0.2 }}
-              variants={variants}
-              onSubmit={handleSubmit}
-            >
-              {page === 0 && (
-                <>
-                  <Input
-                    isRequired
-                    isDisabled={!settings.signup}
-                    label="Username"
-                    name="username"
-                    type="username"
-                    validationState={isUsernameValid ? "valid" : "invalid"}
-                    value={username}
-                    onValueChange={(value) => {
-                      setIsUsernameValid(true);
-                      setUsername(value);
-                    }}
-                  />
-                  <Input
-                    isRequired
-                    isDisabled={!settings.signup}
-                    label="Email Address"
-                    name="email"
-                    type="email"
-                    validationState={isEmailValid ? "valid" : "invalid"}
-                    value={email}
-                    onValueChange={(value) => {
-                      setIsEmailValid(true);
-                      setEmail(value);
-                    }}
-                  />
-                </>
-              )}
-              {page === 1 && (
-                <Input
-                  isRequired
-                  endContent={
-                    <button type="button" onClick={togglePasswordVisibility}>
-                      {isPasswordVisible ? (
-                        <Icon
-                          className="pointer-events-none text-2xl text-default-400"
-                          icon="solar:eye-closed-linear"
-                        />
-                      ) : (
-                        <Icon
-                          className="pointer-events-none text-2xl text-default-400"
-                          icon="solar:eye-bold"
-                        />
-                      )}
-                    </button>
-                  }
-                  label="Password"
-                  name="password"
-                  type={isPasswordVisible ? "text" : "password"}
-                  validationState={isPasswordValid ? "valid" : "invalid"}
-                  value={password}
-                  onValueChange={(value) => {
-                    setIsPasswordValid(true);
-                    setPassword(value);
-                  }}
-                />
-              )}
-              {page === 2 && (
-                <Input
-                  isRequired
-                  endContent={
-                    <button
-                      type="button"
-                      onClick={toggleConfirmPasswordVisibility}
+                <m.div className="flex flex-col gap-4 w-full">
+                  <AnimatePresence
+                    custom={direction}
+                    initial={false}
+                    mode="wait"
+                  >
+                    <Title>{titleContent}</Title>
+                  </AnimatePresence>
+                  {error && (
+                    <AnimatePresence
+                      custom={direction}
+                      initial={false}
+                      mode="wait"
                     >
-                      {isConfirmPasswordVisible ? (
-                        <Icon
-                          className="pointer-events-none text-2xl text-default-400"
-                          icon="solar:eye-closed-linear"
-                        />
-                      ) : (
-                        <Icon
-                          className="pointer-events-none text-2xl text-default-400"
-                          icon="solar:eye-bold"
-                        />
-                      )}
-                    </button>
-                  }
-                  errorMessage={
-                    !isConfirmPasswordValid
-                      ? "Passwords do not match"
-                      : undefined
-                  }
-                  label="Confirm Password"
-                  name="confirmPassword"
-                  type={isConfirmPasswordVisible ? "text" : "password"}
-                  validationState={isConfirmPasswordValid ? "valid" : "invalid"}
-                  value={confirmPassword}
-                  onValueChange={(value) => {
-                    setIsConfirmPasswordValid(true);
-                    setConfirmPassword(value);
-                  }}
-                />
-              )}
-              <Button
-                fullWidth
-                color="primary"
-                isDisabled={isLoading || !settings.signup}
-                isLoading={isLoading}
-                type="submit"
-              >
-                {page === 0
-                  ? "Continue with Email"
-                  : page === 1
-                    ? "Enter Password"
-                    : "Confirm Password & Sign Up"}
-              </Button>
-            </m.form>
-          </AnimatePresence>
-        </LazyMotion>
-        <p className="text-center text-small">
-          Already have an account?&nbsp;
-          <Link href="/auth/login" size="sm">
-            Log In
-          </Link>
-        </p>
+                      <Alert
+                        color="danger"
+                        description={errorText}
+                        title="Error"
+                        variant="flat"
+                      />
+                    </AnimatePresence>
+                  )}
+                  {!settings.signup && (
+                    <Alert
+                      color="danger"
+                      description="Sign up is currently disabled. Please check back later."
+                      title="Sign Up Disabled"
+                      variant="faded"
+                    />
+                  )}
+                </m.div>
+              </m.div>
+              <AnimatePresence custom={direction} initial={false} mode="wait">
+                <m.form
+                  key={page}
+                  animate="center"
+                  className="flex flex-col gap-4"
+                  custom={direction}
+                  exit="exit"
+                  initial="enter"
+                  transition={{ duration: 0.2 }}
+                  variants={variants}
+                  onSubmit={handleSubmit}
+                >
+                  {page === 0 && (
+                    <>
+                      <Input
+                        isRequired
+                        isDisabled={!settings.signup}
+                        label="Username"
+                        name="username"
+                        type="username"
+                        validationState={isUsernameValid ? "valid" : "invalid"}
+                        value={username}
+                        variant="bordered"
+                        onValueChange={(value) => {
+                          setIsUsernameValid(true);
+                          setUsername(value);
+                        }}
+                      />
+                      <Input
+                        isRequired
+                        isDisabled={!settings.signup}
+                        label="Email Address"
+                        name="email"
+                        type="email"
+                        validationState={isEmailValid ? "valid" : "invalid"}
+                        value={email}
+                        variant="bordered"
+                        onValueChange={(value) => {
+                          setIsEmailValid(true);
+                          setEmail(value);
+                        }}
+                      />
+                    </>
+                  )}
+                  {page === 1 && (
+                    <Input
+                      isRequired
+                      endContent={
+                        <button
+                          type="button"
+                          onClick={togglePasswordVisibility}
+                        >
+                          {isPasswordVisible ? (
+                            <Icon
+                              className="pointer-events-none text-xl text-default-400"
+                              icon="hugeicons:view"
+                            />
+                          ) : (
+                            <Icon
+                              className="pointer-events-none text-xl text-default-400"
+                              icon="hugeicons:view-off"
+                            />
+                          )}
+                        </button>
+                      }
+                      label="Password"
+                      name="password"
+                      type={isPasswordVisible ? "text" : "password"}
+                      validationState={isPasswordValid ? "valid" : "invalid"}
+                      value={password}
+                      variant="bordered"
+                      onValueChange={(value) => {
+                        setIsPasswordValid(true);
+                        setPassword(value);
+                      }}
+                    />
+                  )}
+                  {page === 2 && (
+                    <Input
+                      isRequired
+                      endContent={
+                        <button
+                          type="button"
+                          onClick={toggleConfirmPasswordVisibility}
+                        >
+                          {isConfirmPasswordVisible ? (
+                            <Icon
+                              className="pointer-events-none text-xl text-default-400"
+                              icon="hugeicons:view"
+                            />
+                          ) : (
+                            <Icon
+                              className="pointer-events-none text-xl text-default-400"
+                              icon="hugeicons:view-off"
+                            />
+                          )}
+                        </button>
+                      }
+                      errorMessage={
+                        !isConfirmPasswordValid
+                          ? "Passwords do not match"
+                          : undefined
+                      }
+                      label="Confirm Password"
+                      name="confirmPassword"
+                      type={isConfirmPasswordVisible ? "text" : "password"}
+                      validationState={
+                        isConfirmPasswordValid ? "valid" : "invalid"
+                      }
+                      value={confirmPassword}
+                      variant="bordered"
+                      onValueChange={(value) => {
+                        setIsConfirmPasswordValid(true);
+                        setConfirmPassword(value);
+                      }}
+                    />
+                  )}
+                  <Button
+                    fullWidth
+                    className="font-bold shadow-lg shadow-primary/20"
+                    color="primary"
+                    isDisabled={isLoading || !settings.signup}
+                    isLoading={isLoading}
+                    type="submit"
+                  >
+                    {page === 0
+                      ? "Continue with Email"
+                      : page === 1
+                        ? "Enter Password"
+                        : "Confirm Password & Sign Up"}
+                  </Button>
+                </m.form>
+              </AnimatePresence>
+            </LazyMotion>
+            <p className="text-center text-small">
+              Already have an account?&nbsp;
+              <Link href="/auth/login" size="sm">
+                Log In
+              </Link>
+            </p>
+          </CardBody>
+        </Card>
       </div>
-    </div>
+      <Ripple mainCircleOpacity={0.15} numCircles={8} />
+    </main>
   );
 }
