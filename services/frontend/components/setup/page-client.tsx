@@ -650,11 +650,11 @@ export default function SetupPageClient() {
                     />
 
                     <div className="grid gap-6 md:grid-cols-2">
-                      <div className="space-y-2">
+                      <div className="space-y-2 h-full">
                         <p className="text-sm font-medium text-gray-400">
                           Detected Port
                         </p>
-                        <div className="flex items-center gap-3 p-4 rounded-xl bg-content2 border border-default-200">
+                        <div className="flex items-center gap-3 p-4 rounded-xl bg-content2 border border-default-200 h-[80px]">
                           <Icon
                             className="text-warning-500 text-xl"
                             icon="hugeicons:usb"
@@ -672,7 +672,7 @@ export default function SetupPageClient() {
                         <p className="text-sm font-medium text-gray-400">
                           Computed URL
                         </p>
-                        <div className="flex items-center gap-3 p-4 rounded-xl bg-content2 border border-default-200">
+                        <div className="flex items-center gap-3 p-4 rounded-xl bg-content2 border border-default-200 h-[80px]">
                           <Icon
                             className="text-primary-500 text-xl"
                             icon="hugeicons:link-01"
@@ -696,8 +696,9 @@ export default function SetupPageClient() {
                 {currentStep === 1 && deploymentScenario === "independent" && (
                   <div className="space-y-4">
                     <p className="text-sm text-gray-500">
-                      Since you're running the frontend independently, we need
-                      to know where it's hosted to configure CORS properly.
+                      Since you&apos;re running the frontend independently, we
+                      need to know where it&apos;s hosted to configure CORS
+                      properly.
                     </p>
                     <Input
                       description="The URL where you access this application"
@@ -721,7 +722,7 @@ export default function SetupPageClient() {
 
                 {/* Step 2: Database Configuration (Combined only) */}
                 {currentStep === 2 && deploymentScenario === "combined" && (
-                  <div className="space-y-4">
+                  <div className="space-y-4 flex flex-col">
                     <div className="grid grid-cols-2 gap-4">
                       <Input
                         label="Server Host"
