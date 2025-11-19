@@ -1,20 +1,24 @@
 "use client";
 
 import {
+  Alert,
   Button,
   Card,
   CardBody,
   CardHeader,
+  Code,
   Divider,
   Input,
-  Spacer,
+  Progress,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { setupApi } from "@/lib/api";
-
 import { Ripple } from "../magicui/ripple";
+
+type SetupPhase = "backend-detection" | "configuration" | "complete";
+type DeploymentScenario = "combined" | "independent" | null;
 
 interface SetupData {
   backend_url: string;
@@ -30,13 +34,39 @@ interface SetupData {
 }
 
 export default function SetupPageClient() {
-  const [currentStep, setCurrentStep] = useState(0);
+  const router = useRouter();
+  // ============================================================
+  // STATE MANAGEMENT
+  // ============================================================
+
+  // Main setup phase - drives what UI is shown
+  const [setupPhase, setSetupPhase] = useState<SetupPhase>("backend-detection");
+
+  // Deployment scenario (combined container or independent backend)
+  const [deploymentScenario, setDeploymentScenario] =
+    useState<DeploymentScenario>(null);
+
+  // Backend discovery
+  const [detectedBackendUrl, setDetectedBackendUrl] = useState<string>("");
+  const [backendsDetected, setBackendsDetected] = useState<string[]>([]);
+  const [isDetectingBackends, setIsDetectingBackends] = useState(false);
+  const [customBackendUrl, setCustomBackendUrl] = useState("");
+  const [isCheckingBackendStatus, setIsCheckingBackendStatus] = useState(false);
+
+  // Configuration steps
+  const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [setupComplete, setSetupComplete] = useState(false);
+
+  // Validation
   const [error, setError] = useState<string>("");
   const [validationLoading, setValidationLoading] = useState<boolean>(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [validationSuccess, setValidationSuccess] = useState<boolean>(false);
+
+  // Setup completion
+  const [setupComplete, setSetupComplete] = useState(false);
+
+  // Setup data
   const [setupData, setSetupData] = useState<SetupData>({
     backend_url: "http://localhost:8080",
     backend_port: 8080,
@@ -47,22 +77,180 @@ export default function SetupPageClient() {
       user: "postgres",
       password: "",
     },
-    frontend_url: "http://localhost:4000",
+    frontend_url: "http://localhost:3000",
   });
 
+  // ============================================================
+  // LIFECYCLE
+  // ============================================================
+
   useEffect(() => {
-    checkSetupStatus();
+    // Check backend detection on mount
   }, []);
 
-  const checkSetupStatus = async () => {
+  // Auto-compute backend URL when backend port changes (combined container only)
+  useEffect(() => {
+    if (deploymentScenario === "combined" && setupPhase === "configuration") {
+      const computedUrl = computeBackendUrlFromPort(setupData.backend_port);
+
+      handleInputChange("backend_url", computedUrl);
+    }
+  }, [setupData.backend_port, deploymentScenario, setupPhase]);
+
+  // ============================================================
+  // PHASE 1: Backend Detection Functions
+  // ============================================================
+
+  const checkBackendHealth = async (url: string): Promise<boolean> => {
     try {
-      const status = await setupApi.checkStatus();
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+      const response = await fetch(`${url}/api/v1/health`, {
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        const data = await response.json();
+
+        return data.service === "backend";
+      }
+
+      return false;
+    } catch {
+      return false;
+    }
+  };
+
+  const detectBackends = async () => {
+    const detected: string[] = [];
+
+    // Step 1: Check environment variable first (highest priority)
+    if (process.env.NEXT_PUBLIC_API_URL) {
+      const isValid = await checkBackendHealth(process.env.NEXT_PUBLIC_API_URL);
+
+      if (isValid) {
+        detected.push(process.env.NEXT_PUBLIC_API_URL);
+        setBackendsDetected(detected);
+
+        return;
+      }
+    }
+
+    // Step 2: Try Docker service names (for Docker Compose environments)
+    const dockerServices = [
+      "http://justflow-backend:8080",
+      "http://justflow:8080",
+      "http://backend:8080",
+      "http://api:8080",
+    ];
+
+    for (const service of dockerServices) {
+      const isValid = await checkBackendHealth(service);
+
+      if (isValid) {
+        detected.push(service);
+      }
+    }
+
+    // Step 3: Scan localhost on common ports
+    const commonPorts = [8080, 8000, 3000, 5000, 8888, 9000];
+
+    for (const port of commonPorts) {
+      const url = `http://localhost:${port}`;
+      const isValid = await checkBackendHealth(url);
+
+      if (isValid) {
+        detected.push(url);
+      }
+    }
+
+    // Step 4: Try 127.0.0.1 with common ports (alternative localhost)
+    for (const port of commonPorts) {
+      const url = `http://127.0.0.1:${port}`;
+      const isValid = await checkBackendHealth(url);
+
+      if (isValid) {
+        detected.push(url);
+      }
+    }
+
+    // Remove duplicates
+    const uniqueDetected = Array.from(new Set(detected));
+
+    setBackendsDetected(uniqueDetected);
+  };
+
+  const selectBackendAndCheckStatus = async (backendUrl: string) => {
+    setDetectedBackendUrl(backendUrl);
+    setIsCheckingBackendStatus(true);
+    setError("");
+
+    try {
+      // Call the backend's setup status endpoint
+      const response = await fetch(`${backendUrl}/api/v1/setup/status`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        setError("Could not connect to backend to check setup status");
+        setIsCheckingBackendStatus(false);
+
+        return;
+      }
+
+      const status = await response.json();
 
       if (status.is_setup) {
+        // ✅ Everything is already configured!
+        setSetupPhase("complete");
         setSetupComplete(true);
+      } else {
+        // Auto-detect deployment scenario from backend status
+        // If backend config exists but frontend env doesn't: independent backend
+        // If neither exists: combined container
+        if (status.backend_config_exists && !status.frontend_env_exists) {
+          setDeploymentScenario("independent");
+        } else {
+          setDeploymentScenario("combined");
+        }
+
+        // Skip scenario selection, go straight to configuration
+        setSetupPhase("configuration");
+        setCurrentStep(1);
       }
+    } catch (err) {
+      setError(
+        `Error checking backend status: ${
+          err instanceof Error ? err.message : "Unknown error"
+        }`,
+      );
+    } finally {
+      setIsCheckingBackendStatus(false);
+    }
+  };
+
+  // ============================================================
+  // PHASE 2+: Configuration Helpers
+  // ============================================================
+
+  // Auto-compute backend URL from detected hostname and port (combined container only)
+  const computeBackendUrlFromPort = (port: number): string => {
+    try {
+      // Extract hostname from detected backend URL
+      // e.g., "http://justflow-backend:8080" -> "justflow-backend"
+      const url = new URL(detectedBackendUrl);
+      const hostname = url.hostname;
+
+      return `http://${hostname}:${port}`;
     } catch {
-      // Backend might not be running yet, that's okay
+      // Fallback if URL parsing fails
+      return `http://localhost:${port}`;
     }
   };
 
@@ -91,14 +279,33 @@ export default function SetupPageClient() {
     setValidationSuccess(false);
 
     try {
-      const result = await setupApi.validate(setupData);
+      // Use the detected backend URL for validation, not the global API URL
+      const response = await fetch(
+        `${detectedBackendUrl}/api/v1/setup/validate`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(setupData),
+        },
+      );
 
-      if (result.all_valid) {
-        setValidationSuccess(true);
-        setValidationErrors([]);
+      // For validation, both 200 (valid) and 400 (invalid) are expected responses
+      if (response.status === 200 || response.status === 400) {
+        const result = await response.json();
+
+        if (result.all_valid) {
+          setValidationSuccess(true);
+          setValidationErrors([]);
+        } else {
+          setValidationErrors(result.validation_errors);
+          setValidationSuccess(false);
+        }
       } else {
-        setValidationErrors(result.validation_errors);
-        setValidationSuccess(false);
+        throw new Error(
+          `API request failed: ${response.status} ${response.statusText}`,
+        );
       }
     } catch (error: any) {
       setValidationErrors([
@@ -115,356 +322,648 @@ export default function SetupPageClient() {
     setError("");
 
     try {
-      const result = await setupApi.configure(setupData);
+      // Use the detected backend URL for configuration
+      const response = await fetch(
+        `${detectedBackendUrl}/api/v1/setup/configure`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(setupData),
+        },
+      );
 
-      if (result.restart_required) {
+      if (!response.ok) {
+        throw new Error(
+          `API request failed: ${response.status} ${response.statusText}`,
+        );
+      }
+
+      const result = await response.json();
+
+      if (result.restart_required || result.message) {
         setSetupComplete(true);
-        // Wait for backend to restart and then redirect
-        setTimeout(() => {
-          if (typeof window !== "undefined") {
-            // eslint-disable-next-line no-undef
-            window.location.href = "/";
-          }
-        }, 5000); // Increased timeout to allow for restart
-      } else {
-        setSetupComplete(true);
-        // Reload page to pick up new configuration
-        setTimeout(() => {
-          if (typeof window !== "undefined") {
-            // eslint-disable-next-line no-undef
-            window.location.reload();
-          }
-        }, 2000);
       }
     } catch (error: any) {
-      setError("Setup failed: " + (error.message || "Unknown error"));
+      setError(`Setup failed: ${error.message || "Unknown error occurred"}`);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const nextStep = () => {
-    if (currentStep < 3) {
-      setCurrentStep(currentStep + 1);
-    }
+  // ============================================================
+  // RENDER
+  // ============================================================
+
+  // Calculate progress for configuration phase
+  const getTotalSteps = () => {
+    if (deploymentScenario === "combined") return 3;
+    if (deploymentScenario === "independent") return 2;
+
+    return 0;
   };
 
-  const prevStep = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
+  const getProgress = () => {
+    if (setupPhase === "complete") return 100;
+    if (setupPhase === "backend-detection") return 0;
+    const total = getTotalSteps();
+
+    return total > 0 ? ((currentStep - 1) / total) * 100 : 0;
   };
 
-  if (setupComplete) {
+  // Show success screen if setup already complete
+  if (setupComplete && setupPhase === "complete") {
     return (
-      <main className="h-screen flex flex-col items-center justify-center gap-8 px-4">
-        <div className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden rounded-lg bg-background">
-          <Icon
-            className="text-green-500 text-6xl mb-4"
-            icon="hugeicons:checkmark-badge-01"
-          />
-          <p className="z-10 whitespace-pre-wrap text-center text-3xl font-semibold tracking-tighter text-white mb-2">
-            Setup Complete!
-          </p>
-          <p className="z-10 text-center text-lg text-gray-300 mb-4">
-            Your JustFlow application is now configured.
-          </p>
-          <div className="z-10 text-center text-sm text-gray-400 mb-6 max-w-md">
-            <p className="mb-2">
-              The backend is restarting with your new configuration.
-            </p>
-            <p className="mb-2">
-              <strong className="text-yellow-400">Important:</strong> Please
-              restart your frontend development server to load the new .env
-              file:
-            </p>
-            <div className="bg-gray-800 p-3 rounded text-left font-mono text-xs">
-              <p>1. Stop the current frontend server (Ctrl+C)</p>
-              <p>
-                2. Run: <code className="text-blue-300">pnpm run dev</code>
-              </p>
-              <p>
-                3. Visit:{" "}
-                <code className="text-blue-300">http://localhost:4000</code>
-              </p>
+      <main className="min-h-screen flex flex-col items-center justify-center p-4 bg-background relative overflow-hidden">
+        <div className="z-10 w-full max-w-lg text-center space-y-6 animate-in fade-in zoom-in duration-500">
+          <div className="flex justify-center mb-6">
+            <div className="rounded-full bg-success-500/20 p-6 ring-1 ring-success-500/50">
+              <Icon
+                className="text-success-500 text-6xl drop-shadow-lg"
+                icon="hugeicons:checkmark-badge-01"
+              />
             </div>
           </div>
-          <Spacer y={4} />
-          <Button
-            color="primary"
-            endContent={<Icon icon="hugeicons:arrow-right-01" width={20} />}
-            onClick={() => {
-              if (typeof window !== "undefined") {
-                // eslint-disable-next-line no-undef
-                window.location.href = "/";
-              }
-            }}
-          >
-            Continue to Dashboard
-          </Button>
-          <Ripple mainCircleOpacity={0.34} numCircles={13} />
+
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold tracking-tight text-white">
+              Setup Complete!
+            </h1>
+            <p className="text-gray-400 text-lg">
+              Your JustFlow instance is ready to use.
+            </p>
+          </div>
+
+          <Card className="bg-content1/50 backdrop-blur-sm border-success-500/20">
+            <CardBody className="py-4 px-6">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-success-500/10">
+                    <Icon
+                      className="text-success-500 text-xl"
+                      icon="hugeicons:server-01"
+                    />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-xs text-gray-400">
+                      Connected to Backend
+                    </p>
+                    <Code
+                      className="bg-transparent p-0 text-success-400 font-semibold"
+                      size="sm"
+                    >
+                      {detectedBackendUrl}
+                    </Code>
+                  </div>
+                </div>
+                <Button
+                  color="success"
+                  endContent={<Icon icon="hugeicons:arrow-right-01" />}
+                  size="sm"
+                  variant="flat"
+                  onPress={() => router.push("/")}
+                >
+                  Go to Dashboard
+                </Button>
+              </div>
+            </CardBody>
+          </Card>
         </div>
+        <Ripple mainCircleOpacity={0.2} numCircles={8} />
       </main>
     );
   }
 
   return (
-    <main className="h-screen flex flex-col items-center justify-center gap-8 px-4">
-      <div className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden rounded-lg bg-background">
-        <div className="z-10 w-full max-w-md">
-          <p className="text-center text-4xl font-semibold tracking-tighter text-white mb-2">
-            Setup <span className="text-primary font-bold">JustFlow</span>
+    <main className="min-h-screen flex flex-col items-center justify-center p-4 bg-background relative">
+      <div className="z-10 w-full max-w-2xl space-y-8">
+        {/* Header Section */}
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center justify-center p-3 mb-4 rounded-2xl bg-primary/10 ring-1 ring-primary/20">
+            <Icon
+              className="text-3xl text-primary"
+              icon="hugeicons:settings-01"
+            />
+          </div>
+          <h1 className="text-4xl font-bold tracking-tight">
+            Setup Just<span className="text-primary">Flow</span>
+          </h1>
+          <p className="text-gray-400 text-lg max-w-md mx-auto">
+            {setupPhase === "backend-detection"
+              ? "Let's connect your backend service"
+              : "Configure your environment settings"}
           </p>
-          <p className="text-center text-gray-300 mb-8">
-            Configure your application settings
-          </p>
+        </div>
 
-          <Card className="w-full">
-            <CardHeader>
-              <div className="flex justify-between items-center w-full">
-                <h3 className="text-lg font-semibold">
-                  {currentStep === 0 && "Important Information"}
-                  {currentStep === 1 && "Backend Configuration"}
-                  {currentStep === 2 && "Database Configuration"}
-                  {currentStep === 3 && "Frontend Configuration"}
-                </h3>
-                <span className="text-sm text-gray-500">
-                  Step {currentStep + 1} of 4
+        <Card className="w-full border-none shadow-2xl bg-content1/60 backdrop-blur-md">
+          {setupPhase === "configuration" && (
+            <div className="px-6 pt-6 pb-2">
+              <div className="flex justify-between text-sm mb-2 text-gray-400">
+                <span>
+                  Configuration Step {currentStep} of {getTotalSteps()}
                 </span>
+                <span>{Math.round(getProgress())}%</span>
               </div>
-            </CardHeader>
-            <CardBody className="space-y-4">
-              {error && (
-                <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-                  {error}
+              <Progress
+                aria-label="Setup progress"
+                className="max-w-full"
+                color="primary"
+                size="sm"
+                value={getProgress()}
+              />
+            </div>
+          )}
+
+          <CardHeader className="px-8 pt-8 pb-0">
+            <div className="w-full">
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                {setupPhase === "backend-detection" && (
+                  <>
+                    <Icon className="text-primary" icon="hugeicons:search-01" />
+                    Find Backend
+                  </>
+                )}
+                {setupPhase === "configuration" && (
+                  <>
+                    <Icon
+                      className="text-primary"
+                      icon="hugeicons:sliders-horizontal"
+                    />
+                    {deploymentScenario === "combined"
+                      ? currentStep === 1
+                        ? "Backend Settings"
+                        : currentStep === 2
+                          ? "Database Connection"
+                          : "Review & Validate"
+                      : currentStep === 1
+                        ? "Frontend Settings"
+                        : "Review & Validate"}
+                  </>
+                )}
+              </h2>
+              <Divider className="my-4" />
+            </div>
+          </CardHeader>
+
+          <CardBody className="px-8 pb-8 pt-2 space-y-6">
+            {error && (
+              <Alert
+                color="danger"
+                description={error}
+                startContent={<Icon icon="hugeicons:alert-02" width={24} />}
+                title="Error"
+                variant="flat"
+              />
+            )}
+
+            {/* ============================================================ */}
+            {/* PHASE 1: Backend Detection */}
+            {/* ============================================================ */}
+            {setupPhase === "backend-detection" && (
+              <div className="space-y-6">
+                <div className="grid gap-4">
+                  <Button
+                    className="h-auto py-6 px-4 flex flex-col items-center gap-3 border-2 border-dashed border-default-300 hover:border-primary hover:bg-primary/5 transition-all"
+                    isDisabled={isDetectingBackends}
+                    variant="light"
+                    onPress={async () => {
+                      setIsDetectingBackends(true);
+                      await detectBackends();
+                      setIsDetectingBackends(false);
+                    }}
+                  >
+                    <div
+                      className={`p-3 rounded-full ${isDetectingBackends ? "bg-primary/20 animate-pulse" : "bg-primary/10"}`}
+                    >
+                      <Icon
+                        className={`text-2xl text-primary ${isDetectingBackends ? "animate-spin" : ""}`}
+                        icon={
+                          isDetectingBackends
+                            ? "hugeicons:loading-03"
+                            : "hugeicons:ai-scan"
+                        }
+                      />
+                    </div>
+                    <div className="text-center">
+                      <span className="block font-semibold text-lg">
+                        Auto-Detect Backend
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        Scan local environment and Docker containers
+                      </span>
+                    </div>
+                  </Button>
+
+                  {backendsDetected.length > 0 && (
+                    <div className="space-y-3 animate-in fade-in slide-in-from-top-4 duration-300">
+                      <p className="text-sm font-medium text-gray-400 uppercase tracking-wider ml-1">
+                        Detected Services
+                      </p>
+                      {backendsDetected.map((backend) => (
+                        <Button
+                          key={backend}
+                          className="w-full justify-between h-14 px-4 bg-content2 hover:bg-content3 border border-default-200"
+                          isLoading={
+                            isCheckingBackendStatus &&
+                            detectedBackendUrl === backend
+                          }
+                          variant="flat"
+                          onPress={() => selectBackendAndCheckStatus(backend)}
+                        >
+                          <div className="flex items-center gap-3">
+                            <Icon
+                              className="text-success-500 text-xl"
+                              icon="hugeicons:server-01"
+                            />
+                            <div className="flex flex-col items-start">
+                              <span className="font-medium">{backend}</span>
+                              <span className="text-xs text-success-500">
+                                Online & Ready
+                              </span>
+                            </div>
+                          </div>
+                          <Icon
+                            className="text-default-400"
+                            icon="hugeicons:arrow-right-01"
+                          />
+                        </Button>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
 
-              {currentStep === 0 && (
-                <>
-                  <div>
-                    <p className="text-sm">
-                      The Backend started an endpoint on port{" "}
-                      <span className="text-primary font-bold">8080</span>. This
-                      is the default backend port used during setup and{" "}
-                      <span className="text-primary font-bold">
-                        has to be accessible from the frontend
-                      </span>
-                      . During the setup you can change the backend port.
-                    </p>
-                    <Divider className="my-4" />
-                    <p className="mb-2">Docker Environments:</p>
-                    <p className="text-sm">
-                      Please make sure that you are using{" "}
-                      <span className="text-primary font-bold">volumes</span>{" "}
-                      for your Docker containers.{" "}
-                      <span className="text-primary font-bold">
-                        Otherwise the configuration may not persist across
-                        container restarts
-                      </span>
-                      .
-                    </p>
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-default-200" />
                   </div>
-                </>
-              )}
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-gray-500">
+                      Or connect manually
+                    </span>
+                  </div>
+                </div>
 
-              {currentStep === 1 && (
-                <>
-                  <Input
-                    description="Port on which the backend server will start. Keep the default value if JustFlow is running inside Docker."
-                    label="Backend Port"
-                    placeholder="8080"
-                    type="number"
-                    value={setupData.backend_port.toString()}
-                    onChange={(e) =>
-                      handleInputChange(
-                        "backend_port",
-                        Number.parseInt(e.target.value) || 8080,
-                      )
-                    }
-                  />
-                </>
-              )}
+                <Input
+                  endContent={
+                    <Button
+                      isIconOnly
+                      color="primary"
+                      isLoading={isCheckingBackendStatus}
+                      size="sm"
+                      variant="flat"
+                      onPress={() =>
+                        customBackendUrl &&
+                        selectBackendAndCheckStatus(customBackendUrl)
+                      }
+                    >
+                      <Icon icon="hugeicons:arrow-right-01" />
+                    </Button>
+                  }
+                  label="Backend URL"
+                  placeholder="http://localhost:8080"
+                  startContent={
+                    <Icon
+                      className="text-default-400"
+                      icon="hugeicons:link-01"
+                    />
+                  }
+                  value={customBackendUrl}
+                  onChange={(e) => setCustomBackendUrl(e.target.value)}
+                />
+              </div>
+            )}
 
-              {currentStep === 2 && (
-                <>
-                  <Input
-                    label="Database Server"
-                    placeholder="localhost"
-                    value={setupData.database.server}
-                    onChange={(e) =>
-                      handleInputChange("database.server", e.target.value)
-                    }
-                  />
-                  <Input
-                    label="Database Port"
-                    placeholder="5432"
-                    type="number"
-                    value={setupData.database.port.toString()}
-                    onChange={(e) =>
-                      handleInputChange(
-                        "database.port",
-                        Number.parseInt(e.target.value) || 5432,
-                      )
-                    }
-                  />
-                  <Input
-                    label="Database Name"
-                    placeholder="justflow"
-                    value={setupData.database.name}
-                    onChange={(e) =>
-                      handleInputChange("database.name", e.target.value)
-                    }
-                  />
-                  <Input
-                    label="Database User"
-                    placeholder="postgres"
-                    value={setupData.database.user}
-                    onChange={(e) =>
-                      handleInputChange("database.user", e.target.value)
-                    }
-                  />
-                  <Input
-                    label="Database Password"
-                    placeholder="Enter database password"
-                    type="password"
-                    value={setupData.database.password}
-                    onChange={(e) =>
-                      handleInputChange("database.password", e.target.value)
-                    }
-                  />
-                </>
-              )}
+            {/* ============================================================ */}
+            {/* PHASE 2: Configuration Steps */}
+            {/* ============================================================ */}
+            {setupPhase === "configuration" && deploymentScenario && (
+              <div className="space-y-6 animate-in fade-in slide-in-from-right-8 duration-300">
+                {/* Step 1: Backend Port (Combined) OR Frontend URL (Independent) */}
+                {currentStep === 1 && deploymentScenario === "combined" && (
+                  <div className="space-y-6">
+                    <Alert
+                      color="primary"
+                      description="We've automatically detected your backend configuration."
+                      title="Backend Detected"
+                      variant="flat"
+                    />
 
-              {currentStep === 3 && (
-                <>
-                  <Input
-                    description="URL used by the frontend to reach the backend. Keep the default value if JustFlow is running inside Docker."
-                    label="Backend URL"
-                    placeholder="http://localhost:8080"
-                    value={setupData.backend_url}
-                    onChange={(e) =>
-                      handleInputChange("backend_url", e.target.value)
-                    }
-                  />
-                  <div className="pt-4">
-                    <p className="text-sm text-gray-600 mb-2">
-                      Review your configuration:
+                    <div className="grid gap-6 md:grid-cols-2">
+                      <div className="space-y-2 h-full">
+                        <p className="text-sm font-medium text-gray-400">
+                          Detected Port
+                        </p>
+                        <div className="flex items-center gap-3 p-4 rounded-xl bg-content2 border border-default-200 h-[80px]">
+                          <Icon
+                            className="text-warning-500 text-xl"
+                            icon="hugeicons:usb"
+                          />
+                          <div>
+                            <p className="text-lg font-bold">
+                              {setupData.backend_port}
+                            </p>
+                            <p className="text-xs text-gray-500">Read-only</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium text-gray-400">
+                          Computed URL
+                        </p>
+                        <div className="flex items-center gap-3 p-4 rounded-xl bg-content2 border border-default-200 h-[80px]">
+                          <Icon
+                            className="text-primary-500 text-xl"
+                            icon="hugeicons:link-01"
+                          />
+                          <div className="overflow-hidden">
+                            <p className="text-sm font-mono truncate">
+                              {computeBackendUrlFromPort(
+                                setupData.backend_port,
+                              )}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              Auto-generated
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {currentStep === 1 && deploymentScenario === "independent" && (
+                  <div className="space-y-4">
+                    <p className="text-sm text-gray-500">
+                      Since you&apos;re running the frontend independently, we
+                      need to know where it&apos;s hosted to configure CORS
+                      properly.
                     </p>
-                    <ul className="text-xs text-gray-500 space-y-1">
-                      <li>Backend Port: {setupData.backend_port}</li>
-                      <li>
-                        Database: {setupData.database.user}@
-                        {setupData.database.server}:{setupData.database.port}/
-                        {setupData.database.name}
-                      </li>
-                      <li>Frontend URL: {setupData.frontend_url}</li>
-                      <li>Frontend URL to Backend: {setupData.backend_url}</li>
-                    </ul>
+                    <Input
+                      description="The URL where you access this application"
+                      label="Frontend URL"
+                      labelPlacement="outside"
+                      placeholder="http://localhost:3000"
+                      startContent={
+                        <Icon
+                          className="text-default-400"
+                          icon="hugeicons:globe-02"
+                        />
+                      }
+                      value={setupData.frontend_url}
+                      variant="bordered"
+                      onChange={(e) =>
+                        handleInputChange("frontend_url", e.target.value)
+                      }
+                    />
+                  </div>
+                )}
 
-                    <div className="mt-4">
+                {/* Step 2: Database Configuration (Combined only) */}
+                {currentStep === 2 && deploymentScenario === "combined" && (
+                  <div className="space-y-4 flex flex-col">
+                    <div className="grid grid-cols-2 gap-4">
+                      <Input
+                        label="Server Host"
+                        labelPlacement="outside"
+                        placeholder="localhost"
+                        value={setupData.database.server}
+                        variant="bordered"
+                        onChange={(e) =>
+                          handleInputChange("database.server", e.target.value)
+                        }
+                      />
+                      <Input
+                        label="Port"
+                        labelPlacement="outside"
+                        placeholder="5432"
+                        type="number"
+                        value={setupData.database.port.toString()}
+                        variant="bordered"
+                        onChange={(e) =>
+                          handleInputChange(
+                            "database.port",
+                            Number.parseInt(e.target.value) || 5432,
+                          )
+                        }
+                      />
+                    </div>
+                    <Input
+                      label="Database Name"
+                      labelPlacement="outside"
+                      placeholder="justflow"
+                      startContent={
+                        <Icon
+                          className="text-default-400"
+                          icon="hugeicons:database-01"
+                        />
+                      }
+                      value={setupData.database.name}
+                      variant="bordered"
+                      onChange={(e) =>
+                        handleInputChange("database.name", e.target.value)
+                      }
+                    />
+                    <div className="grid grid-cols-2 gap-4">
+                      <Input
+                        label="Username"
+                        labelPlacement="outside"
+                        placeholder="postgres"
+                        startContent={
+                          <Icon
+                            className="text-default-400"
+                            icon="hugeicons:user"
+                          />
+                        }
+                        value={setupData.database.user}
+                        variant="bordered"
+                        onChange={(e) =>
+                          handleInputChange("database.user", e.target.value)
+                        }
+                      />
+                      <Input
+                        label="Password"
+                        labelPlacement="outside"
+                        placeholder="••••••••"
+                        startContent={
+                          <Icon
+                            className="text-default-400"
+                            icon="hugeicons:lock-key"
+                          />
+                        }
+                        type="password"
+                        value={setupData.database.password}
+                        variant="bordered"
+                        onChange={(e) =>
+                          handleInputChange("database.password", e.target.value)
+                        }
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Final Step: Validation */}
+                {((deploymentScenario === "combined" && currentStep === 3) ||
+                  (deploymentScenario === "independent" &&
+                    currentStep === 2)) && (
+                  <div className="space-y-6">
+                    <div className="bg-content2 rounded-xl p-4 space-y-3 border border-default-200">
+                      <h3 className="font-semibold flex items-center gap-2">
+                        <Icon
+                          className="text-primary"
+                          icon="hugeicons:file-validation"
+                        />
+                        Configuration Summary
+                      </h3>
+                      <Divider />
+                      <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                        <dt className="text-gray-500">Backend URL</dt>
+                        <dd className="font-mono text-right truncate">
+                          {setupData.backend_url}
+                        </dd>
+
+                        {deploymentScenario === "combined" && (
+                          <>
+                            <dt className="text-gray-500">Database Host</dt>
+                            <dd className="font-mono text-right">
+                              {setupData.database.server}:
+                              {setupData.database.port}
+                            </dd>
+                            <dt className="text-gray-500">Database Name</dt>
+                            <dd className="font-mono text-right">
+                              {setupData.database.name}
+                            </dd>
+                          </>
+                        )}
+
+                        {deploymentScenario === "independent" && (
+                          <>
+                            <dt className="text-gray-500">Frontend URL</dt>
+                            <dd className="font-mono text-right">
+                              {setupData.frontend_url}
+                            </dd>
+                          </>
+                        )}
+                      </dl>
+                    </div>
+
+                    <div className="space-y-3">
                       <Button
-                        className="w-full mb-3"
+                        className="w-full font-medium"
                         color={validationSuccess ? "success" : "primary"}
                         isLoading={validationLoading}
                         startContent={
-                          !validationLoading ? (
+                          !validationLoading && (
                             <Icon
                               icon={
                                 validationSuccess
                                   ? "hugeicons:checkmark-badge-01"
-                                  : "hugeicons:knight-shield"
+                                  : "hugeicons:play"
                               }
-                              width={16}
                             />
-                          ) : null
+                          )
                         }
+                        variant={validationSuccess ? "flat" : "solid"}
                         onPress={validateSetupData}
                       >
-                        {validationLoading
-                          ? "Testing..."
-                          : validationSuccess
-                            ? "Configuration Valid"
-                            : "Test Configuration"}
+                        {validationSuccess
+                          ? "Configuration Validated"
+                          : "Test Configuration"}
                       </Button>
 
                       {validationErrors.length > 0 && (
-                        <div className="p-3 bg-danger-50 border border-danger-200 rounded-lg">
-                          <h4 className="text-sm font-medium text-danger-800 mb-2">
-                            Configuration Issues:
-                          </h4>
-                          <ul className="text-xs text-danger-700 space-y-1">
-                            {validationErrors.map((error, index) => (
-                              <li key={index}>• {error}</li>
+                        <Alert
+                          color="danger"
+                          title="Validation Failed"
+                          variant="flat"
+                        >
+                          <ul className="list-disc list-inside text-xs space-y-1 mt-1">
+                            {validationErrors.map((err, i) => (
+                              <li key={i}>{err}</li>
                             ))}
                           </ul>
-                        </div>
+                        </Alert>
                       )}
 
-                      {validationSuccess && validationErrors.length === 0 && (
-                        <div className="p-3 bg-success-50 border border-success-200 rounded-lg">
-                          <div className="flex items-center">
+                      {validationSuccess && (
+                        <Alert
+                          color="success"
+                          description="All checks passed. You can now complete the setup."
+                          startContent={
                             <Icon
-                              className="text-success-600 mr-2"
-                              icon="hugeicons:checkmark-badge-01"
-                              width={16}
+                              className="text-success text-xl"
+                              icon="hugeicons:checkmark-circle-02"
                             />
-                            <p className="text-sm text-success-800">
-                              All configuration settings are valid!
-                            </p>
-                          </div>
-                        </div>
+                          }
+                          title="Ready to Deploy"
+                          variant="flat"
+                        />
                       )}
                     </div>
                   </div>
-                </>
-              )}
-
-              <div className="flex justify-between pt-4">
-                <Button
-                  isDisabled={currentStep === 0}
-                  startContent={
-                    <Icon icon="hugeicons:arrow-left-01" width={16} />
-                  }
-                  variant="ghost"
-                  onPress={prevStep}
-                >
-                  Previous
-                </Button>
-
-                {currentStep < 3 ? (
-                  <Button
-                    color="primary"
-                    endContent={
-                      <Icon icon="hugeicons:arrow-right-01" width={16} />
-                    }
-                    onPress={nextStep}
-                  >
-                    Next
-                  </Button>
-                ) : (
-                  <Button
-                    color="success"
-                    endContent={
-                      !isLoading ? (
-                        <Icon icon="hugeicons:tick-01" width={16} />
-                      ) : null
-                    }
-                    isDisabled={
-                      !validationSuccess || validationErrors.length > 0
-                    }
-                    isLoading={isLoading}
-                    onPress={handleSubmit}
-                  >
-                    {isLoading ? "Setting up..." : "Complete Setup"}
-                  </Button>
                 )}
+
+                {/* Navigation Buttons */}
+                <div className="flex items-center justify-between pt-4 mt-4 border-t border-default-100">
+                  {currentStep === 1 ? (
+                    <Button
+                      color="danger"
+                      startContent={<Icon icon="hugeicons:arrow-left-01" />}
+                      variant="light"
+                      onPress={() => {
+                        setSetupPhase("backend-detection");
+                        setDeploymentScenario(null);
+                        setError("");
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  ) : (
+                    <Button
+                      startContent={<Icon icon="hugeicons:arrow-left-01" />}
+                      variant="light"
+                      onPress={() => setCurrentStep(currentStep - 1)}
+                    >
+                      Back
+                    </Button>
+                  )}
+
+                  {/* Next / Complete Buttons */}
+                  {(deploymentScenario === "combined" && currentStep < 3) ||
+                  (deploymentScenario === "independent" && currentStep < 2) ? (
+                    <Button
+                      color="primary"
+                      endContent={<Icon icon="hugeicons:arrow-right-01" />}
+                      onPress={() => setCurrentStep(currentStep + 1)}
+                    >
+                      Next Step
+                    </Button>
+                  ) : (
+                    <Button
+                      className="font-bold shadow-lg shadow-success/20"
+                      color="success"
+                      endContent={<Icon icon="hugeicons:rocket" />}
+                      isDisabled={
+                        !validationSuccess || validationErrors.length > 0
+                      }
+                      isLoading={isLoading}
+                      onPress={handleSubmit}
+                    >
+                      Complete Setup
+                    </Button>
+                  )}
+                </div>
               </div>
-            </CardBody>
-          </Card>
+            )}
+          </CardBody>
+        </Card>
+
+        <div className="text-center text-xs text-gray-500">
+          <p>JustFlow Setup Wizard v3.0</p>
         </div>
-        <Ripple mainCircleOpacity={0.34} numCircles={13} />
       </div>
+      <Ripple mainCircleOpacity={0.15} numCircles={8} />
     </main>
   );
 }
