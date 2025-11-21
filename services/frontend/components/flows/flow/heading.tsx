@@ -1,7 +1,8 @@
 "use client";
 
-import { addToast, Button, Divider, useDisclosure } from "@heroui/react";
+import { addToast, Button, useDisclosure } from "@heroui/react";
 import { Icon } from "@iconify/react";
+import { motion } from "framer-motion";
 
 import ScheduleExecutionModal from "@/components/modals/executions/schedule";
 import EditFlowModal from "@/components/modals/flows/edit";
@@ -50,132 +51,99 @@ export default function FlowHeading({
   };
 
   return (
-    <main>
-      <div className="flex flex-cols items-center justify-between gap-2">
-        <div>
-          <p className="text-2xl font-bold">{flow.name}</p>
-          <p className="text-sm text-default-500">{flow.description}</p>
+    <motion.div
+      animate={{ opacity: 1, y: 0 }}
+      className="w-full flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
+      initial={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="flex items-center gap-4">
+        <div
+          className="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center shadow-sm transition-transform group-hover:scale-110"
+          style={{
+            background: `linear-gradient(135deg, ${project?.color || "#000"}20 0%, ${project?.color || "#000"}40 100%)`,
+            color: project?.color || "#000",
+            border: `1px solid ${project?.color || "#000"}40`,
+          }}
+        >
+          <Icon className="text-2xl" icon="hugeicons:workflow-square-01" />
         </div>
-        <div className="flex items-center gap-4">
-          <div className="hidden sm:flex items-center gap-2">
-            {flow.type === "alert" ? (
-              <Button
-                color="secondary"
-                isDisabled={
-                  (flow.disabled || !settings.start_executions) &&
-                  user.role !== "admin"
-                }
-                startContent={<Icon icon="hugeicons:alert-02" width={20} />}
-                variant="flat"
-                onPress={() => {
-                  simulateAlertModal.onOpen();
-                }}
-              >
-                Simulate Alert
-              </Button>
-            ) : (
-              <>
-                <Button
-                  isDisabled={
-                    (flow.disabled || !settings.start_executions) &&
-                    user.role !== "admin"
-                  }
-                  startContent={
-                    <Icon icon="hugeicons:time-schedule" width={20} />
-                  }
-                  variant="flat"
-                  onPress={() => {
-                    scheduleExecutionModal.onOpen();
-                  }}
-                >
-                  Schedule
-                </Button>
-                <Button
-                  color="primary"
-                  isDisabled={
-                    (flow.disabled || !settings.start_executions) &&
-                    user.role !== "admin"
-                  }
-                  startContent={<Icon icon="hugeicons:play" width={20} />}
-                  variant="solid"
-                  onPress={handleExecuteFlow}
-                >
-                  Execute
-                </Button>
-              </>
-            )}
-            <Divider className="h-10 mr-1 ml-1" orientation="vertical" />
-            <Button
-              isIconOnly
-              color="warning"
-              isDisabled={
-                (!canEditProject(user.id, project.members) || flow.disabled) &&
-                user.role !== "admin"
-              }
-              startContent={<Icon icon="hugeicons:pencil-edit-02" width={20} />}
-              variant="flat"
-              onPress={() => {
-                editFlowModal.onOpen();
-              }}
-            />
-          </div>
-
-          {/* Mobile */}
-          <div className="flex sm:hidden items-center gap-2">
-            {flow.type === "alert" ? (
-              <Button
-                isIconOnly
-                color="secondary"
-                startContent={<Icon icon="hugeicons:alert-02" width={18} />}
-                variant="flat"
-                onPress={() => {
-                  scheduleExecutionModal.onOpen();
-                }}
-              />
-            ) : (
-              <>
-                <Button
-                  isIconOnly
-                  startContent={
-                    <Icon icon="hugeicons:time-schedule" width={18} />
-                  }
-                  variant="flat"
-                  onPress={() => {
-                    scheduleExecutionModal.onOpen();
-                  }}
-                />
-                <Button
-                  isIconOnly
-                  color="primary"
-                  startContent={<Icon icon="solar:play-linear" width={18} />}
-                  variant="solid"
-                  onPress={handleExecuteFlow}
-                />
-                <Divider className="h-10 mr-1 ml-1" orientation="vertical" />
-                <Button
-                  isIconOnly
-                  color="warning"
-                  startContent={
-                    <Icon icon="hugeicons:pencil-edit-02" width={18} />
-                  }
-                  variant="flat"
-                  onPress={() => {
-                    editFlowModal.onOpen();
-                  }}
-                />
-              </>
-            )}
-          </div>
+        <div>
+          <h1 className="text-2xl font-bold leading-tight">{flow.name}</h1>
+          <p className="text-small text-default-500">{flow.description}</p>
         </div>
       </div>
-      <ScheduleExecutionModal disclosure={scheduleExecutionModal} flow={flow} />
-      <SimulateAlertModal disclosure={simulateAlertModal} flow={flow} />
+      <div className="flex items-center gap-2 md:ml-auto">
+        {flow.type === "alert" ? (
+          <Button
+            color="secondary"
+            isDisabled={
+              (flow.disabled || !settings.start_executions) &&
+              user.role !== "admin"
+            }
+            startContent={<Icon icon="hugeicons:alert-02" width={20} />}
+            variant="flat"
+            onPress={() => {
+              simulateAlertModal.onOpen();
+            }}
+          >
+            Simulate Alert
+          </Button>
+        ) : (
+          <>
+            <Button
+              isDisabled={
+                (flow.disabled || !settings.start_executions) &&
+                user.role !== "admin"
+              }
+              startContent={<Icon icon="hugeicons:time-schedule" width={20} />}
+              variant="flat"
+              onPress={() => {
+                scheduleExecutionModal.onOpen();
+              }}
+            >
+              Schedule
+            </Button>
+            <Button
+              color="primary"
+              isDisabled={
+                (flow.disabled || !settings.start_executions) &&
+                user.role !== "admin"
+              }
+              startContent={<Icon icon="hugeicons:play" width={20} />}
+              variant="solid"
+              onPress={handleExecuteFlow}
+            >
+              Run Flow
+            </Button>
+          </>
+        )}
+        <Button
+          isIconOnly
+          isDisabled={
+            (!canEditProject(user.id, project.members) || flow.disabled) &&
+            user.role !== "admin"
+          }
+          variant="light"
+          onPress={() => {
+            editFlowModal.onOpen();
+          }}
+        >
+          <Icon icon="hugeicons:pencil-edit-02" width={20} />
+        </Button>
+      </div>
+
       <EditFlowModal
         disclosure={editFlowModal}
         folders={folders}
         projects={projects}
         targetFlow={flow}
       />
-    </main>
+      <ScheduleExecutionModal
+        disclosure={scheduleExecutionModal}
+        flow={flow}
+      />
+      <SimulateAlertModal disclosure={simulateAlertModal} flow={flow} />
+    </motion.div>
   );
 }
