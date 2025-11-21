@@ -16,6 +16,7 @@ import {
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { motion } from "framer-motion";
 
 import { ShineBorder } from "../magicui/shine-border";
 
@@ -138,7 +139,13 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
   }
 
   return (
-    <main>
+    <motion.main
+      animate="visible"
+      initial="hidden"
+      variants={{
+        visible: { transition: { staggerChildren: 0.1 } },
+      }}
+    >
       {projects.length === 0 && (
         <>
           <div className="flex items-center justify-center">
@@ -151,123 +158,159 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
       )}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {projects.map((project: any) => (
-          <Card
+          <motion.div
             key={project.id}
-            isHoverable
-            className="w-full bg-content1/60 backdrop-blur-md shadow-lg border border-default-100"
-            isDisabled={project.disabled}
-            isPressable={!project.disabled}
-            onPress={() => {
-              router.push(`/projects/${project.id}`);
+            variants={{
+              hidden: { y: 20, opacity: 0 },
+              visible: { y: 0, opacity: 1 },
             }}
           >
-            <CardBody className="p-4">
-              <div className="flex items-start justify-between">
-                <div className="flex gap-4">
-                  <div
-                    className="shrink-0 w-12 h-12 rounded-lg flex items-center justify-center"
-                    style={{
-                      backgroundImage: `linear-gradient(45deg, ${project.color} 0%, ${project.color} 100%)`,
-                    }}
-                  >
-                    <Icon className="text-2xl" icon={project.icon} />
+            <Card
+              isPressable
+              className="w-full h-full bg-content1/60 backdrop-blur-md shadow-sm border border-default-100 hover:scale-[1.02] hover:bg-content1/80 transition-all duration-300 group"
+              isDisabled={project.disabled}
+              onPress={() => {
+                router.push(`/projects/${project.id}`);
+              }}
+            >
+              <CardBody className="p-5">
+                <div className="flex flex-col h-full justify-between gap-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div
+                      className="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center shadow-sm transition-transform group-hover:scale-110"
+                      style={{
+                        background: `linear-gradient(135deg, ${project.color}20 0%, ${project.color}40 100%)`,
+                        color: project.color,
+                        border: `1px solid ${project.color}40`,
+                      }}
+                    >
+                      <Icon className="text-2xl" icon={project.icon} />
+                    </div>
+                    <Dropdown
+                      isDisabled={project.disabled}
+                      placement="bottom-end"
+                    >
+                      <DropdownTrigger>
+                        <Button
+                          isIconOnly
+                          className="opacity-0 group-hover:opacity-100 transition-opacity"
+                          size="sm"
+                          variant="light"
+                        >
+                          <Icon
+                            className="text-lg"
+                            icon="hugeicons:more-vertical-circle-01"
+                            width={20}
+                          />
+                        </Button>
+                      </DropdownTrigger>
+                      <DropdownMenu aria-label="Project actions" variant="flat">
+                        <DropdownItem
+                          key="copy"
+                          showDivider
+                          startContent={
+                            <Icon icon="hugeicons:copy-01" width={18} />
+                          }
+                          onPress={() => copyProjectIDtoClipboard(project.id)}
+                        >
+                          Copy ID
+                        </DropdownItem>
+                        <DropdownItem
+                          key="edit"
+                          color="warning"
+                          isDisabled={
+                            (!canEditProject(user.id, project.members) ||
+                              project.disabled) &&
+                            user.role !== "admin"
+                          }
+                          startContent={
+                            <Icon icon="hugeicons:pencil-edit-02" width={18} />
+                          }
+                          onPress={() => {
+                            setTargetProject(project);
+                            editProjectModal.onOpen();
+                          }}
+                        >
+                          Edit
+                        </DropdownItem>
+                        <DropdownItem
+                          key="delete"
+                          className="text-danger"
+                          color="danger"
+                          isDisabled={
+                            (!canEditProject(user.id, project.members) ||
+                              project.disabled) &&
+                            user.role !== "admin"
+                          }
+                          startContent={
+                            <Icon icon="hugeicons:delete-02" width={18} />
+                          }
+                          onPress={() => {
+                            setTargetProject(project);
+                            deleteProjectModal.onOpen();
+                          }}
+                        >
+                          Delete
+                        </DropdownItem>
+                      </DropdownMenu>
+                    </Dropdown>
                   </div>
-                  <div className="grow">
-                    <h3 className="font-semibold text-lg">{project.name}</h3>
-                    <p className="text-default-500 text-sm line-clamp-2">
+
+                  <div>
+                    <h3 className="font-bold text-lg text-default-900 mb-1 group-hover:text-primary transition-colors">
+                      {project.name}
+                    </h3>
+                    <p className="text-default-500 text-sm line-clamp-2 leading-relaxed">
                       {project.description}
                     </p>
                   </div>
+
+                  <div className="pt-4 border-t border-default-100 flex items-center justify-between">
+                    <Chip
+                      className="border-none pl-0"
+                      color={project.disabled ? "danger" : "success"}
+                      size="sm"
+                      variant="dot"
+                    >
+                      {project.disabled ? "Disabled" : "Active"}
+                    </Chip>
+                    <div className="flex items-center gap-3 text-tiny text-default-400">
+                      <div className="flex items-center gap-1">
+                        <Icon icon="hugeicons:user-group" width={14} />
+                        <span>{project.members.length}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Icon icon="hugeicons:calendar-03" width={14} />
+                        <span>
+                          {new Date(project.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Chip
-                    color={project.disabled ? "danger" : "success"}
-                    radius="sm"
-                    size="sm"
-                    variant="flat"
-                  >
-                    {project.disabled ? "Disabled" : "Enabled"}
-                  </Chip>
-                  <Dropdown
-                    isDisabled={project.disabled}
-                    placement="bottom-end"
-                  >
-                    <DropdownTrigger>
-                      <Button isIconOnly size="sm" variant="light">
-                        <Icon
-                          className="text-lg"
-                          icon="hugeicons:more-vertical-circle-01"
-                          width={16}
-                        />
-                      </Button>
-                    </DropdownTrigger>
-                    <DropdownMenu aria-label="Project actions" variant="flat">
-                      <DropdownItem
-                        key="copy"
-                        showDivider
-                        startContent={
-                          <Icon icon="hugeicons:copy-01" width={18} />
-                        }
-                        onPress={() => copyProjectIDtoClipboard(project.id)}
-                      >
-                        Copy ID
-                      </DropdownItem>
-                      <DropdownItem
-                        key="edit"
-                        color="warning"
-                        isDisabled={
-                          (!canEditProject(user.id, project.members) ||
-                            project.disabled) &&
-                          user.role !== "admin"
-                        }
-                        startContent={
-                          <Icon icon="hugeicons:pencil-edit-02" width={18} />
-                        }
-                        onPress={() => {
-                          setTargetProject(project);
-                          editProjectModal.onOpen();
-                        }}
-                      >
-                        Edit
-                      </DropdownItem>
-                      <DropdownItem
-                        key="delete"
-                        className="text-danger"
-                        color="danger"
-                        isDisabled={
-                          (!canEditProject(user.id, project.members) ||
-                            project.disabled) &&
-                          user.role !== "admin"
-                        }
-                        startContent={
-                          <Icon icon="hugeicons:delete-02" width={18} />
-                        }
-                        onPress={() => {
-                          setTargetProject(project);
-                          deleteProjectModal.onOpen();
-                        }}
-                      >
-                        Delete
-                      </DropdownItem>
-                    </DropdownMenu>
-                  </Dropdown>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
+              </CardBody>
+            </Card>
+          </motion.div>
         ))}
       </div>
       {pending_projects.length > 0 && (
-        <>
-          <Spacer y={4} />
-          <div className="flex items-center gap-2">
-            <div className="h-px flex-1 bg-default-200" />
-            <p className="text-xl font-bold">
-              Pending <span className="text-primary">Invitations</span>
-            </p>
-            <div className="h-px flex-1 bg-default-200" />
+        <motion.div
+          variants={{
+            hidden: { y: 20, opacity: 0 },
+            visible: { y: 0, opacity: 1 },
+          }}
+        >
+          <Spacer y={8} />
+          <div className="flex items-center gap-4 mb-6">
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-default-200 to-transparent" />
+            <div className="flex items-center gap-2 text-default-500">
+              <Icon icon="hugeicons:mail-02" width={20} />
+              <p className="text-sm font-medium uppercase tracking-wider">
+                Pending Invitations
+              </p>
+            </div>
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-default-200 to-transparent" />
           </div>
-          <Spacer y={2} />
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {pending_projects.map((project: any) => (
               <Card
@@ -276,86 +319,92 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
               >
                 <ShineBorder shineColor={["#A07CFE", "#FE8FB5", "#FFBE7B"]} />
                 <CardBody className="p-5">
-                  <div className="flex flex-wrap gap-4 items-center justify-between">
-                    <div className="flex gap-4">
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-start gap-4">
                       <div
-                        className="shrink-0 w-12 h-12 rounded-md flex items-center justify-center"
+                        className="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center"
                         style={{
-                          backgroundImage: `linear-gradient(45deg, ${project.color} 0%, ${project.color} 100%)`,
+                          background: `linear-gradient(135deg, ${project.color}20 0%, ${project.color}40 100%)`,
+                          color: project.color,
+                          border: `1px solid ${project.color}40`,
                         }}
                       >
                         <Icon className="text-2xl" icon={project.icon} />
                       </div>
                       <div className="grow">
-                        <h3 className="font-semibold text-lg">
-                          {project.name}
-                        </h3>
+                        <h3 className="font-bold text-lg">{project.name}</h3>
                         <p className="text-default-500 text-sm line-clamp-2">
                           {project.description}
                         </p>
                       </div>
                     </div>
-                    <ButtonGroup variant="flat">
-                      <Button
-                        onPress={() => {
-                          if (selectedOption === "accept") {
-                            acceptProjectInvite(project.id);
-                          } else if (selectedOption === "decline") {
-                            declineProjectInvite(project.id);
+                    <div className="flex items-center justify-between gap-2 pt-2">
+                      <ButtonGroup className="w-full" variant="flat">
+                        <Button
+                          className="w-full font-medium"
+                          color={
+                            selectedOption === "accept" ? "success" : "danger"
                           }
+                          onPress={() => {
+                            if (selectedOption === "accept") {
+                              acceptProjectInvite(project.id);
+                            } else if (selectedOption === "decline") {
+                              declineProjectInvite(project.id);
+                            }
 
-                          refreshProjects(); // Refresh SWR cache instead of router
-                        }}
-                      >
-                        {labelsMap[selectedOption]}
-                      </Button>
-                      <Dropdown placement="bottom-end">
-                        <DropdownTrigger>
-                          <Button isIconOnly>
-                            <Icon icon="hugeicons:arrow-down-01" />
-                          </Button>
-                        </DropdownTrigger>
-                        <DropdownMenu
-                          disallowEmptySelection
-                          aria-label="Merge options"
-                          className="max-w-[300px]"
-                          selectedKeys={[selectedOption]}
-                          selectionMode="single"
-                          variant="flat"
-                          onSelectionChange={inviteSelectionChange}
+                            refreshProjects();
+                          }}
                         >
-                          <DropdownItem
-                            key="accept"
-                            color="success"
-                            description={descriptionsMap["accept"]}
-                            startContent={
-                              <Icon
-                                icon="hugeicons:tick-double-01"
-                                width={24}
-                              />
-                            }
+                          {labelsMap[selectedOption]}
+                        </Button>
+                        <Dropdown placement="bottom-end">
+                          <DropdownTrigger>
+                            <Button isIconOnly>
+                              <Icon icon="hugeicons:arrow-down-01" />
+                            </Button>
+                          </DropdownTrigger>
+                          <DropdownMenu
+                            disallowEmptySelection
+                            aria-label="Merge options"
+                            className="max-w-[300px]"
+                            selectedKeys={[selectedOption]}
+                            selectionMode="single"
+                            variant="flat"
+                            onSelectionChange={inviteSelectionChange}
                           >
-                            {labelsMap["accept"]}
-                          </DropdownItem>
-                          <DropdownItem
-                            key="decline"
-                            color="danger"
-                            description={descriptionsMap["decline"]}
-                            startContent={
-                              <Icon icon="hugeicons:cancel-01" width={24} />
-                            }
-                          >
-                            {labelsMap["decline"]}
-                          </DropdownItem>
-                        </DropdownMenu>
-                      </Dropdown>
-                    </ButtonGroup>
+                            <DropdownItem
+                              key="accept"
+                              color="success"
+                              description={descriptionsMap["accept"]}
+                              startContent={
+                                <Icon
+                                  icon="hugeicons:tick-double-01"
+                                  width={24}
+                                />
+                              }
+                            >
+                              {labelsMap["accept"]}
+                            </DropdownItem>
+                            <DropdownItem
+                              key="decline"
+                              color="danger"
+                              description={descriptionsMap["decline"]}
+                              startContent={
+                                <Icon icon="hugeicons:cancel-01" width={24} />
+                              }
+                            >
+                              {labelsMap["decline"]}
+                            </DropdownItem>
+                          </DropdownMenu>
+                        </Dropdown>
+                      </ButtonGroup>
+                    </div>
                   </div>
                 </CardBody>
               </Card>
             ))}
           </div>
-        </>
+        </motion.div>
       )}
       <CreateProjectModal disclosure={newProjectModal} />
       <EditProjectModal disclosure={editProjectModal} project={targetProject} />
@@ -363,6 +412,6 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
         disclosure={deleteProjectModal}
         project={targetProject}
       />
-    </main>
+    </motion.main>
   );
 }

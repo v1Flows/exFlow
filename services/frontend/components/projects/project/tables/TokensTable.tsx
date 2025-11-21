@@ -15,6 +15,7 @@ import {
   useDisclosure,
 } from "@heroui/react";
 import React from "react";
+import { motion } from "framer-motion";
 
 import CreateProjectTokenModal from "@/components/modals/projects/createToken";
 import DeleteProjectTokenModal from "@/components/modals/projects/deleteToken";
@@ -25,7 +26,6 @@ import canEditProject from "@/lib/functions/canEditProject";
 export default function ProjectTokens({
   tokens,
   project,
-  settings,
   user,
 }: any) {
   const [targetToken, setTargetToken] = React.useState({} as any);
@@ -171,100 +171,110 @@ export default function ProjectTokens({
     }
   }, []);
 
-  const topContent = React.useMemo(() => {
-    return (
-      <div className="flex flex-col items-end justify-center gap-4">
+  return (
+    <motion.div
+      animate="visible"
+      className="space-y-6"
+      initial="hidden"
+      variants={{
+        visible: { transition: { staggerChildren: 0.1 } },
+      }}
+    >
+      <motion.div
+        className="flex flex-wrap items-center justify-between gap-4"
+        variants={{
+          hidden: { y: -10, opacity: 0 },
+          visible: { y: 0, opacity: 1 },
+        }}
+      >
+        <div className="flex flex-col items-start">
+          <h2 className="text-xl font-bold">Tokens</h2>
+          <p className="text-small text-default-500">
+            {tokens.length} Active Tokens
+          </p>
+        </div>
         <Button
           color="primary"
           isDisabled={
-            (!canEditProject(user.id, project.members) ||
-              !settings.create_api_keys ||
-              project.disabled) &&
+            (!canEditProject(user.id, project.members) || project.disabled) &&
             user.role !== "admin"
           }
+          size="sm"
           startContent={<Icon icon="hugeicons:plus-sign" width={18} />}
+          variant="solid"
           onPress={() => addProjectTokenModal.onOpen()}
         >
-          Generate Token
+          Create Token
         </Button>
-      </div>
-    );
-  }, []);
+      </motion.div>
 
-  return (
-    <div>
-      <Table
-        aria-label="Example table with custom cells"
-        bottomContent={
-          <div className="flex w-full justify-center">
-            <Pagination
-              showControls
-              color="primary"
-              page={page}
-              total={pages}
-              onChange={(page) => setPage(page)}
-            />
-          </div>
-        }
-        classNames={{
-          wrapper: "min-h-[222px]",
+      <motion.div
+        variants={{
+          hidden: { y: 20, opacity: 0 },
+          visible: { y: 0, opacity: 1 },
         }}
-        topContent={topContent}
       >
-        <TableHeader>
-          <TableColumn key="id" align="start">
-            ID
-          </TableColumn>
-          <TableColumn key="description" align="center">
-            Description
-          </TableColumn>
-          <TableColumn key="status" align="center">
-            Status
-          </TableColumn>
-          <TableColumn key="type" align="center">
-            Type
-          </TableColumn>
-          <TableColumn key="expires_at" align="center">
-            Expires At
-          </TableColumn>
-          <TableColumn key="created_at" align="center">
-            Created At
-          </TableColumn>
-          <TableColumn key="actions" align="center">
-            Actions
-          </TableColumn>
-        </TableHeader>
-        <TableBody emptyContent="No rows to display." items={items}>
-          {(item: any) => (
-            <TableRow key={item.id}>
-              {(columnKey) => (
-                <TableCell>{renderCell(item, columnKey)}</TableCell>
-              )}
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+        <Table
+          aria-label="Project Tokens"
+          bottomContent={
+            <div className="flex w-full justify-center">
+              <Pagination
+                isCompact
+                showControls
+                showShadow
+                color="primary"
+                page={page}
+                total={pages}
+                onChange={(page) => setPage(page)}
+              />
+            </div>
+          }
+          classNames={{
+            wrapper:
+              "bg-content1/60 backdrop-blur-md border border-default-100 shadow-sm",
+            th: "bg-default-100/50 backdrop-blur-sm",
+          }}
+        >
+          <TableHeader>
+            <TableColumn key="name">Name</TableColumn>
+            <TableColumn key="key">Key</TableColumn>
+            <TableColumn key="status">Status</TableColumn>
+            <TableColumn key="created_at">Created At</TableColumn>
+            <TableColumn key="actions" align="end">
+              Actions
+            </TableColumn>
+          </TableHeader>
+          <TableBody items={items}>
+            {(item: any) => (
+              <TableRow key={item.id}>
+                {(columnKey) => (
+                  <TableCell>{renderCell(item, columnKey)}</TableCell>
+                )}
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </motion.div>
+
       <CreateProjectTokenModal
         disclosure={addProjectTokenModal}
         projectID={project.id}
-      />
-      <ChangeProjectTokenStatusModal
-        disabled={targetToken.disabled}
-        disclosure={changeProjectTokenStatusModal}
-        projectID={project.id}
-        token={targetToken}
       />
       <DeleteProjectTokenModal
         disclosure={deleteProjectTokenModal}
         projectID={project.id}
         token={targetToken}
       />
-
-      {/* Runner Token */}
+      <ChangeProjectTokenStatusModal
+        disabled={targetToken?.disabled}
+        disclosure={changeProjectTokenStatusModal}
+        projectID={project.id}
+        token={targetToken}
+      />
       <DeleteRunnerTokenModal
         disclosure={deleteTokenModal}
         token={targetToken}
       />
-    </div>
+    </motion.div>
   );
 }

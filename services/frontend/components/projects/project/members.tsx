@@ -1,6 +1,5 @@
 import {
   Button,
-  ButtonGroup,
   Card,
   CardBody,
   CardFooter,
@@ -11,6 +10,7 @@ import {
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useState } from "react";
+import { motion } from "framer-motion";
 
 import canEditProject from "@/lib/functions/canEditProject";
 import AddProjectMemberModal from "@/components/modals/projects/members";
@@ -51,8 +51,21 @@ export default function ProjectMembers({ project, settings, user }: any) {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+    <motion.div
+      animate="visible"
+      className="space-y-6"
+      initial="hidden"
+      variants={{
+        visible: { transition: { staggerChildren: 0.05 } },
+      }}
+    >
+      <motion.div
+        className="flex flex-wrap items-center justify-between gap-4"
+        variants={{
+          hidden: { y: -10, opacity: 0 },
+          visible: { y: 0, opacity: 1 },
+        }}
+      >
         <div className="flex flex-col items-start">
           <h2 className="text-xl font-bold">Members</h2>
           <p className="text-small text-default-500">
@@ -106,115 +119,134 @@ export default function ProjectMembers({ project, settings, user }: any) {
             </Tooltip>
           )}
         </div>
-      </div>
+      </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {project.members.map((member: any) => (
-          <Card
+          <motion.div
             key={member.id}
-            className={`border-none shadow-sm bg-content1/60 backdrop-blur-md border border-default-100 ${member.invite_pending && `bg-opacity-70`}`}
+            variants={{
+              hidden: { y: 20, opacity: 0 },
+              visible: { y: 0, opacity: 1 },
+            }}
           >
-            <CardBody className="flex items-start p-3">
-              <Tooltip content={member.role}>
-                <User
-                  avatarProps={{
-                    radius: "md",
-                    name: member.username,
-                    size: "sm",
-                  }}
-                  description={
-                    <p className="text-tiny text-default-500">{member.email}</p>
-                  }
-                  name={
-                    <div className="flex items-center gap-2">
-                      <p className="text-small font-medium">{member.username}</p>
-                      {member.user_id === user.id && (
-                        <Chip
-                          color="primary"
-                          radius="sm"
-                          size="sm"
-                          variant="flat"
-                          classNames={{ base: "h-5 text-tiny" }}
-                        >
-                          You
-                        </Chip>
-                      )}
-                      <Chip
-                        color={statusColorMap[member.role]}
-                        radius="sm"
+            <Card
+              className={`border-none shadow-sm bg-content1/60 backdrop-blur-md border border-default-100 transition-all duration-300 hover:bg-content1/80 hover:scale-[1.01] group ${member.invite_pending ? "border-warning-200/50" : ""}`}
+            >
+              <CardBody className="p-4">
+                <div className="flex items-start justify-between">
+                  <User
+                    avatarProps={{
+                      radius: "lg",
+                      name: member.username,
+                      size: "md",
+                      className: "transition-transform group-hover:scale-105",
+                    }}
+                    description={
+                      <div className="flex flex-col gap-1 mt-1">
+                        <p className="text-tiny text-default-500">
+                          {member.email}
+                        </p>
+                        <div className="flex items-center gap-2">
+                          {member.user_id === user.id && (
+                            <Chip
+                              className="h-5 text-[10px] px-1"
+                              color="primary"
+                              radius="sm"
+                              size="sm"
+                              variant="flat"
+                            >
+                              You
+                            </Chip>
+                          )}
+                          <Chip
+                            className="h-5 text-[10px] px-1"
+                            color={statusColorMap[member.role]}
+                            radius="sm"
+                            size="sm"
+                            variant="flat"
+                          >
+                            {member.role}
+                          </Chip>
+                        </div>
+                      </div>
+                    }
+                    name={
+                      <p className="text-small font-semibold text-default-700">
+                        {member.username}
+                      </p>
+                    }
+                  />
+                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Tooltip content="Edit Member">
+                      <Button
+                        isIconOnly
+                        isDisabled={
+                          (!canEditProject(user.id, project.members) ||
+                            project.disabled) &&
+                          user.role !== "admin"
+                        }
                         size="sm"
-                        variant="flat"
-                        classNames={{ base: "h-5 text-tiny" }}
+                        variant="light"
+                        onPress={() => {
+                          setTargetUser(member);
+                          editProjectMemberModal.onOpen();
+                        }}
                       >
-                        {member.role}
-                      </Chip>
+                        <Icon icon="hugeicons:pencil-edit-02" width={16} />
+                      </Button>
+                    </Tooltip>
+                    <Tooltip content="Remove Member">
+                      <Button
+                        isIconOnly
+                        color="danger"
+                        isDisabled={
+                          (!canEditProject(user.id, project.members) ||
+                            member.user_id === user.id ||
+                            project.disabled) &&
+                          user.role !== "admin"
+                        }
+                        size="sm"
+                        variant="light"
+                        onPress={() => {
+                          setTargetUser(member);
+                          deleteProjectMemberModal.onOpen();
+                        }}
+                      >
+                        <Icon icon="hugeicons:delete-02" width={16} />
+                      </Button>
+                    </Tooltip>
+                  </div>
+                </div>
+              </CardBody>
+              <CardFooter className="px-4 pb-4 pt-0 flex justify-between items-center">
+                <div className="flex items-center gap-2 w-full">
+                  {member.invite_pending ? (
+                    <Chip
+                      className="border-none"
+                      color="warning"
+                      size="sm"
+                      variant="dot"
+                    >
+                      Invite Pending
+                    </Chip>
+                  ) : (
+                    <div className="flex items-center justify-between w-full text-tiny text-default-400">
+                      <div className="flex items-center gap-1">
+                        <Icon icon="hugeicons:calendar-03" width={14} />
+                        <span>
+                          Joined{" "}
+                          {new Date(
+                            member.joined_at || member.invited_at,
+                          ).toLocaleDateString()}
+                        </span>
+                      </div>
                     </div>
-                  }
-                >
-                  {member.user_id}
-                </User>
-              </Tooltip>
-            </CardBody>
-            <CardFooter className="flex flex-cols items-center justify-between pt-0 px-3 pb-3">
-              <div className="flex flex-wrap gap-2">
-                <Chip
-                  className="capitalize"
-                  color={member.invite_pending ? "warning" : "success"}
-                  radius="sm"
-                  size="sm"
-                  variant="flat"
-                >
-                  Invite: {member.invite_pending ? "Pending" : "Accepted"}
-                </Chip>
-                <Chip
-                  className="capitalize"
-                  radius="sm"
-                  size="sm"
-                  variant="flat"
-                >
-                  Invited At: {new Date(member.invited_at).toLocaleString()}
-                </Chip>
-              </div>
-              <ButtonGroup size="sm">
-                <Tooltip content="Edit Member">
-                  <Button
-                    isIconOnly
-                    isDisabled={
-                      (!canEditProject(user.id, project.members) ||
-                        project.disabled) &&
-                      user.role !== "admin"
-                    }
-                    variant="flat"
-                    onPress={() => {
-                      setTargetUser(member);
-                      editProjectMemberModal.onOpen();
-                    }}
-                  >
-                    <Icon icon="hugeicons:pencil-edit-02" width={18} />
-                  </Button>
-                </Tooltip>
-                <Tooltip content="Remove Member from Project">
-                  <Button
-                    isIconOnly
-                    color="danger"
-                    isDisabled={
-                      (!canEditProject(user.id, project.members) ||
-                        member.user_id === user.id ||
-                        project.disabled) &&
-                      user.role !== "admin"
-                    }
-                    variant="flat"
-                    onPress={() => {
-                      setTargetUser(member);
-                      deleteProjectMemberModal.onOpen();
-                    }}
-                  >
-                    <Icon icon="hugeicons:delete-02" width={18} />
-                  </Button>
-                </Tooltip>
-              </ButtonGroup>
-            </CardFooter>
-          </Card>
+                  )}
+                </div>
+              </CardFooter>
+            </Card>
+          </motion.div>
         ))}
       </div>
       <AddProjectMemberModal
@@ -240,6 +272,6 @@ export default function ProjectMembers({ project, settings, user }: any) {
         project={project}
         user={user}
       />
-    </div>
+    </motion.div>
   );
 }

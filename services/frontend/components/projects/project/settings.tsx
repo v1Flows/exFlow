@@ -8,6 +8,7 @@ import {
   useDisclosure,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
+import { motion } from "framer-motion";
 
 import RotateAutoJoinTokenModal from "@/components/modals/projects/rotateAutoJoinToken";
 import canEditProject from "@/lib/functions/canEditProject";
@@ -32,10 +33,26 @@ export default function ProjectSettings({
   }
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-4">
+    <motion.div
+      animate="visible"
+      className="space-y-8"
+      initial="hidden"
+      variants={{
+        visible: { transition: { staggerChildren: 0.1 } },
+      }}
+    >
+      <motion.div
+        className="space-y-4"
+        variants={{
+          hidden: { y: 20, opacity: 0 },
+          visible: { y: 0, opacity: 1 },
+        }}
+      >
         <h2 className="text-lg font-bold">Runners</h2>
-        <Card fullWidth className="border-none shadow-sm bg-content1/60 backdrop-blur-md border border-default-100">
+        <Card
+          fullWidth
+          className="border-none shadow-sm bg-content1/60 backdrop-blur-md border border-default-100"
+        >
           <CardBody className="p-4">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex flex-col">
@@ -77,9 +94,15 @@ export default function ProjectSettings({
             </div>
           </CardBody>
         </Card>
-      </div>
+      </motion.div>
 
-      <div className="space-y-4">
+      <motion.div
+        className="space-y-4"
+        variants={{
+          hidden: { y: 20, opacity: 0 },
+          visible: { y: 0, opacity: 1 },
+        }}
+      >
         <h2 className="text-lg font-bold">Security</h2>
         <Card className="border-none shadow-sm bg-content1/60 backdrop-blur-md border border-default-100">
           <CardBody className="p-4">
@@ -91,23 +114,23 @@ export default function ProjectSettings({
                 </p>
               </div>
               {project.encryption_enabled ? (
-                <Chip color="success" radius="sm" variant="flat" size="sm">
+                <Chip color="success" radius="sm" size="sm" variant="flat">
                   Enabled
                 </Chip>
               ) : (
-                <Chip color="danger" radius="sm" variant="flat" size="sm">
+                <Chip color="danger" radius="sm" size="sm" variant="flat">
                   Disabled
                 </Chip>
               )}
             </div>
           </CardBody>
         </Card>
-      </div>
+      </motion.div>
 
       <RotateAutoJoinTokenModal
         disclosure={rotateAutoJoinTokenModal}
         projectID={project.id}
       />
-    </div>
+    </motion.div>
   );
 }

@@ -2,6 +2,7 @@ import { addToast, Card, CardBody, Switch, Tooltip } from "@heroui/react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
+import { motion } from "framer-motion";
 
 import UpdateProject from "@/lib/fetch/project/PUT/UpdateProject";
 import canEditProject from "@/lib/functions/canEditProject";
@@ -78,11 +79,26 @@ export default function ProjectRunnerDetails({
   }
 
   return (
-    <>
-      <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4">
-        <Card fullWidth>
+    <motion.div
+      animate="visible"
+      className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4"
+      initial="hidden"
+      variants={{
+        visible: { transition: { staggerChildren: 0.1 } },
+      }}
+    >
+      <motion.div
+        variants={{
+          hidden: { y: 20, opacity: 0 },
+          visible: { y: 0, opacity: 1 },
+        }}
+      >
+        <Card
+          fullWidth
+          className="h-full border-none shadow-sm bg-content1/60 backdrop-blur-md border border-default-100"
+        >
           <CardBody>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between h-full">
               <div className="flex flex-col">
                 <p className="text-md font-bold">Shared Runners</p>
                 <p className="text-sm text-default-500">
@@ -104,10 +120,20 @@ export default function ProjectRunnerDetails({
             </div>
           </CardBody>
         </Card>
+      </motion.div>
 
-        <Card fullWidth>
+      <motion.div
+        variants={{
+          hidden: { y: 20, opacity: 0 },
+          visible: { y: 0, opacity: 1 },
+        }}
+      >
+        <Card
+          fullWidth
+          className="h-full border-none shadow-sm bg-content1/60 backdrop-blur-md border border-default-100"
+        >
           <CardBody>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between h-full">
               <div className="flex flex-col">
                 <div className="flex flex-cols items-center gap-2">
                   <p className="text-md font-bold">Auto Join</p>
@@ -127,15 +153,27 @@ export default function ProjectRunnerDetails({
                 }
                 isSelected={autoJoin}
                 size="sm"
-                onValueChange={setAutoJoin}
+                onValueChange={(value) => {
+                  setAutoJoin(value);
+                }}
               />
             </div>
           </CardBody>
         </Card>
+      </motion.div>
 
-        <Card fullWidth>
+      <motion.div
+        variants={{
+          hidden: { y: 20, opacity: 0 },
+          visible: { y: 0, opacity: 1 },
+        }}
+      >
+        <Card
+          fullWidth
+          className="h-full border-none shadow-sm bg-content1/60 backdrop-blur-md border border-default-100"
+        >
           <CardBody>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between h-full">
               <div className="flex flex-col">
                 <p className="text-md font-bold">Disable Join</p>
                 <p className="text-sm text-default-500">
@@ -151,12 +189,14 @@ export default function ProjectRunnerDetails({
                 }
                 isSelected={disableJoin}
                 size="sm"
-                onValueChange={setDisableJoin}
+                onValueChange={(value) => {
+                  setDisableJoin(value);
+                }}
               />
             </div>
           </CardBody>
         </Card>
-      </div>
-    </>
+      </motion.div>
+    </motion.div>
   );
 }

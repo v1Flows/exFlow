@@ -112,7 +112,7 @@ export default function DashboardHome({
         <CardBody className="p-4">
           <div className="flex justify-between items-start mb-2">
             <div
-              className={`flex size-10 items-center justify-center rounded-xl bg-${statusColor}/10 text-${statusColor}`}
+              className={`flex size-10 items-center justify-center rounded-xl bg-${statusColor}/20 text-${statusColor}`}
             >
               <Icon icon={icon} width={24} />
             </div>

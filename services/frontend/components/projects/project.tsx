@@ -6,10 +6,10 @@ import NumberFlow from "@number-flow/react";
 import { motion } from "framer-motion";
 import React from "react";
 
-import ProjectTabs from "./project/tabs";
-
 import EditProjectModal from "@/components/modals/projects/edit";
 import canEditProject from "@/lib/functions/canEditProject";
+
+import ProjectTabs from "./project/tabs";
 
 export default function Project({
   user,
@@ -32,13 +32,15 @@ export default function Project({
         transition={{ duration: 0.5 }}
       >
         <div className="flex items-center gap-4">
-          <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary shadow-sm">
-            <Icon
-              icon={
-                project.icon ? project.icon : "solar:question-square-outline"
-              }
-              width={24}
-            />
+          <div
+            className="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center shadow-sm transition-transform group-hover:scale-110"
+            style={{
+              background: `linear-gradient(135deg, ${project.color}20 0%, ${project.color}40 100%)`,
+              color: project.color,
+              border: `1px solid ${project.color}40`,
+            }}
+          >
+            <Icon className="text-2xl" icon={project.icon} />
           </div>
           <div>
             <h1 className="text-2xl font-bold leading-tight">{project.name}</h1>
@@ -117,7 +119,7 @@ export default function Project({
               <CardBody className="p-3">
                 <div className="flex items-center justify-between gap-3">
                   <div
-                    className={`flex size-10 items-center justify-center rounded-lg bg-${stat.color}/10 text-${stat.color}`}
+                    className={`flex size-10 items-center justify-center rounded-lg bg-${stat.color}/20 text-${stat.color}`}
                   >
                     <Icon icon={stat.icon} width={20} />
                   </div>
