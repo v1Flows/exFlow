@@ -17,6 +17,8 @@ import {
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
+import { ShineBorder } from "../magicui/shine-border";
+
 import CreateProjectModal from "@/components/modals/projects/create";
 import DeleteProjectModal from "@/components/modals/projects/delete";
 import EditProjectModal from "@/components/modals/projects/edit";
@@ -24,8 +26,6 @@ import AcceptProjectInvite from "@/lib/fetch/project/PUT/AcceptProjectInvite";
 import DeclineProjectInvite from "@/lib/fetch/project/PUT/DeclineProjectInvite";
 import canEditProject from "@/lib/functions/canEditProject";
 import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
-
-import { ShineBorder } from "../magicui/shine-border";
 
 export function ProjectsList({ projects, pending_projects, user }: any) {
   const router = useRouter();
@@ -149,12 +149,12 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
           <Spacer y={4} />
         </>
       )}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {projects.map((project: any) => (
           <Card
             key={project.id}
             isHoverable
-            className="w-full"
+            className="w-full bg-content1/60 backdrop-blur-md shadow-lg border border-default-100"
             isDisabled={project.disabled}
             isPressable={!project.disabled}
             onPress={() => {
@@ -260,13 +260,20 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
       {pending_projects.length > 0 && (
         <>
           <Spacer y={4} />
-          <p className="text-xl font-bold">
-            Pending <span className="text-primary">Invitations</span>
-          </p>
+          <div className="flex items-center gap-2">
+            <div className="h-px flex-1 bg-default-200" />
+            <p className="text-xl font-bold">
+              Pending <span className="text-primary">Invitations</span>
+            </p>
+            <div className="h-px flex-1 bg-default-200" />
+          </div>
           <Spacer y={2} />
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {pending_projects.map((project: any) => (
-              <Card key={project.id}>
+              <Card
+                key={project.id}
+                className="border-none shadow-lg bg-content1/60 backdrop-blur-md border border-default-100"
+              >
                 <ShineBorder shineColor={["#A07CFE", "#FE8FB5", "#FFBE7B"]} />
                 <CardBody className="p-5">
                   <div className="flex flex-wrap gap-4 items-center justify-between">
