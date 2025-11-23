@@ -14,16 +14,17 @@ import {
   Card,
   CardBody,
   CardFooter,
+  CardHeader,
   Chip,
   Dropdown,
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
-  Spacer,
   Tooltip,
   useDisclosure,
 } from "@heroui/react";
 import React, { useEffect } from "react";
+import { motion } from "framer-motion";
 
 import UpdateFlowActions from "@/lib/fetch/flow/PUT/UpdateActions";
 import EditFlowActionsDetails from "@/components/modals/actions/editDetails";
@@ -86,7 +87,15 @@ export default function Actions({
     }
   };
 
-  const SortableItem = ({ action }: { action: any }) => {
+  const SortableItem = ({
+    action,
+    index,
+    total,
+  }: {
+    action: any;
+    index: number;
+    total: number;
+  }) => {
     const { attributes, listeners, setNodeRef, transform, transition } =
       useSortable({ id: action.id });
 
@@ -96,62 +105,86 @@ export default function Actions({
     };
 
     return (
-      <div ref={setNodeRef} style={style} {...attributes}>
+      <div
+        ref={setNodeRef}
+        className="relative pl-12 pb-8 last:pb-0"
+        style={style}
+        {...attributes}
+      >
+        {/* Timeline Line */}
+        {index !== total - 1 && (
+          <div className="absolute left-[23px] top-8 bottom-0 w-[2px] bg-default-200" />
+        )}
+
+        {/* Timeline Dot */}
+        <div className="absolute left-[11px] top-8 -translate-y-1/2 w-6 h-6 rounded-full bg-background border-2 border-primary z-10 flex items-center justify-center shadow-sm">
+          <div className="w-2 h-2 rounded-full bg-primary" />
+        </div>
+
+        {/* Step Number */}
+        <div className="absolute left-0 top-0 -translate-x-full pr-4 pt-6 text-xs font-bold text-default-400 hidden md:block">
+          Step {index + 1}
+        </div>
+
         <Card
           key={action.id}
           fullWidth
           isPressable
+          className="bg-content1/60 backdrop-blur-md border border-default-100 shadow-sm hover:shadow-md transition-shadow"
           isDisabled={!action.active}
           onPress={() => {
             setTargetAction(action);
             viewFlowActionDetails.onOpen();
           }}
         >
-          <CardBody>
-            <div className="flex flex-cols items-center justify-between gap-4">
-              <div className="flex items-center gap-2">
-                <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
-                  <Icon icon={action.icon} width={26} />
+          <CardBody className="p-4">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
+                  <Icon icon={action.icon} width={28} />
                 </div>
                 <div>
                   <p className="text-md font-bold">
                     {action.custom_name ? action.custom_name : action.name}
                   </p>
-                  <p className="text-sm text-default-500">
+                  <p className="text-sm text-default-500 line-clamp-1">
                     {action.custom_description
                       ? action.custom_description
                       : action.description}
                   </p>
                 </div>
               </div>
-              <Tooltip content="Reorder action by dragging">
-                <Button
-                  isIconOnly
-                  isDisabled={
-                    (!canEdit || flow.disabled) && user.role !== "admin"
-                  }
+
+              <div className="flex items-center gap-2 ml-auto md:ml-0">
+                <Chip
+                  className="border-none"
+                  color={action.active ? "success" : "default"}
                   size="sm"
-                  variant="flat"
-                  {...listeners}
-                  style={{ cursor: "grab", touchAction: "none" }}
+                  variant="dot"
                 >
-                  <Icon icon="hugeicons:drag-02" width={18} />
-                </Button>
-              </Tooltip>
+                  {action.active ? "Active" : "Disabled"}
+                </Chip>
+                <Tooltip content="Reorder action by dragging">
+                  <Button
+                    isIconOnly
+                    className="cursor-grab active:cursor-grabbing"
+                    isDisabled={
+                      (!canEdit || flow.disabled) && user.role !== "admin"
+                    }
+                    size="sm"
+                    variant="light"
+                    {...listeners}
+                  >
+                    <Icon icon="hugeicons:drag-02" width={20} />
+                  </Button>
+                </Tooltip>
+              </div>
             </div>
           </CardBody>
-          <CardFooter className="flex flex-cols items-center justify-between">
+          <CardFooter className="px-4 py-3 border-t border-default-100 bg-content2/30 flex justify-between items-center">
             <div className="flex flex-wrap gap-2 items-center">
-              <Chip color="primary" radius="sm" size="sm" variant="flat">
-                Vers. {action.version}
-              </Chip>
-              <Chip
-                color={action.active ? "success" : "danger"}
-                radius="sm"
-                size="sm"
-                variant="flat"
-              >
-                {action.active ? "Active" : "Disabled"}
+              <Chip size="sm" variant="flat">
+                v{action.version}
               </Chip>
               {flow.failure_pipeline_id !== "" ||
                 (flow.failure_pipeline_id !== null &&
@@ -164,144 +197,137 @@ export default function Actions({
                             pipelineAction.id === action.id,
                         )),
                   ) && (
-                    <Chip color="warning" radius="sm" size="sm" variant="flat">
-                      No Failure Pipeline Assigned
+                    <Chip color="warning" size="sm" variant="flat">
+                      No Failure Pipeline
                     </Chip>
                   ))}
               {action.update_available && (
-                <Chip color="primary" radius="sm" size="sm" variant="solid">
+                <Chip color="primary" size="sm" variant="solid">
                   Upgrade Available
                 </Chip>
               )}
             </div>
-            <div>
-              <ButtonGroup size="sm">
-                {action.update_available && (
-                  <Tooltip content="Upgrade Plugin Version">
-                    <Button
-                      isIconOnly
-                      color="primary"
-                      isDisabled={
-                        (!canEdit || flow.disabled) && user.role !== "admin"
-                      }
-                      variant="flat"
-                      onPress={() => {
-                        setTargetAction(action);
-                        setUpdatedAction(action.updated_action);
-                        upgradeFlowActionModal.onOpen();
-                      }}
-                    >
-                      <Icon icon="hugeicons:system-update-02" width={18} />
-                    </Button>
-                  </Tooltip>
-                )}
-                <Tooltip content="View Action Details">
+            <ButtonGroup size="sm" variant="light">
+              {action.update_available && (
+                <Tooltip content="Upgrade Plugin Version">
                   <Button
                     isIconOnly
+                    color="primary"
                     isDisabled={
                       (!canEdit || flow.disabled) && user.role !== "admin"
                     }
-                    variant="flat"
                     onPress={() => {
                       setTargetAction(action);
-                      viewFlowActionDetails.onOpen();
+                      setUpdatedAction(action.updated_action);
+                      upgradeFlowActionModal.onOpen();
                     }}
                   >
-                    <Icon icon="hugeicons:view" width={18} />
+                    <Icon icon="hugeicons:system-update-02" width={18} />
                   </Button>
                 </Tooltip>
-                <Dropdown>
-                  <DropdownTrigger>
-                    <Button
-                      isIconOnly
-                      isDisabled={
-                        (!canEdit || flow.disabled) && user.role !== "admin"
-                      }
-                      variant="flat"
-                    >
-                      <Icon icon="hugeicons:copy-02" width={18} />
-                    </Button>
-                  </DropdownTrigger>
-                  <DropdownMenu aria-label="Copy Actions" variant="flat">
-                    <DropdownItem
-                      key="clipboard"
-                      description="Copy action to clipboard"
-                      startContent={
-                        <Icon icon="hugeicons:clipboard" width={20} />
-                      }
-                      onPress={() => {
-                        navigator.clipboard.writeText(JSON.stringify(action));
-                        addToast({
-                          title: "Action",
-                          description: "Action copied to clipboard!",
-                          color: "success",
-                          variant: "flat",
-                        });
-                      }}
-                    >
-                      Clipboard
-                    </DropdownItem>
-                    <DropdownItem
-                      key="local"
-                      description="Copy action to the current flow"
-                      startContent={
-                        <Icon icon="hugeicons:pin-location-02" width={20} />
-                      }
-                      onPress={() => {
-                        setTargetAction(action);
-                        copyFlowActionModal.onOpen();
-                      }}
-                    >
-                      Local
-                    </DropdownItem>
-                    <DropdownItem
-                      key="different"
-                      description="Copy action to another flow"
-                      startContent={
-                        <Icon icon="hugeicons:delivery-sent-02" width={20} />
-                      }
-                      onPress={() => {
-                        setTargetAction(action);
-                        copyActionToDifferentFlowModal.onOpen();
-                      }}
-                    >
-                      Transfer
-                    </DropdownItem>
-                  </DropdownMenu>
-                </Dropdown>
-                <Tooltip content="Edit Action">
+              )}
+              <Tooltip content="View Action Details">
+                <Button
+                  isIconOnly
+                  isDisabled={
+                    (!canEdit || flow.disabled) && user.role !== "admin"
+                  }
+                  onPress={() => {
+                    setTargetAction(action);
+                    viewFlowActionDetails.onOpen();
+                  }}
+                >
+                  <Icon icon="hugeicons:view" width={18} />
+                </Button>
+              </Tooltip>
+              <Dropdown>
+                <DropdownTrigger>
                   <Button
                     isIconOnly
                     isDisabled={
                       (!canEdit || flow.disabled) && user.role !== "admin"
                     }
-                    variant="flat"
+                  >
+                    <Icon icon="hugeicons:copy-02" width={18} />
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu aria-label="Copy Actions" variant="flat">
+                  <DropdownItem
+                    key="clipboard"
+                    description="Copy action to clipboard"
+                    startContent={
+                      <Icon icon="hugeicons:clipboard" width={20} />
+                    }
+                    onPress={() => {
+                      navigator.clipboard.writeText(JSON.stringify(action));
+                      addToast({
+                        title: "Action",
+                        description: "Action copied to clipboard!",
+                        color: "success",
+                        variant: "flat",
+                      });
+                    }}
+                  >
+                    Clipboard
+                  </DropdownItem>
+                  <DropdownItem
+                    key="local"
+                    description="Copy action to the current flow"
+                    startContent={
+                      <Icon icon="hugeicons:pin-location-02" width={20} />
+                    }
                     onPress={() => {
                       setTargetAction(action);
-                      editActionModal.onOpen();
+                      copyFlowActionModal.onOpen();
                     }}
                   >
-                    <Icon icon="hugeicons:pencil-edit-02" width={18} />
-                  </Button>
-                </Tooltip>
-                <Tooltip content="Delete Action">
-                  <Button
-                    isIconOnly
-                    color="danger"
-                    isDisabled={
-                      (!canEdit || flow.disabled) && user.role !== "admin"
+                    Local
+                  </DropdownItem>
+                  <DropdownItem
+                    key="different"
+                    description="Copy action to another flow"
+                    startContent={
+                      <Icon icon="hugeicons:delivery-sent-02" width={20} />
                     }
-                    variant="flat"
                     onPress={() => {
-                      setTargetAction(action.id);
-                      deleteActionModal.onOpen();
+                      setTargetAction(action);
+                      copyActionToDifferentFlowModal.onOpen();
                     }}
                   >
-                    <Icon icon="hugeicons:delete-02" width={18} />
-                  </Button>
-                </Tooltip>
-              </ButtonGroup>
-            </div>
+                    Transfer
+                  </DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
+              <Tooltip content="Edit Action">
+                <Button
+                  isIconOnly
+                  isDisabled={
+                    (!canEdit || flow.disabled) && user.role !== "admin"
+                  }
+                  onPress={() => {
+                    setTargetAction(action);
+                    editActionModal.onOpen();
+                  }}
+                >
+                  <Icon icon="hugeicons:pencil-edit-02" width={18} />
+                </Button>
+              </Tooltip>
+              <Tooltip content="Delete Action">
+                <Button
+                  isIconOnly
+                  color="danger"
+                  isDisabled={
+                    (!canEdit || flow.disabled) && user.role !== "admin"
+                  }
+                  onPress={() => {
+                    setTargetAction(action.id);
+                    deleteActionModal.onOpen();
+                  }}
+                >
+                  <Icon icon="hugeicons:delete-02" width={18} />
+                </Button>
+              </Tooltip>
+            </ButtonGroup>
           </CardFooter>
         </Card>
       </div>
@@ -343,74 +369,86 @@ export default function Actions({
       });
   }
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
   return (
-    <div>
-      <Card>
-        <CardBody>
-          <div className="flex-wrap flex items-center justify-between gap-2">
-            <div className="flex flex-col items-start">
-              <p className="text-md font-bold">Actions</p>
-              <p className="text-tiny text-default-500">
-                Common action settings can be found on the settings tab
+    <motion.div
+      animate="visible"
+      className="space-y-6"
+      initial="hidden"
+      variants={containerVariants}
+    >
+      <Card className="bg-content1/60 backdrop-blur-md border border-default-100 shadow-sm">
+        <CardHeader className="flex justify-between items-center px-6 py-4">
+          <div className="flex gap-3 items-center">
+            <div className="p-2 rounded-lg bg-primary/10 text-primary">
+              <Icon icon="hugeicons:structure-04" width={24} />
+            </div>
+            <div className="flex flex-col">
+              <p className="text-md font-bold">Flow Actions</p>
+              <p className="text-small text-default-500">
+                Manage the execution steps of your flow.
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <Tooltip content="Add Action">
-                <Button
-                  color="primary"
-                  isDisabled={
-                    (!canEdit || !settings.add_flow_actions || flow.disabled) &&
-                    user.role !== "admin"
-                  }
-                  size="sm"
-                  startContent={
-                    <Icon icon="hugeicons:subnode-add" width={18} />
-                  }
-                  variant="solid"
-                  onPress={addFlowActionModal.onOpen}
-                >
-                  {" "}
-                  Add Action{" "}
-                </Button>
-              </Tooltip>
-              <Tooltip content="Paste Copied Action">
-                <Button
-                  isIconOnly
-                  isDisabled={
-                    (!canEdit || !settings.add_flow_actions || flow.disabled) &&
-                    user.role !== "admin"
-                  }
-                  size="sm"
-                  startContent={<Icon icon="hugeicons:file-paste" width={18} />}
-                  variant="light"
-                  onPress={async () => {
-                    const parsedAction = await getClipboardAction();
-
-                    if (parsedAction) {
-                      setTargetAction(parsedAction);
-                      copyFlowActionModal.onOpen();
-                    } else {
-                      addToast({
-                        title: "Flow",
-                        description: "No action found in clipboard.",
-                        color: "danger",
-                        variant: "flat",
-                      });
-                    }
-                  }}
-                />
-              </Tooltip>
-            </div>
           </div>
-        </CardBody>
+          <div className="flex gap-2">
+            <Tooltip content="Paste Copied Action">
+              <Button
+                isIconOnly
+                isDisabled={
+                  (!canEdit || !settings.add_flow_actions || flow.disabled) &&
+                  user.role !== "admin"
+                }
+                variant="flat"
+                onPress={async () => {
+                  const parsedAction = await getClipboardAction();
+
+                  if (parsedAction) {
+                    setTargetAction(parsedAction);
+                    copyFlowActionModal.onOpen();
+                  } else {
+                    addToast({
+                      title: "Flow",
+                      description: "No action found in clipboard.",
+                      color: "danger",
+                      variant: "flat",
+                    });
+                  }
+                }}
+              >
+                <Icon icon="hugeicons:clipboard-check" width={20} />
+              </Button>
+            </Tooltip>
+            <Button
+              color="primary"
+              isDisabled={
+                (!canEdit || !settings.add_flow_actions || flow.disabled) &&
+                user.role !== "admin"
+              }
+              startContent={<Icon icon="hugeicons:plus-sign" width={20} />}
+              onPress={addFlowActionModal.onOpen}
+            >
+              Add Action
+            </Button>
+          </div>
+        </CardHeader>
       </Card>
-      <Spacer y={2} />
+
       {actions.length === 0 && (
-        <div className="relative z-10 h-[500px] w-full overflow-hidden">
+        <div className="relative z-10 h-[500px] w-full overflow-hidden rounded-xl border border-default-200 bg-content1/30">
           <Integrations />
         </div>
       )}
-      <div className="flex flex-col gap-2">
+
+      <div className="flex flex-col pl-4 md:pl-10">
         <DndContext
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
@@ -419,14 +457,42 @@ export default function Actions({
             items={actions}
             strategy={verticalListSortingStrategy}
           >
-            <div className="flex flex-col gap-2">
-              {actions.map((action: any) => (
-                <SortableItem key={action.id} action={action} />
+            <div className="flex flex-col">
+              {actions.map((action: any, index: number) => (
+                <SortableItem
+                  key={action.id}
+                  action={action}
+                  index={index}
+                  total={actions.length}
+                />
               ))}
             </div>
           </SortableContext>
         </DndContext>
+
+        {/* Add Action Placeholder at the end */}
+        {actions.length > 0 && (
+          <div className="relative pl-12 pt-2">
+            <div className="absolute left-[23px] top-0 h-8 w-[2px] bg-default-200" />
+            <div className="absolute left-[11px] top-8 -translate-y-1/2 w-6 h-6 rounded-full bg-default-100 border-2 border-default-300 z-10 flex items-center justify-center">
+              <div className="w-2 h-2 rounded-full bg-default-300" />
+            </div>
+            <Button
+              className="w-full h-12 border-dashed border-2 border-default-300 bg-transparent text-default-500"
+              isDisabled={
+                (!canEdit || !settings.add_flow_actions || flow.disabled) &&
+                user.role !== "admin"
+              }
+              startContent={<Icon icon="hugeicons:plus-sign" width={20} />}
+              variant="light"
+              onPress={addFlowActionModal.onOpen}
+            >
+              Add Next Action
+            </Button>
+          </div>
+        )}
       </div>
+
       <EditFlowActionsDetails disclosure={editFlowActionsDetails} flow={flow} />
       <AddFlowActionModal
         disclosure={addFlowActionModal}
@@ -474,6 +540,6 @@ export default function Actions({
         disclosure={deleteActionModal}
         flowID={flow.id}
       />
-    </div>
+    </motion.div>
   );
 }
