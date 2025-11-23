@@ -424,7 +424,7 @@ export default function Actions({
                   }
                 }}
               >
-                <Icon icon="hugeicons:clipboard-check" width={20} />
+                <Icon icon="hugeicons:clipboard" width={20} />
               </Button>
             </Tooltip>
             <Button
