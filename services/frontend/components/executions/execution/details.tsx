@@ -1,5 +1,5 @@
 import { Icon } from "@iconify/react";
-import { Card, CardBody, Tooltip } from "@heroui/react";
+import { Tooltip } from "@heroui/react";
 import NumberFlow from "@number-flow/react";
 import ReactTimeago from "react-timeago";
 
@@ -8,6 +8,39 @@ import {
   executionStatusName,
   executionStatusWrapper,
 } from "@/lib/functions/executionStyles";
+
+interface StatCardProps {
+  icon: string;
+  label: string;
+  value: React.ReactNode;
+  subValue?: React.ReactNode;
+  color?: string;
+  tooltip?: string;
+}
+
+function StatCard({ icon, label, value, color = "default", tooltip }: StatCardProps) {
+  const content = (
+    <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-3 transition-colors hover:bg-white/10">
+      <div className={`flex size-10 shrink-0 items-center justify-center rounded-lg bg-${color === "default" ? "default-100" : color + "/20"} text-${color === "default" ? "default-500" : color}`}>
+        <Icon icon={icon} width={20} />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-medium text-default-500">{label}</p>
+        <div className="truncate text-sm font-bold text-foreground">{value}</div>
+      </div>
+    </div>
+  );
+
+  if (tooltip) {
+    return (
+      <Tooltip content={tooltip} placement="top">
+        {content}
+      </Tooltip>
+    );
+  }
+
+  return content;
+}
 
 export default function ExecutionDetails({ runners, execution, steps }: any) {
   function getDuration() {
@@ -45,7 +78,7 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
       (new Date(execution.last_heartbeat).getTime() - Date.now()) / 1000;
 
     if (execution.status === "pending" || execution.status === "scheduled") {
-      return "";
+      return "default";
     }
 
     if (execution.status === "success" || execution.status === "recovered") {
@@ -59,6 +92,7 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
     } else if (timeAgo <= -20) {
       return "danger";
     }
+    return "default";
   }
 
   function heartbeatStatus() {
@@ -78,177 +112,103 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
     } else if (timeAgo <= -11) {
       return "Unhealthy";
     }
+    return "Unknown";
   }
 
+  const runnerName = runners.find((r: any) => r.id === execution.runner_id)?.name || "N/A";
+
   return (
-    <>
-      <div className="grid grid-cols-2 items-start items-stretch gap-4 lg:grid-cols-4 xl:grid-cols-7">
-        <Card>
-          <CardBody>
-            <div className="flex items-center justify-start gap-2">
-              <div className="flex size-12 items-center justify-center">
-                {executionStatusWrapper(execution)}
-              </div>
-              <div>
-                <p
-                  className={`text-sm text- font-bold text-${executionStatusColor(execution)}`}
-                >
-                  {executionStatusName(execution)}
-                </p>
-                <p className="text-sm text-default-500">Status</p>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
-        {execution.status === "scheduled" && (
-          <Card>
-            <CardBody>
-              <div className="flex items-center justify-start gap-4">
-                <div className="flex size-12 items-center justify-center rounded-large bg-default text-secondary bg-opacity-40">
-                  <Icon icon="hugeicons:date-time" width={28} />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-secondary">
-                    {execution.scheduled_at === "0001-01-01T00:00:00Z" ? (
-                      "N/A"
-                    ) : (
-                      <ReactTimeago date={execution.scheduled_at} />
-                    )}
-                  </p>
-                  <p className="text-sm text-default-500">Scheduled At</p>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-        )}
-        <Tooltip content={execution.last_heartbeat} placement="top">
-          <Card>
-            <CardBody>
-              <div className="flex items-center justify-start gap-4">
-                <div className="flex size-12 items-center justify-center rounded-large bg-default bg-opacity-40">
-                  <Icon icon="hugeicons:stethoscope-02" width={28} />
-                </div>
-                <div>
-                  <p className={`text-sm font-bold text-${heartbeatColor()}`}>
-                    {heartbeatStatus()}
-                  </p>
-                  <p className="text-sm text-default-500">Health</p>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-        </Tooltip>
-        <Card>
-          <CardBody>
-            <div className="flex items-center justify-start gap-4">
-              <div className="flex size-12 items-center justify-center rounded-large bg-default bg-opacity-40">
-                <Icon icon="hugeicons:ai-brain-04" width={28} />
-              </div>
-              <div>
-                <p className="text-sm font-bold">
-                  {runners.find((r: any) => r.id === execution.runner_id)?.name
-                    .length > 20 ? (
-                    <Tooltip
-                      content={
-                        runners.find((r: any) => r.id === execution.runner_id)
-                          ?.name
-                      }
-                    >
-                      {runners
-                        .find((r: any) => r.id === execution.runner_id)
-                        ?.name.slice(0, 20) + "..."}
-                    </Tooltip>
-                  ) : (
-                    runners.find((r: any) => r.id === execution.runner_id)
-                      ?.name || "N/A"
-                  )}
-                </p>
-                <p className="text-sm text-default-500">Runner</p>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
-        <Card>
-          <CardBody>
-            <div className="flex items-center justify-start gap-4">
-              <div className="flex size-12 items-center justify-center rounded-large bg-default bg-opacity-40">
-                <Icon icon="hugeicons:workflow-square-02" width={28} />
-              </div>
-              <div>
-                <p className="text-sm font-bold">
-                  <NumberFlow
-                    locales="en-US" // Intl.NumberFormat locales
-                    value={steps.length}
-                  />
-                </p>
-                <p className="text-sm text-default-500">Total Steps</p>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
-        <Tooltip content={execution.executed_at} placement="top">
-          <Card>
-            <CardBody>
-              <div className="flex items-center justify-start gap-4">
-                <div className="flex size-12 items-center justify-center rounded-large bg-default bg-opacity-40">
-                  <Icon icon="hugeicons:time-schedule" width={28} />
-                </div>
-                <div>
-                  <p className="text-sm font-bold">
-                    {execution.executed_at === "0001-01-01T00:00:00Z" ? (
-                      "N/A"
-                    ) : (
-                      <ReactTimeago date={execution.executed_at} />
-                    )}
-                  </p>
-                  <p className="text-sm text-default-500">Executed At</p>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-        </Tooltip>
-        <Tooltip content={execution.finished_at} placement="top">
-          <Card>
-            <CardBody>
-              <div className="flex items-center justify-start gap-4">
-                <div className="flex size-12 items-center justify-center rounded-large bg-default bg-opacity-40">
-                  <Icon icon="hugeicons:time-02" width={28} />
-                </div>
-                <div>
-                  <p className="text-sm font-bold">
-                    {execution.finished_at != "0001-01-01T00:00:00Z" ? (
-                      <ReactTimeago date={execution.finished_at} />
-                    ) : (
-                      "N/A"
-                    )}
-                  </p>
-                  <p className="text-sm text-default-500">Finished At</p>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-        </Tooltip>
-        {execution.status !== "scheduled" && (
-          <Card>
-            <CardBody>
-              <Tooltip
-                content="The 'Pick Up' step is not considered in the calculation"
-                placement="top"
-              >
-                <div className="flex items-center justify-start gap-4">
-                  <div className="flex size-12 items-center justify-center rounded-large bg-default bg-opacity-40">
-                    <Icon icon="hugeicons:timer-02" width={28} />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold">{getDuration()}</p>
-                    <p className="text-sm text-default-500">Duration</p>
-                  </div>
-                </div>
-              </Tooltip>
-            </CardBody>
-          </Card>
-        )}
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
+      {/* Status */}
+      <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-3 transition-colors hover:bg-white/10">
+        <div className="flex size-10 shrink-0 items-center justify-center">
+          {executionStatusWrapper(execution)}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium text-default-500">Status</p>
+          <p className={`truncate text-sm font-bold text-${executionStatusColor(execution)}`}>
+            {executionStatusName(execution)}
+          </p>
+        </div>
       </div>
-    </>
+
+      {/* Scheduled At */}
+      {execution.status === "scheduled" && (
+        <StatCard
+          icon="hugeicons:date-time"
+          label="Scheduled At"
+          value={
+            execution.scheduled_at === "0001-01-01T00:00:00Z" ? (
+              "N/A"
+            ) : (
+              <ReactTimeago date={execution.scheduled_at} />
+            )
+          }
+          color="secondary"
+        />
+      )}
+
+      {/* Health */}
+      <StatCard
+        icon="hugeicons:stethoscope-02"
+        label="Health"
+        value={heartbeatStatus()}
+        color={heartbeatColor()}
+        tooltip={execution.last_heartbeat}
+      />
+
+      {/* Runner */}
+      <StatCard
+        icon="hugeicons:ai-brain-04"
+        label="Runner"
+        value={runnerName}
+        tooltip={runnerName.length > 20 ? runnerName : undefined}
+      />
+
+      {/* Total Steps */}
+      <StatCard
+        icon="hugeicons:workflow-square-02"
+        label="Total Steps"
+        value={<NumberFlow locales="en-US" value={steps.length} />}
+      />
+
+      {/* Executed At */}
+      <StatCard
+        icon="hugeicons:time-schedule"
+        label="Executed At"
+        value={
+          execution.executed_at === "0001-01-01T00:00:00Z" ? (
+            "N/A"
+          ) : (
+            <ReactTimeago date={execution.executed_at} />
+          )
+        }
+        tooltip={execution.executed_at}
+      />
+
+      {/* Finished At */}
+      <StatCard
+        icon="hugeicons:time-02"
+        label="Finished At"
+        value={
+          execution.finished_at !== "0001-01-01T00:00:00Z" ? (
+            <ReactTimeago date={execution.finished_at} />
+          ) : (
+            "N/A"
+          )
+        }
+        tooltip={execution.finished_at}
+      />
+
+      {/* Duration */}
+      {execution.status !== "scheduled" && (
+        <StatCard
+          icon="hugeicons:timer-02"
+          label="Duration"
+          value={getDuration()}
+          tooltip="The 'Pick Up' step is not considered in the calculation"
+        />
+      )}
+    </div>
   );
 }
