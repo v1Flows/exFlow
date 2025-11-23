@@ -565,9 +565,6 @@ export default function AddFlowActionModal({
   return (
     <Drawer
       backdrop="blur"
-      classNames={{
-        base: "data-[placement=right]:sm:m-2 data-[placement=left]:sm:m-2  rounded-medium",
-      }}
       isOpen={isOpen}
       size="2xl"
       onOpenChange={onOpenChange}
