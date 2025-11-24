@@ -3,7 +3,7 @@ export type SiteConfig = typeof siteConfig;
 export const siteConfig = {
   name: "JustFlow",
   description: "JustFlow is an workflow automation tool",
-  version: "2.0.0-beta.2",
+  version: "2.0.0-beta.3",
   navItems: [
     {
       label: "Dashboard",
