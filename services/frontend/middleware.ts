@@ -7,6 +7,7 @@ import PageGetSettings from "./lib/fetch/page/settings";
 
 import "./updateSessionInterval";
 import ValidateToken from "./lib/fetch/tokens/validate";
+import { isSetupComplete } from "./lib/fetch/setup/detectBackend";
 
 function isPublicRoute(pathname: string): boolean {
   return (
@@ -57,20 +58,11 @@ export async function middleware(request: NextRequest) {
     if (isSetupRoute(pathname)) {
       // Try to check if setup is complete
       try {
-        const apiUrl =
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
-        const statusResponse = await fetch(`${apiUrl}/api/v1/setup/status`, {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        });
+        const setupComplete = await isSetupComplete();
 
-        if (statusResponse.ok) {
-          const status = await statusResponse.json();
-
-          // If setup is complete, redirect to home (don't allow setup page access)
-          if (status.is_setup) {
-            return NextResponse.redirect(new URL("/", request.url));
-          }
+        // If setup is complete, redirect to home (don't allow setup page access)
+        if (setupComplete) {
+          return NextResponse.redirect(new URL("/", request.url));
         }
       } catch {
         // If we can't reach the backend, allow setup route (setup might be needed)

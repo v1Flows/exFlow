@@ -258,6 +258,13 @@ export default function SetupPageClient() {
       }
 
       setSetupComplete(true);
+
+      // Auto-refresh page after a short delay to ensure backend is ready
+      if (result.backendRestarted) {
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      }
     } catch (error: any) {
       setError(`Setup failed: ${error.message || "Unknown error occurred"}`);
     } finally {
@@ -293,7 +300,7 @@ export default function SetupPageClient() {
           <div className="flex justify-center mb-6">
             <div className="rounded-full bg-success-500/20 p-6 ring-1 ring-success-500/50">
               <Icon
-                className="text-success-500 text-6xl drop-shadow-lg"
+                className="text-success-500 text-6xl drop-shadow-lg animate-pulse"
                 icon="hugeicons:checkmark-badge-01"
               />
             </div>
@@ -304,8 +311,22 @@ export default function SetupPageClient() {
               Setup Complete!
             </h1>
             <p className="text-gray-400 text-lg">
-              Your JustFlow instance is ready to use.
+              Your JustFlow instance is being initialized. Reloading dashboard...
             </p>
+          </div>
+
+          <div className="space-y-3">
+            <div className="p-4 rounded-lg bg-success-500/10 border border-success-500/20">
+              <div className="flex items-center justify-center gap-2">
+                <Icon
+                  className="text-success-500 text-xl animate-spin"
+                  icon="hugeicons:loading-03"
+                />
+                <span className="text-sm text-gray-300">
+                  Backend restarting and verifying configuration...
+                </span>
+              </div>
+            </div>
           </div>
 
           <Card className="bg-content1/50 backdrop-blur-sm border-success-500/20">
@@ -335,9 +356,10 @@ export default function SetupPageClient() {
                   endContent={<Icon icon="hugeicons:arrow-right-01" />}
                   size="sm"
                   variant="flat"
-                  onPress={() => router.push("/")}
+                  onPress={() => window.location.reload()}
+                  isDisabled
                 >
-                  Go to Dashboard
+                  Reloading...
                 </Button>
               </div>
             </CardBody>

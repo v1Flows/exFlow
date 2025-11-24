@@ -164,6 +164,7 @@ type SetupConfigPayload = {
 type SetupConfigResponse = {
   success: boolean;
   message?: string;
+  backendRestarted?: boolean;
 };
 
 export async function submitSetupConfiguration(
@@ -190,9 +191,15 @@ export async function submitSetupConfiguration(
       };
     }
 
+    // Backend is restarting, wait for it to come back online
+    const restartResult = await waitForBackendRestart(backendUrl);
+
     return {
       success: true,
-      message: "Setup configuration submitted successfully",
+      message: restartResult.success
+        ? "Setup complete! Backend restarted successfully."
+        : `Setup submitted but backend restart verification failed: ${restartResult.message}`,
+      backendRestarted: restartResult.success,
     };
   } catch (error) {
     return {
@@ -276,4 +283,92 @@ export async function validateSetupData(
       info_messages: [],
     };
   }
+}
+
+export async function isSetupComplete(): Promise<boolean> {
+  const dockerServices = [
+    "justflow-backend:8080",
+    "backend:8080",
+    "justflow:8080",
+  ];
+
+  const kubernetesServices = [
+    "justflow.justflow.svc.cluster.local:8080",
+    "justflow-backend.justflow.svc.cluster.local:8080",
+    "justflow-backend.default.svc.cluster.local:8080",
+    "justflow-backend.svc.cluster.local:8080",
+  ];
+
+  const localhostUrl = "http://localhost:8080";
+  const backendUrlEnv = process.env.BACKEND_URL;
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+
+  // Try all possible backend URLs
+  const urlsToTry = [
+    ...dockerServices.map((s) => `http://${s}`),
+    ...kubernetesServices.map((s) => `http://${s}`),
+    localhostUrl,
+    ...(backendUrlEnv ? [backendUrlEnv] : []),
+    apiUrl,
+  ];
+
+  for (const url of urlsToTry) {
+    try {
+      const response = await fetch(`${url}/api/v1/setup/status`, {
+        method: "GET",
+        signal: AbortSignal.timeout(2000),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+
+        return data.is_setup || false;
+      }
+    } catch {
+      // Continue to next URL
+    }
+  }
+
+  // If we can't reach any backend, assume setup is not complete
+  return false;
+}
+
+export async function waitForBackendRestart(
+  backendUrl: string,
+  maxRetries: number = 30,
+  retryDelayMs: number = 1000,
+): Promise<{
+  success: boolean;
+  message: string;
+}> {
+  let lastError = "";
+
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const response = await fetch(`${backendUrl}/api/v1/setup/status`, {
+        method: "GET",
+        signal: AbortSignal.timeout(5000),
+      });
+
+      if (response.ok) {
+        return {
+          success: true,
+          message: `Backend is back online after ${attempt * retryDelayMs}ms`,
+        };
+      }
+    } catch (error) {
+      lastError =
+        error instanceof Error ? error.message : "Unknown connection error";
+    }
+
+    // Wait before retrying (except on last attempt)
+    if (attempt < maxRetries - 1) {
+      await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
+    }
+  }
+
+  return {
+    success: false,
+    message: `Backend did not come back online after ${maxRetries} retries. Last error: ${lastError}`,
+  };
 }
