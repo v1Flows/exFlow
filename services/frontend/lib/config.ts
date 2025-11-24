@@ -36,48 +36,11 @@ class ConfigManager {
       return;
     }
 
-    // If no env var, try to detect the backend automatically
-    const detectedUrl = await this.detectBackendUrl();
-
-    this.config = { apiUrl: detectedUrl };
+    // If no env var, just use the default
+    // Note: Auto-detection is now handled server-side during setup
+    // This avoids browser CORS issues
+    this.config = { apiUrl: this.getDefaultApiUrl() };
     this.initialized = true;
-  }
-
-  /**
-   * Detect backend URL by trying common ports and checking setup status
-   */
-  private async detectBackendUrl(): Promise<string> {
-    const commonPorts = [8081, 8080, 3001, 3000];
-
-    const protocol =
-      // eslint-disable-next-line no-undef
-      typeof window !== "undefined" && window.location.protocol === "https:"
-        ? "https"
-        : "http";
-
-    const hostname =
-      // eslint-disable-next-line no-undef
-      typeof window !== "undefined" ? window.location.hostname : "localhost";
-
-    for (const port of commonPorts) {
-      const testUrl = `${protocol}://${hostname}:${port}`;
-
-      try {
-        const response = await fetch(`${testUrl}/api/v1/setup/status`, {
-          method: "GET",
-          signal: AbortSignal.timeout(2000), // 2 second timeout
-        });
-
-        if (response.ok) {
-          return testUrl;
-        }
-      } catch {
-        // Continue to next port
-      }
-    }
-
-    // Default fallback
-    return this.getDefaultApiUrl();
   }
 
   /**
@@ -91,11 +54,11 @@ class ConfigManager {
       // eslint-disable-next-line no-undef
       const hostname = window.location.hostname;
 
-      return `${protocol}//${hostname}:8081`;
+      return `${protocol}//${hostname}:8080`;
     }
 
     // Server-side fallback
-    return "http://localhost:8081";
+    return "http://localhost:8080";
   }
 
   /**
