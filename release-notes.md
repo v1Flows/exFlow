@@ -14,7 +14,7 @@ Please use with caution!
 - Predefined Project Actions
 
 ### Changed
-- Major UI improvements
+- Major UI improvements (Introducing UI v2)
 - New Welcome Style
 - New Name: JustFlow
 - Refactored Admin Settings Page and System Management
