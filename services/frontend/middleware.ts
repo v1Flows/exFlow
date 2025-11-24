@@ -54,35 +54,42 @@ export async function middleware(request: NextRequest) {
       return createResponseWithPathname(pathname);
     }
 
-    // Setup routes: Check backend status to determine if setup is needed
-    if (isSetupRoute(pathname)) {
-      // Try to check if setup is complete
-      try {
-        const setupComplete = await isSetupComplete();
+    // Auth routes: allow access without checking setup or token
+    if (isAuthRoute(pathname)) {
+      return createResponseWithPathname(pathname);
+    }
 
-        // If setup is complete, redirect to home (don't allow setup page access)
-        if (setupComplete) {
-          return NextResponse.redirect(new URL("/", request.url));
-        }
-      } catch {
-        // If we can't reach the backend, allow setup route (setup might be needed)
+    // Check if setup is complete
+    let setupComplete = false;
+    try {
+      setupComplete = await isSetupComplete();
+    } catch {
+      // If we can't reach the backend, assume setup not complete
+      setupComplete = false;
+    }
+
+    // Setup routes: redirect to home if setup is complete
+    if (isSetupRoute(pathname)) {
+      if (setupComplete) {
+        return NextResponse.redirect(new URL("/", request.url));
       }
 
       return createResponseWithPathname(pathname);
     }
 
-    // Validate token for protected routes
+    // If setup not complete, redirect to setup (for all non-auth, non-setup routes)
+    if (!setupComplete) {
+      return NextResponse.redirect(new URL("/setup", request.url));
+    }
+
+    // Validate token for protected routes (only after setup is complete)
     const res = await ValidateToken();
 
     if (!res.success) {
       cookies.delete("session");
       cookies.delete("user");
-      // Only redirect if not already on auth route
-      if (!isAuthRoute(pathname)) {
-        return NextResponse.redirect(new URL("/auth/login", request.url));
-      }
 
-      return createResponseWithPathname(pathname);
+      return NextResponse.redirect(new URL("/auth/login", request.url));
     }
 
     // Admin route protection

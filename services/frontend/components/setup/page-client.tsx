@@ -241,7 +241,7 @@ export default function SetupPageClient() {
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (): Promise<void> => {
     setIsLoading(true);
     setError("");
 
