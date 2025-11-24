@@ -1,6 +1,6 @@
 # Release Notes
 
-## [Version 2.0.0-beta1] - 2025-11-14
+## [Version 2.0.0-beta2] - 2025-11-24
 
 🚧 Beta Release 🚧
 Please use with caution!
