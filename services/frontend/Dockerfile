@@ -10,6 +10,7 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json pnpm-lock.yaml ./
+RUN npm install -g corepack
 RUN corepack enable pnpm && pnpm --version
 RUN pnpm install
 
