@@ -106,3 +106,157 @@ export async function detectBackend(): Promise<DetectBackendResponse> {
     message: "Unable to detect backend. Please configure manually.",
   };
 }
+
+type BackendStatusResponse = {
+  success: boolean;
+  is_setup: boolean;
+  message?: string;
+};
+
+export async function checkBackendStatus(
+  backendUrl: string,
+): Promise<BackendStatusResponse> {
+  try {
+    const response = await fetch(`${backendUrl}/api/v1/setup/status`, {
+      method: "GET",
+      signal: AbortSignal.timeout(5000),
+    });
+
+    if (!response.ok) {
+      return {
+        success: false,
+        is_setup: false,
+        message: "Could not connect to backend",
+      };
+    }
+
+    const data = await response.json();
+
+    return {
+      success: true,
+      is_setup: data.is_setup || false,
+      message: data.message,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      is_setup: false,
+      message: `Error checking backend status: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`,
+    };
+  }
+}
+
+type SetupConfigPayload = {
+  backend_url: string;
+  backend_port: number;
+  database: {
+    server: string;
+    port: number;
+    name: string;
+    user: string;
+    password: string;
+  };
+  frontend_url: string;
+};
+
+type SetupConfigResponse = {
+  success: boolean;
+  message?: string;
+};
+
+export async function submitSetupConfiguration(
+  backendUrl: string,
+  config: SetupConfigPayload,
+): Promise<SetupConfigResponse> {
+  try {
+    const response = await fetch(`${backendUrl}/api/v1/setup/initialize`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(config),
+      signal: AbortSignal.timeout(10000),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+
+      return {
+        success: false,
+        message:
+          errorData.message || `Backend responded with status ${response.status}`,
+      };
+    }
+
+    return {
+      success: true,
+      message: "Setup configuration submitted successfully",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: `Error submitting configuration: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`,
+    };
+  }
+}
+
+type ValidationErrorResponse = {
+  all_valid: boolean;
+  validation_errors?: string[];
+};
+
+export async function validateSetupData(
+  backendUrl: string,
+  setupData: SetupConfigPayload,
+): Promise<{
+  success: boolean;
+  all_valid: boolean;
+  validation_errors: string[];
+}> {
+  try {
+    const response = await fetch(
+      `${backendUrl}/api/v1/setup/validate`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(setupData),
+        signal: AbortSignal.timeout(10000),
+      },
+    );
+
+    // For validation, both 200 (valid) and 400 (invalid) are expected responses
+    if (response.status === 200 || response.status === 400) {
+      const result: ValidationErrorResponse = await response.json();
+
+      return {
+        success: true,
+        all_valid: result.all_valid || false,
+        validation_errors: result.validation_errors || [],
+      };
+    }
+
+    return {
+      success: false,
+      all_valid: false,
+      validation_errors: [
+        `API request failed: ${response.status} ${response.statusText}`,
+      ],
+    };
+  } catch (error) {
+    return {
+      success: false,
+      all_valid: false,
+      validation_errors: [
+        `Validation request failed: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
+      ],
+    };
+  }
+}

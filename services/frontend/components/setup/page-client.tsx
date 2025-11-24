@@ -15,7 +15,12 @@ import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { detectBackend } from "@/lib/fetch/setup/detectBackend";
+import {
+  detectBackend,
+  checkBackendStatus,
+  submitSetupConfiguration,
+  validateSetupData,
+} from "@/lib/fetch/setup/detectBackend";
 
 import { Ripple } from "../magicui/ripple";
 
@@ -134,22 +139,17 @@ export default function SetupPageClient() {
     setError("");
 
     try {
-      // Call the backend's setup status endpoint
-      const response = await fetch(`${backendUrl}/api/v1/setup/status`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const status = await checkBackendStatus(backendUrl);
 
-      if (!response.ok) {
-        setError("Could not connect to backend to check setup status");
+      if (!status.success) {
+        setError(
+          status.message ||
+            "Could not connect to backend to check setup status",
+        );
         setIsCheckingBackendStatus(false);
 
         return;
       }
-
-      const status = await response.json();
 
       if (status.is_setup) {
         // ✅ Everything is already configured!
@@ -159,7 +159,7 @@ export default function SetupPageClient() {
         // Auto-detect deployment scenario from backend status
         // If backend config exists but frontend env doesn't: independent backend
         // If neither exists: combined container
-        if (status.backend_config_exists && !status.frontend_env_exists) {
+        if (status.is_setup && !status.is_setup) {
           setDeploymentScenario("independent");
         } else {
           setDeploymentScenario("combined");
@@ -218,45 +218,22 @@ export default function SetupPageClient() {
     }
   };
 
-  const validateSetupData = async () => {
+  const validateSetupDataLocal = async () => {
     setValidationLoading(true);
     setValidationErrors([]);
     setValidationSuccess(false);
 
     try {
       // Use the detected backend URL for validation, not the global API URL
-      const response = await fetch(
-        `${detectedBackendUrl}/api/v1/setup/validate`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(setupData),
-        },
-      );
+      const result = await validateSetupData(detectedBackendUrl, setupData);
 
-      // For validation, both 200 (valid) and 400 (invalid) are expected responses
-      if (response.status === 200 || response.status === 400) {
-        const result = await response.json();
-
-        if (result.all_valid) {
-          setValidationSuccess(true);
-          setValidationErrors([]);
-        } else {
-          setValidationErrors(result.validation_errors);
-          setValidationSuccess(false);
-        }
+      if (result.success) {
+        setValidationSuccess(result.all_valid);
+        setValidationErrors(result.validation_errors);
       } else {
-        throw new Error(
-          `API request failed: ${response.status} ${response.statusText}`,
-        );
+        setValidationErrors(result.validation_errors);
+        setValidationSuccess(false);
       }
-    } catch (error: any) {
-      setValidationErrors([
-        `Validation request failed: ${error.message || "Unknown error"}`,
-      ]);
-      setValidationSuccess(false);
     } finally {
       setValidationLoading(false);
     }
@@ -267,29 +244,16 @@ export default function SetupPageClient() {
     setError("");
 
     try {
-      // Use the detected backend URL for configuration
-      const response = await fetch(
-        `${detectedBackendUrl}/api/v1/setup/configure`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(setupData),
-        },
+      const result = await submitSetupConfiguration(
+        detectedBackendUrl,
+        setupData,
       );
 
-      if (!response.ok) {
-        throw new Error(
-          `API request failed: ${response.status} ${response.statusText}`,
-        );
+      if (!result.success) {
+        throw new Error(result.message || "Setup configuration failed");
       }
 
-      const result = await response.json();
-
-      if (result.restart_required || result.message) {
-        setSetupComplete(true);
-      }
+      setSetupComplete(true);
     } catch (error: any) {
       setError(`Setup failed: ${error.message || "Unknown error occurred"}`);
     } finally {
@@ -809,7 +773,7 @@ export default function SetupPageClient() {
                           )
                         }
                         variant={validationSuccess ? "flat" : "solid"}
-                        onPress={validateSetupData}
+                        onPress={validateSetupDataLocal}
                       >
                         {validationSuccess
                           ? "Configuration Validated"
