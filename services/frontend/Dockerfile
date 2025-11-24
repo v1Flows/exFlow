@@ -1,4 +1,4 @@
-FROM node:24.7-alpine AS base
+FROM node:25.2.1-alpine AS base
 LABEL org.opencontainers.image.source = "https://github.com/JustLabV1/justflow"
 
 # Install dependencies only when needed
