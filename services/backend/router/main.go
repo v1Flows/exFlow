@@ -17,11 +17,11 @@ func StartRouter(db *bun.DB, port int, configFile string, frontendEnv string) *h
 	router := gin.Default()
 
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://justlab.xyz", "http://localhost:3000", "http://localhost:4000"},
+		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "HEAD", "POST", "PUT", "OPTIONS", "DELETE"},
 		AllowHeaders:     []string{"Origin", "Authorization", "X-Requested-With", "Content-Type"},
 		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
+		AllowCredentials: false,
 		MaxAge:           12 * time.Hour,
 	}))
 

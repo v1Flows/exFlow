@@ -104,13 +104,20 @@ async function checkBackendHealth(url: string): Promise<boolean> {
     clearTimeout(timeoutId);
 
     if (response.ok) {
-      const data = await response.json();
-
-      return data.service === "backend";
+      const text = await response.text();
+      
+      try {
+        const data = JSON.parse(text);
+        return data.service === "backend";
+      } catch {
+        console.error(`Failed to parse health response from ${url}:`, text);
+        return false;
+      }
     }
 
     return false;
-  } catch {
+  } catch (error) {
+    console.error(`Health check failed for ${url}:`, error);
     return false;
   }
 }

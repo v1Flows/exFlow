@@ -101,92 +101,74 @@ export default function SetupPageClient() {
   // PHASE 1: Backend Detection Functions
   // ============================================================
 
-  const checkBackendHealth = async (url: string): Promise<boolean> => {
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2000);
-
-      const response = await fetch(`${url}/api/v1/health`, {
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      if (response.ok) {
-        const data = await response.json();
-
-        return data.service === "backend";
-      }
-
-      return false;
-    } catch {
-      return false;
-    }
-  };
-
   const detectBackends = async () => {
     setIsDetectingBackends(true);
     try {
-      // Call server-side detection endpoint
-      const response = await fetch("/api/setup/detect-backend");
-      const result = await response.json();
+      // Try multiple strategies to detect the backend
 
-      if (result.detected && result.detected.length > 0) {
-        // Server found internal services
-        // Now we need to determine the browser-accessible URL
-        let accessibleUrl = result.browserAccessibleUrl;
+      // Strategy 1: Try the configured NEXT_PUBLIC_API_URL first
+      const configuredUrl = process.env.NEXT_PUBLIC_API_URL;
 
-        // If no browser-accessible URL from server, construct one
-        if (!accessibleUrl) {
-          // Check if we can access from NEXT_PUBLIC_API_URL
-          if (process.env.NEXT_PUBLIC_API_URL) {
-            accessibleUrl = process.env.NEXT_PUBLIC_API_URL;
-          } else {
-            // Fallback: try common external URLs
-            const hostname =
-              // eslint-disable-next-line no-undef
-              typeof window !== "undefined" ? window.location.hostname : "localhost";
-            const possibleUrls = [
-              `http://${hostname}:8080`,
-              `https://${hostname}:8080`,
-              `http://localhost:8080`,
-            ];
+      if (configuredUrl) {
+        try {
+          const response = await fetch(`${configuredUrl}/api/v1/setup/status`, {
+            signal: AbortSignal.timeout(3000),
+          });
 
-            for (const url of possibleUrls) {
-              if (await checkBackendHealth(url)) {
-                accessibleUrl = url;
-                break;
-              }
-            }
+          if (response.ok) {
+            setBackendsDetected([configuredUrl]);
+            setDetectedBackendUrl(configuredUrl);
+
+            return;
           }
+        } catch {
+          // Continue to next strategy
         }
-
-        // Verify the browser-accessible URL works
-        if (
-          accessibleUrl &&
-          (await checkBackendHealth(accessibleUrl))
-        ) {
-          setBackendsDetected([accessibleUrl]);
-        } else {
-          setError(
-            "Backend was found internally but is not accessible from the browser. " +
-              "Please ensure the backend is accessible at: " +
-              result.detected[0] +
-              " and configure BACKEND_URL if needed.",
-          );
-        }
-      } else {
-        setError(
-          result.error ||
-            "No backend services found. Please ensure your backend is running and reachable, " +
-              "or configure BACKEND_URL environment variable.",
-        );
       }
-    } catch (error) {
+
+      // Strategy 2: Try localhost:8080 (common development setup)
+      const localhostUrl = "http://localhost:8080";
+
+      try {
+        const response = await fetch(`${localhostUrl}/api/v1/setup/status`, {
+          signal: AbortSignal.timeout(3000),
+        });
+
+        if (response.ok) {
+          setBackendsDetected([localhostUrl]);
+          setDetectedBackendUrl(localhostUrl);
+
+          return;
+        }
+      } catch {
+        // Continue to next strategy
+      }
+
+      // Strategy 3: Try same host but different port
+      try {
+        const currentHost =
+          typeof window !== "undefined"
+            ? // eslint-disable-next-line no-undef
+              window.location.hostname
+            : "localhost";
+        const backendUrl = `http://${currentHost}:8080`;
+        const response = await fetch(`${backendUrl}/api/v1/setup/status`, {
+          signal: AbortSignal.timeout(3000),
+        });
+
+        if (response.ok) {
+          setBackendsDetected([backendUrl]);
+          setDetectedBackendUrl(backendUrl);
+
+          return;
+        }
+      } catch {
+        // Continue to next strategy
+      }
+
+      // No backend found
       setError(
-        `Backend detection failed: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`,
+        "Backend detection failed. Ensure the backend is running at http://localhost:8080 or set NEXT_PUBLIC_API_URL environment variable.",
       );
     } finally {
       setIsDetectingBackends(false);
@@ -521,7 +503,6 @@ export default function SetupPageClient() {
               <Alert
                 color="danger"
                 description={error}
-                startContent={<Icon icon="hugeicons:alert-02" width={24} />}
                 title="Error"
                 variant="flat"
               />
