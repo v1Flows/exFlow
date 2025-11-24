@@ -15,6 +15,8 @@ import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { detectBackend } from "@/lib/fetch/setup/detectBackend";
+
 import { Ripple } from "../magicui/ripple";
 
 type SetupPhase = "backend-detection" | "configuration" | "complete";
@@ -104,71 +106,22 @@ export default function SetupPageClient() {
   const detectBackends = async () => {
     setIsDetectingBackends(true);
     try {
-      // Try multiple strategies to detect the backend
+      const result = await detectBackend();
 
-      // Strategy 1: Try the configured NEXT_PUBLIC_API_URL first
-      const configuredUrl = process.env.NEXT_PUBLIC_API_URL;
-
-      if (configuredUrl) {
-        try {
-          const response = await fetch(`${configuredUrl}/api/v1/setup/status`, {
-            signal: AbortSignal.timeout(3000),
-          });
-
-          if (response.ok) {
-            setBackendsDetected([configuredUrl]);
-            setDetectedBackendUrl(configuredUrl);
-
-            return;
-          }
-        } catch {
-          // Continue to next strategy
-        }
+      if (result.detected && result.url) {
+        setBackendsDetected([result.url]);
+        setDetectedBackendUrl(result.url);
+      } else {
+        setError(
+          result.message ||
+            "Backend detection failed. Ensure backend is running.",
+        );
       }
-
-      // Strategy 2: Try localhost:8080 (common development setup)
-      const localhostUrl = "http://localhost:8080";
-
-      try {
-        const response = await fetch(`${localhostUrl}/api/v1/setup/status`, {
-          signal: AbortSignal.timeout(3000),
-        });
-
-        if (response.ok) {
-          setBackendsDetected([localhostUrl]);
-          setDetectedBackendUrl(localhostUrl);
-
-          return;
-        }
-      } catch {
-        // Continue to next strategy
-      }
-
-      // Strategy 3: Try same host but different port
-      try {
-        const currentHost =
-          typeof window !== "undefined"
-            ? // eslint-disable-next-line no-undef
-              window.location.hostname
-            : "localhost";
-        const backendUrl = `http://${currentHost}:8080`;
-        const response = await fetch(`${backendUrl}/api/v1/setup/status`, {
-          signal: AbortSignal.timeout(3000),
-        });
-
-        if (response.ok) {
-          setBackendsDetected([backendUrl]);
-          setDetectedBackendUrl(backendUrl);
-
-          return;
-        }
-      } catch {
-        // Continue to next strategy
-      }
-
-      // No backend found
+    } catch (error) {
       setError(
-        "Backend detection failed. Ensure the backend is running at http://localhost:8080 or set NEXT_PUBLIC_API_URL environment variable.",
+        `Backend detection failed: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
       );
     } finally {
       setIsDetectingBackends(false);
