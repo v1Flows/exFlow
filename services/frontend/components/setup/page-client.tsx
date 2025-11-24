@@ -68,6 +68,7 @@ export default function SetupPageClient() {
   const [error, setError] = useState<string>("");
   const [validationLoading, setValidationLoading] = useState<boolean>(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [validationInfo, setValidationInfo] = useState<string[]>([]);
   const [validationSuccess, setValidationSuccess] = useState<boolean>(false);
 
   // Setup completion
@@ -221,6 +222,7 @@ export default function SetupPageClient() {
   const validateSetupDataLocal = async () => {
     setValidationLoading(true);
     setValidationErrors([]);
+    setValidationInfo([]);
     setValidationSuccess(false);
 
     try {
@@ -230,8 +232,10 @@ export default function SetupPageClient() {
       if (result.success) {
         setValidationSuccess(result.all_valid);
         setValidationErrors(result.validation_errors);
+        setValidationInfo(result.info_messages);
       } else {
         setValidationErrors(result.validation_errors);
+        setValidationInfo([]);
         setValidationSuccess(false);
       }
     } finally {
@@ -792,6 +796,21 @@ export default function SetupPageClient() {
                             ))}
                           </ul>
                         </Alert>
+                      )}
+
+                      {validationInfo.length > 0 && (
+                        <Alert
+                          color="primary"
+                          description={validationInfo.join(" ")}
+                          startContent={
+                            <Icon
+                              className="text-primary text-xl"
+                              icon="hugeicons:info-circle"
+                            />
+                          }
+                          title="Setup Information"
+                          variant="flat"
+                        />
                       )}
 
                       {validationSuccess && (

@@ -207,6 +207,11 @@ export async function submitSetupConfiguration(
 type ValidationErrorResponse = {
   all_valid: boolean;
   validation_errors?: string[];
+  database_details?: {
+    connected: boolean;
+    is_empty: boolean;
+    warning?: string;
+  };
 };
 
 export async function validateSetupData(
@@ -216,6 +221,7 @@ export async function validateSetupData(
   success: boolean;
   all_valid: boolean;
   validation_errors: string[];
+  info_messages: string[];
 }> {
   try {
     const response = await fetch(
@@ -234,10 +240,19 @@ export async function validateSetupData(
     if (response.status === 200 || response.status === 400) {
       const result: ValidationErrorResponse = await response.json();
 
+      // Separate info messages from actual errors
+      const errors = (result.validation_errors || []).filter(
+        (err) => !err.includes("Database Info:"),
+      );
+      const infos = (result.validation_errors || []).filter((err) =>
+        err.includes("Database Info:"),
+      );
+
       return {
         success: true,
         all_valid: result.all_valid || false,
-        validation_errors: result.validation_errors || [],
+        validation_errors: errors,
+        info_messages: infos,
       };
     }
 
@@ -247,6 +262,7 @@ export async function validateSetupData(
       validation_errors: [
         `API request failed: ${response.status} ${response.statusText}`,
       ],
+      info_messages: [],
     };
   } catch (error) {
     return {
@@ -257,6 +273,7 @@ export async function validateSetupData(
           error instanceof Error ? error.message : "Unknown error"
         }`,
       ],
+      info_messages: [],
     };
   }
 }
