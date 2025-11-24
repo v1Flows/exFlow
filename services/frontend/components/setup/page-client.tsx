@@ -125,62 +125,72 @@ export default function SetupPageClient() {
   };
 
   const detectBackends = async () => {
-    const detected: string[] = [];
+    setIsDetectingBackends(true);
+    try {
+      // Call server-side detection endpoint
+      const response = await fetch("/api/setup/detect-backend");
+      const result = await response.json();
 
-    // Step 1: Check environment variable first (highest priority)
-    if (process.env.NEXT_PUBLIC_API_URL) {
-      const isValid = await checkBackendHealth(process.env.NEXT_PUBLIC_API_URL);
+      if (result.detected && result.detected.length > 0) {
+        // Server found internal services
+        // Now we need to determine the browser-accessible URL
+        let accessibleUrl = result.browserAccessibleUrl;
 
-      if (isValid) {
-        detected.push(process.env.NEXT_PUBLIC_API_URL);
-        setBackendsDetected(detected);
+        // If no browser-accessible URL from server, construct one
+        if (!accessibleUrl) {
+          // Check if we can access from NEXT_PUBLIC_API_URL
+          if (process.env.NEXT_PUBLIC_API_URL) {
+            accessibleUrl = process.env.NEXT_PUBLIC_API_URL;
+          } else {
+            // Fallback: try common external URLs
+            const hostname =
+              // eslint-disable-next-line no-undef
+              typeof window !== "undefined" ? window.location.hostname : "localhost";
+            const possibleUrls = [
+              `http://${hostname}:8080`,
+              `https://${hostname}:8080`,
+              `http://localhost:8080`,
+            ];
 
-        return;
+            for (const url of possibleUrls) {
+              if (await checkBackendHealth(url)) {
+                accessibleUrl = url;
+                break;
+              }
+            }
+          }
+        }
+
+        // Verify the browser-accessible URL works
+        if (
+          accessibleUrl &&
+          (await checkBackendHealth(accessibleUrl))
+        ) {
+          setBackendsDetected([accessibleUrl]);
+        } else {
+          setError(
+            "Backend was found internally but is not accessible from the browser. " +
+              "Please ensure the backend is accessible at: " +
+              result.detected[0] +
+              " and configure BACKEND_URL if needed.",
+          );
+        }
+      } else {
+        setError(
+          result.error ||
+            "No backend services found. Please ensure your backend is running and reachable, " +
+              "or configure BACKEND_URL environment variable.",
+        );
       }
+    } catch (error) {
+      setError(
+        `Backend detection failed: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
+      );
+    } finally {
+      setIsDetectingBackends(false);
     }
-
-    // Step 2: Try Docker service names (for Docker Compose environments)
-    const dockerServices = [
-      "http://justflow-backend:8080",
-      "http://justflow:8080",
-      "http://backend:8080",
-      "http://api:8080",
-    ];
-
-    for (const service of dockerServices) {
-      const isValid = await checkBackendHealth(service);
-
-      if (isValid) {
-        detected.push(service);
-      }
-    }
-
-    // Step 3: Scan localhost on common ports
-    const commonPorts = [8080, 8000, 3000, 5000, 8888, 9000];
-
-    for (const port of commonPorts) {
-      const url = `http://localhost:${port}`;
-      const isValid = await checkBackendHealth(url);
-
-      if (isValid) {
-        detected.push(url);
-      }
-    }
-
-    // Step 4: Try 127.0.0.1 with common ports (alternative localhost)
-    for (const port of commonPorts) {
-      const url = `http://127.0.0.1:${port}`;
-      const isValid = await checkBackendHealth(url);
-
-      if (isValid) {
-        detected.push(url);
-      }
-    }
-
-    // Remove duplicates
-    const uniqueDetected = Array.from(new Set(detected));
-
-    setBackendsDetected(uniqueDetected);
   };
 
   const selectBackendAndCheckStatus = async (backendUrl: string) => {

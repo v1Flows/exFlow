@@ -60,6 +60,8 @@ RUN mkdir -p /etc/justflow \
 
 # Set environment variables
 ENV NODE_ENV=production
+ENV BACKEND_URL=http://localhost:8080
+ENV NEXT_PUBLIC_API_URL=http://localhost:8080
 
 VOLUME [ "/etc/justflow" ]
 
@@ -68,8 +70,12 @@ EXPOSE 8080 3000
 
 USER nextjs
 
+# Copy entrypoint script
+COPY --chown=nextjs:nodejs entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
 # Use tini as the entrypoint
 ENTRYPOINT ["/sbin/tini", "--"]
 
-# Start the backend and frontend
-CMD ["sh", "-c", "./justflow-backend --config /etc/justflow/config.yaml & node /app/server.js"]
+# Start using the entrypoint script
+CMD ["/app/entrypoint.sh"]
