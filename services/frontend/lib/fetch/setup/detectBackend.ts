@@ -171,7 +171,7 @@ export async function submitSetupConfiguration(
   config: SetupConfigPayload,
 ): Promise<SetupConfigResponse> {
   try {
-    const response = await fetch(`${backendUrl}/api/v1/setup/initialize`, {
+    const response = await fetch(`${backendUrl}/api/v1/setup/configure`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -817,12 +817,6 @@ export default function SetupPageClient() {
                         <Alert
                           color="success"
                           description="All checks passed. You can now complete the setup."
-                          startContent={
-                            <Icon
-                              className="text-success text-xl"
-                              icon="hugeicons:checkmark-circle-02"
-                            />
-                          }
                           title="Ready to Deploy"
                           variant="flat"
                         />
