@@ -1,4 +1,4 @@
-FROM node:25.2.1-alpine AS base
+FROM node:24.7-alpine AS base
 LABEL org.opencontainers.image.source = "https://github.com/JustLabV1/justflow"
 
 # Install dependencies only when needed
@@ -6,10 +6,6 @@ FROM base AS deps
 LABEL org.opencontainers.image.source = "https://github.com/JustLabV1/justflow"
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
 RUN apk add --no-cache libc6-compat
-RUN npm install -g corepack --force
-RUN npm config set prefix /usr/local
-ENV PATH="/usr/local/bin:$PATH"
-
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager

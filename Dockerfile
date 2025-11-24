@@ -1,14 +1,10 @@
-FROM node:25.2.1-alpine AS base
+FROM node:24.7-alpine AS base
 LABEL org.opencontainers.image.source = "https://github.com/JustLabV1/justflow"
 
 # Stage 1: Build the frontend
-FROM node:25.2.1-alpine AS frontend-builder
+FROM node:24.7-alpine AS frontend-builder
 LABEL org.opencontainers.image.source = "https://github.com/JustLabV1/justflow"
 RUN apk add --no-cache libc6-compat
-RUN npm install -g corepack --force
-RUN npm config set prefix /usr/local
-ENV PATH="/usr/local/bin:$PATH"
-
 WORKDIR /app/frontend
 COPY services/frontend/package.json services/frontend/pnpm-lock.yaml ./
 RUN corepack enable pnpm && pnpm --version
