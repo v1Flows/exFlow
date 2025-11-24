@@ -187,7 +187,8 @@ export async function submitSetupConfiguration(
       return {
         success: false,
         message:
-          errorData.message || `Backend responded with status ${response.status}`,
+          errorData.message ||
+          `Backend responded with status ${response.status}`,
       };
     }
 
@@ -231,17 +232,14 @@ export async function validateSetupData(
   info_messages: string[];
 }> {
   try {
-    const response = await fetch(
-      `${backendUrl}/api/v1/setup/validate`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(setupData),
-        signal: AbortSignal.timeout(10000),
+    const response = await fetch(`${backendUrl}/api/v1/setup/validate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify(setupData),
+      signal: AbortSignal.timeout(10000),
+    });
 
     // For validation, both 200 (valid) and 400 (invalid) are expected responses
     if (response.status === 200 || response.status === 400) {

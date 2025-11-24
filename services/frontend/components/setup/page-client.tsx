@@ -12,7 +12,6 @@ import {
   Progress,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import {
@@ -41,7 +40,6 @@ interface SetupData {
 }
 
 export default function SetupPageClient() {
-  const router = useRouter();
   // ============================================================
   // STATE MANAGEMENT
   // ============================================================
@@ -262,6 +260,7 @@ export default function SetupPageClient() {
       // Auto-refresh page after a short delay to ensure backend is ready
       if (result.backendRestarted) {
         setTimeout(() => {
+          // eslint-disable-next-line no-undef
           window.location.reload();
         }, 2000);
       }
@@ -311,7 +310,8 @@ export default function SetupPageClient() {
               Setup Complete!
             </h1>
             <p className="text-gray-400 text-lg">
-              Your JustFlow instance is being initialized. Reloading dashboard...
+              Your JustFlow instance is being initialized. Reloading
+              dashboard...
             </p>
           </div>
 
@@ -352,12 +352,13 @@ export default function SetupPageClient() {
                   </div>
                 </div>
                 <Button
+                  isDisabled
                   color="success"
                   endContent={<Icon icon="hugeicons:arrow-right-01" />}
                   size="sm"
                   variant="flat"
+                  // eslint-disable-next-line no-undef
                   onPress={() => window.location.reload()}
-                  isDisabled
                 >
                   Reloading...
                 </Button>
