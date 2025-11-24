@@ -58,15 +58,11 @@ export default function ProjectActions({
             <Button
               color="primary"
               isDisabled={
-                (!canEdit ||
-                  !settings.add_flow_actions ||
-                  project.disabled) &&
+                (!canEdit || !settings.add_flow_actions || project.disabled) &&
                 user.role !== "admin"
               }
               size="sm"
-              startContent={
-                <Icon icon="hugeicons:subnode-add" width={18} />
-              }
+              startContent={<Icon icon="hugeicons:subnode-add" width={18} />}
               variant="solid"
               onPress={addFlowActionModal.onOpen}
             >

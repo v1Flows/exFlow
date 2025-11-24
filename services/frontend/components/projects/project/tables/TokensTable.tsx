@@ -23,11 +23,7 @@ import ChangeProjectTokenStatusModal from "@/components/modals/projects/changeTo
 import DeleteRunnerTokenModal from "@/components/modals/tokens/deleteRunnerToken";
 import canEditProject from "@/lib/functions/canEditProject";
 
-export default function ProjectTokens({
-  tokens,
-  project,
-  user,
-}: any) {
+export default function ProjectTokens({ tokens, project, user }: any) {
   const [targetToken, setTargetToken] = React.useState({} as any);
 
   // project tokens

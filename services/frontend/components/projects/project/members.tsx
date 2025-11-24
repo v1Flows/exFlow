@@ -38,7 +38,7 @@ export default function ProjectMembers({ project, settings, user }: any) {
     if (
       project.members.find((m: any) => m.user_id === user.id) &&
       project.members.filter((m: any) => m.user_id === user.id)[0].role ===
-      "Owner"
+        "Owner"
     ) {
       return true;
     }

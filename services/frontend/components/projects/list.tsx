@@ -18,8 +18,6 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 
-import { ShineBorder } from "../magicui/shine-border";
-
 import CreateProjectModal from "@/components/modals/projects/create";
 import DeleteProjectModal from "@/components/modals/projects/delete";
 import EditProjectModal from "@/components/modals/projects/edit";
@@ -27,6 +25,8 @@ import AcceptProjectInvite from "@/lib/fetch/project/PUT/AcceptProjectInvite";
 import DeclineProjectInvite from "@/lib/fetch/project/PUT/DeclineProjectInvite";
 import canEditProject from "@/lib/functions/canEditProject";
 import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
+
+import { ShineBorder } from "../magicui/shine-border";
 
 export function ProjectsList({ projects, pending_projects, user }: any) {
   const router = useRouter();

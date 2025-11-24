@@ -74,9 +74,9 @@ export default function FlowDetails({
         >
           <Card
             fullWidth
+            className="h-full border-none shadow-lg bg-content1/60 backdrop-blur-md border border-default-100"
             isHoverable={!!stat.isLink}
             isPressable={!!stat.isLink}
-            className="h-full border-none shadow-lg bg-content1/60 backdrop-blur-md border border-default-100"
             onPress={() => {
               if (stat.isLink) {
                 router.push(stat.link);

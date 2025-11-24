@@ -15,6 +15,7 @@ export default function Search({
   projects: any;
   flows: any;
   folders: any;
+  // eslint-disable-next-line no-undef
   trigger?: React.ReactNode;
 }) {
   const { onOpen, setContextData } = useSearch();

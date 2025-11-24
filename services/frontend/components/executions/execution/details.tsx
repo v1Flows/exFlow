@@ -12,21 +12,33 @@ import {
 interface StatCardProps {
   icon: string;
   label: string;
+  // eslint-disable-next-line no-undef
   value: React.ReactNode;
+  // eslint-disable-next-line no-undef
   subValue?: React.ReactNode;
   color?: string;
   tooltip?: string;
 }
 
-function StatCard({ icon, label, value, color = "default", tooltip }: StatCardProps) {
+function StatCard({
+  icon,
+  label,
+  value,
+  color = "default",
+  tooltip,
+}: StatCardProps) {
   const content = (
     <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-3 transition-colors hover:bg-white/10">
-      <div className={`flex size-10 shrink-0 items-center justify-center rounded-lg bg-${color === "default" ? "default-100" : color + "/20"} text-${color === "default" ? "default-500" : color}`}>
+      <div
+        className={`flex size-10 shrink-0 items-center justify-center rounded-lg bg-${color === "default" ? "default-100" : color + "/20"} text-${color === "default" ? "default-500" : color}`}
+      >
         <Icon icon={icon} width={20} />
       </div>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium text-default-500">{label}</p>
-        <div className="truncate text-sm font-bold text-foreground">{value}</div>
+        <div className="truncate text-sm font-bold text-foreground">
+          {value}
+        </div>
       </div>
     </div>
   );
@@ -92,6 +104,7 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
     } else if (timeAgo <= -20) {
       return "danger";
     }
+
     return "default";
   }
 
@@ -112,10 +125,12 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
     } else if (timeAgo <= -11) {
       return "Unhealthy";
     }
+
     return "Unknown";
   }
 
-  const runnerName = runners.find((r: any) => r.id === execution.runner_id)?.name || "N/A";
+  const runnerName =
+    runners.find((r: any) => r.id === execution.runner_id)?.name || "N/A";
 
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
@@ -125,8 +140,12 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
           {executionStatusWrapper(execution)}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium text-default-500">Status</p>
-          <p className={`truncate text-sm font-bold text-${executionStatusColor(execution)}`}>
+          <p className="truncate text-sm font-medium text-default-500">
+            Status
+          </p>
+          <p
+            className={`truncate text-sm font-bold text-${executionStatusColor(execution)}`}
+          >
             {executionStatusName(execution)}
           </p>
         </div>
@@ -135,6 +154,7 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
       {/* Scheduled At */}
       {execution.status === "scheduled" && (
         <StatCard
+          color="secondary"
           icon="hugeicons:date-time"
           label="Scheduled At"
           value={
@@ -144,25 +164,24 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
               <ReactTimeago date={execution.scheduled_at} />
             )
           }
-          color="secondary"
         />
       )}
 
       {/* Health */}
       <StatCard
+        color={heartbeatColor()}
         icon="hugeicons:stethoscope-02"
         label="Health"
-        value={heartbeatStatus()}
-        color={heartbeatColor()}
         tooltip={execution.last_heartbeat}
+        value={heartbeatStatus()}
       />
 
       {/* Runner */}
       <StatCard
         icon="hugeicons:ai-brain-04"
         label="Runner"
-        value={runnerName}
         tooltip={runnerName.length > 20 ? runnerName : undefined}
+        value={runnerName}
       />
 
       {/* Total Steps */}
@@ -176,6 +195,7 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
       <StatCard
         icon="hugeicons:time-schedule"
         label="Executed At"
+        tooltip={execution.executed_at}
         value={
           execution.executed_at === "0001-01-01T00:00:00Z" ? (
             "N/A"
@@ -183,13 +203,13 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
             <ReactTimeago date={execution.executed_at} />
           )
         }
-        tooltip={execution.executed_at}
       />
 
       {/* Finished At */}
       <StatCard
         icon="hugeicons:time-02"
         label="Finished At"
+        tooltip={execution.finished_at}
         value={
           execution.finished_at !== "0001-01-01T00:00:00Z" ? (
             <ReactTimeago date={execution.finished_at} />
@@ -197,7 +217,6 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
             "N/A"
           )
         }
-        tooltip={execution.finished_at}
       />
 
       {/* Duration */}
@@ -205,8 +224,8 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
         <StatCard
           icon="hugeicons:timer-02"
           label="Duration"
-          value={getDuration()}
           tooltip="The 'Pick Up' step is not considered in the calculation"
+          value={getDuration()}
         />
       )}
     </div>
