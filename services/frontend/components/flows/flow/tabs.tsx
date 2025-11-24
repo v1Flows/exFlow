@@ -56,8 +56,16 @@ export default function FlowTabs({
       <div className="flex w-full flex-col">
         <Tabs
           aria-label="Options"
+          classNames={{
+            tabList:
+              "gap-6 w-full relative rounded-none p-0 border-b border-divider",
+            cursor: "w-full bg-primary",
+            tab: "max-w-fit px-0 h-12",
+            tabContent: "group-data-[selected=true]:text-primary",
+          }}
           color="primary"
           selectedKey={selected}
+          variant="underlined"
           onSelectionChange={handleTabChange}
         >
           <Tab

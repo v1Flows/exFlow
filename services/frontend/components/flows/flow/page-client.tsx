@@ -1,6 +1,6 @@
 "use client";
 
-import { Divider, Spacer } from "@heroui/react";
+import { motion } from "framer-motion";
 
 import FlowTabs from "@/components/flows/flow/tabs";
 import ErrorCard from "@/components/error/ErrorCard";
@@ -70,7 +70,14 @@ export default function FlowPageClient({ flowId }: FlowPageClientProps) {
   }
 
   return (
-    <main>
+    <motion.main
+      animate="visible"
+      className="w-full p-4 space-y-8"
+      initial="hidden"
+      variants={{
+        visible: { transition: { staggerChildren: 0.1 } },
+      }}
+    >
       <FlowHeading
         flow={flow}
         folders={folders}
@@ -79,9 +86,7 @@ export default function FlowPageClient({ flowId }: FlowPageClientProps) {
         settings={settings}
         user={user}
       />
-      <Divider className="mt-4 mb-4" />
       <FlowDetails flow={flow} project={project} runners={runners} />
-      <Spacer y={4} />
       <FlowTabs
         flow={flow}
         flows={flows}
@@ -91,6 +96,6 @@ export default function FlowPageClient({ flowId }: FlowPageClientProps) {
         settings={settings}
         user={user}
       />
-    </main>
+    </motion.main>
   );
 }

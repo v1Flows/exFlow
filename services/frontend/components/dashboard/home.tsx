@@ -4,23 +4,52 @@ import { Icon } from "@iconify/react";
 import {
   Card,
   CardBody,
+  CardHeader,
   Dropdown,
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
-  Spacer,
   useDisclosure,
+  Button,
+  Chip,
+  ScrollShadow,
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import ReactTimeago from "react-timeago";
+import { motion } from "framer-motion";
+import NumberFlow from "@number-flow/react";
 
 import WelcomeModal from "@/components/modals/user/welcome";
+import { Ripple } from "@/components/magicui/ripple";
 
 import Executions from "../executions/executions";
 import Alerts from "../alerts/alerts";
 
 import DashboardExecutionsStats from "./stats-charts";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: {
+      type: "spring" as const,
+      stiffness: 100,
+      damping: 15,
+    },
+  },
+};
 
 export default function DashboardHome({
   stats,
@@ -65,39 +94,106 @@ export default function DashboardHome({
     }
   });
 
+  const StatTile = ({
+    title,
+    value,
+    subtext,
+    icon,
+    statusColor = "default",
+    onClick,
+    children,
+  }: any) => (
+    <motion.div className="h-full" variants={itemVariants}>
+      <Card
+        className="h-full bg-content1/60 backdrop-blur-md shadow-lg border border-default-100 overflow-visible"
+        isPressable={!!onClick}
+        onPress={onClick}
+      >
+        <CardBody className="p-4">
+          <div className="flex justify-between items-start mb-2">
+            <div
+              className={`flex size-10 items-center justify-center rounded-xl bg-${statusColor}/20 text-${statusColor}`}
+            >
+              <Icon icon={icon} width={24} />
+            </div>
+            {children}
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-default-500 text-sm font-medium">
+              {title}
+            </span>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-bold tracking-tight">
+                <NumberFlow value={value} />
+              </span>
+              {subtext && (
+                <span className="text-xs text-default-400 font-medium">
+                  {subtext}
+                </span>
+              )}
+            </div>
+          </div>
+        </CardBody>
+      </Card>
+    </motion.div>
+  );
+
+  const flowIssues = flows.filter((f: any) => f.maintenance).length;
+  const executionIssues = executionsWithAttention.filter(
+    (e: any) =>
+      (e.status === "error" || e.status === "interactionWaiting") &&
+      new Date(e.created_at).getTime() > Date.now() - 24 * 60 * 60 * 1000,
+  ).length;
+  const runnerIssues = runners.filter(
+    (r: any) => !r.shared_runner && !runnerHeartbeatStatus(r),
+  ).length;
+
   return (
-    <main>
-      <div>
-        <p className="text-xl font-bold">Hello, {user.username} 👋</p>
-        <p className="text-default-500">
-          Here&apos;s the current status for today.
-        </p>
-      </div>
-      <Spacer y={4} />
-      <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <div className="col-span-1">
-          <Dropdown backdrop="opaque" placement="bottom">
+    <main className="relative w-full min-h-full p-2 md:p-6">
+      <div className="relative z-10 mx-auto">
+        <motion.div
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
+          initial={{ opacity: 0, y: -20 }}
+        >
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Command <span className="text-primary">Center</span>
+            </h1>
+            <p className="text-default-500">
+              Welcome back, {user.username}. Systems are operational.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              color="primary"
+              startContent={<Icon icon="hugeicons:arrow-right-01" />}
+              variant="shadow"
+              onPress={() => router.push("/flows")}
+            >
+              To Flows
+            </Button>
+          </div>
+        </motion.div>
+
+        <motion.div
+          animate="visible"
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6"
+          initial="hidden"
+          variants={containerVariants}
+        >
+          {/* Top Row: Stats Tiles */}
+          <Dropdown backdrop="blur" placement="bottom-start">
             <DropdownTrigger>
-              <Card fullWidth isHoverable isPressable>
-                <CardBody>
-                  <div className="flex items-center gap-2">
-                    <div className="flex size-10 items-center justify-center rounded-small bg-default/30 text-foreground">
-                      <Icon icon="hugeicons:workflow-square-10" width={24} />
-                    </div>
-                    <div>
-                      {flows.filter((f: any) => f.maintenance).length > 0 ? (
-                        <p className="text-md font-bold text-warning">
-                          {flows.filter((f: any) => f.maintenance).length} need
-                          attention
-                        </p>
-                      ) : (
-                        <p className="text-md font-bold text-success">OK</p>
-                      )}
-                      <p className="text-sm text-default-500">Flows</p>
-                    </div>
-                  </div>
-                </CardBody>
-              </Card>
+              <div>
+                <StatTile
+                  icon="hugeicons:workflow-square-01"
+                  statusColor={flowIssues > 0 ? "warning" : "success"}
+                  subtext={`${flowIssues} requiring attention`}
+                  title="Active Flows"
+                  value={flows.length}
+                />
+              </div>
             </DropdownTrigger>
             <DropdownMenu aria-label="Flow Problems">
               {flows
@@ -105,233 +201,92 @@ export default function DashboardHome({
                 .map((flow: any) => (
                   <DropdownItem
                     key={flow.id}
-                    onPress={() => {
-                      router.push(`/flows/${flow.id}`);
-                    }}
+                    startContent={
+                      <Icon
+                        className="text-warning"
+                        icon="hugeicons:alert-02"
+                      />
+                    }
+                    onPress={() => router.push(`/flows/${flow.id}`)}
                   >
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex items-center justify-start gap-2">
-                        <div className="flex size-10 items-center justify-center rounded-small bg-default/30 text-foreground">
-                          <Icon
-                            className="text-warning"
-                            icon="hugeicons:alert-02"
-                            width={20}
-                          />
-                        </div>
-                        <div className="items-start">
-                          <p className="text-md font-bold">{flow.name}</p>
-                          <p className="text-sm text-default-500">
-                            Message: {flow.maintenance_message}
-                          </p>
-                        </div>
-                      </div>
-                      <Icon icon="akar-icons:arrow-right" />
-                    </div>
+                    {flow.name}
                   </DropdownItem>
                 ))}
+              {flowIssues === 0 && (
+                <DropdownItem key="no-issues" isReadOnly>
+                  No issues detected
+                </DropdownItem>
+              )}
             </DropdownMenu>
           </Dropdown>
-        </div>
 
-        <div className="col-span-1">
-          <Dropdown backdrop="opaque" placement="bottom">
+          <Dropdown backdrop="blur" placement="bottom-start">
             <DropdownTrigger>
-              <Card fullWidth isHoverable isPressable>
-                <CardBody>
-                  <div className="flex items-center gap-2">
-                    <div className="flex size-10 items-center justify-center rounded-small bg-default/30 text-foreground">
-                      <Icon icon="hugeicons:rocket-02" width={24} />
-                    </div>
-                    <div>
-                      {executionsWithAttention.filter(
-                        (e: any) =>
-                          (e.status === "error" ||
-                            e.status === "interactionWaiting") &&
-                          new Date(e.created_at).getTime() >
-                            Date.now() - 24 * 60 * 60 * 1000,
-                      ).length > 0 ? (
-                        <div className="flex-cols flex items-center gap-1">
-                          {executionsWithAttention.filter(
-                            (e: any) => e.status === "interactionWaiting",
-                          ).length > 0 && (
-                            <p className="text-md font-bold text-primary">
-                              {
-                                executionsWithAttention.filter(
-                                  (e: any) =>
-                                    e.status === "interactionWaiting" &&
-                                    new Date(e.created_at).getTime() >
-                                      Date.now() - 24 * 60 * 60 * 1000,
-                                ).length
-                              }{" "}
-                              Interaction Required
-                            </p>
-                          )}
-                          {executionsWithAttention.filter(
-                            (e: any) => e.status === "error",
-                          ).length > 0 &&
-                            executionsWithAttention.filter(
-                              (e: any) => e.status === "interactionWaiting",
-                            ).length > 0 && (
-                              <p className="text-md font-bold">&</p>
-                            )}
-                          {executionsWithAttention.filter(
-                            (e: any) => e.status === "error",
-                          ).length > 0 && (
-                            <p className="text-md font-bold text-danger">
-                              {
-                                executionsWithAttention.filter(
-                                  (e: any) =>
-                                    e.status === "error" &&
-                                    new Date(e.created_at).getTime() >
-                                      Date.now() - 24 * 60 * 60 * 1000,
-                                ).length
-                              }{" "}
-                              Failed
-                            </p>
-                          )}
-                        </div>
-                      ) : (
-                        <p className="text-md font-bold text-success">OK</p>
-                      )}
-                      <p className="text-sm text-default-500">
-                        Executions (last 24 hours)
-                      </p>
-                    </div>
-                  </div>
-                </CardBody>
-              </Card>
+              <div>
+                <StatTile
+                  icon="hugeicons:rocket-02"
+                  statusColor={executionIssues > 0 ? "danger" : "primary"}
+                  subtext={`${executionIssues} failed or waiting`}
+                  title="24h Executions"
+                  value={executionsWithAttention.length} // This might need to be total executions count if available, using attention list for now
+                />
+              </div>
             </DropdownTrigger>
             <DropdownMenu aria-label="Execution Problems">
               {executionsWithAttention
                 .filter(
                   (e: any) =>
-                    e.status === "interactionWaiting" &&
+                    (e.status === "error" ||
+                      e.status === "interactionWaiting") &&
                     new Date(e.created_at).getTime() >
                       Date.now() - 24 * 60 * 60 * 1000,
-                )
-                .sort((a: any, b: any) =>
-                  new Date(a.created_at) < new Date(b.created_at) ? 1 : -1,
-                )
-                .map((execution: any, index: any) => (
-                  <DropdownItem
-                    key={execution.id}
-                    showDivider={index !== executionsWithAttention.length - 1}
-                    onPress={() => {
-                      router.push(
-                        `/flows/${execution.flow_id}/execution/${execution.id}`,
-                      );
-                    }}
-                  >
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex items-center justify-start gap-2">
-                        <div className="flex size-10 items-center justify-center rounded-small bg-default/30 text-foreground">
-                          <Icon
-                            className="text-primary"
-                            icon="hugeicons:waving-hand-01"
-                            width={24}
-                          />
-                        </div>
-                        <div>
-                          <p className="text-md font-bold">{execution.id}</p>
-                          <p className="text-sm text-default-500">
-                            Flow:{" "}
-                            {
-                              flows.find((f: any) => f.id === execution.flow_id)
-                                .name
-                            }
-                          </p>
-                          <p className="text-sm text-default-500">
-                            Executed at:{" "}
-                            <ReactTimeago date={execution.executed_at} />
-                          </p>
-                        </div>
-                      </div>
-                      <Icon icon="akar-icons:arrow-right" />
-                    </div>
-                  </DropdownItem>
-                ))}
-              {executionsWithAttention
-                .filter(
-                  (e: any) =>
-                    e.status === "error" &&
-                    new Date(e.created_at).getTime() >
-                      Date.now() - 24 * 60 * 60 * 1000,
-                )
-                .sort((a: any, b: any) =>
-                  new Date(a.created_at) < new Date(b.created_at) ? 1 : -1,
                 )
                 .map((execution: any) => (
                   <DropdownItem
                     key={execution.id}
-                    onPress={() => {
+                    description={<ReactTimeago date={execution.executed_at} />}
+                    startContent={
+                      <Icon
+                        className={
+                          execution.status === "error"
+                            ? "text-danger"
+                            : "text-primary"
+                        }
+                        icon={
+                          execution.status === "error"
+                            ? "hugeicons:alert-02"
+                            : "hugeicons:waving-hand-01"
+                        }
+                      />
+                    }
+                    onPress={() =>
                       router.push(
                         `/flows/${execution.flow_id}/execution/${execution.id}`,
-                      );
-                    }}
+                      )
+                    }
                   >
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex items-center justify-start gap-2">
-                        <div className="flex size-10 items-center justify-center rounded-small bg-default/30 text-foreground">
-                          <Icon
-                            className="text-danger"
-                            icon="hugeicons:alert-02"
-                            width={24}
-                          />
-                        </div>
-                        <div>
-                          <p className="text-md font-bold">{execution.id}</p>
-                          <p className="text-sm text-default-500">
-                            Flow:{" "}
-                            {
-                              flows.find((f: any) => f.id === execution.flow_id)
-                                .name
-                            }
-                          </p>
-                          <p className="text-sm text-default-500">
-                            Executed at:{" "}
-                            <ReactTimeago date={execution.executed_at} />
-                          </p>
-                        </div>
-                      </div>
-                      <Icon icon="akar-icons:arrow-right" />
-                    </div>
+                    {execution.id.substring(0, 8)}...
                   </DropdownItem>
                 ))}
+              {executionIssues === 0 && (
+                <DropdownItem key="no-issues" isReadOnly>
+                  All systems nominal
+                </DropdownItem>
+              )}
             </DropdownMenu>
           </Dropdown>
-        </div>
 
-        <div className="col-span-1">
-          <Dropdown backdrop="opaque" placement="bottom">
+          <Dropdown backdrop="blur" placement="bottom-start">
             <DropdownTrigger>
-              <Card fullWidth isHoverable isPressable>
-                <CardBody>
-                  <div className="flex items-center gap-2">
-                    <div className="flex size-10 items-center justify-center rounded-small bg-default/30 text-foreground">
-                      <Icon icon="hugeicons:ai-brain-04" width={24} />
-                    </div>
-                    <div>
-                      {runners.filter(
-                        (r: any) =>
-                          !r.shared_runner && !runnerHeartbeatStatus(r),
-                      ).length > 0 ? (
-                        <p className="text-md font-bold text-danger">
-                          {
-                            runners.filter(
-                              (r: any) =>
-                                !r.shared_runner && !runnerHeartbeatStatus(r),
-                            ).length
-                          }{" "}
-                          with issues
-                        </p>
-                      ) : (
-                        <p className="text-md font-bold text-success">OK</p>
-                      )}
-                      <p className="text-sm text-default-500">Runners</p>
-                    </div>
-                  </div>
-                </CardBody>
-              </Card>
+              <div>
+                <StatTile
+                  icon="hugeicons:ai-brain-04"
+                  statusColor={runnerIssues > 0 ? "danger" : "success"}
+                  subtext={`${runnerIssues} offline`}
+                  title="Online Runners"
+                  value={runners.length}
+                />
+              </div>
             </DropdownTrigger>
             <DropdownMenu aria-label="Runner Problems">
               {runners
@@ -341,60 +296,144 @@ export default function DashboardHome({
                 .map((runner: any) => (
                   <DropdownItem
                     key={runner.id}
-                    onPress={() => {
-                      router.push(`/projects/${runner.project_id}?tab=runners`);
-                    }}
+                    startContent={
+                      <Icon className="text-danger" icon="hugeicons:alert-02" />
+                    }
+                    onPress={() =>
+                      router.push(`/projects/${runner.project_id}?tab=runners`)
+                    }
                   >
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex items-center justify-start gap-2">
-                        <div className="flex size-10 items-center justify-center rounded-small bg-default/30 text-foreground">
-                          <Icon
-                            className={`text-${heartbeatColor(runner)}`}
-                            icon="hugeicons:alert-02"
-                            width={24}
-                          />
-                        </div>
-                        <div>
-                          <p className="text-md font-bold">{runner.name}</p>
-                          <p className="text-sm text-default-500">
-                            {runner.last_heartbeat ? (
-                              <p>
-                                Last Heartbeat:{" "}
-                                <span
-                                  className={`text- font-bold${heartbeatColor(runner)}`}
-                                >
-                                  <ReactTimeago date={runner.last_heartbeat} />
-                                </span>
-                              </p>
-                            ) : (
-                              "No heartbeat"
-                            )}
-                          </p>
-                        </div>
-                      </div>
-                      <Icon icon="akar-icons:arrow-right" />
-                    </div>
+                    {runner.name}
                   </DropdownItem>
                 ))}
+              {runnerIssues === 0 && (
+                <DropdownItem key="no-runner-issues" isReadOnly>
+                  All runners operational
+                </DropdownItem>
+              )}
             </DropdownMenu>
           </Dropdown>
-        </div>
+
+          {/* Middle Row: Chart & Pulse */}
+          <motion.div className="md:col-span-2 h-full" variants={itemVariants}>
+            <Card className="h-full min-h-[350px] bg-content1/60 backdrop-blur-md shadow-lg border border-default-100">
+              <CardHeader className="pb-0 pt-4 px-4 flex-col items-start">
+                <h4 className="font-bold text-large">Execution Volume</h4>
+                <p className="text-tiny text-default-500">
+                  Daily activity over the last week
+                </p>
+              </CardHeader>
+              <CardBody className="overflow-hidden">
+                <DashboardExecutionsStats stats={stats} />
+              </CardBody>
+            </Card>
+          </motion.div>
+
+          <motion.div className="md:col-span-1 h-full" variants={itemVariants}>
+            <Card className="h-full min-h-[350px] bg-content1/60 backdrop-blur-md shadow-lg border border-default-100">
+              <CardHeader className="pb-0 pt-4 px-4 flex justify-between items-center">
+                <div>
+                  <h4 className="font-bold text-large">System Pulse</h4>
+                  <p className="text-tiny text-default-500">
+                    Live Runner Status
+                  </p>
+                </div>
+                <Chip
+                  color="success"
+                  size="sm"
+                  startContent={
+                    <span className="relative flex h-2 w-2 ml-1">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-success-500" />
+                    </span>
+                  }
+                  variant="flat"
+                >
+                  Live
+                </Chip>
+              </CardHeader>
+              <CardBody className="px-2">
+                <ScrollShadow className="h-[280px]">
+                  <div className="flex flex-col gap-2 p-2">
+                    {runners.map((runner: any) => {
+                      const isAlive = runnerHeartbeatStatus(runner);
+                      const color = heartbeatColor(runner);
+
+                      return (
+                        <div
+                          key={runner.id}
+                          className="flex items-center justify-between p-3 rounded-lg bg-content2/50 hover:bg-content2 transition-colors cursor-pointer"
+                          role="button"
+                          tabIndex={0}
+                          onClick={() =>
+                            router.push(
+                              `/projects/${runner.project_id}?tab=runners`,
+                            )
+                          }
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              router.push(
+                                `/projects/${runner.project_id}?tab=runners`,
+                              );
+                            }
+                          }}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className={`relative`}>
+                              <div
+                                className={`w-2 h-2 rounded-full bg-${color} ${isAlive ? "animate-pulse" : ""}`}
+                              />
+                              {isAlive && (
+                                <div
+                                  className={`absolute inset-0 w-2 h-2 rounded-full bg-${color} animate-ping opacity-75`}
+                                />
+                              )}
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-sm font-medium">
+                                {runner.name}
+                              </span>
+                              <span className="text-[10px] text-default-400">
+                                {runner.shared_runner
+                                  ? "Shared Runner"
+                                  : "Private Runner"}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="text-xs text-default-400 font-mono">
+                            {runner.last_heartbeat ? (
+                              <ReactTimeago date={runner.last_heartbeat} />
+                            ) : (
+                              "Never"
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </ScrollShadow>
+              </CardBody>
+            </Card>
+          </motion.div>
+
+          {/* Bottom Row: Flight Log */}
+          <motion.div className="md:col-span-3" variants={itemVariants}>
+            <div className="flex items-center gap-2 mb-4">
+              <Icon className="text-xl" icon="hugeicons:task-01" />
+              <h3 className="text-xl font-bold">Flight Log</h3>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Executions displayToFlow flows={flows} runners={runners} />
+              <Alerts showFlow flows={flows} runners={runners} />
+            </div>
+          </motion.div>
+        </motion.div>
+
+        <WelcomeModal disclosure={welcomeModal} />
       </div>
-
-      <Spacer y={4} />
-
-      <DashboardExecutionsStats stats={stats} />
-
-      <Spacer y={4} />
-      <p className="mb-2 text-2xl font-bold">Executions & Alerts</p>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Executions displayToFlow flows={flows} runners={runners} />
-
-        <Alerts showFlow flows={flows} runners={runners} />
+      <div className="fixed inset-0 -z-0 pointer-events-none">
+        <Ripple mainCircleOpacity={0.15} numCircles={8} />
       </div>
-
-      <WelcomeModal disclosure={welcomeModal} />
     </main>
   );
 }

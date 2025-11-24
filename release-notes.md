@@ -1,6 +1,6 @@
 # Release Notes
 
-## [Version 2.0.0-beta1] - 2025-11-14
+## [Version 2.0.0-beta2] - 2025-11-24
 
 🚧 Beta Release 🚧
 Please use with caution!
@@ -14,7 +14,7 @@ Please use with caution!
 - Predefined Project Actions
 
 ### Changed
-- Major UI improvements
+- Major UI improvements (Introducing UI v2)
 - New Welcome Style
 - New Name: JustFlow
 - Refactored Admin Settings Page and System Management

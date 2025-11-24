@@ -17,6 +17,7 @@ import {
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import ReactTimeago from "react-timeago";
+import { motion } from "framer-motion";
 
 import DeleteExecutionModal from "@/components/modals/executions/delete";
 import {
@@ -216,49 +217,59 @@ export default function ExecutionsTable({
 
   return (
     <>
-      <Table
-        aria-label="Example table with custom cells"
-        topContentPlacement="outside"
+      <motion.div
+        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, y: 10 }}
+        transition={{ duration: 0.3 }}
       >
-        <TableHeader>
-          <TableColumn key="status" align="start">
-            Status
-          </TableColumn>
-          <TableColumn key="triggered_by" align="center">
-            Triggered By
-          </TableColumn>
-          <TableColumn key="runner_id" align="center">
-            Runner
-          </TableColumn>
-          <TableColumn key="scheduled_at" align="center">
-            Scheduled At
-          </TableColumn>
-          <TableColumn key="created_at" align="center">
-            Created At
-          </TableColumn>
-          <TableColumn key="executed_at" align="center">
-            Executed At
-          </TableColumn>
-          <TableColumn key="finished_at" align="center">
-            Finished At
-          </TableColumn>
-          <TableColumn key="id" align="center">
-            ID
-          </TableColumn>
-          <TableColumn key="actions" align="center">
-            Actions
-          </TableColumn>
-        </TableHeader>
-        <TableBody items={executions}>
-          {(item: any) => (
-            <TableRow key={item.id}>
-              {(columnKey) => (
-                <TableCell>{renderCell(item, columnKey)}</TableCell>
-              )}
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+        <Table
+          aria-label="Example table with custom cells"
+          classNames={{
+            wrapper: "bg-transparent shadow-none p-0",
+            th: "bg-default-100/50 backdrop-blur-sm",
+          }}
+          topContentPlacement="outside"
+        >
+          <TableHeader>
+            <TableColumn key="status" align="start">
+              Status
+            </TableColumn>
+            <TableColumn key="triggered_by" align="center">
+              Triggered By
+            </TableColumn>
+            <TableColumn key="runner_id" align="center">
+              Runner
+            </TableColumn>
+            <TableColumn key="scheduled_at" align="center">
+              Scheduled At
+            </TableColumn>
+            <TableColumn key="created_at" align="center">
+              Created At
+            </TableColumn>
+            <TableColumn key="executed_at" align="center">
+              Executed At
+            </TableColumn>
+            <TableColumn key="finished_at" align="center">
+              Finished At
+            </TableColumn>
+            <TableColumn key="id" align="center">
+              ID
+            </TableColumn>
+            <TableColumn key="actions" align="center">
+              Actions
+            </TableColumn>
+          </TableHeader>
+          <TableBody items={executions}>
+            {(item: any) => (
+              <TableRow key={item.id}>
+                {(columnKey) => (
+                  <TableCell>{renderCell(item, columnKey)}</TableCell>
+                )}
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </motion.div>
 
       <DeleteExecutionModal
         disclosure={deleteExecutionModal}

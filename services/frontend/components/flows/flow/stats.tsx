@@ -1,9 +1,19 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { addToast, Card, Chip, cn, Spacer, Tab, Tabs } from "@heroui/react";
+import {
+  addToast,
+  Card,
+  CardBody,
+  CardHeader,
+  Chip,
+  cn,
+  Tab,
+  Tabs,
+} from "@heroui/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import {
   Area,
   AreaChart,
@@ -11,6 +21,7 @@ import {
   ResponsiveContainer,
   Tooltip,
   XAxis,
+  YAxis,
 } from "recharts";
 
 import GetFlowStats from "@/lib/fetch/flow/stats";
@@ -110,201 +121,213 @@ export default function FlowStats({ flowID }: { flowID: string }) {
           ? "success"
           : chart?.changeType === "negative"
             ? "danger"
-            : "default",
+            : "primary",
       type: chart?.type,
     };
   }, [activeChart, stats]);
 
   const { chartData, color, type } = activeChartData;
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1 },
+  };
+
   return (
-    <Card as="dl" className="border border-transparent dark:border-default-100">
-      <section className="flex flex-col flex-nowrap">
-        <div className="flex flex-col justify-between gap-y-2 p-6">
-          <div className="flex flex-col gap-y-2">
-            <div className="flex flex-col gap-y-0">
-              <dt className="text-medium font-medium text-foreground">
-                Analytics
-              </dt>
+    <motion.div animate="visible" initial="hidden" variants={containerVariants}>
+      <motion.div variants={itemVariants}>
+        <Card className="bg-content1/60 backdrop-blur-md border border-default-100 shadow-sm">
+          <CardHeader className="flex flex-col gap-4 px-6 pt-6 pb-0">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center w-full gap-4">
+              <div className="flex gap-3">
+                <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                  <Icon icon="hugeicons:analytics-01" width={24} />
+                </div>
+                <div className="flex flex-col">
+                  <p className="text-md font-bold">Analytics</p>
+                  <p className="text-small text-default-500">
+                    Performance metrics over time.
+                  </p>
+                </div>
+              </div>
+              <Tabs
+                classNames={{
+                  tabList: "bg-content2/50 border-default-200",
+                }}
+                selectedKey={interval}
+                size="sm"
+                variant="bordered"
+                onSelectionChange={handleTabChange}
+              >
+                <Tab key="24-hours" title="24 Hours" />
+                <Tab key="7-days" title="7 Days" />
+                <Tab key="30-days" title="30 Days" />
+                <Tab key="3-months" title="3 Months" />
+                <Tab key="6-months" title="6 Months" />
+              </Tabs>
             </div>
-            <Spacer y={2} />
-            <Tabs
-              selectedKey={interval}
-              size="sm"
-              onSelectionChange={handleTabChange}
-            >
-              <Tab key="24-hours" title="24 Hours" />
-              <Tab key="7-days" title="7 Days" />
-              <Tab key="30-days" title="30 Days" />
-              <Tab key="3-months" title="3 Months" />
-              <Tab key="6-months" title="6 Months" />
-            </Tabs>
-            <div className="mt-2 flex w-full items-center">
-              <div className="-my-3 flex w-full max-w-[800px] items-center gap-x-3 overflow-x-auto py-3">
-                {data.map(({ key, change, changeType, type, value, title }) => (
-                  <button
-                    key={key}
+
+            {/* Stat Selectors */}
+            <div className="flex w-full items-center gap-4 overflow-x-auto pb-2">
+              {data.map(({ key, change, changeType, type, value, title }) => (
+                <button
+                  key={key}
+                  className={cn(
+                    "flex flex-col gap-2 rounded-xl p-3 transition-all border border-transparent min-w-[200px] text-left",
+                    {
+                      "bg-content2/50 border-default-200 shadow-sm":
+                        activeChart === key,
+                      "hover:bg-content2/30": activeChart !== key,
+                    },
+                  )}
+                  onClick={() => setActiveChart(key)}
+                >
+                  <span
                     className={cn(
-                      "flex w-full flex-col gap-2 rounded-medium p-3 transition-colors",
+                      "text-small font-medium text-default-500 transition-colors",
                       {
-                        "bg-default-100": activeChart === key,
+                        "text-primary": activeChart === key,
                       },
                     )}
-                    onClick={() => setActiveChart(key)}
                   >
-                    <span
-                      className={cn(
-                        "text-small font-medium text-default-500 transition-colors",
-                        {
-                          "text-primary": activeChart === key,
-                        },
-                      )}
-                    >
-                      {title}
+                    {title}
+                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl font-bold text-foreground">
+                      {formatValue(value, type)}
                     </span>
-                    <div className="flex flex-wrap gap-4">
-                      <div className="flex items-center gap-x-3">
-                        <span className="text-3xl font-bold text-foreground">
-                          {formatValue(value, type)}
-                        </span>
-                        <Chip
-                          classNames={{
-                            content: "font-medium",
-                          }}
-                          color={
-                            changeType === "positive"
-                              ? "success"
-                              : changeType === "negative"
-                                ? "danger"
-                                : "default"
-                          }
-                          radius="sm"
-                          size="sm"
-                          startContent={
-                            changeType === "positive" ? (
-                              <Icon
-                                height={16}
-                                icon="solar:arrow-right-up-linear"
-                                width={16}
-                              />
-                            ) : changeType === "negative" ? (
-                              <Icon
-                                height={16}
-                                icon="solar:arrow-right-down-linear"
-                                width={16}
-                              />
-                            ) : (
-                              <Icon
-                                height={16}
-                                icon="solar:arrow-right-linear"
-                                width={16}
-                              />
-                            )
-                          }
-                          variant="flat"
-                        >
-                          <span>{change}%</span>
-                        </Chip>
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
+                    <Chip
+                      classNames={{
+                        content: "font-medium text-tiny",
+                      }}
+                      color={
+                        changeType === "positive"
+                          ? "success"
+                          : changeType === "negative"
+                            ? "danger"
+                            : "default"
+                      }
+                      radius="sm"
+                      size="sm"
+                      startContent={
+                        changeType === "positive" ? (
+                          <Icon icon="solar:arrow-right-up-linear" width={12} />
+                        ) : changeType === "negative" ? (
+                          <Icon
+                            icon="solar:arrow-right-down-linear"
+                            width={12}
+                          />
+                        ) : (
+                          <Icon icon="solar:arrow-right-linear" width={12} />
+                        )
+                      }
+                      variant="flat"
+                    >
+                      {change}%
+                    </Chip>
+                  </div>
+                </button>
+              ))}
             </div>
-          </div>
-        </div>
-        <ResponsiveContainer
-          className="min-h-[300px] [&_.recharts-surface]:outline-none"
-          height="100%"
-          width="100%"
-        >
-          <AreaChart
-            accessibilityLayer
-            data={chartData}
-            height={300}
-            margin={{
-              left: 0,
-              right: 0,
-            }}
-            width={500}
-          >
-            <defs>
-              <linearGradient id="colorGradient" x1="0" x2="0" y1="0" y2="1">
-                <stop
-                  offset="10%"
-                  stopColor={`hsl(var(--heroui-${color}-500))`}
-                  stopOpacity={0.3}
-                />
-                <stop
-                  offset="100%"
-                  stopColor={`hsl(var(--heroui-${color}-100))`}
-                  stopOpacity={0.1}
-                />
-              </linearGradient>
-            </defs>
-            <CartesianGrid
-              horizontalCoordinatesGenerator={() => [200, 150, 100, 50]}
-              stroke="hsl(var(--heroui-default-200))"
-              strokeDasharray="3 3"
-              vertical={false}
-            />
-            <XAxis
-              axisLine={false}
-              dataKey="key"
-              style={{
-                fontSize: "var(--heroui-font-size-tiny)",
-                transform: "translateX(-40px)",
-              }}
-              tickLine={false}
-            />
-            <Tooltip
-              content={({ label, payload }) => (
-                <div className="flex h-auto min-w-[120px] items-center gap-x-2 rounded-medium bg-foreground p-2 text-tiny shadow-small">
-                  <div className="flex w-full flex-col gap-y-0">
-                    {payload?.map((p, index) => {
-                      const name = p.name;
-                      const value = p.value;
+          </CardHeader>
 
+          <CardBody className="px-2 pb-4 h-[350px]">
+            <ResponsiveContainer height="100%" width="100%">
+              <AreaChart
+                data={chartData}
+                margin={{ top: 20, right: 20, left: 0, bottom: 0 }}
+              >
+                <defs>
+                  <linearGradient
+                    id="colorGradient"
+                    x1="0"
+                    x2="0"
+                    y1="0"
+                    y2="1"
+                  >
+                    <stop
+                      offset="5%"
+                      stopColor={`hsl(var(--heroui-${color}-500))`}
+                      stopOpacity={0.3}
+                    />
+                    <stop
+                      offset="95%"
+                      stopColor={`hsl(var(--heroui-${color}-500))`}
+                      stopOpacity={0}
+                    />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid
+                  stroke="hsl(var(--heroui-default-200))"
+                  strokeDasharray="3 3"
+                  vertical={false}
+                />
+                <YAxis hide />
+                <XAxis
+                  axisLine={false}
+                  dataKey="key"
+                  dy={10}
+                  tick={{
+                    fill: "hsl(var(--heroui-default-500))",
+                    fontSize: 12,
+                  }}
+                  tickLine={false}
+                />
+                <Tooltip
+                  content={({ active, payload, label }) => {
+                    if (active && payload && payload.length) {
                       return (
-                        <div
-                          key={`${index}-${name}`}
-                          className="flex w-full items-center gap-x-2"
-                        >
-                          <div className="flex w-full items-center gap-x-1 text-small text-background">
-                            <span>{formatValue(value as number, type)}</span>
-                            <span className="capitalize">{name}</span>
+                        <div className="bg-content1/80 backdrop-blur-md border border-default-200 p-3 rounded-lg shadow-lg">
+                          <p className="text-tiny text-default-500 mb-1">
+                            {label}
+                          </p>
+                          <div className="flex items-center gap-2">
+                            <div
+                              className={`w-2 h-2 rounded-full bg-${color}-500`}
+                            />
+                            <span className="font-bold text-small">
+                              {formatValue(payload[0].value as number, type)}
+                            </span>
+                            <span className="text-tiny text-default-400 capitalize">
+                              {payload[0].name}
+                            </span>
                           </div>
                         </div>
                       );
-                    })}
-                    <span className="text-small font-medium text-foreground-400">
-                      {label}
-                    </span>
-                  </div>
-                </div>
-              )}
-              cursor={{
-                strokeWidth: 0,
-              }}
-            />
-            <Area
-              activeDot={{
-                stroke: "hsl(var(--heroui-default-400))",
-                strokeWidth: 2,
-                fill: "hsl(var(--heroui-background))",
-                r: 5,
-              }}
-              animationDuration={1000}
-              animationEasing="ease"
-              dataKey="executions"
-              fill="transparent"
-              stroke="hsl(var(--heroui-primary-400))"
-              strokeWidth={2}
-              type="monotone"
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </section>
-    </Card>
+                    }
+
+                    return null;
+                  }}
+                />
+                <Area
+                  activeDot={{
+                    stroke: "hsl(var(--heroui-background))",
+                    strokeWidth: 2,
+                    fill: `hsl(var(--heroui-${color}-500))`,
+                    r: 5,
+                  }}
+                  animationDuration={1500}
+                  dataKey="executions"
+                  fill="url(#colorGradient)"
+                  stroke={`hsl(var(--heroui-${color}-500))`}
+                  strokeWidth={2}
+                  type="monotone"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </CardBody>
+        </Card>
+      </motion.div>
+    </motion.div>
   );
 }

@@ -4,6 +4,7 @@ import { Alert, Card, CardBody } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import NumberFlow from "@number-flow/react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
 import { useFlowExecutions } from "@/lib/swr/hooks/flows";
 
@@ -19,105 +20,99 @@ export default function FlowDetails({
   const router = useRouter();
   const { total: totalExecutions } = useFlowExecutions(flow.id);
 
+  const stats = [
+    {
+      title: "Status",
+      value: flow.disabled ? "Disabled" : "Active",
+      icon: "hugeicons:stethoscope-02",
+      color: flow.disabled ? "danger" : "success",
+      isText: true,
+    },
+    {
+      title: "Project",
+      value: project.name,
+      icon: "hugeicons:ai-folder-01",
+      color: "primary",
+      isText: true,
+      isLink: true,
+      link: `/projects/${project.id}`,
+    },
+    {
+      title: "Runner",
+      value:
+        runners.find((r: any) => r.id === flow.runner_id)?.name ||
+        flow.runner_id,
+      icon: "hugeicons:ai-brain-04",
+      color: "secondary",
+      isText: true,
+    },
+    {
+      title: "Type",
+      value: flow.type,
+      icon: "hugeicons:tag-01",
+      color: "warning",
+      isText: true,
+      capitalize: true,
+    },
+    {
+      title: "Executions",
+      value: totalExecutions,
+      icon: "hugeicons:rocket-02",
+      color: "success",
+      isText: false,
+    },
+  ];
+
   return (
-    <main>
-      <div className="grid grid-cols-2 items-stretch gap-4 lg:grid-cols-5 md:grid-cols-3">
-        <div className="col-span-1">
-          <Card fullWidth className="h-full">
-            <CardBody>
-              <div className="flex items-center gap-2">
-                <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
-                  <Icon icon="hugeicons:stethoscope-02" width={24} />
-                </div>
-                <div>
-                  <p
-                    className={`text-md font-bold ${flow.disabled ? "text-danger" : "text-success"}`}
-                  >
-                    {flow.disabled ? "Disabled" : "Active"}
-                  </p>
-                  <p className="text-sm text-default-500">Status</p>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-        </div>
-        <div className="col-span-1">
+    <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+      {stats.map((stat, index) => (
+        <motion.div
+          key={stat.title}
+          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: 20 }}
+          transition={{ delay: index * 0.1 + 0.2 }}
+        >
           <Card
             fullWidth
-            isHoverable
-            isPressable
-            className="h-full"
+            className="h-full border-none shadow-lg bg-content1/60 backdrop-blur-md border border-default-100"
+            isHoverable={!!stat.isLink}
+            isPressable={!!stat.isLink}
             onPress={() => {
-              router.push(`/projects/${project.id}`);
+              if (stat.isLink) {
+                router.push(stat.link);
+              }
             }}
           >
-            <CardBody>
-              <div className="flex items-center gap-2">
-                <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
-                  <Icon icon="hugeicons:ai-folder-01" width={24} />
+            <CardBody className="p-3">
+              <div className="flex items-center justify-between gap-3">
+                <div
+                  className={`flex size-10 items-center justify-center rounded-lg bg-${stat.color}/20 text-${stat.color}`}
+                >
+                  <Icon icon={stat.icon} width={20} />
                 </div>
-                <div>
-                  <p className="text-md font-bold">{project.name}</p>
-                  <p className="text-sm text-default-500">Project</p>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-        </div>
-        <div className="col-span-1">
-          <Card fullWidth className="h-full">
-            <CardBody>
-              <div className="flex items-center gap-2">
-                <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
-                  <Icon icon="hugeicons:ai-brain-04" width={24} />
-                </div>
-                <div>
-                  <p className="text-md font-bold">
-                    {runners.find((r: any) => r.id === flow.runner_id)?.name ||
-                      flow.runner_id}
+                <div className="flex flex-col items-end">
+                  <p className="text-small font-medium text-default-500">
+                    {stat.title}
                   </p>
-                  <p className="text-sm text-default-500">Runner</p>
+                  {stat.isText ? (
+                    <p
+                      className={`text-md font-bold text-default-900 ${stat.capitalize ? "capitalize" : ""} ${stat.title === "Status" ? (stat.value === "Active" ? "text-success" : "text-danger") : ""}`}
+                    >
+                      {stat.value}
+                    </p>
+                  ) : (
+                    <p className="text-xl font-bold text-default-900">
+                      <NumberFlow value={stat.value} />
+                    </p>
+                  )}
                 </div>
               </div>
             </CardBody>
           </Card>
-        </div>
-        <div className="col-span-1">
-          <Card fullWidth className="h-full">
-            <CardBody>
-              <div className="flex items-center gap-2">
-                <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
-                  <Icon icon="hugeicons:tag-01" width={24} />
-                </div>
-                <div>
-                  <p className="text-md font-bold capitalize">{flow.type}</p>
-                  <p className="text-sm text-default-500">Type</p>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-        </div>
-        <div className="col-span-1">
-          <Card fullWidth className="h-full">
-            <CardBody>
-              <div className="flex items-center gap-2">
-                <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
-                  <Icon icon="hugeicons:rocket-02" width={24} />
-                </div>
-                <div>
-                  <NumberFlow
-                    className="font-bold"
-                    value={totalExecutions || 0}
-                  />
-                  <p className="text-sm text-default-500">Executions</p>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-        </div>
-      </div>
+        </motion.div>
+      ))}
       {flow.disabled && (
-        <div className="mt-4 mb-4">
+        <div className="col-span-2 lg:col-span-5 mt-4">
           <Alert
             color="danger"
             description={flow.disabled_reason}
@@ -126,6 +121,6 @@ export default function FlowDetails({
           />
         </div>
       )}
-    </main>
+    </div>
   );
 }

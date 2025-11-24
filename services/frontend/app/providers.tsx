@@ -7,6 +7,8 @@ import * as React from "react";
 import { ToastProvider } from "@heroui/react";
 
 import SWRProvider from "@/lib/swr/provider";
+import { SearchProvider } from "@/components/search/search-context";
+import SearchModal from "@/components/search/search-modal";
 
 type ThemeProviderProps = React.ComponentProps<typeof NextThemesProvider>;
 
@@ -22,7 +24,12 @@ export function Providers({ children, themeProps }: ProvidersProps) {
     <SWRProvider>
       <HeroUIProvider navigate={router.push}>
         <ToastProvider />
-        <NextThemesProvider {...themeProps}>{children}</NextThemesProvider>
+        <NextThemesProvider {...themeProps}>
+          <SearchProvider>
+            {children}
+            <SearchModal />
+          </SearchProvider>
+        </NextThemesProvider>
       </HeroUIProvider>
     </SWRProvider>
   );

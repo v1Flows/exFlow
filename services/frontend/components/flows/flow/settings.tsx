@@ -3,11 +3,12 @@ import {
   Button,
   Card,
   CardBody,
+  CardHeader,
+  Divider,
   Input,
   NumberInput,
   Select,
   SelectItem,
-  Spacer,
   Switch,
   Table,
   TableBody,
@@ -18,6 +19,7 @@ import {
 } from "@heroui/react";
 import { useState } from "react";
 import { Icon } from "@iconify/react";
+import { motion } from "framer-motion";
 
 import UpdateFlow from "@/lib/fetch/flow/PUT/UpdateFlow";
 import ErrorCard from "@/components/error/ErrorCard";
@@ -99,188 +101,346 @@ export default function FlowSettings({
     }
   }
 
-  return (
-    <>
-      {error && <ErrorCard error={error} message={errorMessage} />}
-      <div className="flex flex-col gap-4">
-        <Card className="col-span-2">
-          <CardBody>
-            <p className="text-lg font-bold mb-2">Actions</p>
-            <div
-              className={`grid ${flow.type == "alert" ? "lg:grid-cols-2" : "lg:grid-cols-1"}  grid-cols-1 gap-4`}
-            >
-              <div className="flex flex-col gap-4">
-                <Card>
-                  <CardBody className="bg-content2">
-                    <div className="mb-2">
-                      <p className="text-md font-bold">Execution Strategy</p>
-                      <p className="text-sm text-default-500">
-                        Switch between parallel and sequential execution of
-                        actions
-                      </p>
-                    </div>
-                    <Select
-                      isDisabled={
-                        (!canEdit || flow.disabled) && user.role !== "admin"
-                      }
-                      placeholder="Select the execution strategy"
-                      selectedKeys={[execParallel ? "parallel" : "sequential"]}
-                      variant="bordered"
-                      onSelectionChange={(e) => {
-                        if (e.currentKey === "parallel") {
-                          setExecParallel(true);
-                        } else {
-                          setExecParallel(false);
-                        }
-                      }}
-                    >
-                      <SelectItem key="sequential">Sequential</SelectItem>
-                      <SelectItem key="parallel">Parallel</SelectItem>
-                    </Select>
-                  </CardBody>
-                </Card>
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
 
-                <Card>
-                  <CardBody className="bg-content2">
-                    <div className="mb-2">
-                      <p className="text-md font-bold">
-                        Common Failure Pipeline
-                      </p>
-                      <p className="text-sm text-default-500">
-                        Execute an failure pipeline when actions during an
-                        execution fail.
-                        <span className="font-bold text-warning">
-                          <br />
-                          CAUTION! This will override the per action failure
-                          pipeline
-                        </span>
-                      </p>
-                    </div>
-                    <Select
-                      isDisabled={
-                        (!canEdit || flow.disabled) && user.role !== "admin"
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1 },
+  };
+
+  return (
+    <motion.div
+      animate="visible"
+      className="space-y-6"
+      initial="hidden"
+      variants={containerVariants}
+    >
+      {error && <ErrorCard error={error} message={errorMessage} />}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Execution Control */}
+        <motion.div variants={itemVariants}>
+          <Card className="h-full bg-content1/60 backdrop-blur-md border border-default-100 shadow-sm">
+            <CardHeader className="flex gap-3 pb-0">
+              <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                <Icon icon="hugeicons:settings-01" width={24} />
+              </div>
+              <div className="flex flex-col">
+                <p className="text-md font-bold">Execution Control</p>
+                <p className="text-small text-default-500">
+                  Manage how your flow executes actions.
+                </p>
+              </div>
+            </CardHeader>
+            <CardBody className="gap-6">
+              <div>
+                <p className="text-sm font-medium mb-2">Execution Strategy</p>
+                <Select
+                  isDisabled={
+                    (!canEdit || flow.disabled) && user.role !== "admin"
+                  }
+                  placeholder="Select strategy"
+                  selectedKeys={[execParallel ? "parallel" : "sequential"]}
+                  startContent={
+                    <Icon
+                      className="text-default-400"
+                      icon={
+                        execParallel
+                          ? "hugeicons:arrow-shrink-02"
+                          : "hugeicons:arrow-right-01"
                       }
-                      placeholder="Select an failure pipeline"
-                      selectedKeys={[failurePipelineID]}
-                      variant="bordered"
-                      onSelectionChange={(e) => {
-                        if (e.currentKey === "none") {
-                          setFailurePipelineID("");
-                        } else {
-                          setFailurePipelineID(e.currentKey);
-                        }
-                      }}
-                    >
-                      <SelectItem key="none">None</SelectItem>
-                      {flow.failure_pipelines.map((pipeline: any) => (
-                        <SelectItem key={pipeline.id}>
-                          {pipeline.name}
-                        </SelectItem>
-                      ))}
-                    </Select>
-                  </CardBody>
-                </Card>
+                    />
+                  }
+                  variant="bordered"
+                  onSelectionChange={(e) => {
+                    setExecParallel(e.currentKey === "parallel");
+                  }}
+                >
+                  <SelectItem key="sequential">Sequential</SelectItem>
+                  <SelectItem key="parallel">Parallel</SelectItem>
+                </Select>
+                <p className="text-tiny text-default-400 mt-1">
+                  Choose between parallel or sequential execution of actions.
+                </p>
               </div>
 
-              {flow.type == "alert" && (
-                <div>
-                  <div className="flex flex-cols items-center justify-between mb-2">
-                    <div className="mb-2">
-                      <p className="text-md font-bold">Patterns</p>
-                      <p className="text-sm text-default-500">
-                        Patterns can be used to trigger executions only when the
-                        alert payload contains specified key value pairs.
-                      </p>
-                    </div>
-                    <Button
-                      isIconOnly
-                      color="primary"
-                      isDisabled={
-                        (!canEdit || flow.disabled) && user.role !== "admin"
-                      }
-                      startContent={
-                        <Icon icon="hugeicons:plus-sign" width={20} />
-                      }
-                      variant="flat"
-                      onPress={() => {
-                        const newPatterns = [...flowPatterns];
+              <Divider />
 
-                        newPatterns.push({
-                          key: "",
-                          type: "equals",
-                          value: "",
-                        });
-                        setFlowPatterns(newPatterns);
-                      }}
+              <div>
+                <p className="text-sm font-medium mb-2">
+                  Common Failure Pipeline
+                </p>
+                <Select
+                  isDisabled={
+                    (!canEdit || flow.disabled) && user.role !== "admin"
+                  }
+                  placeholder="Select pipeline"
+                  selectedKeys={[failurePipelineID]}
+                  startContent={
+                    <Icon
+                      className="text-default-400"
+                      icon="hugeicons:alert-02"
                     />
+                  }
+                  variant="bordered"
+                  onSelectionChange={(e) => {
+                    setFailurePipelineID(
+                      e.currentKey === "none" ? "" : (e.currentKey as string),
+                    );
+                  }}
+                >
+                  <SelectItem key="none">None</SelectItem>
+                  {flow.failure_pipelines.map((pipeline: any) => (
+                    <SelectItem key={pipeline.id}>{pipeline.name}</SelectItem>
+                  ))}
+                </Select>
+                <p className="text-tiny text-default-400 mt-1">
+                  Overrides per-action failure pipelines.
+                </p>
+              </div>
+            </CardBody>
+          </Card>
+        </motion.div>
+
+        {/* Scheduling */}
+        <motion.div variants={itemVariants}>
+          <Card className="h-full bg-content1/60 backdrop-blur-md border border-default-100 shadow-sm">
+            <CardHeader className="flex gap-3 pb-0">
+              <div className="p-2 rounded-lg bg-secondary/10 text-secondary">
+                <Icon icon="hugeicons:time-schedule" width={24} />
+              </div>
+              <div className="flex flex-col">
+                <p className="text-md font-bold">Scheduling</p>
+                <p className="text-small text-default-500">
+                  Automate your flow execution.
+                </p>
+              </div>
+            </CardHeader>
+            <CardBody className="gap-4">
+              <div>
+                <p className="text-sm font-medium mb-2">Schedule Interval</p>
+                <div className="flex gap-2">
+                  <NumberInput
+                    defaultValue={scheduleEveryValue}
+                    endContent={
+                      <Select
+                        className="max-w-[150px]"
+                        isDisabled={
+                          (!canEdit || flow.disabled) && user.role !== "admin"
+                        }
+                        placeholder="Select an schedule"
+                        selectedKeys={[scheduleEveryUnit]}
+                        variant="underlined"
+                        onSelectionChange={(e) => {
+                          setScheduleEveryUnit(e.currentKey as string);
+                        }}
+                      >
+                        <SelectItem key="minutes">Minutes</SelectItem>
+                        <SelectItem key="hours">Hours</SelectItem>
+                        <SelectItem key="days">Days</SelectItem>
+                        <SelectItem key="weeks">Weeks</SelectItem>
+                      </Select>
+                    }
+                    isDisabled={
+                      (!canEdit || flow.disabled) && user.role !== "admin"
+                    }
+                    minValue={0}
+                    placeholder="Value"
+                    variant="bordered"
+                    onValueChange={setScheduleEveryValue}
+                  />
+                </div>
+                <p className="text-tiny text-default-400 mt-2">
+                  Set to 0 to disable automatic scheduling.
+                </p>
+              </div>
+            </CardBody>
+          </Card>
+        </motion.div>
+
+        {/* Alert Settings (Conditional) */}
+        {flow.type === "alert" && (
+          <motion.div className="lg:col-span-2" variants={itemVariants}>
+            <Card className="bg-content1/60 backdrop-blur-md border border-default-100 shadow-sm">
+              <CardHeader className="flex gap-3 pb-0">
+                <div className="p-2 rounded-lg bg-warning/10 text-warning">
+                  <Icon icon="hugeicons:notification-01" width={24} />
+                </div>
+                <div className="flex flex-col">
+                  <p className="text-md font-bold">Alert Configuration</p>
+                  <p className="text-small text-default-500">
+                    Configure how alerts are grouped and triggered.
+                  </p>
+                </div>
+              </CardHeader>
+              <CardBody className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="flex flex-col justify-between p-4 rounded-xl bg-content2/50 border border-default-100">
+                  <div>
+                    <p className="text-sm font-bold mb-1">Group Alerts</p>
+                    <p className="text-tiny text-default-500">
+                      Group incoming alerts by identifier.
+                    </p>
                   </div>
-                  <Table
-                    removeWrapper
-                    aria-label="Match Action Patterns"
-                    className="w-full"
-                  >
-                    <TableHeader>
-                      <TableColumn align="center">Key</TableColumn>
-                      <TableColumn align="center">Type</TableColumn>
-                      <TableColumn align="center">Value</TableColumn>
-                      <TableColumn align="center">Actions</TableColumn>
-                    </TableHeader>
-                    <TableBody emptyContent="No patterns defined.">
-                      {flowPatterns.map((pattern: any, index: number) => (
-                        <TableRow key={index}>
-                          <TableCell>
-                            <Input
-                              placeholder="Enter key"
-                              value={pattern.key}
-                              variant="bordered"
-                              onChange={(e) => {
-                                const newPatterns = [...flowPatterns];
+                  <Switch
+                    className="mt-4"
+                    isDisabled={
+                      (!canEdit || flow.disabled) && user.role !== "admin"
+                    }
+                    isSelected={groupAlerts}
+                    onValueChange={setGroupAlerts}
+                  />
+                </div>
 
-                                newPatterns[index].key = e.target.value;
-                                setFlowPatterns(newPatterns);
-                              }}
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Select
-                              isDisabled={
-                                (!canEdit || flow.disabled) &&
-                                user.role !== "admin"
-                              }
-                              placeholder="Select the type"
-                              selectedKeys={[pattern.type]}
-                              variant="bordered"
-                              onSelectionChange={(e) => {
-                                const newPatterns = [...flowPatterns];
+                <div className="p-4 rounded-xl bg-content2/50 border border-default-100">
+                  <p className="text-sm font-bold mb-2">Group Identifier</p>
+                  <Input
+                    defaultValue={groupAlertsIdentifier}
+                    isDisabled={
+                      (!canEdit || flow.disabled) && user.role !== "admin"
+                    }
+                    placeholder="e.g. commonLabels.alertname"
+                    startContent={
+                      <Icon
+                        className="text-default-400"
+                        icon="hugeicons:tag-01"
+                      />
+                    }
+                    variant="bordered"
+                    onValueChange={setGroupAlertsIdentifier}
+                  />
+                </div>
 
-                                newPatterns[index].type = e.currentKey;
-                                setFlowPatterns(newPatterns);
-                              }}
-                            >
-                              <SelectItem key="equals">Equals</SelectItem>
-                              <SelectItem key="not_equals">
-                                Not Equals
-                              </SelectItem>
-                              <SelectItem key="contains">Contains</SelectItem>
-                              <SelectItem key="not_contains">
-                                Not Contains
-                              </SelectItem>
-                            </Select>
-                          </TableCell>
-                          <TableCell>
-                            <Input
-                              placeholder="Enter value"
-                              value={pattern.value}
-                              variant="bordered"
-                              onChange={(e) => {
-                                const newPatterns = [...flowPatterns];
+                <div className="p-4 rounded-xl bg-content2/50 border border-default-100">
+                  <p className="text-sm font-bold mb-2">
+                    Reoccurrence Threshold
+                  </p>
+                  <NumberInput
+                    defaultValue={alertThreshold}
+                    endContent={
+                      <span className="text-default-400 text-small">min</span>
+                    }
+                    isDisabled={
+                      (!canEdit || flow.disabled) && user.role !== "admin"
+                    }
+                    minValue={0}
+                    placeholder="0"
+                    variant="bordered"
+                    onValueChange={setAlertThreshold}
+                  />
+                </div>
+              </CardBody>
+            </Card>
+          </motion.div>
+        )}
 
-                                newPatterns[index].value = e.target.value;
-                                setFlowPatterns(newPatterns);
-                              }}
-                            />
-                          </TableCell>
-                          <TableCell>
+        {/* Patterns (Conditional) */}
+        {flow.type === "alert" && (
+          <motion.div className="lg:col-span-2" variants={itemVariants}>
+            <Card className="bg-content1/60 backdrop-blur-md border border-default-100 shadow-sm">
+              <CardHeader className="flex justify-between items-center pb-0">
+                <div className="flex gap-3">
+                  <div className="p-2 rounded-lg bg-success/10 text-success">
+                    <Icon icon="hugeicons:filter-horizontal" width={24} />
+                  </div>
+                  <div className="flex flex-col">
+                    <p className="text-md font-bold">Pattern Matching</p>
+                    <p className="text-small text-default-500">
+                      Trigger executions based on payload patterns.
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  color="primary"
+                  isDisabled={
+                    (!canEdit || flow.disabled) && user.role !== "admin"
+                  }
+                  size="sm"
+                  startContent={<Icon icon="hugeicons:plus-sign" width={16} />}
+                  variant="flat"
+                  onPress={() => {
+                    setFlowPatterns([
+                      ...flowPatterns,
+                      { key: "", type: "equals", value: "" },
+                    ]);
+                  }}
+                >
+                  Add Pattern
+                </Button>
+              </CardHeader>
+              <CardBody>
+                <Table
+                  removeWrapper
+                  aria-label="Match Action Patterns"
+                  className="w-full"
+                >
+                  <TableHeader>
+                    <TableColumn>KEY</TableColumn>
+                    <TableColumn>TYPE</TableColumn>
+                    <TableColumn>VALUE</TableColumn>
+                    <TableColumn align="end">ACTIONS</TableColumn>
+                  </TableHeader>
+                  <TableBody emptyContent="No patterns defined.">
+                    {flowPatterns.map((pattern: any, index: number) => (
+                      <TableRow key={index}>
+                        <TableCell>
+                          <Input
+                            placeholder="Key"
+                            size="sm"
+                            value={pattern.key}
+                            variant="bordered"
+                            onChange={(e) => {
+                              const newPatterns = [...flowPatterns];
+
+                              newPatterns[index].key = e.target.value;
+                              setFlowPatterns(newPatterns);
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Select
+                            placeholder="Type"
+                            selectedKeys={[pattern.type]}
+                            size="sm"
+                            variant="bordered"
+                            onSelectionChange={(e) => {
+                              const newPatterns = [...flowPatterns];
+
+                              newPatterns[index].type = e.currentKey;
+                              setFlowPatterns(newPatterns);
+                            }}
+                          >
+                            <SelectItem key="equals">Equals</SelectItem>
+                            <SelectItem key="not_equals">Not Equals</SelectItem>
+                            <SelectItem key="contains">Contains</SelectItem>
+                            <SelectItem key="not_contains">
+                              Not Contains
+                            </SelectItem>
+                          </Select>
+                        </TableCell>
+                        <TableCell>
+                          <Input
+                            placeholder="Value"
+                            size="sm"
+                            value={pattern.value}
+                            variant="bordered"
+                            onChange={(e) => {
+                              const newPatterns = [...flowPatterns];
+
+                              newPatterns[index].value = e.target.value;
+                              setFlowPatterns(newPatterns);
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex justify-end">
                             <Button
                               isIconOnly
                               color="danger"
@@ -288,178 +448,41 @@ export default function FlowSettings({
                                 (!canEdit || flow.disabled) &&
                                 user.role !== "admin"
                               }
-                              startContent={
-                                <Icon icon="hugeicons:delete-02" width={20} />
-                              }
-                              variant="flat"
+                              size="sm"
+                              variant="light"
                               onPress={() => {
                                 const newPatterns = [...flowPatterns];
 
                                 newPatterns.splice(index, 1);
                                 setFlowPatterns(newPatterns);
                               }}
-                            />
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-            </div>
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardBody>
-            <p className="text-lg font-bold mb-2">Executions</p>
-            <Card>
-              <CardBody className="bg-content2">
-                <div className="grid lg:grid-cols-2 grid-cols-1 items-center justify-between gap-8">
-                  <div>
-                    <p className="text-md font-bold">Schedule Every</p>
-                    <p className="text-sm text-default-500">
-                      Schedule the flow to run every X minutes/hours/days.{" "}
-                      <br />
-                      The system will always schedule two executions at the
-                      time. The second one will be scheduled base on the
-                      scheduled time of the first one.
-                      <br />
-                      <span className="font-bold text-warning">
-                        Enter 0 to disable the schedule.
-                      </span>
-                    </p>
-                  </div>
-                  <div className="flex flex-cols gap-2">
-                    <NumberInput
-                      defaultValue={scheduleEveryValue}
-                      isDisabled={
-                        (!canEdit || flow.disabled) && user.role !== "admin"
-                      }
-                      minValue={0}
-                      placeholder="Enter a number"
-                      variant="bordered"
-                      onValueChange={setScheduleEveryValue}
-                    />
-                    <Select
-                      isDisabled={
-                        (!canEdit || flow.disabled) && user.role !== "admin"
-                      }
-                      label="Select an unit"
-                      selectedKeys={[scheduleEveryUnit]}
-                      variant="bordered"
-                      onSelectionChange={(e) => {
-                        setScheduleEveryUnit(e.currentKey);
-                      }}
-                    >
-                      <SelectItem key="minutes">Minutes</SelectItem>
-                      <SelectItem key="hours">Hours</SelectItem>
-                      <SelectItem key="days">Days</SelectItem>
-                      <SelectItem key="weeks">Weeks</SelectItem>
-                    </Select>
-                  </div>
-                </div>
+                            >
+                              <Icon icon="hugeicons:delete-02" width={18} />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </CardBody>
             </Card>
-          </CardBody>
-        </Card>
-
-        {flow.type === "alert" && (
-          <Card className="col-span-2">
-            <CardBody>
-              <p className="text-lg font-bold mb-2">Alerting</p>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                <Card>
-                  <CardBody className="bg-content2">
-                    <div className="flex flex-cols items-center justify-between gap-8">
-                      <div>
-                        <p className="text-md font-bold">Group Alerts</p>
-                        <p className="text-sm text-default-500">
-                          Group Alerts by an identifier. This will set the
-                          parentID of the alert to the first alert of the group.
-                          The identifier can be set by another setting
-                        </p>
-                      </div>
-                      <div className="flex justify-end">
-                        <Switch
-                          isDisabled={
-                            (!canEdit || flow.disabled) && user.role !== "admin"
-                          }
-                          isSelected={groupAlerts}
-                          onValueChange={setGroupAlerts}
-                        />
-                      </div>
-                    </div>
-                  </CardBody>
-                </Card>
-
-                <Card>
-                  <CardBody className="bg-content2">
-                    <div className="flex flex-cols items-center justify-between gap-8">
-                      <div>
-                        <p className="text-md font-bold">Group Identifier</p>
-                        <p className="text-sm text-default-500">
-                          Enter a unique identifier for the group of alerts.
-                        </p>
-                      </div>
-                      <Input
-                        className="min-w-[300px]"
-                        defaultValue={groupAlertsIdentifier}
-                        isDisabled={
-                          (!canEdit || flow.disabled) && user.role !== "admin"
-                        }
-                        placeholder="commonLabels.alertname"
-                        variant="bordered"
-                        onValueChange={setGroupAlertsIdentifier}
-                      />
-                    </div>
-                  </CardBody>
-                </Card>
-
-                <Card>
-                  <CardBody className="bg-content2">
-                    <div className="flex flex-cols items-center justify-between gap-8">
-                      <div>
-                        <p className="text-md font-bold">Threshold</p>
-                        <p className="text-sm text-default-500">
-                          If an alert is resolved and reoccurs after which
-                          threshold should a new execution be accepted?
-                        </p>
-                      </div>
-                      <div className="flex flex-cols gap-2">
-                        <NumberInput
-                          className="min-w-[200px]"
-                          defaultValue={alertThreshold}
-                          endContent={
-                            <p className="text-sm text-default-500">minutes</p>
-                          }
-                          isDisabled={
-                            (!canEdit || flow.disabled) && user.role !== "admin"
-                          }
-                          minValue={0}
-                          placeholder="Enter a number"
-                          variant="bordered"
-                          onValueChange={setAlertThreshold}
-                        />
-                      </div>
-                    </div>
-                  </CardBody>
-                </Card>
-              </div>
-            </CardBody>
-          </Card>
+          </motion.div>
         )}
       </div>
-      <Spacer y={4} />
-      <Button
-        fullWidth
-        color="primary"
-        isDisabled={(!canEdit || flow.disabled) && user.role !== "admin"}
-        startContent={<Icon icon="hugeicons:floppy-disk" width={20} />}
-        onPress={updateFlow}
-      >
-        Save
-      </Button>
-    </>
+
+      <motion.div className="flex justify-end" variants={itemVariants}>
+        <Button
+          className="font-medium"
+          color="primary"
+          isDisabled={(!canEdit || flow.disabled) && user.role !== "admin"}
+          size="md"
+          startContent={<Icon icon="hugeicons:floppy-disk" width={20} />}
+          onPress={updateFlow}
+        >
+          Save Changes
+        </Button>
+      </motion.div>
+    </motion.div>
   );
 }

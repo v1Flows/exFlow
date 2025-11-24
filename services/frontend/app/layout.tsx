@@ -7,7 +7,8 @@ import { cookies, headers } from "next/headers";
 
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
-import { Navbar } from "@/components/navbar";
+import Sidebar from "@/components/sidebar/sidebar";
+import MobileNav from "@/components/sidebar/mobile-nav";
 import { AppContent } from "@/components/app-content";
 import GetUserDetails from "@/lib/fetch/user/getDetails";
 import Footer from "@/components/footer/footer";
@@ -110,9 +111,9 @@ export default async function RootLayout({
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
           <AppContent>
-            <div className="relative flex h-screen flex-col">
+            <div className="flex h-screen w-full overflow-hidden bg-background">
               {sessionCookie && currentPage !== "/setup" && (
-                <Navbar
+                <Sidebar
                   flows={flows.success ? flows.data.flows : []}
                   folders={folders.success ? folders.data.folders : []}
                   projects={projects.success ? projects.data.projects : []}
@@ -121,8 +122,24 @@ export default async function RootLayout({
                   userDetails={userDetails.success ? userDetails.data.user : {}}
                 />
               )}
-              <main className="pt-4 px-6 grow">{children}</main>
-              <Footer />
+              <div className="flex flex-1 flex-col h-full overflow-hidden relative">
+                {sessionCookie && currentPage !== "/setup" && (
+                  <MobileNav
+                    flows={flows.success ? flows.data.flows : []}
+                    folders={folders.success ? folders.data.folders : []}
+                    projects={projects.success ? projects.data.projects : []}
+                    session={session}
+                    settings={settings.success ? settings.data.settings : {}}
+                    userDetails={
+                      userDetails.success ? userDetails.data.user : {}
+                    }
+                  />
+                )}
+                <main className="flex-1 overflow-y-auto pt-4 px-6 scrollbar-hide">
+                  {children}
+                  <Footer />
+                </main>
+              </div>
             </div>
           </AppContent>
         </Providers>
