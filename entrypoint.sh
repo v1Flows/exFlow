@@ -25,10 +25,10 @@ echo "${YELLOW}Starting backend on port ${BACKEND_PORT}...${NC}"
 ./justflow-backend --config /etc/justflow/config.yaml &
 BACKEND_PID=$!
 
-# Wait for backend to be ready
+# Wait for backend to be ready using /dev/tcp (no curl needed)
 echo "${YELLOW}Waiting for backend to be ready...${NC}"
 while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-  if curl -sf http://localhost:${BACKEND_PORT}/api/v1/health > /dev/null 2>&1; then
+  if (echo >/dev/tcp/localhost/${BACKEND_PORT}) 2>/dev/null; then
     echo "${GREEN}✓ Backend is ready${NC}"
     break
   fi
