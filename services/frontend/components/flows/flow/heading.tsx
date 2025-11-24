@@ -74,6 +74,19 @@ export default function FlowHeading({
         </div>
       </div>
       <div className="flex items-center gap-2 md:ml-auto">
+        <Button
+          isIconOnly
+          isDisabled={
+            (!canEditProject(user.id, project.members) || flow.disabled) &&
+            user.role !== "admin"
+          }
+          variant="light"
+          onPress={() => {
+            editFlowModal.onOpen();
+          }}
+        >
+          <Icon icon="hugeicons:pencil-edit-02" width={20} />
+        </Button>
         {flow.type === "alert" ? (
           <Button
             color="secondary"
@@ -118,19 +131,6 @@ export default function FlowHeading({
             </Button>
           </>
         )}
-        <Button
-          isIconOnly
-          isDisabled={
-            (!canEditProject(user.id, project.members) || flow.disabled) &&
-            user.role !== "admin"
-          }
-          variant="light"
-          onPress={() => {
-            editFlowModal.onOpen();
-          }}
-        >
-          <Icon icon="hugeicons:pencil-edit-02" width={20} />
-        </Button>
       </div>
 
       <EditFlowModal
@@ -139,10 +139,7 @@ export default function FlowHeading({
         projects={projects}
         targetFlow={flow}
       />
-      <ScheduleExecutionModal
-        disclosure={scheduleExecutionModal}
-        flow={flow}
-      />
+      <ScheduleExecutionModal disclosure={scheduleExecutionModal} flow={flow} />
       <SimulateAlertModal disclosure={simulateAlertModal} flow={flow} />
     </motion.div>
   );

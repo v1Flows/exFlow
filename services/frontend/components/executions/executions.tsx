@@ -42,9 +42,8 @@ import {
   useFlowExecutionsPaginated,
 } from "@/lib/swr/hooks/flows";
 
-import ExecutionsList from "./executionsList";
+import ExecutionsTimeline from "./executionsTimeline";
 import ExecutionsTable from "./executionsTable";
-import ExecutionsCompact from "./executionsCompact";
 
 export default function Executions({
   runners,
@@ -58,8 +57,7 @@ export default function Executions({
 
   // pagination
   const [page, setPage] = useState(1);
-  const limit =
-    displayStyle === "list" ? 4 : displayStyle === "compact" ? 6 : 10;
+  const limit = displayStyle === "table" ? 10 : 6;
 
   // Calculate offset using page directly for now (will be validated later)
   const offset = (page - 1) * limit;
@@ -185,27 +183,11 @@ export default function Executions({
               </Button>
 
               <ButtonGroup radius="sm" size="md">
-                <Tooltip content="Compact View" placement="top">
+                <Tooltip content="Timeline View" placement="top">
                   <Button
                     isIconOnly
-                    startContent={
-                      <Icon
-                        icon="hugeicons:left-to-right-list-bullet"
-                        width={17}
-                      />
-                    }
-                    variant={displayStyle === "compact" ? "solid" : "flat"}
-                    onPress={() => {
-                      setDisplayStyle("compact");
-                      setPage(1);
-                    }}
-                  />
-                </Tooltip>
-                <Tooltip content="List View" placement="top">
-                  <Button
-                    isIconOnly
-                    startContent={<Icon icon="hugeicons:task-01" width={17} />}
-                    variant={displayStyle === "list" ? "solid" : "flat"}
+                    startContent={<Icon icon="hugeicons:time-02" width={17} />}
+                    variant={displayStyle !== "table" ? "solid" : "flat"}
                     onPress={() => {
                       setDisplayStyle("list");
                       setPage(1);
@@ -232,32 +214,20 @@ export default function Executions({
           <Spacer y={2} />
 
           {loading ? (
-            <div className="flex justify-center items-center h-64">
+            <div className="flex h-64 items-center justify-center">
               <Spinner size="lg" />
             </div>
           ) : (
             <>
-              {displayStyle === "table" && (
+              {displayStyle === "table" ? (
                 <ExecutionsTable
                   canEdit={canEdit}
                   displayToFlow={displayToFlow}
                   executions={items}
                   runners={runners}
                 />
-              )}
-
-              {displayStyle === "list" && (
-                <ExecutionsList
-                  canEdit={canEdit}
-                  displayToFlow={displayToFlow}
-                  executions={items}
-                  flows={flows}
-                  runners={runners}
-                />
-              )}
-
-              {displayStyle === "compact" && (
-                <ExecutionsCompact
+              ) : (
+                <ExecutionsTimeline
                   canEdit={canEdit}
                   displayToFlow={displayToFlow}
                   executions={items}

@@ -150,7 +150,7 @@ export default function DashboardHome({
 
   return (
     <main className="relative w-full min-h-full p-2 md:p-6">
-      <div className="relative z-10 max-w-[1600px] mx-auto">
+      <div className="relative z-10 mx-auto">
         <motion.div
           animate={{ opacity: 1, y: 0 }}
           className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
@@ -158,7 +158,7 @@ export default function DashboardHome({
         >
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              Command Center
+              Command <span className="text-primary">Center</span>
             </h1>
             <p className="text-default-500">
               Welcome back, {user.username}. Systems are operational.
@@ -167,11 +167,11 @@ export default function DashboardHome({
           <div className="flex gap-2">
             <Button
               color="primary"
-              startContent={<Icon icon="hugeicons:plus-sign" />}
+              startContent={<Icon icon="hugeicons:arrow-right-01" />}
               variant="shadow"
-              onPress={() => router.push("/flows/new")}
+              onPress={() => router.push("/flows")}
             >
-              New Flow
+              To Flows
             </Button>
           </div>
         </motion.div>
