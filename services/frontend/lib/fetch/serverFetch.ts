@@ -1,5 +1,6 @@
 "use server";
 
+// eslint-disable-next-line no-undef
 type FetchOptions = RequestInit & {
   timeout?: number; // ms
   retries?: number;
@@ -30,6 +31,7 @@ export async function serverFetch(
 
     try {
       const res = await fetch(url, { signal: controller.signal, ...options });
+
       clearTimeout(timer);
 
       // Retry on server errors (5xx)
@@ -73,6 +75,7 @@ export async function serverRequest<T>(
     // try to parse error body
     const errorText = await res.text().catch(() => "");
     const msg = errorText || `${res.status} ${res.statusText}`;
+
     throw new Error(`API request failed: ${msg}`);
   }
 

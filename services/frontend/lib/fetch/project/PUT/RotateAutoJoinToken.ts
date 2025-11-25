@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+
 import { serverFetch } from "../../serverFetch";
 
 type Result = {
@@ -33,16 +34,19 @@ export default async function RotateAutoJoinToken(
       };
     }
 
-    const res = await serverFetch(`/api/v1/projects/${id}/auto-join-token/rotate`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token.value,
+    const res = await serverFetch(
+      `/api/v1/projects/${id}/auto-join-token/rotate`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token.value,
+        },
+        body: JSON.stringify({}),
+        timeout: 8000,
+        retries: 1,
       },
-      body: JSON.stringify({}),
-      timeout: 8000,
-      retries: 1,
-    });
+    );
 
     if (!res.ok) {
       const errorData = await res.json();

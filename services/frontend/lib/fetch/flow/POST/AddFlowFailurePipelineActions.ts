@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+
 import { serverFetch } from "../../serverFetch";
 
 type Result = {
@@ -35,18 +36,21 @@ export default async function AddFlowFailurePipelineActions(
       };
     }
 
-    const res = await serverFetch(`/api/v1/flows/${flowID}/failure-pipelines/${failurePipelineID}/actions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token.value,
+    const res = await serverFetch(
+      `/api/v1/flows/${flowID}/failure-pipelines/${failurePipelineID}/actions`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token.value,
+        },
+        body: JSON.stringify({
+          ...failurePipeline,
+        }),
+        timeout: 8000,
+        retries: 1,
       },
-      body: JSON.stringify({
-        ...failurePipeline,
-      }),
-      timeout: 8000,
-      retries: 1,
-    });
+    );
 
     if (!res.ok) {
       const errorData = await res.json();

@@ -1,5 +1,6 @@
 import { getApiUrl } from "./config";
 
+// eslint-disable-next-line no-undef
 type ApiOptions = RequestInit & {
   timeout?: number; // ms
   retries?: number;
@@ -21,6 +22,7 @@ export async function apiFetch(
   const retryDelay = options.retryDelay ?? 500;
 
   // default headers
+  // eslint-disable-next-line no-undef
   const defaultOptions: RequestInit = {
     headers: {
       "Content-Type": "application/json",
@@ -40,7 +42,9 @@ export async function apiFetch(
         ...defaultOptions,
         ...options,
         signal: controller.signal,
+        // eslint-disable-next-line no-undef
       } as RequestInit);
+
       clearTimeout(timer);
 
       // Retry on server errors (5xx)
@@ -80,6 +84,7 @@ export async function apiRequest<T>(
 
   if (!response.ok) {
     const body = await response.text().catch(() => "");
+
     throw new Error(
       `API request failed: ${response.status} ${response.statusText}${
         body ? ` - ${body}` : ""

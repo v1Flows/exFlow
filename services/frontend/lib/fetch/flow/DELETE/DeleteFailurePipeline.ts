@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+
 import { serverFetch } from "../../serverFetch";
 
 type Result = {
@@ -34,15 +35,18 @@ export default async function DeleteFlowFailurePipeline(
       };
     }
 
-    const res = await serverFetch(`/api/v1/flows/${flowID}/failure-pipelines/${failurePipelineID}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token.value,
+    const res = await serverFetch(
+      `/api/v1/flows/${flowID}/failure-pipelines/${failurePipelineID}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token.value,
+        },
+        timeout: 8000,
+        retries: 1,
       },
-      timeout: 8000,
-      retries: 1,
-    });
+    );
 
     if (!res.ok) {
       const errorData = await res.json();

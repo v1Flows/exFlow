@@ -72,8 +72,10 @@ export async function middleware(request: NextRequest) {
     // probing multiple backend hostnames on every request (which can add
     // several seconds to middleware execution).
     let setupComplete = false;
+
     try {
       const now = Date.now();
+
       if (_setupCache && now - _setupCache.ts < SETUP_CACHE_TTL) {
         setupComplete = _setupCache.value;
       } else {
@@ -104,7 +106,10 @@ export async function middleware(request: NextRequest) {
     // reduces middleware latency.
     const [validateResult, settingsResult] = await Promise.all([
       ValidateToken().catch((err) => ({ success: false, error: String(err) })),
-      PageGetSettings().catch((err) => ({ success: false, error: String(err) })),
+      PageGetSettings().catch((err) => ({
+        success: false,
+        error: String(err),
+      })),
     ]);
 
     // Validate token result handling

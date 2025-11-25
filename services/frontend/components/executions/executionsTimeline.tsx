@@ -74,7 +74,7 @@ export default function ExecutionsTimeline({
   }, [executions]);
 
   const sortedDates = Object.keys(groupedExecutions).sort(
-    (a, b) => new Date(b).getTime() - new Date(a).getTime(),
+    (a, b) => new Date(a).getTime() - new Date(b).getTime(),
   );
 
   return (
@@ -126,7 +126,11 @@ export default function ExecutionsTimeline({
                   <Card
                     isPressable
                     className="ml-12 w-[calc(100%-3rem)] border border-white/10 bg-content1/40 backdrop-blur-md transition-all hover:scale-[1.01] hover:bg-content1/60"
-                    onPress={() => router.push(`/executions/${execution.id}`)}
+                    onPress={() =>
+                      router.push(
+                        `/flows/${execution.flow_id}/execution/${execution.id}`,
+                      )
+                    }
                   >
                     <CardBody className="p-4">
                       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -179,7 +183,7 @@ export default function ExecutionsTimeline({
                               .map((step: any, _i: number) => (
                                 <Tooltip
                                   key={step.id}
-                                  content={`${step.label || step.name}: ${step.status}`}
+                                  content={`${step.label || step.action.name}: ${step.status}`}
                                 >
                                   <div
                                     className={`h-1.5 w-full min-w-[12px] rounded-full ${
@@ -204,7 +208,16 @@ export default function ExecutionsTimeline({
 
                         {/* Action Button */}
                         <div className="hidden sm:block">
-                          <Button isIconOnly radius="full" variant="light">
+                          <Button
+                            isIconOnly
+                            radius="full"
+                            variant="light"
+                            onPress={() =>
+                              router.push(
+                                `/flows/${execution.flow_id}/execution/${execution.id}`,
+                              )
+                            }
+                          >
                             <Icon icon="hugeicons:arrow-right-01" width={20} />
                           </Button>
                         </div>

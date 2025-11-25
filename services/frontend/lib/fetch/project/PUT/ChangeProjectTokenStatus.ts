@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+
 import { serverFetch } from "../../serverFetch";
 
 type Result = {
@@ -36,19 +37,22 @@ export default async function ChangeProjectTokenStatus(
       };
     }
 
-    const res = await serverFetch(`/api/v1/projects/${projectID}/tokens/${tokenID}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token.value,
+    const res = await serverFetch(
+      `/api/v1/projects/${projectID}/tokens/${tokenID}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token.value,
+        },
+        body: JSON.stringify({
+          disabled: disabled,
+          disabled_reason: reason,
+        }),
+        timeout: 8000,
+        retries: 1,
       },
-      body: JSON.stringify({
-        disabled: disabled,
-        disabled_reason: reason,
-      }),
-      timeout: 8000,
-      retries: 1,
-    });
+    );
 
     if (!res.ok) {
       const errorData = await res.json();

@@ -8,22 +8,27 @@ export const siteConfig = {
     {
       label: "Dashboard",
       href: "/",
+      icon: "hugeicons:home-01",
     },
     {
       label: "Projects",
       href: "/projects",
+      icon: "hugeicons:ai-folder-01",
     },
     {
       label: "Flows",
       href: "/flows",
+      icon: "hugeicons:workflow-square-10",
     },
     {
       label: "Alerts",
       href: "/alerts",
+      icon: "hugeicons:alert-01",
     },
     {
       label: "Runners",
       href: "/runners",
+      icon: "hugeicons:ai-brain-04",
     },
   ],
   navMenuItems: [
