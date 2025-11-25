@@ -2,6 +2,8 @@
 
 import { cookies } from "next/headers";
 
+import { serverFetch } from "../../serverFetch";
+
 type Result = {
   result: string;
   runner: object;
@@ -35,17 +37,16 @@ export default async function AddRunner(
       };
     }
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/runners/`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token.value,
-        },
-        body: JSON.stringify({ name, project_id: projectId, alertflow_runner }),
+    const res = await serverFetch(`/api/v1/runners/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token.value,
       },
-    );
+      body: JSON.stringify({ name, project_id: projectId, alertflow_runner }),
+      timeout: 8000,
+      retries: 1,
+    });
 
     if (!res.ok) {
       const errorData = await res.json();

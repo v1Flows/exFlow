@@ -2,6 +2,8 @@
 
 import { cookies } from "next/headers";
 
+import { serverFetch } from "../../serverFetch";
+
 type Result = {
   result: string;
 };
@@ -34,14 +36,16 @@ export default async function DeleteFailurePipelineAction(
       };
     }
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/flows/${flowID}/failure-pipelines/${failurePipelineID}/actions/${actionID}`,
+    const res = await serverFetch(
+      `/api/v1/flows/${flowID}/failure-pipelines/${failurePipelineID}/actions/${actionID}`,
       {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
           Authorization: token.value,
         },
+        timeout: 8000,
+        retries: 1,
       },
     );
 

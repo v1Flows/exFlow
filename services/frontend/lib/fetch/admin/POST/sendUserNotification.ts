@@ -2,6 +2,8 @@
 
 import { cookies } from "next/headers";
 
+import { serverFetch } from "../../serverFetch";
+
 type Result = {
   result: string;
 };
@@ -33,8 +35,8 @@ export default async function AdminSendUserNotification(
       };
     }
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/users/${userID}/notification`,
+    const res = await serverFetch(
+      `/api/v1/admin/users/${userID}/notification`,
       {
         method: "POST",
         headers: {
@@ -45,6 +47,8 @@ export default async function AdminSendUserNotification(
           title: "Admin Notification",
           body: text,
         }),
+        timeout: 8000,
+        retries: 1,
       },
     );
 

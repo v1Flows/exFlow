@@ -19,15 +19,16 @@ export async function PageGetSettings(): Promise<
   SuccessResponse | ErrorResponse
 > {
   try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/page/settings`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
+    // Page settings are public server-side; still use serverFetch to get timeout/retries
+    const { serverFetch } = await import("../serverFetch");
+    const res = await serverFetch(`/api/v1/page/settings`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
       },
-    );
+      timeout: 8000,
+      retries: 1,
+    });
 
     if (!res.ok) {
       const errorData = await res.json();

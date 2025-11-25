@@ -2,6 +2,8 @@
 
 import { cookies } from "next/headers";
 
+import { serverFetch } from "../serverFetch";
+
 type Runners = {
   runners: [];
 };
@@ -32,16 +34,15 @@ export async function GetProjectRunners(
       };
     }
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/projects/${projectId}/runners`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token.value,
-        },
+    const res = await serverFetch(`/api/v1/projects/${projectId}/runners`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token.value,
       },
-    );
+      timeout: 8000,
+      retries: 1,
+    });
 
     if (!res.ok) {
       const errorData = await res.json();

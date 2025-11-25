@@ -2,6 +2,8 @@
 
 import { cookies } from "next/headers";
 
+import { serverFetch } from "../../serverFetch";
+
 type Result = {
   result: string;
 };
@@ -32,8 +34,8 @@ export default async function RotateAutoJoinToken(
       };
     }
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/projects/${id}/auto-join-token/rotate`,
+    const res = await serverFetch(
+      `/api/v1/projects/${id}/auto-join-token/rotate`,
       {
         method: "PUT",
         headers: {
@@ -41,6 +43,8 @@ export default async function RotateAutoJoinToken(
           Authorization: token.value,
         },
         body: JSON.stringify({}),
+        timeout: 8000,
+        retries: 1,
       },
     );
 

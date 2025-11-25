@@ -1,40 +1,94 @@
 import { getApiUrl } from "./config";
 
+// eslint-disable-next-line no-undef
+type ApiOptions = RequestInit & {
+  timeout?: number; // ms
+  retries?: number;
+  retryDelay?: number; // ms
+};
+
 /**
- * Enhanced fetch wrapper that handles dynamic API URL detection
+ * Enhanced client-side fetch wrapper with timeout and optional retries.
  */
 export async function apiFetch(
   endpoint: string,
-  // eslint-disable-next-line no-undef
-  options?: RequestInit,
+  options: ApiOptions = {},
 ): Promise<Response> {
   const apiUrl = await getApiUrl();
   const url = `${apiUrl}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
 
+  const timeout = options.timeout ?? 8000;
+  const retries = options.retries ?? 0;
+  const retryDelay = options.retryDelay ?? 500;
+
+  // default headers
   // eslint-disable-next-line no-undef
   const defaultOptions: RequestInit = {
     headers: {
       "Content-Type": "application/json",
-      ...options?.headers,
+      ...options.headers,
     },
   };
 
-  return fetch(url, { ...defaultOptions, ...options });
+  let attempt = 0;
+  let lastError: unknown = null;
+
+  while (attempt <= retries) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeout);
+
+    try {
+      const res = await fetch(url, {
+        ...defaultOptions,
+        ...options,
+        signal: controller.signal,
+        // eslint-disable-next-line no-undef
+      } as RequestInit);
+
+      clearTimeout(timer);
+
+      // Retry on server errors (5xx)
+      if (res.status >= 500 && attempt < retries) {
+        lastError = new Error(`Server error: ${res.status}`);
+        attempt++;
+        await new Promise((r) => setTimeout(r, retryDelay * attempt));
+        continue;
+      }
+
+      return res;
+    } catch (err) {
+      clearTimeout(timer);
+      lastError = err;
+
+      if (attempt < retries) {
+        attempt++;
+        await new Promise((r) => setTimeout(r, retryDelay * attempt));
+        continue;
+      }
+
+      throw err;
+    }
+  }
+
+  throw lastError;
 }
 
 /**
- * Typed API fetch with JSON response
+ * Typed API fetch with JSON response and error handling.
  */
 export async function apiRequest<T>(
   endpoint: string,
-  // eslint-disable-next-line no-undef
-  options?: RequestInit,
+  options: ApiOptions = {},
 ): Promise<T> {
   const response = await apiFetch(endpoint, options);
 
   if (!response.ok) {
+    const body = await response.text().catch(() => "");
+
     throw new Error(
-      `API request failed: ${response.status} ${response.statusText}`,
+      `API request failed: ${response.status} ${response.statusText}${
+        body ? ` - ${body}` : ""
+      }`,
     );
   }
 

@@ -2,6 +2,8 @@
 
 import { cookies } from "next/headers";
 
+import { serverFetch } from "../../serverFetch";
+
 type Result = {
   result: string;
   key: string;
@@ -34,17 +36,16 @@ export default async function CreateServiceToken({
       };
     }
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/tokens`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token.value,
-        },
-        body: JSON.stringify({ expires_in: Number(expiresIn), description }),
+    const res = await serverFetch(`/api/v1/admin/tokens`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token.value,
       },
-    );
+      body: JSON.stringify({ expires_in: Number(expiresIn), description }),
+      timeout: 8000,
+      retries: 1,
+    });
 
     if (!res.ok) {
       const errorData = await res.json();

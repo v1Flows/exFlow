@@ -2,6 +2,8 @@
 
 import { cookies } from "next/headers";
 
+import { serverFetch } from "../../serverFetch";
+
 type Result = {
   result: string;
 };
@@ -32,17 +34,16 @@ export default async function AdminRotateSharedAutoJoinToken(): Promise<
       };
     }
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/auto-join-token/rotate`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token.value,
-        },
-        body: JSON.stringify({}),
+    const res = await serverFetch(`/api/v1/admin/auto-join-token/rotate`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token.value,
       },
-    );
+      body: JSON.stringify({}),
+      timeout: 8000,
+      retries: 1,
+    });
 
     if (!res.ok) {
       const errorData = await res.json();

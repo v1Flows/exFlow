@@ -2,6 +2,8 @@
 
 import { cookies } from "next/headers";
 
+import { serverFetch } from "../serverFetch";
+
 type Stats = {
   alerts_executions_stats: [];
   alerts_executions_trends: [];
@@ -34,14 +36,16 @@ export async function GetFlowStats(
       };
     }
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/flows/${flowID}/stats?interval=${interval}`,
+    const res = await serverFetch(
+      `/api/v1/flows/${flowID}/stats?interval=${interval}`,
       {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authorization: token.value,
         },
+        timeout: 8000,
+        retries: 1,
       },
     );
 

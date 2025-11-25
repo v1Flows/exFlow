@@ -2,6 +2,8 @@
 
 import { cookies } from "next/headers";
 
+import { serverFetch } from "../../serverFetch";
+
 type Result = {
   result: string;
 };
@@ -33,8 +35,8 @@ export default async function UpdateExecutionStep(
       };
     }
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/executions/${execution.id}/steps/${step.id}`,
+    const res = await serverFetch(
+      `/api/v1/executions/${execution.id}/steps/${step.id}`,
       {
         method: "PUT",
         headers: {
@@ -42,6 +44,8 @@ export default async function UpdateExecutionStep(
           Authorization: token.value,
         },
         body: JSON.stringify(step),
+        timeout: 8000,
+        retries: 1,
       },
     );
 

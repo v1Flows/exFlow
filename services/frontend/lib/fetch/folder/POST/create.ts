@@ -2,6 +2,8 @@
 
 import { cookies } from "next/headers";
 
+import { serverFetch } from "../../serverFetch";
+
 type Result = {
   result: string;
   folder: object;
@@ -36,22 +38,21 @@ export default async function CreateFolder({
       };
     }
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/folders/`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token.value,
-        },
-        body: JSON.stringify({
-          name,
-          description,
-          parent_id: parentFolderID,
-          project_id: projectID,
-        }),
+    const res = await serverFetch(`/api/v1/folders/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token.value,
       },
-    );
+      body: JSON.stringify({
+        name,
+        description,
+        parent_id: parentFolderID,
+        project_id: projectID,
+      }),
+      timeout: 8000,
+      retries: 1,
+    });
 
     if (!res.ok) {
       const errorData = await res.json();

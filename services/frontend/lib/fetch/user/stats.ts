@@ -2,6 +2,8 @@
 
 import { cookies } from "next/headers";
 
+import { serverFetch } from "../serverFetch";
+
 type Stats = {
   stats: object;
 };
@@ -30,16 +32,15 @@ export async function GetUserStats(): Promise<SuccessResponse | ErrorResponse> {
       };
     }
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/user/stats`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token.value,
-        },
+    const res = await serverFetch(`/api/v1/user/stats`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token.value,
       },
-    );
+      timeout: 8000,
+      retries: 1,
+    });
     const data = await res.json();
 
     return {

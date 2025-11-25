@@ -2,6 +2,8 @@
 
 import { cookies } from "next/headers";
 
+import { serverFetch } from "../serverFetch";
+
 type Alerts = {
   alerts: [];
   limit: number;
@@ -37,14 +39,16 @@ export async function GetAlerts(
       };
     }
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/alerts?limit=${limit}&offset=${offset}&status=${status || ""}`,
+    const res = await serverFetch(
+      `/api/v1/alerts?limit=${limit}&offset=${offset}&status=${status || ""}`,
       {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authorization: token.value,
         },
+        timeout: 8000,
+        retries: 1,
       },
     );
 

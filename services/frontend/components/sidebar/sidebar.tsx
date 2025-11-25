@@ -129,15 +129,7 @@ export default function Sidebar({
                 >
                   {/* We need icons for nav items. Assuming siteConfig has them or we map them */}
                   <Icon
-                    icon={
-                      item.label === "Home"
-                        ? "hugeicons:home-01"
-                        : item.label === "Projects"
-                          ? "hugeicons:ai-folder-01"
-                          : item.label === "Flows"
-                            ? "hugeicons:workflow-square-10"
-                            : "hugeicons:dashboard-square-02"
-                    }
+                    icon={item.icon || "hugeicons:circle-01" /* default icon */}
                     width={22}
                   />
                   {!isCollapsed && <span>{item.label}</span>}

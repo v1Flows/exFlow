@@ -5,6 +5,11 @@ import { NextResponse } from "next/server";
 // eslint-disable-next-line import/order
 import PageGetSettings from "./lib/fetch/page/settings";
 
+// NOTE: `updateSessionInterval` sets a periodic server-side task when imported.
+// Importing it here causes that side-effect to run in the middleware bundle.
+// If you rely on periodic session refresh, consider moving it to a dedicated
+// server worker or a scheduled job. Keeping the import for now to preserve
+// existing behaviour.
 import "./updateSessionInterval";
 import ValidateToken from "./lib/fetch/tokens/validate";
 import { isSetupComplete } from "./lib/fetch/setup/detectBackend";
@@ -41,6 +46,10 @@ function createResponseWithPathname(pathname: string) {
   return response;
 }
 
+// Small in-memory cache to avoid repeatedly probing the backend on every request
+let _setupCache: { value: boolean; ts: number } | null = null;
+const SETUP_CACHE_TTL = 30 * 1000; // 30 seconds
+
 export async function middleware(request: NextRequest) {
   try {
     const { pathname } = new URL(request.url);
@@ -59,10 +68,20 @@ export async function middleware(request: NextRequest) {
       return createResponseWithPathname(pathname);
     }
 
-    // Check if setup is complete
+    // Check if setup is complete — use cached value when fresh to avoid
+    // probing multiple backend hostnames on every request (which can add
+    // several seconds to middleware execution).
     let setupComplete = false;
+
     try {
-      setupComplete = await isSetupComplete();
+      const now = Date.now();
+
+      if (_setupCache && now - _setupCache.ts < SETUP_CACHE_TTL) {
+        setupComplete = _setupCache.value;
+      } else {
+        setupComplete = await isSetupComplete();
+        _setupCache = { value: setupComplete, ts: now };
+      }
     } catch {
       // If we can't reach the backend, assume setup not complete
       setupComplete = false;
@@ -82,10 +101,19 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/setup", request.url));
     }
 
-    // Validate token for protected routes (only after setup is complete)
-    const res = await ValidateToken();
+    // Validate token and fetch page settings in parallel to avoid sequential
+    // waits. Both are required below, but running them at the same time
+    // reduces middleware latency.
+    const [validateResult, settingsResult] = await Promise.all([
+      ValidateToken().catch((err) => ({ success: false, error: String(err) })),
+      PageGetSettings().catch((err) => ({
+        success: false,
+        error: String(err),
+      })),
+    ]);
 
-    if (!res.success) {
+    // Validate token result handling
+    if (!validateResult || (validateResult as any).success === false) {
       cookies.delete("session");
       cookies.delete("user");
 
@@ -115,10 +143,10 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/auth/login", request.url));
     }
 
-    // Fetch settings for all non-public routes
-    const settings = await PageGetSettings();
+    // Page settings result (already fetched in parallel above)
+    const settings = settingsResult as any;
 
-    if (!settings.success) {
+    if (!settings || settings.success === false) {
       return NextResponse.redirect(new URL("/maintenance", request.url));
     }
 
