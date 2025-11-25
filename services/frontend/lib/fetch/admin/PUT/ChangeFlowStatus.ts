@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { serverFetch } from "../../serverFetch";
 
 type Result = {
   result: string;
@@ -34,20 +35,19 @@ export async function ChangeFlowStatus(
       };
     }
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/flows/${id}/status`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token.value,
-        },
-        body: JSON.stringify({
-          disabled: status,
-          disabled_reason: reason,
-        }),
+    const res = await serverFetch(`/api/v1/admin/flows/${id}/status`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token.value,
       },
-    );
+      body: JSON.stringify({
+        disabled: status,
+        disabled_reason: reason,
+      }),
+      timeout: 8000,
+      retries: 1,
+    });
 
     if (!res.ok) {
       const errorData = await res.json();

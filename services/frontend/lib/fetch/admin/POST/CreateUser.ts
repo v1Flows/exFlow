@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { serverFetch } from "../../serverFetch";
 
 export default async function AdminCreateUser(
   email: string,
@@ -21,22 +22,21 @@ export default async function AdminCreateUser(
       };
     }
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/users`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token.value,
-        },
-        body: JSON.stringify({
-          email,
-          username,
-          password,
-          role,
-        }),
+    const res = await serverFetch(`/api/v1/admin/users`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token.value,
       },
-    );
+      body: JSON.stringify({
+        email,
+        username,
+        password,
+        role,
+      }),
+      timeout: 8000,
+      retries: 1,
+    });
 
     if (!res.ok) {
       const errorData = await res.json();

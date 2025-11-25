@@ -11,15 +11,22 @@ export default function SWRProvider({ children }: SWRProviderProps) {
   return (
     <SWRConfig
       value={{
-        revalidateOnFocus: true,
-        revalidateOnReconnect: true,
-        refreshInterval: 10000, // Refresh every 10 seconds
-        errorRetryCount: 3,
-        errorRetryInterval: 5000,
-        dedupingInterval: 2000,
-        onError: (_error, _key) => {
-          // Handle SWR errors silently in production
-          // You could send to an error reporting service here
+        // Conservative defaults to avoid aggressive background network activity
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false,
+        refreshInterval: 0, // No automatic polling by default
+        refreshWhenHidden: false,
+        refreshWhenOffline: false,
+        errorRetryCount: 1,
+        errorRetryInterval: 2000,
+        dedupingInterval: 5000,
+        focusThrottleInterval: 5000,
+        shouldRetryOnError: false,
+        onError: (err, key) => {
+          // Basic error logging; adapt to your telemetry if needed
+          // Keep minimal to avoid noisy logs for expected client errors
+          // eslint-disable-next-line no-console
+          console.error("SWR error", { key, err });
         },
       }}
     >

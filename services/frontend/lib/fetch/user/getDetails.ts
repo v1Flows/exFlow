@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { serverFetch } from "../serverFetch";
 
 type UserDetails = {
   user: any;
@@ -32,12 +33,14 @@ export async function GetUserDetails(): Promise<
       };
     }
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/user/`, {
+    const res = await serverFetch(`/api/v1/user/`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
         Authorization: token.value,
       },
+      timeout: 8000,
+      retries: 1,
     });
 
     if (!res.ok) {

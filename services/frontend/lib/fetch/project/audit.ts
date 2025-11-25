@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { serverFetch } from "../serverFetch";
 
 type AuditLogs = {
   audit: [];
@@ -32,16 +33,15 @@ export async function GetProjectAuditLogs(
       };
     }
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/projects/${projectId}/audit`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token.value,
-        },
+    const res = await serverFetch(`/api/v1/projects/${projectId}/audit`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token.value,
       },
-    );
+      timeout: 8000,
+      retries: 1,
+    });
 
     if (!res.ok) {
       const errorData = await res.json();

@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { serverFetch } from "../../serverFetch";
 
 type Result = {
   result: string;
@@ -44,31 +45,30 @@ export default async function UpdateSettings(
       };
     }
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/settings`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token.value,
-        },
-        body: JSON.stringify({
-          maintenance,
-          signup,
-          create_projects,
-          create_flows,
-          create_runners,
-          create_api_keys,
-          add_project_members,
-          add_flow_actions,
-          start_executions,
-          receive_alerts,
-          allow_shared_runner_auto_join,
-          allow_shared_runner_join,
-          shared_runner_auto_join_token,
-        }),
+    const res = await serverFetch(`/api/v1/admin/settings`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token.value,
       },
-    );
+      body: JSON.stringify({
+        maintenance,
+        signup,
+        create_projects,
+        create_flows,
+        create_runners,
+        create_api_keys,
+        add_project_members,
+        add_flow_actions,
+        start_executions,
+        receive_alerts,
+        allow_shared_runner_auto_join,
+        allow_shared_runner_join,
+        shared_runner_auto_join_token,
+      }),
+      timeout: 8000,
+      retries: 1,
+    });
 
     if (!res.ok) {
       const errorData = await res.json();

@@ -1,6 +1,7 @@
 "use server";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { serverFetch } from "../fetch/serverFetch";
 
 export async function updateSession() {
   "use client";
@@ -15,13 +16,12 @@ export async function updateSession() {
       headers.append("Authorization", session);
     }
 
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/token/refresh`,
-      {
-        method: "POST",
-        headers,
-      },
-    );
+    const response = await serverFetch(`/api/v1/token/refresh`, {
+      method: "POST",
+      headers: Object.fromEntries(headers.entries()),
+      timeout: 8000,
+      retries: 1,
+    });
     const data = await response.json();
 
     const res = NextResponse.next();

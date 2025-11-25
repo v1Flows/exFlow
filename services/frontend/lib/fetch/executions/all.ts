@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { serverFetch } from "../serverFetch";
 
 type Executions = {
   executions: [];
@@ -37,14 +38,16 @@ export async function GetExecutions(
       };
     }
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/executions?limit=${limit}&offset=${offset}&status=${status || ""}`,
+    const res = await serverFetch(
+      `/api/v1/executions?limit=${limit}&offset=${offset}&status=${status || ""}`,
       {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authorization: token.value,
         },
+        timeout: 8000,
+        retries: 1,
       },
     );
 

@@ -1,27 +1,24 @@
 "use server";
 
+import { serverFetch } from "../fetch/serverFetch";
+
 export default async function SignUpAPI(
   email: string,
   username: string,
   password: string,
 ) {
-  "use client";
   try {
-    const headers = new Headers();
-
-    headers.append("Content-Type", "application/json");
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/register`,
-      {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          email,
-          username,
-          password,
-        }),
-      },
-    );
+    const res = await serverFetch(`/api/v1/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email,
+        username,
+        password,
+      }),
+      timeout: 8000,
+      retries: 1,
+    });
     const data = await res.json();
 
     return data;

@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { serverFetch } from "../serverFetch";
 
 type Stats = {
   started_execution_stats: [];
@@ -38,16 +39,15 @@ export async function AdminGetStats(
       };
     }
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/stats?interval=${interval}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token.value,
-        },
+    const res = await serverFetch(`/api/v1/admin/stats?interval=${interval}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token.value,
       },
-    );
+      timeout: 8000,
+      retries: 1,
+    });
 
     if (!res.ok) {
       const errorData = await res.json();

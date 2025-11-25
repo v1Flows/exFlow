@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { serverFetch } from "../../serverFetch";
 
 type Result = {
   result: string;
@@ -37,31 +38,30 @@ export default async function UpdateFlow(
     const cookieStore = await cookies();
     const token = cookieStore.get("session");
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/flows/${id}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token.value,
-        },
-        body: JSON.stringify({
-          name,
-          description,
-          project_id: projectID,
-          runner_id: runnerID,
-          folder_id: folderID,
-          exec_parallel: execParallel,
-          failure_pipeline_id: failurePipelineID,
-          schedule_every_value: scheduleEveryValue,
-          schedule_every_unit: scheduleEveryUnit,
-          group_alerts: groupAlerts,
-          group_alerts_identifier: groupAlertsIdentifier,
-          alert_threshold: alertThreshold,
-          patterns,
-        }),
+    const res = await serverFetch(`/api/v1/flows/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token.value,
       },
-    );
+      body: JSON.stringify({
+        name,
+        description,
+        project_id: projectID,
+        runner_id: runnerID,
+        folder_id: folderID,
+        exec_parallel: execParallel,
+        failure_pipeline_id: failurePipelineID,
+        schedule_every_value: scheduleEveryValue,
+        schedule_every_unit: scheduleEveryUnit,
+        group_alerts: groupAlerts,
+        group_alerts_identifier: groupAlertsIdentifier,
+        alert_threshold: alertThreshold,
+        patterns,
+      }),
+      timeout: 8000,
+      retries: 1,
+    });
 
     if (!res.ok) {
       const errorData = await res.json();

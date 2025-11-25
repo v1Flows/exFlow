@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { serverFetch } from "../../serverFetch";
 
 type Result = {
   result: string;
@@ -34,7 +35,7 @@ export default async function ChangeUserDetails(
       };
     }
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/user/`, {
+    const res = await serverFetch(`/api/v1/user/`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -44,6 +45,8 @@ export default async function ChangeUserDetails(
         username,
         email,
       }),
+      timeout: 8000,
+      retries: 1,
     });
 
     if (!res.ok) {
