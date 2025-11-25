@@ -58,16 +58,28 @@ export default function Sidebar({
       {/* Header / Logo */}
       <div className="flex h-16 shrink-0 items-center gap-3 px-6">
         <NextLink className="flex items-center gap-2" href="/">
-          <Image
-            alt="Logo"
-            height={32}
-            radius="none"
-            shadow="none"
-            src={`/images/ef_logo_512.png`}
-            width={32}
-          />
-          {!isCollapsed && (
-            <p className="font-bold text-inherit">{siteConfig.name}</p>
+          {!isCollapsed ? (
+            <Image
+              alt="Logo"
+              height={122}
+              radius="none"
+              shadow="none"
+              src={
+                theme === "light"
+                  ? `/images/justflow_logo_full_transparent_dark.png`
+                  : `/images/justflow_logo_full_transpartent_white.png`
+              }
+              width={122}
+            />
+          ) : (
+            <Image
+              alt="Logo"
+              height={22}
+              radius="none"
+              shadow="none"
+              src={`/images/justlab_logo_minimal_transparent.png`}
+              width={22}
+            />
           )}
         </NextLink>
       </div>

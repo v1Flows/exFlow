@@ -3,6 +3,7 @@
 import { Icon } from "@iconify/react";
 import { Link, Spacer, Image } from "@heroui/react";
 import React from "react";
+import { useTheme } from "next-themes";
 
 import { siteConfig } from "@/config/site";
 
@@ -18,21 +19,24 @@ const navLinks = [
 ];
 
 export default function Footer() {
+  const { theme } = useTheme();
+
   return (
     <footer className="sticky top-[100vh] flex w-full flex-col">
       <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-center px-6 py-12 lg:px-8">
-        <div className="flex items-center justify-center">
+        <div className="flex h-8 items-center justify-center">
           <Image
             alt="Logo"
-            height={28}
+            height={132}
             radius="none"
             shadow="none"
-            src={`/images/ef_logo_512.png`}
-            width={28}
+            src={
+              theme === "light"
+                ? `/images/justflow_logo_full_transparent_dark.png`
+                : `/images/justflow_logo_full_transpartent_white.png`
+            }
+            width={132}
           />
-          <span className="text-medium font-medium pl-1">
-            {siteConfig.name}
-          </span>
         </div>
         <Spacer y={4} />
         <div className="flex flex-wrap justify-center gap-x-4 gap-y-1">
