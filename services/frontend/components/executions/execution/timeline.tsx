@@ -179,7 +179,8 @@ export default function ExecutionTimeline({
                           ? "animate-pulse bg-warning"
                           : step.status === "success"
                             ? "bg-success"
-                            : step.status === "failed"
+                            : step.status === "error" ||
+                                step.status === "canceled"
                               ? "bg-danger"
                               : isSelected
                                 ? "bg-primary"
