@@ -186,15 +186,7 @@ export default function ExecutionsTimeline({
                                   content={`${step.label || step.action.name}: ${step.status}`}
                                 >
                                   <div
-                                    className={`h-1.5 w-full min-w-[12px] rounded-full ${
-                                      step.status === "success"
-                                        ? "bg-success"
-                                        : step.status === "failed"
-                                          ? "bg-danger"
-                                          : step.status === "running"
-                                            ? "bg-warning animate-pulse"
-                                            : "bg-default-200"
-                                    }`}
+                                    className={`h-1.5 w-full min-w-[12px] rounded-full bg-${executionStatusColor(step)} ${step.status === "running" || step.status === "paused" || step.status === "interactionWaiting" || step.status === "scheduled" ? "animate-pulse" : ""}`}
                                   />
                                 </Tooltip>
                               ))}
