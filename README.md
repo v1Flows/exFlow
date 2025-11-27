@@ -6,7 +6,7 @@
 
 JustFlow is a workflow automation platform like Jenkins but beautiful. This repository contains both the frontend and backend code for the JustFlow application.
 
-![Dashboard Image](https://github.com/v1Flows/JustFlow/blob/develop/services/frontend/public/images/full_dashboard.png?raw=true)
+![Dashboard Image](https://github.com/JustLABv1/justflow/blob/develop/services/frontend/public/images/full_dashboard.png?raw=true)
 
 ## Table of Contents
 
