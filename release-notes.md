@@ -18,6 +18,9 @@ Please use with caution!
 - New Welcome Style
 - New Name: JustFlow
 - Refactored Admin Settings Page and System Management
+- New Logo
+- Updated ReadMe
+- Reduce Configuration overhead
 
 ### Fixed
 - none

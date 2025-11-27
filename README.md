@@ -2,19 +2,17 @@
 <a href="https://buymeacoffee.com/justnz" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
 </p>
 
+
 # JustFlow
 
-JustFlow is a workflow automation platform like Jenkins but beautiful. This repository contains both the frontend and backend code for the JustFlow application.
+JustFlow is a modern workflow automation platform, combining powerful orchestration with a beautiful interface. This repository contains both the frontend and backend code for the JustFlow application.
 
 ![Dashboard Image](https://github.com/JustLABv1/justflow/blob/develop/services/frontend/public/images/full_dashboard.png?raw=true)
 
 ## Table of Contents
 
 - [Features](#features)
-- [Self Hosting](#self-hosting)
-    - [Docker Compose](#docker-compose)
-    - [Helm Chart](#helm-chart)
-    - [Docker run](#docker-run)
+- [Self Hosting & Setup](#self-hosting--setup)
 - [Runners](#runners)
 - [Project Structure](#project-structure)
 - [Local Development](#local-development)
@@ -23,70 +21,78 @@ JustFlow is a workflow automation platform like Jenkins but beautiful. This repo
 
 ## Features
 
-- **Project Management**: Projects combine a number of Flows and add the option to invite members and control their access.
-- **Flows**: Create flows to design workflows / automations.
-- **Failure Pipelines**: Trigger separate pipelines in case your flows fail and recover in case needed.
-- **Runners**: Runners execute your flows. They can also be self-hosted and expanded with plugins.
-- **Shared Runners**: Create runners which can be used for all projects across the platform.
-- **Scalable to your Needs**: Scale JustFlow and the runners according to your workload.
-- **Team Collaboration**: Invite team members, assign roles, and manage permissions.
-- **Audit Logs**: Track changes and activities within projects and flows.
+- **Project Management**: Organize flows, invite members, and control access.
+- **Flows**: Design and automate workflows visually.
+- **Failure Pipelines**: Trigger recovery or alternative flows on errors.
+- **Runners**: Execute flows, self-hosted or shared, extensible via plugins.
+- **Scalability**: Scale JustFlow and runners to your workload.
+- **Team Collaboration**: Invite team members, assign roles, manage permissions.
+- **Audit Logs**: Track changes and activities for compliance and transparency.
 
-## Self Hosting
-To run your own version of JustFlow we provide various docker images available at 
-[Docker Hub](https://hub.docker.com/repository/docker/ghcr.io/justlabv1/justflow/general).
+## Self Hosting & Setup
 
-**!CAUTION! JustFlow requires an separately hosted PostgreSQL Database to connect to. There is no built-in database in the full version JustFlow image.**
+JustFlow can be self-hosted using Docker, Docker Compose, or Helm. You can set up JustFlow using the new automated setup flow (recommended) or manually via configuration files.
 
-- **ghcr.io/justlabv1/justflow:latest** - Full version including frontend and backend
-- **ghcr.io/justlabv1/justflow:vx.x.x** - Versioned release. Also available for the single frontend and backend images
-- **ghcr.io/justlabv1/justflow:frontend-latest** - Only frontend
-- **ghcr.io/justlabv1/justflow:backend-latest** - Only backend
+**Note:** JustFlow requires a separately hosted PostgreSQL database. The main JustFlow image does not include a built-in database.
 
-### Docker Compose
-Use our [docker-compose.yaml](https://github.com/JustLABv1/justflow/blob/main/docker-compose.yaml) to get started with JustFlow. This contains an postgres database and the full version image of JustFlow.
+### Docker Images
+- **ghcr.io/justlabv1/justflow:latest** – Full version (frontend + backend)
+- **ghcr.io/justlabv1/justflow:vx.x.x** – Versioned releases
+- **ghcr.io/justlabv1/justflow:frontend-latest** – Frontend only
+- **ghcr.io/justlabv1/justflow:backend-latest** – Backend only
 
-### Helm Chart
-We also offer an Helm Chart for JustFlow which includes JustFlow itself, an postgres and the option for project/shared runners. <br />
-Visit our [Helm Repo](https://github.com/JustLABv1/helm-charts) for more details
+### Setup Options
 
-### Docker run
-#### Full Version
+#### 1. Automated Setup (Recommended)
+After starting JustFlow, visit the `/setup` page in your browser. The setup wizard will guide you through configuring database, encryption, and admin user. All settings are stored securely and can be updated later in the admin area.
 
-Config example: [config.yaml](https://github.com/v1Flows/JustFlow/blob/main/services/backend/config/config.yaml)
+#### 2. Environment Variables
+You can configure JustFlow using environment variables for backend and frontend. See the documentation for all available variables.
+
+#### 3. Manual Configuration (Advanced)
+You can still use a manual `config.yaml` for backend configuration. Mount your config file into the container:
 
 ```sh
-docker run -p 80:3000 -v /your/config/path/config.yaml:/etc/justflow/backend_config.yaml ghcr.io/justlabv1/justflow:latest
+docker run -p 8080:8080 -v /your/config/path/config.yaml:/etc/justflow/config.yaml ghcr.io/justlabv1/justflow:latest
 ```
 
-#### Frontend Only
-If you want to run only the frontend of JustFlow, please provide the backend endpoint via the below env flag.
+Example config: [config.yaml](https://github.com/v1Flows/JustFlow/blob/main/services/backend/config/config.yaml)
+
+### Docker Compose
+Use our [docker-compose.yaml](https://github.com/JustLABv1/justflow/blob/main/docker-compose.yaml) for a quick start. It includes PostgreSQL and the full JustFlow image. You can use the setup wizard or mount your own config file as described above.
+
+### Helm Chart
+Deploy JustFlow with our Helm chart, which supports integrated setup and runner management. See the [Helm Repo](https://github.com/JustLABv1/helm-charts) for details.
+
+### Frontend Only
+To run only the frontend, provide the backend endpoint via environment variable:
 ```sh
 docker run -p 80:3000 -e NEXT_PUBLIC_API_URL=https://api-url.com ghcr.io/justlabv1/justflow:frontend-latest
 ```
 
-#### Backend Only
+### Backend Only
 ```sh
-docker run -p 8080:8080 -v /your/config/path/config.yaml:/etc/justflow/backend_config.yaml ghcr.io/justlabv1/justflow:backend-latest
+docker run -p 80:3000 -v /your/config/path/config.yaml:/etc/justflow/config.yaml ghcr.io/justlabv1/justflow:backend-latest
 ```
 
 ## Runners
-The execution engine of JustFlow is the v1Flows Runner. This component provides the functionality as a workflow engine and will execute your flows.
 
-JustFlow can only run flows when at least one runner is connected. After you created your JustFlow instance either create an project and add an persistent/auto runner or as an admin visit the admin runner page.
+JustFlow uses the v1Flows Runner as its execution engine. At least one runner must be connected for flows to run. You can add runners via the setup wizard, project settings, or the admin runner page.
 
-Please see the [Runner](https://github.com/v1Flows/runner) Repo for more informations.
+See the [Runner](https://github.com/v1Flows/runner) repository for more information.
 
 ## Project Structure
 
+
 The project structure is organized as follows:
 
-- **backend**: Contains the backend code for handling API requests, database interactions, and business logic.
-- **frontend**: Contains the frontend code for the user interface, including components, pages, and styles.
+- **backend**: API, business logic, database, configuration
+- **frontend**: User interface, components, pages, styles
+
 
 ## Local Development
 
-To get started with the JustFlow project, follow these steps:
+To develop JustFlow locally, you can use either the automated setup or manual config file:
 
 ### Backend
 
@@ -101,36 +107,17 @@ To get started with the JustFlow project, follow these steps:
     cd services/backend && go mod download
     ```
 
-3. Create a [config.yaml](https://github.com/v1Flows/JustFlow/blob/main/services/backend/config/config.yaml) file and add the necessary configuration:
-    ```yaml
-    ---
-
-    log_level: info
-
-    port: 8080
-
-    database:
-      server: localhost
-      port: 5432
-      name: postgres
-      user: postgres
-      password: postgres
-
-    encryption:
-      # Minimum 32 characters, recommended 64+ characters
-      master_secret: "your-very-long-and-secure-master-secret-here"
-      # Fallback key for legacy data (optional)
-      key: "legacy-key-for-backward-compatibility"
-
-    jwt:
-      secret: null
-    ```
-
-4. Build and run the backend server:
-    ```sh
-    $ go build -o justflow-backend
-    $ ./justflow-backend --config config/config.yaml
-    ```
+3. Start the backend:
+    - **Automated Setup:**
+      ```sh
+      go run main.go
+      ```
+      Then visit `http://localhost:8080/setup` in your browser to complete the setup wizard.
+    - **Manual Config:**
+      Create your `config.yaml` (see example above) and run:
+      ```sh
+      go run main.go --config config/config.yaml
+      ```
 
 ### Frontend
 
@@ -144,9 +131,9 @@ To get started with the JustFlow project, follow these steps:
     npm install
     ```
 
-3. Create a `.env.local` file and add the necessary environment variables:
+3. Create a `.env.local` file and add the backend API URL:
     ```env
-    NEXT_PUBLIC_API_URL="https://your-api-url.com"
+    NEXT_PUBLIC_API_URL="http://localhost:8080"
     ```
 
 4. Start the development server:
@@ -154,25 +141,26 @@ To get started with the JustFlow project, follow these steps:
     npm run dev
     ```
 
+
 ## Contributing
 
-We welcome contributions to the JustFlow project! To contribute, follow these steps:
-
+We welcome contributions! To get started:
 1. Fork the repository.
 2. Create a new branch:
     ```sh
     git checkout -b feature/your-feature-name
     ```
-3. Make your changes and commit them:
+3. Make your changes and commit:
     ```sh
     git commit -m "Add your commit message"
     ```
-4. Push to the branch:
+4. Push your branch:
     ```sh
     git push origin feature/your-feature-name
     ```
 5. Open a pull request on GitHub.
 
+
 ## License
 
-This project is licensed under the GNU AFFERO GENERAL PUBLIC LICENSE Version 3. See the [LICENSE](https://github.com/v1Flows/JustFlow/blob/main/LICENSE) file for details.
+This project is licensed under the GNU AFFERO GENERAL PUBLIC LICENSE Version 3. See the [LICENSE](https://github.com/v1Flows/JustFlow/blob/main/LICENSE) for details.
