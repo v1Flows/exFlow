@@ -110,7 +110,7 @@ export default function Alerts({
           <div className="p-4 border-b border-default-100 flex flex-wrap gap-4 justify-between items-center bg-content1/50">
             <div className="flex items-center gap-3">
               <div className="flex size-10 items-center justify-center rounded-xl bg-warning/10 text-warning">
-                <Icon icon="hugeicons:alarm-01" width={24} />
+                <Icon icon="hugeicons:alert-02" width={24} />
               </div>
               <div className="flex flex-col">
                 <h3 className="text-lg font-bold">Alerts</h3>

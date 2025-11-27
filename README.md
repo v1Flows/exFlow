@@ -6,7 +6,7 @@
 
 JustFlow is a workflow automation platform like Jenkins but beautiful. This repository contains both the frontend and backend code for the JustFlow application.
 
-![Dashboard Image](https://github.com/v1Flows/JustFlow/blob/develop/services/frontend/public/images/full_dashboard.png?raw=true)
+![Dashboard Image](https://github.com/JustLABv1/justflow/blob/develop/services/frontend/public/images/full_dashboard.png?raw=true)
 
 ## Table of Contents
 
@@ -44,11 +44,11 @@ To run your own version of JustFlow we provide various docker images available a
 - **ghcr.io/justlabv1/justflow:backend-latest** - Only backend
 
 ### Docker Compose
-Use our [docker-compose.yaml](https://github.com/v1Flows/JustFlow/blob/develop/docker-compose.yaml) to get started with JustFlow. This contains an postgres database and the full version image of JustFlow.
+Use our [docker-compose.yaml](https://github.com/JustLABv1/justflow/blob/main/docker-compose.yaml) to get started with JustFlow. This contains an postgres database and the full version image of JustFlow.
 
 ### Helm Chart
 We also offer an Helm Chart for JustFlow which includes JustFlow itself, an postgres and the option for project/shared runners. <br />
-Visit our [Helm Repo](https://github.com/v1Flows/helm-charts/tree/main) for more details
+Visit our [Helm Repo](https://github.com/JustLABv1/helm-charts) for more details
 
 ### Docker run
 #### Full Version
