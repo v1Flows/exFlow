@@ -58,8 +58,7 @@ export default function AddFlowActionModal({
   const [errorText, setErrorText] = React.useState("");
   const [errorMessage, setErrorMessage] = React.useState("");
 
-  const [actionBaseSelected, setActionBaseSelected] = useState("project");
-  const [projectActionSelected, setProjectActionSelected] = useState(false);
+  const [actionBaseSelected, setActionBaseSelected] = useState("runner");
 
   const [availableActions, setAvailableActions] = useState([] as any);
   const [availableCategories, setAvailableCategories] = useState([
@@ -245,15 +244,21 @@ export default function AddFlowActionModal({
     }
   }
 
-  function handleActionSelect(action: any, type: string = "runner") {
+  function handleActionSelect(action: any) {
+    let type = "";
+
+    if (actionBaseSelected === "project") {
+      type = "project";
+    } else if (actionBaseSelected === "runner") {
+      type = "runner";
+    }
+
     // add value field to action params
     if (type === "runner" && action.params && action.params.length > 0) {
       action.params.map((param: any) => {
         param.value = param.default;
         param.default = param.default.toString();
       });
-    } else if (type !== "project") {
-      action.params = [];
     }
 
     action.condition = {
@@ -602,17 +607,18 @@ export default function AddFlowActionModal({
                       setActionBaseSelected(key as string)
                     }
                   >
-                    <Tab key="project" title="Project Actions" />
                     <Tab key="runner" title="Runner Actions" />
+                    <Tab key="project" title="Project Actions" />
                   </Tabs>
 
                   {totalAvailableActions === 0 ? (
                     <Alert
+                      className="max-h-[150px]"
                       color="danger"
-                      description="Please check if there are any predefined actions in the project or healthy and registered runners available for this flow."
+                      description="Please check if there are any healthy and registered runners available for this flow."
                       icon={<Icon icon="hugeicons:alert-02" width={25} />}
                       title="No Actions Available"
-                      variant="solid"
+                      variant="faded"
                     />
                   ) : (
                     <div className="w-full flex flex-col gap-4">
@@ -668,11 +674,10 @@ export default function AddFlowActionModal({
                             key={act.type}
                             isHoverable
                             isPressable
-                            className={`bg-content1/60 backdrop-blur-md border border-white/10 shadow-sm hover:bg-content2/60 transition-all ${act.plugin === action.plugin && act.version === action.version && !projectActionSelected ? "!border-primary" : ""}`}
+                            className={`bg-content1/60 backdrop-blur-md border border-white/10 shadow-sm hover:bg-content2/60 transition-all`}
                             radius="md"
                             onPress={() => {
                               handleActionSelect(act);
-                              setProjectActionSelected(false);
                               setCurrentStep(1);
                             }}
                           >
