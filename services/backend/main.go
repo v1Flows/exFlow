@@ -18,7 +18,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const version string = "2.0.0-beta.12"
+const version string = "2.0.0-beta.13"
 
 var (
 	configFile  = kingpin.Flag("config", "Config file").Short('c').Default("/etc/justflow/config.yaml").String()

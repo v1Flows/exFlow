@@ -1,6 +1,6 @@
 # Release Notes
 
-## [Version 2.0.0-beta2] - 2025-11-24
+## [Version 2.0.0-beta.13] - 2025-11-30
 
 🚧 Beta Release 🚧
 Please use with caution!
@@ -12,6 +12,7 @@ Please use with caution!
 - Merge AlertFlow into this Project
 - Initial Setup. No manual config or env file required anymore
 - Predefined Project Actions
+- Flow Setting: Always Cleanup Workspace
 
 ### Changed
 - Major UI improvements (Introducing UI v2)
@@ -23,7 +24,7 @@ Please use with caution!
 - Reduce Configuration overhead
 
 ### Fixed
-- none
+- Runner Workspace Cleanup
 
 ### Known Issues
 - No known issues at this time.
