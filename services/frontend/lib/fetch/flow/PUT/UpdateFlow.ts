@@ -34,6 +34,7 @@ export default async function UpdateFlow(
   groupAlertsIdentifier: string,
   alertThreshold: number,
   patterns: any,
+  alwaysCleanupWorkspace: boolean,
 ): Promise<SuccessResponse | ErrorResponse> {
   try {
     const cookieStore = await cookies();
@@ -59,6 +60,7 @@ export default async function UpdateFlow(
         group_alerts_identifier: groupAlertsIdentifier,
         alert_threshold: alertThreshold,
         patterns,
+        always_cleanup_workspace: alwaysCleanupWorkspace,
       }),
       timeout: 8000,
       retries: 1,

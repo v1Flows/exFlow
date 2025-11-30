@@ -112,6 +112,7 @@ export default function EditFlowModal({
       targetFlow.group_alerts,
       targetFlow.group_alerts_identifier,
       targetFlow.alert_threshold,
+      targetFlow.alwaysCleanupWorkspace,
     )) as any;
 
     if (!response) {
