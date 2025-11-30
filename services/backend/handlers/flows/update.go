@@ -93,6 +93,9 @@ func UpdateFlow(context *gin.Context, db *bun.DB) {
 	if flow.ScheduleEveryUnit != flowDB.ScheduleEveryUnit {
 		columns = append(columns, "schedule_every_unit")
 	}
+	if flow.AlwaysCleanupWorkspace != flowDB.AlwaysCleanupWorkspace {
+		columns = append(columns, "always_cleanup_workspace")
+	}
 	if !reflect.DeepEqual(flow.Patterns, flowDB.Patterns) {
 		columns = append(columns, "patterns")
 	}

@@ -10,29 +10,30 @@ import (
 type Flows struct {
 	bun.BaseModel `bun:"table:flows"`
 
-	ID                    uuid.UUID         `bun:",pk,type:uuid,default:gen_random_uuid()" json:"id"`
-	Name                  string            `bun:"name,type:text,notnull" json:"name"`
-	Description           string            `bun:"description,type:text,default:''" json:"description"`
-	Type                  string            `bun:"type,type:text,default:'default'" json:"type"`
-	ProjectID             string            `bun:"project_id,type:text,notnull" json:"project_id"`
-	RunnerID              string            `bun:"runner_id,type:text,default:''" json:"runner_id"`
-	ExecParallel          bool              `bun:"exec_parallel,type:bool,default:false" json:"exec_parallel"`
-	Actions               []Action          `bun:"type:jsonb,default:jsonb('[]')" json:"actions"`
-	Maintenance           bool              `bun:"maintenance,type:bool,default:false" json:"maintenance"`
-	MaintenanceMessage    string            `bun:"maintenance_message,type:text,default:''" json:"maintenance_message"`
-	Disabled              bool              `bun:"disabled,type:bool,default:false" json:"disabled"`
-	DisabledReason        string            `bun:"disabled_reason,type:text,default:''" json:"disabled_reason"`
-	CreatedAt             time.Time         `bun:"created_at,type:timestamptz,default:now()" json:"created_at"`
-	UpdatedAt             time.Time         `bun:"updated_at,type:timestamptz" json:"updated_at"`
-	FailurePipelines      []FailurePipeline `bun:"type:jsonb,default:jsonb('[]')" json:"failure_pipelines"`
-	FailurePipelineID     string            `bun:"failure_pipeline_id,type:text,default:''" json:"failure_pipeline_id"`
-	FolderID              string            `bun:"folder_id,type:text,default:''" json:"folder_id"`
-	ScheduleEveryValue    int               `bun:"schedule_every_value,type:integer,default:0" json:"schedule_every_value"`
-	ScheduleEveryUnit     string            `bun:"schedule_every_unit,type:text,default:''" json:"schedule_every_unit"`
-	Patterns              []Pattern         `bun:"type:jsonb,default:jsonb('[]')" json:"patterns"`
-	GroupAlerts           bool              `bun:"group_alerts,type:bool,default:true" json:"group_alerts"`
-	GroupAlertsIdentifier string            `bun:"group_alerts_identifier,type:text,default:''" json:"group_alerts_identifier"`
-	AlertThreshold        int               `bun:"alert_threshold,type:int,default:0" json:"alert_threshold"`
+	ID                     uuid.UUID         `bun:",pk,type:uuid,default:gen_random_uuid()" json:"id"`
+	Name                   string            `bun:"name,type:text,notnull" json:"name"`
+	Description            string            `bun:"description,type:text,default:''" json:"description"`
+	Type                   string            `bun:"type,type:text,default:'default'" json:"type"`
+	ProjectID              string            `bun:"project_id,type:text,notnull" json:"project_id"`
+	RunnerID               string            `bun:"runner_id,type:text,default:''" json:"runner_id"`
+	ExecParallel           bool              `bun:"exec_parallel,type:bool,default:false" json:"exec_parallel"`
+	Actions                []Action          `bun:"type:jsonb,default:jsonb('[]')" json:"actions"`
+	Maintenance            bool              `bun:"maintenance,type:bool,default:false" json:"maintenance"`
+	MaintenanceMessage     string            `bun:"maintenance_message,type:text,default:''" json:"maintenance_message"`
+	Disabled               bool              `bun:"disabled,type:bool,default:false" json:"disabled"`
+	DisabledReason         string            `bun:"disabled_reason,type:text,default:''" json:"disabled_reason"`
+	CreatedAt              time.Time         `bun:"created_at,type:timestamptz,default:now()" json:"created_at"`
+	UpdatedAt              time.Time         `bun:"updated_at,type:timestamptz" json:"updated_at"`
+	FailurePipelines       []FailurePipeline `bun:"type:jsonb,default:jsonb('[]')" json:"failure_pipelines"`
+	FailurePipelineID      string            `bun:"failure_pipeline_id,type:text,default:''" json:"failure_pipeline_id"`
+	FolderID               string            `bun:"folder_id,type:text,default:''" json:"folder_id"`
+	ScheduleEveryValue     int               `bun:"schedule_every_value,type:integer,default:0" json:"schedule_every_value"`
+	ScheduleEveryUnit      string            `bun:"schedule_every_unit,type:text,default:''" json:"schedule_every_unit"`
+	Patterns               []Pattern         `bun:"type:jsonb,default:jsonb('[]')" json:"patterns"`
+	GroupAlerts            bool              `bun:"group_alerts,type:bool,default:true" json:"group_alerts"`
+	GroupAlertsIdentifier  string            `bun:"group_alerts_identifier,type:text,default:''" json:"group_alerts_identifier"`
+	AlertThreshold         int               `bun:"alert_threshold,type:int,default:0" json:"alert_threshold"`
+	AlwaysCleanupWorkspace bool              `bun:"always_cleanup_workspace,type:bool,default:false" json:"always_cleanup_workspace"`
 }
 
 type Action struct {

@@ -52,6 +52,9 @@ export default function FlowSettings({
   );
   const [alertThreshold, setAlertThreshold] = useState(flow.alert_threshold);
   const [flowPatterns, setFlowPatterns] = useState(flow.patterns);
+  const [alwaysCleanupWorkspace, setAlwaysCleanupWorkspace] = useState(
+    flow.always_cleanup_workspace,
+  );
 
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -72,6 +75,7 @@ export default function FlowSettings({
       groupAlertsIdentifier,
       alertThreshold,
       flowPatterns,
+      alwaysCleanupWorkspace,
     )) as any;
 
     if (!response) {
@@ -205,6 +209,28 @@ export default function FlowSettings({
                 <p className="text-tiny text-default-400 mt-1">
                   Overrides per-action failure pipelines.
                 </p>
+              </div>
+
+              <Divider />
+
+              <div className="flex flex-col justify-between">
+                <div>
+                  <p className="text-sm font-bold mb-1">
+                    Always Cleanup Workspace
+                  </p>
+                  <p className="text-tiny text-default-500">
+                    If enabled, the workspace will be cleaned up after each
+                    execution, regardless of success or failure.
+                  </p>
+                </div>
+                <Switch
+                  className="mt-4"
+                  isDisabled={
+                    (!canEdit || flow.disabled) && user.role !== "admin"
+                  }
+                  isSelected={alwaysCleanupWorkspace}
+                  onValueChange={setAlwaysCleanupWorkspace}
+                />
               </div>
             </CardBody>
           </Card>
