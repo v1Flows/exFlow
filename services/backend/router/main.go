@@ -8,6 +8,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/uptrace/bun"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -16,6 +17,7 @@ func StartRouter(db *bun.DB, port int, configFile string, frontendEnv string) *h
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.Use(gin.Recovery())
+	router.Use(otelgin.Middleware("justflow-backend"))
 	router.Use(func(c *gin.Context) {
 		start := time.Now()
 		c.Next()
