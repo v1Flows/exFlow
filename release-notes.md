@@ -13,6 +13,8 @@ Please use with caution!
 - Initial Setup. No manual config or env file required anymore
 - Predefined Project Actions
 - Flow Setting: Always Cleanup Workspace
+- Set log level and format for backend via setup ui
+- Show shared_runner_secret after setup is completed
 
 ### Changed
 - Major UI improvements (Introducing UI v2)

@@ -25,10 +25,18 @@ var (
 	frontendEnv = kingpin.Flag("frontendEnv", "Path to frontend environment").Default("/etc/justflow/.env").String()
 )
 
-func logging(logLevel string) {
-	logLevel = strings.ToLower(logLevel)
+func logging(cfg *config.RestfulConf) {
+	// Set log format
+	if strings.ToLower(cfg.Logging.Format) == "json" {
+		log.SetFormatter(&log.JSONFormatter{})
+	} else {
+		log.SetFormatter(&log.TextFormatter{
+			FullTimestamp: true,
+		})
+	}
 
-	switch logLevel {
+	// Set log level
+	switch strings.ToLower(cfg.Logging.Level) {
 	case "info":
 		log.SetLevel(log.InfoLevel)
 	case "warn":
@@ -72,7 +80,7 @@ func main() {
 	cfg := config.Config
 	log.Info("Config loaded successfully")
 
-	logging(cfg.LogLevel)
+	logging(cfg)
 
 	db := database.StartDatabase(cfg.Database.Driver, cfg.Database.Server, cfg.Database.Port, cfg.Database.User, cfg.Database.Password, cfg.Database.Name)
 	if db == nil {
@@ -107,7 +115,12 @@ func main() {
 
 func startSetupMode(configFile string, frontendEnv string) {
 	log.Info("Starting in setup mode - limited functionality available")
-	logging("info") // Default to info level logging in setup mode
+	logging(&config.RestfulConf{
+		Logging: config.LoggingConf{
+			Level:  "info",
+			Format: "json",
+		},
+	}) // Default to info level logging in setup mode
 
 	// Start router in setup mode (without database connection)
 	server := router.StartSetupRouter(8080, configFile, frontendEnv) // Default port for setup
