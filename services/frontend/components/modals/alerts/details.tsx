@@ -9,16 +9,14 @@ import {
   Snippet,
   Code,
   Divider,
-  Listbox,
-  ListboxItem,
+  Card,
+  CardBody,
 } from "@heroui/react";
 import { useDisclosure, UseDisclosureReturn } from "@heroui/use-disclosure";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import ReactTimeago from "react-timeago";
-
-import { IconWrapper } from "@/lib/IconWrapper";
 
 import DeleteAlertModal from "./delete";
 
@@ -48,165 +46,249 @@ export default function AlertDrawer({
     onOpenChange();
   };
 
+  if (!alert) return null;
+
+  const isFiring = alert.status === "firing";
+  const statusColor = isFiring ? "danger" : "success";
+
   return (
     <>
-      <Drawer isOpen={isOpen} size="lg" onOpenChange={onOpenChange}>
+      <Drawer
+        backdrop="blur"
+        classNames={{
+          base: "bg-content1/80 backdrop-blur-md border-l border-default-100",
+        }}
+        isOpen={isOpen}
+        size="3xl"
+        onOpenChange={onOpenChange}
+      >
         <DrawerContent>
           {(onClose) => (
             <>
-              <DrawerHeader className="flex flex-col">
-                <div className="flex flex-cols items-center gap-2">
-                  {alert.name || "Untitled"}
-                  <Chip
-                    className="capitalize"
-                    color={alert.status === "resolved" ? "success" : "danger"}
-                    radius="sm"
-                    size="sm"
-                    variant="flat"
-                  >
-                    {alert.status}
-                  </Chip>
-                  <Chip
-                    className="capitalize"
-                    color={alert.encrypted ? "success" : "warning"}
-                    radius="sm"
-                    size="sm"
-                    variant="flat"
-                  >
-                    {alert.encrypted ? "Encrypted" : "Unencrypted"}
-                  </Chip>
+              <DrawerHeader className="flex flex-col gap-4 pt-6 px-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`flex-shrink-0 size-12 rounded-xl bg-${statusColor}/10 flex items-center justify-center text-${statusColor}`}
+                    >
+                      <Icon
+                        icon={
+                          isFiring
+                            ? "hugeicons:fire"
+                            : "hugeicons:checkmark-badge-01"
+                        }
+                        width={24}
+                      />
+                    </div>
+                    <div className="flex flex-col">
+                      <h3 className="text-xl font-bold leading-tight">
+                        {alert.name || "Untitled Alert"}
+                      </h3>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Chip
+                          className="capitalize border-none"
+                          color={statusColor}
+                          size="sm"
+                          variant="flat"
+                        >
+                          {alert.status}
+                        </Chip>
+                        <span className="text-tiny text-default-400">•</span>
+                        <span className="text-tiny text-default-400">
+                          <ReactTimeago date={alert.created_at} />
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Chip
+                      className="capitalize"
+                      color={alert.encrypted ? "success" : "warning"}
+                      size="sm"
+                      variant="dot"
+                    >
+                      {alert.encrypted ? "Encrypted" : "Unencrypted"}
+                    </Chip>
+                  </div>
                 </div>
               </DrawerHeader>
-              <Divider />
-              <DrawerBody>
-                <div className="grid grid-cols-3 items-center gap-3">
-                  <p className="font-bold text-default-500 col-span-1">ID</p>
-                  <Snippet
-                    hideSymbol
-                    className="col-span-2"
-                    size="sm"
-                    variant="flat"
-                  >
-                    {alert.id}
-                  </Snippet>
-
-                  <p className="font-bold text-default-500 col-span-1">
-                    Plugin
-                  </p>
-                  <p className="text-sm col-span-2">{alert.plugin || "N/A"}</p>
-
-                  <p className="font-bold text-default-500 col-span-1">
-                    Runner
-                  </p>
-                  <p className="text-sm col-span-2">
-                    {runners.find((runner) => runner.id === alert.runner_id)
-                      ?.name || "N/A"}
-                  </p>
-
-                  <p className="font-bold text-default-500 col-span-1">Flow</p>
-                  <p className="text-sm col-span-2">
-                    {flows.find((flow) => flow.id === alert.flow_id)?.name ||
-                      "N/A"}
-                  </p>
-
-                  <p className="font-bold text-default-500 col-span-1">
-                    Group Ident
-                  </p>
-                  <p className="text-sm col-span-2">
-                    {alert.group_key || "N/A"}
-                  </p>
-
-                  <p className="font-bold text-default-500 col-span-1">
-                    Execution ID
-                  </p>
-                  <Snippet
-                    hideSymbol
-                    className="col-span-2"
-                    size="sm"
-                    variant="flat"
-                  >
-                    {alert.execution_id || "N/A"}
-                  </Snippet>
-
-                  {alert.parent_id && (
-                    <>
-                      <p className="font-bold text-default-500 col-span-1">
-                        Parent Alert
+              <Divider className="opacity-50" />
+              <DrawerBody className="px-6 py-4 gap-6">
+                {/* Alert Details Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Card className="bg-content2/50 border border-default-100/50 shadow-none">
+                    <CardBody className="p-3 gap-1">
+                      <p className="text-tiny text-default-500 font-medium uppercase">
+                        Alert ID
                       </p>
-                      <Code className="col-span-2">
-                        {alert.parent_id || "N/A"}
-                      </Code>
-                    </>
-                  )}
+                      <Snippet
+                        hideSymbol
+                        classNames={{
+                          base: "bg-transparent p-0",
+                          pre: "font-mono text-small",
+                        }}
+                      >
+                        {alert.id}
+                      </Snippet>
+                    </CardBody>
+                  </Card>
 
-                  <p className="font-bold text-default-500 col-span-1">
-                    Payload
-                  </p>
+                  <Card className="bg-content2/50 border border-default-100/50 shadow-none">
+                    <CardBody className="p-3 gap-1">
+                      <p className="text-tiny text-default-500 font-medium uppercase">
+                        Execution ID
+                      </p>
+                      {alert.execution_id ? (
+                        <Snippet
+                          hideSymbol
+                          classNames={{
+                            base: "bg-transparent p-0",
+                            pre: "font-mono text-small",
+                          }}
+                        >
+                          {alert.execution_id}
+                        </Snippet>
+                      ) : (
+                        <p className="text-small text-default-400">N/A</p>
+                      )}
+                    </CardBody>
+                  </Card>
+
+                  <div className="col-span-1 md:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="space-y-1">
+                      <p className="text-tiny text-default-500 font-medium uppercase">
+                        Plugin
+                      </p>
+                      <p className="text-small font-medium">
+                        {alert.plugin || "N/A"}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-tiny text-default-500 font-medium uppercase">
+                        Runner
+                      </p>
+                      <p className="text-small font-medium">
+                        {runners.find((runner: any) => runner.id === alert.runner_id)
+                          ?.name || "N/A"}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-tiny text-default-500 font-medium uppercase">
+                        Flow
+                      </p>
+                      <p className="text-small font-medium">
+                        {flows.find((flow: any) => flow.id === alert.flow_id)?.name ||
+                          "N/A"}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-tiny text-default-500 font-medium uppercase">
+                        Group Key
+                      </p>
+                      <p className="text-small font-medium break-all">
+                        {alert.group_key || "N/A"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Timestamps */}
+                <div className="flex items-center justify-between p-3 rounded-lg bg-default-50 border border-default-100">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-tiny text-default-500 uppercase">
+                      Created
+                    </span>
+                    <span className="text-small font-medium">
+                      <ReactTimeago date={alert.created_at} />
+                    </span>
+                  </div>
+                  <Divider orientation="vertical" className="h-8" />
+                  <div className="flex flex-col gap-1">
+                    <span className="text-tiny text-default-500 uppercase">
+                      Updated
+                    </span>
+                    <span className="text-small font-medium">
+                      {alert.updated_at !== "0001-01-01T00:00:00Z" ? (
+                        <ReactTimeago date={alert.updated_at} />
+                      ) : (
+                        "-"
+                      )}
+                    </span>
+                  </div>
+                  <Divider orientation="vertical" className="h-8" />
+                  <div className="flex flex-col gap-1">
+                    <span className="text-tiny text-default-500 uppercase">
+                      Resolved
+                    </span>
+                    <span className="text-small font-medium">
+                      {alert.resolved_at !== "0001-01-01T00:00:00Z" ? (
+                        <ReactTimeago date={alert.resolved_at} />
+                      ) : (
+                        "-"
+                      )}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Note */}
+                {alert.note && (
+                  <div className="p-4 rounded-lg bg-warning/10 border border-warning/20">
+                    <p className="text-tiny font-bold text-warning uppercase mb-1">
+                      Note
+                    </p>
+                    <p className="text-small">{alert.note}</p>
+                  </div>
+                )}
+
+                {/* Payload Toggle */}
+                <div>
                   <Button
-                    className="col-span-2"
-                    color="primary"
-                    size="sm"
+                    fullWidth
+                    className="justify-between bg-content2/50 hover:bg-content2 border border-default-100"
+                    endContent={
+                      <Icon
+                        icon={
+                          showPayload
+                            ? "hugeicons:arrow-up-01"
+                            : "hugeicons:arrow-down-01"
+                        }
+                      />
+                    }
                     variant="flat"
                     onPress={() => setShowPayload(!showPayload)}
                   >
-                    {showPayload ? "Hide" : "Show"} Payload
+                    <span className="font-medium">Payload Data</span>
                   </Button>
-
-                  <p className="font-bold text-default-500 col-span-1">
-                    Created At
-                  </p>
-                  <span className="col-span-2">
-                    <ReactTimeago date={alert.created_at} />
-                  </span>
-
-                  <p className="font-bold text-default-500 col-span-1">
-                    Updated At
-                  </p>
-                  <span className="col-span-2">
-                    {alert.updated_at !== "0001-01-01T00:00:00Z" ? (
-                      <ReactTimeago date={alert.updated_at} />
-                    ) : (
-                      "N/A"
-                    )}
-                  </span>
-
-                  <p className="font-bold text-default-500 col-span-1">
-                    Resolved At
-                  </p>
-                  <span className="col-span-2">
-                    {alert.resolved_at !== "0001-01-01T00:00:00Z" ? (
-                      <ReactTimeago date={alert.resolved_at} />
-                    ) : (
-                      "N/A"
-                    )}
-                  </span>
-
-                  {alert.note && (
-                    <>
-                      <Divider className="col-span-3" />
-                      <p className="font-bold col-span-1">Note</p>
-                      <span className="col-span-2 font-bold">{alert.note}</span>
-                    </>
+                  {showPayload && (
+                    <div className="mt-2">
+                      <Snippet
+                        hideSymbol
+                        classNames={{
+                          base: "w-full",
+                          pre: "whitespace-pre-wrap",
+                        }}
+                      >
+                        <pre>{JSON.stringify(alert.payload, null, 2)}</pre>
+                      </Snippet>
+                    </div>
                   )}
                 </div>
 
-                {showPayload && (
-                  <Snippet hideSymbol>
-                    <pre>{JSON.stringify(alert.payload, null, 2)}</pre>
-                  </Snippet>
-                )}
+                {/* Involved Alerts Section */}
+                {alert.sub_alerts && alert.sub_alerts.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Icon
+                        className="text-default-500"
+                        icon="hugeicons:layers-01"
+                      />
+                      <h4 className="text-medium font-bold">Involved Alerts</h4>
+                      <Chip size="sm" variant="flat">
+                        {alert.sub_alerts.length}
+                      </Chip>
+                    </div>
 
-                {alert.sub_alerts.length > 0 && (
-                  <>
-                    <Divider />
-                    <p className="font-bold">Involved Alerts</p>
-                    <Listbox
-                      aria-label="User Menu"
-                      className="p-0 gap-0 divide-y divide-default-300/50 dark:divide-default-100/80 bg-content1 overflow-visible shadow-small rounded-medium"
-                      itemClasses={{
-                        base: "px-3 first:rounded-t-medium last:rounded-b-medium rounded-none gap-3 h-12 data-[hover=true]:bg-default-100/80",
-                      }}
-                    >
+                    <div className="flex flex-col gap-2">
                       {alert.sub_alerts
                         .sort(
                           (a: any, b: any) =>
@@ -214,95 +296,106 @@ export default function AlertDrawer({
                             new Date(a.created_at).getTime(),
                         )
                         .map((sa: any) => {
+                          const isChildFiring = sa.status === "firing";
+                          const childColor = isChildFiring
+                            ? "danger"
+                            : "success";
+
                           return (
-                            <ListboxItem
+                            <div
                               key={sa.id}
-                              className="group h-auto py-3 border-1 border-default-300"
-                              startContent={
-                                <IconWrapper
-                                  className={`bg-${sa.status === "firing" ? "danger" : "success"}/10 text-${sa.status === "firing" ? "danger" : "success"}`}
-                                >
-                                  <Icon
-                                    className="text-lg"
-                                    icon={
-                                      sa.status === "firing"
-                                        ? "hugeicons:fire"
-                                        : "hugeicons:checkmark-badge-01"
-                                    }
-                                  />
-                                </IconWrapper>
-                              }
-                              textValue={sa.name}
+                              className="group flex flex-col gap-3 p-3 rounded-lg bg-content2/30 hover:bg-content2/50 border border-default-100/50 transition-all"
                             >
-                              <div className="flex flex-col gap-1">
-                                <span>{sa.name}</span>
-                                <div className="px-2 py-1 rounded-small bg-default-100 group-data-[hover=true]:bg-default-200">
-                                  <span
-                                    className={`text-tiny text-${sa.status === "firing" ? "danger" : "success"} capitalize`}
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="flex items-center gap-3">
+                                  <div
+                                    className={`flex-shrink-0 size-8 rounded-lg bg-${childColor}/10 flex items-center justify-center text-${childColor}`}
                                   >
-                                    {sa.status || "N/A"}
-                                  </span>
-                                  <div className="flex gap-2 text-tiny">
-                                    <span className="text-default-500">
-                                      Started:{" "}
-                                      <ReactTimeago date={sa.started_at} />
-                                    </span>
-                                    {sa.resolved_at !==
-                                      "0001-01-01T00:00:00Z" && (
-                                      <span className="text-default-500">
-                                        Resolved:{" "}
-                                        <ReactTimeago date={sa.resolved_at} />
+                                    <Icon
+                                      icon={
+                                        isChildFiring
+                                          ? "hugeicons:fire"
+                                          : "hugeicons:checkmark-badge-01"
+                                      }
+                                      width={16}
+                                    />
+                                  </div>
+                                  <div>
+                                    <p className="text-small font-semibold">
+                                      {sa.name}
+                                    </p>
+                                    <div className="flex items-center gap-2">
+                                      <span
+                                        className={`text-tiny font-medium uppercase text-${childColor}`}
+                                      >
+                                        {sa.status}
                                       </span>
-                                    )}
+                                      <span className="text-tiny text-default-400">
+                                        •
+                                      </span>
+                                      <span className="text-tiny text-default-400">
+                                        <ReactTimeago date={sa.started_at} />
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
-                                <div className="flex flex-wrap mt-1 gap-2">
-                                  {Object.entries(sa.labels).map(
-                                    ([key, value]: [string, any]) => {
-                                      return (
+                              </div>
+
+                              {sa.labels &&
+                                Object.keys(sa.labels).length > 0 && (
+                                  <div className="flex flex-wrap gap-1 pl-11">
+                                    {Object.entries(sa.labels).map(
+                                      ([key, value]: [string, any]) => (
                                         <Chip
                                           key={key}
-                                          radius="sm"
+                                          classNames={{
+                                            content:
+                                              "font-mono text-[10px] font-medium",
+                                          }}
+                                          color="default"
                                           size="sm"
                                           variant="flat"
                                         >
                                           {key}: {value}
                                         </Chip>
-                                      );
-                                    },
-                                  )}
-                                </div>
-                              </div>
-                            </ListboxItem>
+                                      ),
+                                    )}
+                                  </div>
+                                )}
+                            </div>
                           );
                         })}
-                    </Listbox>
-                  </>
+                    </div>
+                  </div>
                 )}
               </DrawerBody>
-              <DrawerFooter className="flex flex-wrap items-center justify-between">
-                <div className="flex flex-col gap-2">
+              <Divider className="opacity-50" />
+              <DrawerFooter className="flex flex-wrap items-center justify-between px-6 py-4">
+                <div className="flex gap-2">
                   <Button
-                    color="primary"
+                    className="bg-primary/10 text-primary"
+                    size="sm"
                     variant="flat"
                     onPress={() => {
                       router.push(`/flows/${alert.flow_id}`);
                     }}
                   >
-                    <Icon icon="hugeicons:workflow-square-10" width={20} />
-                    View Flow
+                    <Icon icon="hugeicons:workflow-square-10" width={18} />
+                    Flow
                   </Button>
                   {alert.execution_id && (
                     <Button
-                      color="primary"
+                      className="bg-primary/10 text-primary"
+                      size="sm"
+                      variant="flat"
                       onPress={() => {
                         router.push(
                           `/flows/${alert.flow_id}/execution/${alert.execution_id}`,
                         );
                       }}
                     >
-                      <Icon icon="hugeicons:rocket-02" width={20} />
-                      View Execution
+                      <Icon icon="hugeicons:rocket-02" width={18} />
+                      Execution
                     </Button>
                   )}
                 </div>
@@ -312,14 +405,15 @@ export default function AlertDrawer({
                     <Button
                       color="danger"
                       isDisabled={!canEdit}
-                      variant="flat"
+                      size="sm"
+                      variant="light"
                       onPress={() => handleDelete()}
                     >
-                      <Icon icon="hugeicons:delete-02" width={20} />
+                      <Icon icon="hugeicons:delete-02" width={18} />
                       Delete
                     </Button>
                   )}
-                  <Button color="default" variant="flat" onPress={onClose}>
+                  <Button size="sm" variant="light" onPress={onClose}>
                     Close
                   </Button>
                 </div>
