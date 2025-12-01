@@ -340,10 +340,15 @@ export function useProjectApiKeys(projectId: string) {
 }
 
 // Hook for fetching a single execution
-export function useExecution(executionId: string) {
+export function useExecution(executionId: string, isRunning: boolean = false) {
   const { data, error, mutate, isLoading } = useSWR(
     executionId ? `execution-${executionId}` : null,
     () => GetExecution(executionId),
+    {
+      refreshInterval: isRunning ? 2000 : 0,
+      refreshWhenHidden: false,
+      refreshWhenOffline: false,
+    },
   );
 
   return {

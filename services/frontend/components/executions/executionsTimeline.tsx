@@ -54,7 +54,7 @@ export default function ExecutionsTimeline({
     const groups: Record<string, any[]> = {};
 
     executions.forEach((execution: any) => {
-      const date = new Date(execution.executed_at).toLocaleDateString(
+      const date = new Date(execution.created_at).toLocaleDateString(
         undefined,
         {
           weekday: "long",
@@ -149,7 +149,7 @@ export default function ExecutionsTimeline({
                               {executionStatusName(execution)}
                             </Chip>
                             <span className="font-mono text-xs text-default-400">
-                              #{execution.id.substring(0, 8)}
+                              #{execution.id}
                             </span>
                           </div>
 

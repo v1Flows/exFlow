@@ -1,5 +1,7 @@
 "use client";
 
+import { useState, useEffect } from "react";
+
 import { Execution } from "@/components/executions/execution/execution";
 import ErrorCard from "@/components/error/ErrorCard";
 import { PageSkeleton } from "@/components/loading/page-skeleton";
@@ -20,12 +22,27 @@ export default function ExecutionPageClient({
   flowId,
   executionId,
 }: ExecutionPageClientProps) {
+  const [isRunning, setIsRunning] = useState(false);
+
   const { flow, isLoading: flowLoading, isError: flowError } = useFlow(flowId);
   const {
     execution,
     isLoading: executionLoading,
     isError: executionError,
-  } = useExecution(executionId);
+  } = useExecution(executionId, isRunning);
+
+  useEffect(() => {
+    if (execution) {
+      const running =
+        execution.status === "running" ||
+        execution.status === "pending" ||
+        execution.status === "paused" ||
+        execution.status === "scheduled" ||
+        execution.status === "interactionWaiting";
+      setIsRunning(running);
+    }
+  }, [execution]);
+
   const {
     settings,
     isLoading: settingsLoading,
