@@ -1,6 +1,6 @@
 # Release Notes
 
-## [Version 2.0.0-beta.13] - 2025-11-30
+## [Version 2.0.0-beta.14] - 2025-12-01
 
 🚧 Beta Release 🚧
 Please use with caution!
@@ -15,6 +15,7 @@ Please use with caution!
 - Flow Setting: Always Cleanup Workspace
 - Set log level and format for backend via setup ui
 - Show shared_runner_secret after setup is completed
+- OTel Tracing Support for frontend and backend
 
 ### Changed
 - Major UI improvements (Introducing UI v2)
