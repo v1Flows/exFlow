@@ -14,7 +14,21 @@ import (
 
 func StartRouter(db *bun.DB, port int, configFile string, frontendEnv string) *http.Server {
 	gin.SetMode(gin.ReleaseMode)
-	router := gin.Default()
+	router := gin.New()
+	router.Use(gin.Recovery())
+	router.Use(func(c *gin.Context) {
+		start := time.Now()
+		c.Next()
+		latency := time.Since(start)
+		status := c.Writer.Status()
+		log.WithFields(log.Fields{
+			"status":    status,
+			"method":    c.Request.Method,
+			"path":      c.Request.URL.Path,
+			"latency":   latency,
+			"client_ip": c.ClientIP(),
+		}).Info("HTTP request")
+	})
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},

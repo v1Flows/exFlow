@@ -10,6 +10,8 @@ import {
   Divider,
   Input,
   Progress,
+  Select,
+  SelectItem,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useEffect, useState } from "react";
@@ -37,6 +39,10 @@ interface SetupData {
     password: string;
   };
   frontend_url: string;
+  logging: {
+    level: string;
+    format: string;
+  };
 }
 
 export default function SetupPageClient() {
@@ -71,6 +77,7 @@ export default function SetupPageClient() {
 
   // Setup completion
   const [setupComplete, setSetupComplete] = useState(false);
+  const [setupResult, setSetupResult] = useState<any>(null);
 
   // Setup data
   const [setupData, setSetupData] = useState<SetupData>({
@@ -84,6 +91,10 @@ export default function SetupPageClient() {
       password: "",
     },
     frontend_url: "http://localhost:3000",
+    logging: {
+      level: "info",
+      format: "text",
+    },
   });
 
   // ============================================================
@@ -255,15 +266,9 @@ export default function SetupPageClient() {
         throw new Error(result.message || "Setup configuration failed");
       }
 
+      setSetupResult(result);
       setSetupComplete(true);
-
-      // Auto-refresh page after a short delay to ensure backend is ready
-      if (result.backendRestarted) {
-        setTimeout(() => {
-          // eslint-disable-next-line no-undef
-          window.location.reload();
-        }, 2000);
-      }
+      setSetupPhase("complete");
     } catch (error: any) {
       setError(`Setup failed: ${error.message || "Unknown error occurred"}`);
     } finally {
@@ -277,8 +282,8 @@ export default function SetupPageClient() {
 
   // Calculate progress for configuration phase
   const getTotalSteps = () => {
-    if (deploymentScenario === "combined") return 3;
-    if (deploymentScenario === "independent") return 2;
+    if (deploymentScenario === "combined") return 4;
+    if (deploymentScenario === "independent") return 3;
 
     return 0;
   };
@@ -295,7 +300,7 @@ export default function SetupPageClient() {
   if (setupComplete && setupPhase === "complete") {
     return (
       <main className="min-h-screen flex flex-col items-center justify-center p-4 bg-background relative overflow-hidden">
-        <div className="z-10 w-full max-w-lg text-center space-y-6 animate-in fade-in zoom-in duration-500">
+        <div className="z-10 w-full max-w-2xl text-center space-y-6 animate-in fade-in zoom-in duration-500">
           <div className="flex justify-center mb-6">
             <div className="rounded-full bg-success-500/20 p-6 ring-1 ring-success-500/50">
               <Icon
@@ -310,61 +315,59 @@ export default function SetupPageClient() {
               Setup Complete!
             </h1>
             <p className="text-gray-400 text-lg">
-              Your JustFlow instance is being initialized. Reloading
-              dashboard...
+              Your JustFlow instance has been successfully configured.
             </p>
           </div>
 
-          <div className="space-y-3">
-            <div className="p-4 rounded-lg bg-success-500/10 border border-success-500/20">
-              <div className="flex items-center justify-center gap-2">
-                <Icon
-                  className="text-success-500 text-xl animate-spin"
-                  icon="hugeicons:loading-03"
+          {setupResult ? (
+            <Card className="bg-content1/50 backdrop-blur-sm border-success-500/20 text-left w-full">
+              <CardHeader>
+                <h3 className="text-lg font-semibold">Important Credentials</h3>
+              </CardHeader>
+              <CardBody className="space-y-4">
+                <Alert
+                  color="warning"
+                  description="These secrets are only shown once. Please save them in a secure location."
+                  title="Save these credentials!"
+                  variant="flat"
                 />
-                <span className="text-sm text-gray-300">
-                  Backend restarting and verifying configuration...
-                </span>
+
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-400">Shared Runner Secret</p>
+                  <Code className="w-full block p-3 bg-black/50">
+                    {setupResult.shared_runner_secret}
+                  </Code>
+                </div>
+              </CardBody>
+            </Card>
+          ) : (
+            <div className="space-y-3">
+              <div className="p-4 rounded-lg bg-success-500/10 border border-success-500/20">
+                <div className="flex items-center justify-center gap-2">
+                  <Icon
+                    className="text-success-500 text-xl animate-spin"
+                    icon="hugeicons:loading-03"
+                  />
+                  <span className="text-sm text-gray-300">
+                    Backend restarting and verifying configuration...
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
-          <Card className="bg-content1/50 backdrop-blur-sm border-success-500/20">
-            <CardBody className="py-4 px-6">
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-success-500/10">
-                    <Icon
-                      className="text-success-500 text-xl"
-                      icon="hugeicons:server-01"
-                    />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-xs text-gray-400">
-                      Connected to Backend
-                    </p>
-                    <Code
-                      className="bg-transparent p-0 text-success-400 font-semibold"
-                      size="sm"
-                    >
-                      {detectedBackendUrl}
-                    </Code>
-                  </div>
-                </div>
-                <Button
-                  isDisabled
-                  color="success"
-                  endContent={<Icon icon="hugeicons:arrow-right-01" />}
-                  size="sm"
-                  variant="flat"
-                  // eslint-disable-next-line no-undef
-                  onPress={() => window.location.reload()}
-                >
-                  Reloading...
-                </Button>
-              </div>
-            </CardBody>
-          </Card>
+          <div className="flex justify-center pt-4">
+            <Button
+              className="font-bold shadow-lg shadow-success/20"
+              color="success"
+              endContent={<Icon icon="hugeicons:arrow-right-01" />}
+              size="lg"
+              // eslint-disable-next-line no-undef
+              onPress={() => window.location.reload()}
+            >
+              Go to Dashboard
+            </Button>
+          </div>
         </div>
         <Ripple mainCircleOpacity={0.2} numCircles={8} />
       </main>
@@ -431,10 +434,14 @@ export default function SetupPageClient() {
                         ? "Backend Settings"
                         : currentStep === 2
                           ? "Database Connection"
-                          : "Review & Validate"
+                          : currentStep === 3
+                            ? "Logging Configuration"
+                            : "Review & Validate"
                       : currentStep === 1
                         ? "Frontend Settings"
-                        : "Review & Validate"}
+                        : currentStep === 2
+                          ? "Logging Configuration"
+                          : "Review & Validate"}
                   </>
                 )}
               </h2>
@@ -738,10 +745,51 @@ export default function SetupPageClient() {
                   </div>
                 )}
 
-                {/* Final Step: Validation */}
+                {/* Step 3 (Combined) or Step 2 (Independent): Logging Configuration */}
                 {((deploymentScenario === "combined" && currentStep === 3) ||
                   (deploymentScenario === "independent" &&
                     currentStep === 2)) && (
+                  <div className="gap-4 flex flex-col">
+                    <Select
+                      label="Log Level"
+                      labelPlacement="outside"
+                      placeholder="Select log level"
+                      selectedKeys={[setupData.logging.level]}
+                      variant="bordered"
+                      onChange={(e) =>
+                        handleInputChange("logging.level", e.target.value)
+                      }
+                    >
+                      <SelectItem key="debug">Debug</SelectItem>
+                      <SelectItem key="info">Info</SelectItem>
+                      <SelectItem key="warn">Warning</SelectItem>
+                      <SelectItem key="error">Error</SelectItem>
+                    </Select>
+
+                    <Select
+                      label="Log Format"
+                      labelPlacement="outside"
+                      placeholder="Select log format"
+                      selectedKeys={[setupData.logging.format]}
+                      variant="bordered"
+                      onChange={(e) =>
+                        handleInputChange("logging.format", e.target.value)
+                      }
+                    >
+                      <SelectItem key="text">
+                        Text (Console friendly)
+                      </SelectItem>
+                      <SelectItem key="json">
+                        JSON (Machine friendly)
+                      </SelectItem>
+                    </Select>
+                  </div>
+                )}
+
+                {/* Final Step: Validation */}
+                {((deploymentScenario === "combined" && currentStep === 4) ||
+                  (deploymentScenario === "independent" &&
+                    currentStep === 3)) && (
                   <div className="space-y-6">
                     <div className="bg-content2 rounded-xl p-4 space-y-3 border border-default-200">
                       <h3 className="font-semibold flex items-center gap-2">
@@ -780,6 +828,15 @@ export default function SetupPageClient() {
                             </dd>
                           </>
                         )}
+
+                        <dt className="text-gray-500">Log Level</dt>
+                        <dd className="font-mono text-right capitalize">
+                          {setupData.logging.level}
+                        </dd>
+                        <dt className="text-gray-500">Log Format</dt>
+                        <dd className="font-mono text-right capitalize">
+                          {setupData.logging.format}
+                        </dd>
                       </dl>
                     </div>
 
@@ -874,8 +931,8 @@ export default function SetupPageClient() {
                   )}
 
                   {/* Next / Complete Buttons */}
-                  {(deploymentScenario === "combined" && currentStep < 3) ||
-                  (deploymentScenario === "independent" && currentStep < 2) ? (
+                  {(deploymentScenario === "combined" && currentStep < 4) ||
+                  (deploymentScenario === "independent" && currentStep < 3) ? (
                     <Button
                       color="primary"
                       endContent={<Icon icon="hugeicons:arrow-right-01" />}

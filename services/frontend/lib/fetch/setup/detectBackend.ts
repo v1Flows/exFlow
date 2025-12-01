@@ -159,12 +159,20 @@ type SetupConfigPayload = {
     password: string;
   };
   frontend_url: string;
+  logging: {
+    level: string;
+    format: string;
+  };
 };
 
 type SetupConfigResponse = {
   success: boolean;
   message?: string;
   backendRestarted?: boolean;
+  shared_runner_secret?: string;
+  jwt_secret?: string;
+  encryption_key?: string;
+  master_secret?: string;
 };
 
 export async function submitSetupConfiguration(
@@ -192,6 +200,8 @@ export async function submitSetupConfiguration(
       };
     }
 
+    const responseData = await response.json();
+
     // Backend is restarting, wait for it to come back online
     const restartResult = await waitForBackendRestart(backendUrl);
 
@@ -201,6 +211,10 @@ export async function submitSetupConfiguration(
         ? "Setup complete! Backend restarted successfully."
         : `Setup submitted but backend restart verification failed: ${restartResult.message}`,
       backendRestarted: restartResult.success,
+      shared_runner_secret: responseData.shared_runner_secret,
+      jwt_secret: responseData.jwt_secret,
+      encryption_key: responseData.encryption_key,
+      master_secret: responseData.master_secret,
     };
   } catch (error) {
     return {

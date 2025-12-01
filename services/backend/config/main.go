@@ -24,12 +24,18 @@ type ConfigurationManager struct {
 }
 
 type RestfulConf struct {
-	LogLevel   string         `mapstructure:"log_level" validate:"required,oneof=debug info warn error"`
+	Logging    LoggingConf    `mapstructure:"logging"`
 	Port       int            `mapstructure:"port" validate:"required"`
 	Database   DatabaseConf   `mapstructure:"database" validate:"required"`
 	JWT        JWTConf        `mapstructure:"jwt" validate:"required"`
 	Encryption EncryptionConf `mapstructure:"encryption" validate:"required"`
 	Runner     RunnerConf     `mapstructure:"runner"`
+}
+
+type LoggingConf struct {
+	FilePath string `mapstructure:"file_path"`
+	Format   string `mapstructure:"format" validate:"oneof=text json"`
+	Level    string `mapstructure:"level" validate:"oneof=info warn error debug"`
 }
 
 type DatabaseConf struct {
@@ -131,8 +137,11 @@ func (cm *ConfigurationManager) LoadConfig(configFile string) error {
 }
 
 func (cm *ConfigurationManager) setDefaults(config *RestfulConf) {
-	if config.LogLevel == "" {
-		config.LogLevel = "info"
+	if config.Logging.Level == "" {
+		config.Logging.Level = "info"
+	}
+	if config.Logging.Format == "" {
+		config.Logging.Format = "json"
 	}
 	if config.Port == 0 {
 		config.Port = 8080

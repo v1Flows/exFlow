@@ -24,6 +24,12 @@ type SetupRequest struct {
 	BackendPort int           `json:"backend_port" binding:"required"`
 	Database    DatabaseSetup `json:"database" binding:"required"`
 	FrontendURL string        `json:"frontend_url" binding:"required"`
+	Logging     LoggingSetup  `json:"logging" binding:"required"`
+}
+
+type LoggingSetup struct {
+	Level  string `json:"level" binding:"required"`
+	Format string `json:"format" binding:"required"`
 }
 
 type DatabaseSetup struct {
@@ -35,12 +41,17 @@ type DatabaseSetup struct {
 }
 
 type BackendConfig struct {
-	LogLevel   string           `yaml:"log_level"`
+	Logging    LoggingConfig    `yaml:"logging"`
 	Port       int              `yaml:"port"`
 	Database   DatabaseConfig   `yaml:"database"`
 	JWT        JWTConfig        `yaml:"jwt"`
 	Encryption EncryptionConfig `yaml:"encryption"`
 	Runner     RunnerConfig     `yaml:"runner"`
+}
+
+type LoggingConfig struct {
+	Level  string `yaml:"level"`
+	Format string `yaml:"format"`
 }
 
 type DatabaseConfig struct {
@@ -271,8 +282,11 @@ func SetupSystem(c *gin.Context, configFile string, frontendEnv string) {
 
 	// Create backend config
 	backendConfig := BackendConfig{
-		LogLevel: "info",
-		Port:     req.BackendPort,
+		Logging: LoggingConfig{
+			Level:  req.Logging.Level,
+			Format: req.Logging.Format,
+		},
+		Port: req.BackendPort,
 		Database: DatabaseConfig{
 			Server:   req.Database.Server,
 			Port:     req.Database.Port,
@@ -319,10 +333,14 @@ func SetupSystem(c *gin.Context, configFile string, frontendEnv string) {
 
 	log.Info("System setup completed successfully")
 	c.JSON(http.StatusOK, gin.H{
-		"message":             "Setup completed successfully. Application will restart in full mode.",
-		"backend_config_path": configFile,
-		"frontend_env_path":   frontendEnv,
-		"restart_required":    true,
+		"message":              "Setup completed successfully. Application will restart in full mode.",
+		"backend_config_path":  configFile,
+		"frontend_env_path":    frontendEnv,
+		"restart_required":     true,
+		"shared_runner_secret": runnerSecret,
+		"jwt_secret":           jwtSecret,
+		"encryption_key":       encryptionKey,
+		"master_secret":        masterSecret,
 	})
 
 	// Restart the application in a goroutine to allow the response to be sent first
