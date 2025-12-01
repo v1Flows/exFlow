@@ -12,6 +12,7 @@ import (
 	"github.com/JustLABv1/justflow/services/backend/database"
 	"github.com/JustLABv1/justflow/services/backend/functions/background_checks"
 	"github.com/JustLABv1/justflow/services/backend/functions/encryption"
+	"github.com/JustLABv1/justflow/services/backend/pkg/telemetry"
 	"github.com/JustLABv1/justflow/services/backend/router"
 
 	"github.com/alecthomas/kingpin/v2"
@@ -21,9 +22,18 @@ import (
 const version string = "2.0.0-beta.13"
 
 var (
-	configFile  = kingpin.Flag("config", "Config file").Short('c').Default("/etc/justflow/config.yaml").String()
-	frontendEnv = kingpin.Flag("frontendEnv", "Path to frontend environment").Default("/etc/justflow/.env").String()
+	configFile    = kingpin.Flag("config", "Config file").Short('c').Default(getEnv("JUSTFLOW_CONFIG", "/etc/justflow/config.yaml")).String()
+	frontendEnv   = kingpin.Flag("frontendEnv", "Path to frontend environment").Default(getEnv("JUSTFLOW_FRONTEND_ENV", "/etc/justflow/.env")).String()
+	otelCollector = kingpin.Flag("otel-collector", "OpenTelemetry Collector URL").Default(getEnv("JUSTFLOW_OTEL_COLLECTOR", "tempo:4317")).String()
 )
+
+// getEnv returns the value of the environment variable if set, otherwise returns the default value.
+func getEnv(key, defaultVal string) string {
+	if val := os.Getenv(key); val != "" {
+		return val
+	}
+	return defaultVal
+}
 
 func logging(cfg *config.RestfulConf) {
 	// Set log format
@@ -81,6 +91,19 @@ func main() {
 	log.Info("Config loaded successfully")
 
 	logging(cfg)
+
+	// Initialize OpenTelemetry
+	shutdown, err := telemetry.InitTracer(context.Background(), "justflow-backend", *otelCollector)
+	if err != nil {
+		log.Warn("Failed to initialize OpenTelemetry tracer: ", err)
+	} else {
+		defer func() {
+			if err := shutdown(context.Background()); err != nil {
+				log.Error("Failed to shutdown OpenTelemetry tracer: ", err)
+			}
+		}()
+		log.Info("OpenTelemetry tracer initialized")
+	}
 
 	db := database.StartDatabase(cfg.Database.Driver, cfg.Database.Server, cfg.Database.Port, cfg.Database.User, cfg.Database.Password, cfg.Database.Name)
 	if db == nil {
