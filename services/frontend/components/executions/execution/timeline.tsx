@@ -182,9 +182,14 @@ export default function ExecutionTimeline({
                             : step.status === "error" ||
                                 step.status === "canceled"
                               ? "bg-danger"
-                              : isSelected
-                                ? "bg-primary"
-                                : "bg-default-300"
+                              : step.status === "interactionWaiting" ||
+                                  step.status === "paused"
+                                ? "animate-pulse bg-warning"
+                                : step.status === "warning"
+                                  ? "bg-warning"
+                                  : isSelected
+                                    ? "bg-primary"
+                                    : "bg-default-300"
                       }`}
                     />
                   </div>

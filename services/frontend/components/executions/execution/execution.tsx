@@ -69,7 +69,7 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
               <div className="flex items-center gap-2">
                 <span className="text-lg font-semibold">Execution Details</span>
                 <span className="font-mono text-sm text-default-400">
-                  #{execution.id.substring(0, 8)}
+                  #{execution.id}
                 </span>
               </div>
             </div>

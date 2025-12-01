@@ -3,11 +3,9 @@
 import {
   Accordion,
   AccordionItem,
+  Card,
+  CardBody,
   Chip,
-  Listbox,
-  ListboxItem,
-  ScrollShadow,
-  Spacer,
   useDisclosure,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
@@ -15,7 +13,6 @@ import { useState } from "react";
 import ReactTimeago from "react-timeago";
 import { motion } from "framer-motion";
 
-import { IconWrapper } from "@/lib/IconWrapper";
 import AlertDrawer from "@/components/modals/alerts/details";
 
 export default function AlertsList({
@@ -34,297 +31,190 @@ export default function AlertsList({
   showFlowChip?: boolean;
 }) {
   const alertDrawer = useDisclosure();
-
   const [targetAlert, setTargetAlert] = useState<any>(null);
 
+  const parentAlerts = alerts.filter((a: any) => a.parent_id === "");
+
+  const getChildren = (parentId: string) =>
+    alerts.filter((a: any) => a.parent_id === parentId);
+
   return (
-    <main>
-      <motion.div
-        animate={{ opacity: 1, y: 0 }}
-        initial={{ opacity: 0, y: 10 }}
-        transition={{ duration: 0.3 }}
-      >
-        <Accordion showDivider variant="light">
-          {alerts
-            .filter((a: any) => a.parent_id === "")
-            .map((alert: any) => (
-              <AccordionItem
-                key={alert.id}
-                aria-label={alert.name || "N/A"}
-                startContent={
-                  <div
-                    className={`flex size-10 items-center justify-center rounded-small bg-${alert.status === "firing" ? "danger" : "success"}/20 text-${alert.status === "firing" ? "danger" : "success"}`}
-                  >
-                    <Icon
-                      icon={
-                        alert.status === "firing"
-                          ? "hugeicons:fire"
-                          : "hugeicons:checkmark-badge-01"
-                      }
-                      width={24}
-                    />
-                  </div>
-                }
-                subtitle={
-                  <div className="flex items-center gap-2">
-                    <p
-                      className={`text-sm text-${alert.status === "firing" ? "danger" : "success"} capitalize`}
-                    >
-                      {alert.status || "N/A"}
-                    </p>
-
-                    <Chip radius="sm" size="sm" variant="flat">
-                      <span className="text-default-600">
-                        Created: <ReactTimeago date={alert.created_at} />
-                      </span>
-                    </Chip>
-                    {alert.updated_at !== "0001-01-01T00:00:00Z" && (
-                      <Chip radius="sm" size="sm" variant="flat">
-                        <span className="text-default-600">
-                          Last Update: <ReactTimeago date={alert.updated_at} />
-                        </span>
-                      </Chip>
-                    )}
-                  </div>
-                }
-                title={alert.name || "N/A"}
-              >
-                <div className="flex items-center gap-2">
-                  <div>
-                    <p className="text-md font-bold">{alert.name || "N/A"}</p>
-                    <p
-                      className={`text-sm text-${alert.status === "firing" ? "danger" : "success"} capitalize`}
-                    >
-                      {alert.status || "N/A"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-2">
-                  {showFlowChip && (
-                    <Chip color="default" radius="sm" size="sm" variant="flat">
-                      Flow:{" "}
-                      {
-                        flows.filter((f: any) => f.id === alert.flow_id)[0]
-                          ?.name
-                      }
-                    </Chip>
-                  )}
-                  {alert.execution_id !== "" && (
-                    <Chip color="primary" radius="sm" size="sm" variant="flat">
-                      Executed
-                    </Chip>
-                  )}
-                </div>
-              </AccordionItem>
-            ))}
-        </Accordion>
-      </motion.div>
+    <main className="w-full">
       <motion.div
         animate="visible"
-        className="flex flex-col gap-4 p-4"
+        className="flex flex-col gap-4"
         initial="hidden"
         variants={{
           visible: { transition: { staggerChildren: 0.05 } },
         }}
       >
-        {alerts
-          .filter((a: any) => a.parent_id === "")
-          .map((alert: any) => (
+        {parentAlerts.map((alert: any) => {
+          const children = getChildren(alert.id);
+          const hasChildren = children.length > 0;
+          const isFiring = alert.status === "firing";
+          const statusColor = isFiring ? "danger" : "success";
+
+          return (
             <motion.div
               key={alert.id}
-              className="p-4 rounded-medium bg-content2/30 hover:bg-content2/50 transition-colors border border-default-100/50"
+              className="pr-4 pl-4"
               variants={{
-                hidden: { y: 10, opacity: 0 },
+                hidden: { y: 20, opacity: 0 },
                 visible: { y: 0, opacity: 1 },
               }}
-              // onClick={() => {
-              //   setTargetAlert(alert);
-              //   alertDrawer.onOpenChange();
-              // }}
             >
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <div
-                    className={`flex size-10 items-center justify-center rounded-small bg-${alert.status === "firing" ? "danger" : "success"}/20 text-${alert.status === "firing" ? "danger" : "success"}`}
-                  >
-                    <Icon
-                      icon={
-                        alert.status === "firing"
-                          ? "hugeicons:fire"
-                          : "hugeicons:checkmark-badge-01"
-                      }
-                      width={24}
-                    />
-                  </div>
-                  <div>
-                    <p className="text-md font-bold">{alert.name || "N/A"}</p>
-                    <p
-                      className={`text-sm text-${alert.status === "firing" ? "danger" : "success"} capitalize`}
+              <Card className="w-full bg-content1/60 backdrop-blur-md border border-default-100 transition-all">
+                <CardBody className="p-0">
+                  <div className="flex flex-col w-full">
+                    {/* Main Alert Content */}
+                    <div
+                      className="flex items-start justify-between gap-4 w-full p-4 cursor-pointer hover:bg-content1/50 transition-colors"
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => {
+                        setTargetAlert(alert);
+                        alertDrawer.onOpenChange();
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          setTargetAlert(alert);
+                          alertDrawer.onOpenChange();
+                        }
+                      }}
                     >
-                      {alert.status || "N/A"}
-                    </p>
-                  </div>
-                </div>
+                      <div className="flex items-center gap-4">
+                        <div
+                          className={`flex-shrink-0 size-12 rounded-xl bg-${statusColor}/10 flex items-center justify-center text-${statusColor}`}
+                        >
+                          <Icon
+                            icon={
+                              isFiring
+                                ? "hugeicons:fire"
+                                : "hugeicons:checkmark-badge-01"
+                            }
+                            width={24}
+                          />
+                        </div>
+                        <div className="flex flex-col items-start">
+                          <h4 className="text-lg font-bold leading-tight text-left">
+                            {alert.name || "Unnamed Alert"}
+                          </h4>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span
+                              className={`text-xs font-medium uppercase tracking-wider text-${statusColor}`}
+                            >
+                              {alert.status}
+                            </span>
+                            <span className="text-tiny text-default-400">
+                              •
+                            </span>
+                            <span className="text-tiny text-default-400">
+                              <ReactTimeago date={alert.created_at} />
+                            </span>
+                          </div>
+                        </div>
+                      </div>
 
-                <div className="flex flex-wrap justify-end gap-2">
-                  {showFlowChip && (
-                    <Chip color="default" radius="sm" size="sm" variant="flat">
-                      Flow:{" "}
-                      {
-                        flows.filter((f: any) => f.id === alert.flow_id)[0]
-                          ?.name
-                      }
-                    </Chip>
-                  )}
-                  {alert.execution_id !== "" && (
-                    <Chip color="primary" radius="sm" size="sm" variant="solid">
-                      Executed
-                    </Chip>
-                  )}
-                  {alerts.filter((a: any) => a.parent_id === alert.id).length >
-                    0 && (
-                    <>
-                      <Chip
-                        color="primary"
-                        radius="sm"
-                        size="sm"
-                        variant="flat"
-                      >
-                        Parent Alert
-                      </Chip>
-                      <Chip
-                        color="default"
-                        radius="sm"
-                        size="sm"
-                        variant="flat"
-                      >
-                        {
-                          alerts.filter((a: any) => a.parent_id === alert.id)
-                            .length
-                        }{" "}
-                        Sub Alert/s
-                      </Chip>
-                    </>
-                  )}
-                  {alert.updated_at !== "0001-01-01T00:00:00Z" && (
-                    <Chip radius="sm" size="sm" variant="flat">
-                      <span className="text-default-600">
-                        Last Update: <ReactTimeago date={alert.updated_at} />
-                      </span>
-                    </Chip>
-                  )}
-                  <Chip radius="sm" size="sm" variant="flat">
-                    <span className="text-default-600">
-                      Created: <ReactTimeago date={alert.created_at} />
-                    </span>
-                  </Chip>
-                </div>
-              </div>
+                      <div className="flex flex-wrap justify-end gap-2">
+                        {showFlowChip && (
+                          <Chip
+                            className="bg-default-100"
+                            size="sm"
+                            variant="flat"
+                          >
+                            Flow:{" "}
+                            {flows.find((f: any) => f.id === alert.flow_id)
+                              ?.name || "Unknown"}
+                          </Chip>
+                        )}
+                        {alert.execution_id && (
+                          <Chip color="primary" size="sm" variant="flat">
+                            Executed
+                          </Chip>
+                        )}
+                      </div>
+                    </div>
 
-              <Spacer y={2} />
-
-              {alerts.filter((a: any) => a.parent_id === alert.id).length >
-                0 && (
-                <Accordion variant="shadow">
-                  <AccordionItem
-                    key="grouped_alerts"
-                    aria-label="Grouped Alerts"
-                    title="Grouped Alerts"
-                  >
-                    <ScrollShadow className="max-h-[300px]" size={100}>
-                      <Listbox
-                        aria-label="User Menu"
-                        className="p-0 gap-0 divide-y divide-default-300/50 dark:divide-default-100/80 bg-content1 overflow-visible shadow-small rounded-medium"
-                        itemClasses={{
-                          base: "px-3 first:rounded-t-medium last:rounded-b-medium rounded-none gap-3 h-12 data-[hover=true]:bg-default-100/80",
-                        }}
-                      >
-                        {alerts.map((a: any) => {
-                          if (a.parent_id === alert.id) {
-                            return (
-                              <ListboxItem
-                                key={a.id}
-                                className="group h-auto py-3 border-1 border-default-300"
-                                startContent={
-                                  <IconWrapper
-                                    className={`bg-${a.status === "firing" ? "danger" : "success"}/10 text-${a.status === "firing" ? "danger" : "success"}`}
-                                  >
-                                    <Icon
-                                      className="text-lg"
-                                      icon={
-                                        a.status === "firing"
-                                          ? "hugeicons:fire"
-                                          : "hugeicons:checkmark-badge-01"
+                    {/* Grouped Alerts Section */}
+                    {hasChildren && (
+                      <div className="w-full px-4 pb-4">
+                        <div className="w-full pt-2 border-t border-default-100/50">
+                          <Accordion
+                            className="px-0"
+                            isCompact={true}
+                            variant="light"
+                          >
+                            <AccordionItem
+                              key="related"
+                              aria-label="Related Alerts"
+                              classNames={{
+                                trigger: "py-2",
+                                title: "text-small text-default-500",
+                              }}
+                              startContent={
+                                <Icon
+                                  className="text-default-400"
+                                  icon="hugeicons:layers-01"
+                                />
+                              }
+                              title={`${children.length} Related Event${children.length !== 1 ? "s" : ""}`}
+                            >
+                              <div className="flex flex-col gap-2 pl-2 pb-2">
+                                {children.map((child: any) => (
+                                  <div
+                                    key={child.id}
+                                    className="flex items-center justify-between p-3 rounded-lg bg-default-50/50 hover:bg-default-100/50 cursor-pointer transition-colors border border-default-200/50"
+                                    role="button"
+                                    tabIndex={0}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setTargetAlert(child);
+                                      alertDrawer.onOpenChange();
+                                    }}
+                                    onKeyDown={(e) => {
+                                      if (e.key === "Enter" || e.key === " ") {
+                                        e.stopPropagation();
+                                        setTargetAlert(child);
+                                        alertDrawer.onOpenChange();
                                       }
-                                    />
-                                  </IconWrapper>
-                                }
-                                textValue={a.name}
-                                onPress={() => {
-                                  setTargetAlert(a);
-                                  alertDrawer.onOpenChange();
-                                }}
-                              >
-                                <div className="flex flex-col gap-1">
-                                  <span>{a.name}</span>
-                                  <div className="px-2 py-1 rounded-small bg-default-100 group-data-[hover=true]:bg-default-200">
-                                    <span
-                                      className={`text-tiny text-${a.status === "firing" ? "danger" : "success"} capitalize`}
-                                    >
-                                      {a.status || "N/A"}
-                                    </span>
-                                    <div className="flex items-center gap-2 text-tiny">
-                                      <span className="text-default-500">
-                                        <ReactTimeago date={a.created_at} />
+                                    }}
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <Icon
+                                        className={
+                                          child.status === "firing"
+                                            ? "text-danger"
+                                            : "text-success"
+                                        }
+                                        icon={
+                                          child.status === "firing"
+                                            ? "hugeicons:fire"
+                                            : "hugeicons:checkmark-badge-01"
+                                        }
+                                      />
+                                      <span className="text-sm font-medium">
+                                        {child.name}
                                       </span>
-                                      {new Date(a.created_at).getTime() ===
-                                        Math.max(
-                                          ...alerts
-                                            .filter(
-                                              (alert: any) =>
-                                                alert.parent_id === a.parent_id,
-                                            )
-                                            .map((alert: any) =>
-                                              new Date(
-                                                alert.created_at,
-                                              ).getTime(),
-                                            ),
-                                        ) && (
-                                        <Chip
-                                          color="success"
-                                          radius="sm"
-                                          size="sm"
-                                          variant="flat"
-                                        >
-                                          Latest
-                                        </Chip>
-                                      )}
-                                      {a.execution_id !== "" && (
-                                        <Chip
-                                          color="primary"
-                                          radius="sm"
-                                          size="sm"
-                                          variant="flat"
-                                        >
-                                          Executed
-                                        </Chip>
-                                      )}
                                     </div>
+                                    <span className="text-xs text-default-400">
+                                      <ReactTimeago date={child.created_at} />
+                                    </span>
                                   </div>
-                                </div>
-                              </ListboxItem>
-                            );
-                          }
-                        })}
-                      </Listbox>
-                    </ScrollShadow>
-                  </AccordionItem>
-                </Accordion>
-              )}
+                                ))}
+                              </div>
+                            </AccordionItem>
+                          </Accordion>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </CardBody>
+              </Card>
             </motion.div>
-          ))}
+          );
+        })}
       </motion.div>
+
       <AlertDrawer
         alert={targetAlert}
         canEdit={canEdit}
