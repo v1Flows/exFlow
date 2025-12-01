@@ -13,9 +13,6 @@ dotenv.config({
 module.exports = async (phase) => {
   /** @type {import("next").NextConfig} */
   const nextConfig = {
-    experimental: {
-      instrumentationHook: true,
-    },
     output: 'standalone',
     trailingSlash: false,
     env: {
