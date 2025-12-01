@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { serverFetch } from "../serverFetch";
 
 type Execution = {
-  execution: object;
+  execution: any;
 };
 
 type ErrorResponse = {

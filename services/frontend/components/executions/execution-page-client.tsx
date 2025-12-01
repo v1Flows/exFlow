@@ -39,6 +39,7 @@ export default function ExecutionPageClient({
         execution.status === "paused" ||
         execution.status === "scheduled" ||
         execution.status === "interactionWaiting";
+
       setIsRunning(running);
     }
   }, [execution]);
