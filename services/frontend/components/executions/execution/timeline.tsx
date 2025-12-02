@@ -115,10 +115,27 @@ export default function ExecutionTimeline({
       step.interaction_rejected = true;
     }
 
-    await InteractExecutionStep(execution.id, step.id, status)
+    step.interacted = true;
+    step.messages = [
+      {
+        Title: "Interaction",
+        Lines: [
+          {
+            Content: `Step interacted by ${userDetails.username} (${userDetails.id})`,
+            Timestamp: new Date().toISOString(),
+          },
+        ],
+      },
+    ];
+    step.interacted_by = userDetails.id;
+    step.interacted_at = new Date().toISOString();
+
+    await InteractExecutionStep(execution.id, step.id, step)
       .then(() => {
         addToast({
           title: "Interaction sent",
+          description:
+            "Step interaction has been recorded successfully. Data will refresh shortly.",
           color: "success",
           variant: "flat",
         });

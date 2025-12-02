@@ -26,7 +26,7 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
     execution.status === "interactionWaiting";
 
   // Use SWR for auto-refreshing execution steps data
-  const { steps, isError } = useExecutionSteps(execution.id, isRunning);
+  const { steps, isError } = useExecutionSteps(execution.id);
   const { refreshExecution, refreshExecutionSteps } = useRefreshCache();
   const [executionLoading, setExecutionLoading] = useState(false);
 

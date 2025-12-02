@@ -99,6 +99,11 @@ export function useFlowExecutions(flowId: string) {
   const { data, error, mutate, isLoading } = useSWR(
     flowId ? `flow-executions-${flowId}` : null,
     () => GetFlowExecutions(flowId, 50, 0),
+    {
+      refreshInterval: 2000,
+      refreshWhenHidden: false,
+      refreshWhenOffline: false,
+    },
   );
 
   return {
@@ -122,6 +127,11 @@ export function useFlowExecutionsPaginated(
       ? `flow-executions-paginated-${flowId}-${limit}-${offset}-${status || "all"}`
       : null,
     () => GetFlowExecutions(flowId, limit, offset, status),
+    {
+      refreshInterval: 2000,
+      refreshWhenHidden: false,
+      refreshWhenOffline: false,
+    },
   );
 
   return {
@@ -142,6 +152,11 @@ export function useExecutions(
   const { data, error, mutate, isLoading } = useSWR(
     limit > 0 ? `executions-${limit}-${offset}-${status || "all"}` : null,
     () => GetExecutions(limit, offset, status),
+    {
+      refreshInterval: 2000,
+      refreshWhenHidden: false,
+      refreshWhenOffline: false,
+    },
   );
 
   return {
@@ -340,12 +355,12 @@ export function useProjectApiKeys(projectId: string) {
 }
 
 // Hook for fetching a single execution
-export function useExecution(executionId: string, isRunning: boolean = false) {
+export function useExecution(executionId: string) {
   const { data, error, mutate, isLoading } = useSWR(
     executionId ? `execution-${executionId}` : null,
     () => GetExecution(executionId),
     {
-      refreshInterval: isRunning ? 2000 : 0,
+      refreshInterval: 2000,
       refreshWhenHidden: false,
       refreshWhenOffline: false,
     },
@@ -360,15 +375,12 @@ export function useExecution(executionId: string, isRunning: boolean = false) {
 }
 
 // Hook for fetching execution steps with auto-refresh for running executions
-export function useExecutionSteps(
-  executionId: string,
-  isRunning: boolean = false,
-) {
+export function useExecutionSteps(executionId: string) {
   const { data, error, mutate, isLoading } = useSWR(
     executionId ? `execution-steps-${executionId}` : null,
     () => GetExecutionSteps(executionId),
     {
-      refreshInterval: isRunning ? 2000 : 0, // Refresh every 2 seconds if running
+      refreshInterval: 2000,
       refreshWhenHidden: false,
       refreshWhenOffline: false,
     },
