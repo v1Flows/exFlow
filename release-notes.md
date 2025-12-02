@@ -28,6 +28,7 @@ Please use with caution!
 
 ### Fixed
 - Runner Workspace Cleanup
+- Execution Cancel
 
 ### Known Issues
 - No known issues at this time.
