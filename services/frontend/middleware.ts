@@ -2,108 +2,106 @@ import type { NextRequest } from "next/server";
 
 import { NextResponse } from "next/server";
 
-// eslint-disable-next-line import/order
 import PageGetSettings from "./lib/fetch/page/settings";
-
-// NOTE: `updateSessionInterval` sets a periodic server-side task when imported.
-// Importing it here causes that side-effect to run in the middleware bundle.
-// If you rely on periodic session refresh, consider moving it to a dedicated
-// server worker or a scheduled job. Keeping the import for now to preserve
-// existing behaviour.
-import "./updateSessionInterval";
 import ValidateToken from "./lib/fetch/tokens/validate";
 import { isSetupComplete } from "./lib/fetch/setup/detectBackend";
 
-function isPublicRoute(pathname: string): boolean {
-  return (
-    pathname.startsWith("/_next") ||
-    pathname.startsWith("/favicon.ico") ||
-    pathname.endsWith(".png") ||
-    pathname.endsWith(".jpg") ||
-    pathname.endsWith(".jpeg") ||
-    pathname.endsWith(".svg") ||
-    pathname.endsWith(".gif") ||
-    pathname.endsWith(".json") ||
-    pathname.endsWith(".js")
-  );
-}
+// NOTE: `updateSessionInterval` was removed from here.
+// Middleware runs in a limited execution context (often Edge) and is request-scoped.
+// Long-running intervals should be handled in client-side components (e.g., a SessionProvider)
+// or dedicated backend services, not in the request middleware.
 
-function isAuthRoute(pathname: string): boolean {
-  return (
-    pathname.startsWith("/auth/login") || pathname.startsWith("/auth/signup")
-  );
-}
-
-function isSetupRoute(pathname: string): boolean {
-  return pathname.startsWith("/setup");
-}
-
-function createResponseWithPathname(pathname: string) {
-  const response = NextResponse.next();
-
-  response.headers.set("x-pathname", pathname);
-
-  return response;
-}
+// Define paths that should not be handled by middleware
+export const config = {
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public folder files (images, etc) - difficult to match dynamically without prefix,
+     *   but we can exclude common extensions.
+     */
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
+};
 
 // Small in-memory cache to avoid repeatedly probing the backend on every request
+// Note: In serverless/edge environments, this cache is local to the instance and may be reset frequently.
 let _setupCache: { value: boolean; ts: number } | null = null;
 const SETUP_CACHE_TTL = 30 * 1000; // 30 seconds
 
-export async function middleware(request: NextRequest) {
+async function getSetupStatus(): Promise<boolean> {
   try {
-    const { pathname } = new URL(request.url);
-    const cookies = request.cookies;
-    const hasSessionCookie = cookies.has("session");
-    const userCookie = cookies.get("user");
-    const userData = userCookie ? JSON.parse(userCookie.value) : null;
+    const now = Date.now();
 
-    // Skip public/static routes
-    if (isPublicRoute(pathname)) {
-      return createResponseWithPathname(pathname);
+    if (_setupCache && now - _setupCache.ts < SETUP_CACHE_TTL) {
+      return _setupCache.value;
+    }
+    const complete = await isSetupComplete();
+
+    _setupCache = { value: complete, ts: now };
+
+    return complete;
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error("Failed to check setup status:", error);
+
+    return false; // Default to false if backend is unreachable
+  }
+}
+
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // 1. Setup Check
+  // We check this first because if the app isn't set up, nothing else matters.
+  const isSetupPage = pathname.startsWith("/setup");
+  const setupComplete = await getSetupStatus();
+
+  if (isSetupPage) {
+    if (setupComplete) {
+      return NextResponse.redirect(new URL("/", request.url));
     }
 
-    // Auth routes: allow access without checking setup or token
-    if (isAuthRoute(pathname)) {
-      return createResponseWithPathname(pathname);
+    return NextResponse.next();
+  }
+
+  if (!setupComplete) {
+    return NextResponse.redirect(new URL("/setup", request.url));
+  }
+
+  // 2. Auth & Session Check
+  const sessionCookie = request.cookies.get("session");
+  const userCookie = request.cookies.get("user");
+  const isAuthPage = pathname.startsWith("/auth");
+
+  // If user is on an auth page (login/signup)
+  if (isAuthPage) {
+    if (sessionCookie) {
+      // If already logged in, redirect to home
+      return NextResponse.redirect(new URL("/", request.url));
     }
 
-    // Check if setup is complete — use cached value when fresh to avoid
-    // probing multiple backend hostnames on every request (which can add
-    // several seconds to middleware execution).
-    let setupComplete = false;
+    // If not logged in, allow access to auth page
+    return NextResponse.next();
+  }
 
-    try {
-      const now = Date.now();
+  // For all other routes (protected), require a session
+  if (!sessionCookie) {
+    const response = NextResponse.redirect(new URL("/auth/login", request.url));
 
-      if (_setupCache && now - _setupCache.ts < SETUP_CACHE_TTL) {
-        setupComplete = _setupCache.value;
-      } else {
-        setupComplete = await isSetupComplete();
-        _setupCache = { value: setupComplete, ts: now };
-      }
-    } catch {
-      // If we can't reach the backend, assume setup not complete
-      setupComplete = false;
+    // Ensure we clean up any stale user cookie if session is missing
+    if (userCookie) {
+      response.cookies.delete("user");
     }
 
-    // Setup routes: redirect to home if setup is complete
-    if (isSetupRoute(pathname)) {
-      if (setupComplete) {
-        return NextResponse.redirect(new URL("/", request.url));
-      }
+    return response;
+  }
 
-      return createResponseWithPathname(pathname);
-    }
-
-    // If setup not complete, redirect to setup (for all non-auth, non-setup routes)
-    if (!setupComplete) {
-      return NextResponse.redirect(new URL("/setup", request.url));
-    }
-
-    // Validate token and fetch page settings in parallel to avoid sequential
-    // waits. Both are required below, but running them at the same time
-    // reduces middleware latency.
+  // 3. Validate Session & Fetch Settings (Parallel)
+  // We only do this for protected routes to save resources
+  try {
     const [validateResult, settingsResult] = await Promise.all([
       ValidateToken().catch((err) => ({ success: false, error: String(err) })),
       PageGetSettings().catch((err) => ({
@@ -112,67 +110,51 @@ export async function middleware(request: NextRequest) {
       })),
     ]);
 
-    // Validate token result handling
-    if (!validateResult || (validateResult as any).success === false) {
-      cookies.delete("session");
-      cookies.delete("user");
+    // If token is invalid
+    if (!validateResult || !(validateResult as any).success) {
+      const response = NextResponse.redirect(
+        new URL("/auth/login", request.url),
+      );
 
-      return NextResponse.redirect(new URL("/auth/login", request.url));
+      response.cookies.delete("session");
+      response.cookies.delete("user");
+
+      return response;
     }
 
-    // Admin route protection
-    if (
-      pathname.startsWith("/admin") &&
-      (!userData || userData.role !== "admin")
-    ) {
-      return NextResponse.redirect(new URL("/", request.url));
-    }
-
-    // Auth routes: redirect if already logged in
-    if (isAuthRoute(pathname) && hasSessionCookie) {
-      return NextResponse.redirect(new URL("/", request.url));
-    }
-
-    // Auth routes: allow access if not logged in
-    if (isAuthRoute(pathname) && !hasSessionCookie) {
-      return createResponseWithPathname(pathname);
-    }
-
-    // Require login for protected routes
-    if (!hasSessionCookie) {
-      return NextResponse.redirect(new URL("/auth/login", request.url));
-    }
-
-    // Page settings result (already fetched in parallel above)
+    // 4. Role & Maintenance Checks
+    const userData = userCookie ? JSON.parse(userCookie.value) : null;
     const settings = settingsResult as any;
+    const isMaintenanceMode =
+      settings?.success && settings.data?.settings?.maintenance;
+    const isAdmin = userData?.role === "admin";
 
-    if (!settings || settings.success === false) {
-      return NextResponse.redirect(new URL("/maintenance", request.url));
-    }
-
-    // Maintenance mode check
-    if (
-      settings.data.settings.maintenance &&
-      (!userData || userData.role !== "admin") &&
-      !pathname.startsWith("/maintenance")
-    ) {
-      return NextResponse.redirect(new URL("/maintenance", request.url));
-    }
-
-    // If on /maintenance but not in maintenance mode, redirect home
-    if (
-      pathname.startsWith("/maintenance") &&
-      !settings.data.settings.maintenance
-    ) {
+    // Admin Route Protection
+    if (pathname.startsWith("/admin") && !isAdmin) {
       return NextResponse.redirect(new URL("/", request.url));
     }
 
-    // Add pathname header for layout to use
-    return createResponseWithPathname(pathname);
+    // Maintenance Mode
+    const isMaintenancePage = pathname.startsWith("/maintenance");
+
+    if (isMaintenanceMode && !isAdmin && !isMaintenancePage) {
+      return NextResponse.redirect(new URL("/maintenance", request.url));
+    }
+
+    if (!isMaintenanceMode && isMaintenancePage) {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+
+    // 5. Final Response
+    const response = NextResponse.next();
+
+    response.headers.set("x-pathname", pathname);
+
+    return response;
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.error("Middleware error:", error);
+    console.error("Middleware processing error:", error);
 
-    return new NextResponse("Internal Server Error", { status: 500 });
+    return NextResponse.next(); // Fallback to allowing request or handle error page
   }
 }
