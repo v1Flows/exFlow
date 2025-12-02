@@ -29,6 +29,7 @@ Please use with caution!
 ### Fixed
 - Runner Workspace Cleanup
 - Execution Cancel
+- Improved Middleware for Frontend
 
 ### Known Issues
 - No known issues at this time.
