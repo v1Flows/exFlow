@@ -39,6 +39,7 @@ export default function CreateProjectModal({
   const { refreshProjects } = useRefreshCache();
 
   const [color, setColor] = useColor("#5213d7");
+  const safeColorHex = color.hex.replace("undefined", "");
 
   // Form State for Preview
   const [name, setName] = useState("");
@@ -67,7 +68,7 @@ export default function CreateProjectModal({
       data.description.toString(),
       data.sharedRunners === "true" ? true : false,
       selectedIcon || "hugeicons:package-open",
-      color.hex,
+      safeColorHex,
     )) as any;
 
     if (!res) {
@@ -304,7 +305,7 @@ export default function CreateProjectModal({
                     <div
                       className="absolute inset-0 opacity-20 pointer-events-none"
                       style={{
-                        background: `radial-gradient(circle at 50% 50%, ${color.hex} 0%, transparent 70%)`,
+                        background: `radial-gradient(circle at 50% 50%, ${safeColorHex} 0%, transparent 70%)`,
                       }}
                     />
 
@@ -326,9 +327,9 @@ export default function CreateProjectModal({
                               <div
                                 className="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center shadow-sm transition-transform"
                                 style={{
-                                  background: `linear-gradient(135deg, ${color.hex}20 0%, ${color.hex}40 100%)`,
-                                  color: color.hex,
-                                  border: `1px solid ${color.hex}40`,
+                                  background: `linear-gradient(135deg, ${safeColorHex}20 0%, ${safeColorHex}40 100%)`,
+                                  color: safeColorHex,
+                                  border: `1px solid ${safeColorHex}40`,
                                 }}
                               >
                                 <Icon
@@ -427,9 +428,9 @@ export default function CreateProjectModal({
                             <div className="flex items-center gap-2">
                               <div
                                 className="w-3 h-3 rounded-full"
-                                style={{ backgroundColor: color.hex }}
+                                style={{ backgroundColor: safeColorHex }}
                               />
-                              <span className="font-mono">{color.hex}</span>
+                              <span className="font-mono">{safeColorHex}</span>
                             </div>
                           </div>
                         </div>
