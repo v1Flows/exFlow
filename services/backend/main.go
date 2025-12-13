@@ -110,6 +110,9 @@ func main() {
 		log.Fatal("Failed to connect to the database")
 	}
 
+	telemetry.RegisterDBMetrics(db)
+	telemetry.InitAppMetrics(db)
+
 	err = encryption.MigrateProjectsEncryption(cfg.Encryption.Key, db)
 	if err != nil {
 		log.Fatal("Failed to migrate projects: ", err)

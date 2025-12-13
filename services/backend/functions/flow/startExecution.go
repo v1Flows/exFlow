@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/JustLABv1/justflow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/services/backend/pkg/telemetry"
 
 	"github.com/google/uuid"
 	"github.com/uptrace/bun"
@@ -31,6 +32,7 @@ func PreStartExecution(flowID string, flow models.Flows, db *bun.DB, alert model
 				return err
 			}
 
+			telemetry.FlowExecutionsTotal.WithLabelValues("skipped", flowID).Inc()
 			return nil
 		}
 	}
@@ -57,6 +59,8 @@ func PreStartExecution(flowID string, flow models.Flows, db *bun.DB, alert model
 	if err != nil {
 		return err
 	}
+
+	telemetry.FlowExecutionsTotal.WithLabelValues("started", flowID).Inc()
 
 	return nil
 }
