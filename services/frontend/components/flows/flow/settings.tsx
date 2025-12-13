@@ -95,7 +95,7 @@ export default function FlowSettings({
       });
     } else {
       setError(true);
-      setErrorMessage(response.message);
+      setErrorMessage(response.message + ". " + response.error);
       addToast({
         title: "Flow",
         description: "Failed to update flow",

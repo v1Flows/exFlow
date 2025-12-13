@@ -1,9 +1,11 @@
 package flows
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
-	"reflect"
 	"time"
 
 	"github.com/JustLABv1/justflow/services/backend/functions/gatekeeper"
@@ -20,21 +22,44 @@ import (
 func UpdateFlow(context *gin.Context, db *bun.DB) {
 	flowID := context.Param("flowID")
 
-	var flow models.Flows
-	if err := context.ShouldBindJSON(&flow); err != nil {
+	// Read the body
+	bodyBytes, err := io.ReadAll(context.Request.Body)
+	if err != nil {
+		httperror.StatusBadRequest(context, "Error reading request body", err)
+		return
+	}
+	// Restore the body so we can unmarshal it multiple times if needed
+	context.Request.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+
+	var inputMap map[string]interface{}
+	if err := json.Unmarshal(bodyBytes, &inputMap); err != nil {
 		httperror.StatusBadRequest(context, "Error parsing incoming data", err)
 		return
 	}
 
+	var flow models.Flows
+	if err := json.Unmarshal(bodyBytes, &flow); err != nil {
+		httperror.StatusBadRequest(context, "Error parsing incoming data to struct", err)
+		return
+	}
+
 	var flowDB models.Flows
-	err := db.NewSelect().Model(&flowDB).Where("id = ?", flowID).Scan(context)
+	err = db.NewSelect().Model(&flowDB).Where("id = ?", flowID).Scan(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error collecting flow data on db", err)
 		return
 	}
 
+	// Determine the project ID to check access for.
+	// If project_id is being updated, check access to the new project.
+	// Otherwise, check access to the existing project.
+	checkProjectID := flowDB.ProjectID
+	if pid, ok := inputMap["project_id"]; ok {
+		checkProjectID = pid.(string)
+	}
+
 	// check if user has access to project
-	access, err := gatekeeper.CheckUserProjectAccess(flow.ProjectID, context, db)
+	access, err := gatekeeper.CheckUserProjectAccess(checkProjectID, context, db)
 	if err != nil {
 		httperror.InternalServerError(context, "Error checking for flow access", err)
 		return
@@ -45,7 +70,7 @@ func UpdateFlow(context *gin.Context, db *bun.DB) {
 	}
 
 	// check the requestors role in project
-	canModify, err := gatekeeper.CheckRequestUserProjectModifyRole(flow.ProjectID, context, db)
+	canModify, err := gatekeeper.CheckRequestUserProjectModifyRole(checkProjectID, context, db)
 	if err != nil {
 		httperror.InternalServerError(context, "Error checking your user permissions on flow", err)
 		return
@@ -56,52 +81,32 @@ func UpdateFlow(context *gin.Context, db *bun.DB) {
 	}
 
 	flow.UpdatedAt = time.Now()
-	columns := []string{}
-	if flow.Type != "" {
-		columns = append(columns, "type")
+
+	// Map JSON keys to DB columns
+	jsonToCol := map[string]string{
+		"type":                     "type",
+		"name":                     "name",
+		"description":              "description",
+		"project_id":               "project_id",
+		"folder_id":                "folder_id",
+		"runner_id":                "runner_id",
+		"schedule_every_value":     "schedule_every_value",
+		"schedule_every_unit":      "schedule_every_unit",
+		"group_alerts":             "group_alerts",
+		"group_alerts_identifier":  "group_alerts_identifier",
+		"alert_threshold":          "alert_threshold",
+		"always_cleanup_workspace": "always_cleanup_workspace",
+		"patterns":                 "patterns",
+		"exec_parallel":            "exec_parallel",
+		"failure_pipeline_id":      "failure_pipeline_id",
 	}
-	if flow.Name != "" {
-		columns = append(columns, "name")
+
+	columns := []string{"updated_at"}
+	for jsonKey, dbCol := range jsonToCol {
+		if _, ok := inputMap[jsonKey]; ok {
+			columns = append(columns, dbCol)
+		}
 	}
-	if flow.Description != "" {
-		columns = append(columns, "description")
-	}
-	if flow.ProjectID != "" {
-		columns = append(columns, "project_id")
-	}
-	if flow.FolderID != flowDB.FolderID {
-		columns = append(columns, "folder_id")
-	}
-	if flow.RunnerID != flowDB.RunnerID {
-		columns = append(columns, "runner_id")
-	}
-	if flow.ScheduleEveryValue != flowDB.ScheduleEveryValue {
-		columns = append(columns, "schedule_every_value")
-	}
-	if flow.ScheduleEveryUnit != flowDB.ScheduleEveryUnit {
-		columns = append(columns, "schedule_every_unit")
-	}
-	if flow.GroupAlerts != flowDB.GroupAlerts {
-		columns = append(columns, "group_alerts")
-	}
-	if flow.GroupAlertsIdentifier != flowDB.GroupAlertsIdentifier {
-		columns = append(columns, "group_alerts_identifier")
-	}
-	if flow.AlertThreshold != flowDB.AlertThreshold {
-		columns = append(columns, "alert_threshold")
-	}
-	if flow.ScheduleEveryUnit != flowDB.ScheduleEveryUnit {
-		columns = append(columns, "schedule_every_unit")
-	}
-	if flow.AlwaysCleanupWorkspace != flowDB.AlwaysCleanupWorkspace {
-		columns = append(columns, "always_cleanup_workspace")
-	}
-	if !reflect.DeepEqual(flow.Patterns, flowDB.Patterns) {
-		columns = append(columns, "patterns")
-	}
-	columns = append(columns, "exec_parallel")
-	columns = append(columns, "failure_pipeline_id")
-	columns = append(columns, "updated_at")
 
 	_, err = db.NewUpdate().Model(&flow).Column(columns...).Where("id = ?", flowID).Exec(context)
 	if err != nil {
@@ -110,7 +115,12 @@ func UpdateFlow(context *gin.Context, db *bun.DB) {
 	}
 
 	// Audit
-	err = functions_project.CreateAuditEntry(flow.ProjectID, "update", "Flow updated: "+flow.Name, db, context)
+	auditName := flowDB.Name
+	if val, ok := inputMap["name"]; ok {
+		auditName = val.(string)
+	}
+
+	err = functions_project.CreateAuditEntry(checkProjectID, "update", "Flow updated: "+auditName, db, context)
 	if err != nil {
 		log.Error(err)
 	}
