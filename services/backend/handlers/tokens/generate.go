@@ -32,7 +32,7 @@ func GenerateTokenUser(db *bun.DB, context *gin.Context) {
 	var user models.Users
 	err := db.NewSelect().Model(&user).Where("email = ? OR username = ?", request.Email, request.Email).Scan(context)
 	if err != nil {
-		httperror.InternalServerError(context, "Error collecting user information from db", err)
+		httperror.InternalServerError(context, "User not found", err)
 		return
 	}
 
