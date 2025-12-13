@@ -3,6 +3,7 @@ package background_checks
 import (
 	"time"
 
+	"github.com/JustLABv1/justflow/services/backend/pkg/telemetry"
 	"github.com/uptrace/bun"
 )
 
@@ -15,11 +16,11 @@ func Init(db *bun.DB) {
 		for {
 			select {
 			case <-ticker.C:
-				checkHangingExecutions(db)
-				checkHangingExecutionSteps(db)
-				checkDisconnectedAutoRunners(db)
-				checkForFlowActionUpdates(db)
-				scheduleFlowExecutions(db)
+				runCheck("checkHangingExecutions", func() { checkHangingExecutions(db) })
+				runCheck("checkHangingExecutionSteps", func() { checkHangingExecutionSteps(db) })
+				runCheck("checkDisconnectedAutoRunners", func() { checkDisconnectedAutoRunners(db) })
+				runCheck("checkForFlowActionUpdates", func() { checkForFlowActionUpdates(db) })
+				runCheck("scheduleFlowExecutions", func() { scheduleFlowExecutions(db) })
 			case <-quit:
 				ticker.Stop()
 				return
@@ -31,11 +32,18 @@ func Init(db *bun.DB) {
 		for {
 			select {
 			case <-ticker2.C:
-				checkScheduledExecutions(db)
+				runCheck("checkScheduledExecutions", func() { checkScheduledExecutions(db) })
 			case <-quit:
 				ticker2.Stop()
 				return
 			}
 		}
 	}()
+}
+
+func runCheck(name string, check func()) {
+	start := time.Now()
+	check()
+	duration := time.Since(start).Seconds()
+	telemetry.BackgroundCheckDurationSeconds.WithLabelValues(name).Observe(duration)
 }

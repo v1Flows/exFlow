@@ -5,6 +5,7 @@ import (
 
 	"github.com/JustLABv1/justflow/services/backend/config"
 	"github.com/JustLABv1/justflow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/services/backend/pkg/telemetry"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
@@ -30,5 +31,10 @@ func GenerateJWT(id uuid.UUID, rememberMe bool) (tokenString string, ExpiresAt i
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err = token.SignedString(jwtKey)
 	ExpiresAt = expirationTime.Unix()
+
+	if err == nil {
+		telemetry.UserLoginTotal.Inc()
+	}
+
 	return
 }

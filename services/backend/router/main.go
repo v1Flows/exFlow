@@ -7,9 +7,11 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/uptrace/bun"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 
+	"github.com/JustLABv1/justflow/services/backend/middlewares"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -18,6 +20,7 @@ func StartRouter(db *bun.DB, port int, configFile string, frontendEnv string) *h
 	router := gin.New()
 	router.Use(gin.Recovery())
 	router.Use(otelgin.Middleware("justflow-backend"))
+	router.Use(middlewares.PrometheusMiddleware())
 	router.Use(func(c *gin.Context) {
 		start := time.Now()
 		c.Next()
@@ -31,6 +34,8 @@ func StartRouter(db *bun.DB, port int, configFile string, frontendEnv string) *h
 			"client_ip": c.ClientIP(),
 		}).Info("HTTP request")
 	})
+
+	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
@@ -77,6 +82,8 @@ func StartRouter(db *bun.DB, port int, configFile string, frontendEnv string) *h
 func StartSetupRouter(port int, configFile string, frontendEnv string) *http.Server {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
+	router.Use(middlewares.PrometheusMiddleware())
+	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"https://justlab.xyz", "http://localhost:3000", "http://localhost:4000"},
