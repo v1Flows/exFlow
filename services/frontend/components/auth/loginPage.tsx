@@ -47,7 +47,7 @@ export default function LoginPageComponent({ settings }: { settings: any }) {
     } else {
       setIsLoginLoading(false);
       setError(true);
-      setErrorText(res.error);
+      setErrorText(res.message || "An unknown error occurred during login.");
     }
   }
 
