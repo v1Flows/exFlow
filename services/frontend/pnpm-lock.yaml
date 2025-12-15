@@ -249,8 +249,8 @@ importers:
         specifier: 19.0.0
         version: 19.0.0
       react-color-palette:
-        specifier: ^7.3.0
-        version: 7.3.0(react@19.0.0)
+        specifier: ^7.3.1
+        version: 7.3.1(react@19.0.0)
       react-device-detect:
         specifier: ^2.2.3
         version: 2.2.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -6852,8 +6852,8 @@ packages:
   randombytes@2.1.0:
     resolution: {integrity: sha512-vYl3iOX+4CKUWuxGi9Ukhie6fsqXqS9FE2Zaic4tNFD2N2QQaXOMFbuKK4QmDHC0JO6B1Zp41J0LpT0oR68amQ==}
 
-  react-color-palette@7.3.0:
-    resolution: {integrity: sha512-GCgz+XEcbyFkq5wVvrPiXp8mUnOI3oObtmOtsZBCpDXgzHcDCJdssW8lTtVXbUqodo6pOw6pwYQRlXpi/ekkzQ==}
+  react-color-palette@7.3.1:
+    resolution: {integrity: sha512-O8eTbogOKExVbhFOCaQ6WACQtGznymLqbd95i4C42PZd8im9OwL1NjuGxswk2JxJR5jfcTu7KQzl7VbpU48m+g==}
     engines: {node: '>=10'}
     peerDependencies:
       react: '>=16.8'
@@ -16536,7 +16536,7 @@ snapshots:
     dependencies:
       safe-buffer: 5.2.1
 
-  react-color-palette@7.3.0(react@19.0.0):
+  react-color-palette@7.3.1(react@19.0.0):
     dependencies:
       react: 19.0.0
 
