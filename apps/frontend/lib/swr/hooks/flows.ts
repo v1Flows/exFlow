@@ -375,7 +375,7 @@ export function useExecution(executionId: string) {
     () => GetExecution(executionId),
     {
       refreshInterval: (latestData) => {
-        const status = latestData?.data?.execution?.status;
+        const status = latestData?.success ? latestData.data.execution?.status : undefined;
         return isActiveExecution(status) ? 5000 : 0;
       },
       refreshWhenHidden: false,

@@ -9,6 +9,8 @@ RUN apt-get update && apt-get install -y git gcc
 COPY go.work ./
 COPY apps/backend ./apps/backend
 COPY apps/runner ./apps/runner
+COPY runner-plugins ./runner-plugins
+COPY pkg ./pkg
 
 WORKDIR /workspace/apps/runner
 RUN go mod download
