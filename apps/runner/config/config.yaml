@@ -1,0 +1,25 @@
+---
+
+log_level: info
+mode: master
+
+justflow:
+  url: https://justflow.app
+  runner_id: null
+  api_key: null
+
+plugins:
+  - name: alertmanager
+    version: v1.2.4
+  - name: git
+    version: v1.3.0
+  - name: ansible
+    version: v1.4.2
+  - name: ssh
+    version: v1.5.0
+
+api_endpoint:
+  port: 8081
+
+runner:
+  shared_runner_secret: null

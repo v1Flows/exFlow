@@ -26,6 +26,7 @@ serviceAccountKey.json
 .envrc
 /runner
 *config*.yaml
+!config/config.yaml
 /plugins
 /workspace
 .plugins_temp/
