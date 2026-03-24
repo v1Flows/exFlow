@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/JustLABv1/justflow/services/backend/pkg/models"
-	"github.com/JustLABv1/justflow/services/backend/pkg/telemetry"
+	"github.com/JustLABv1/justflow/apps/backend/pkg/models"
+	"github.com/JustLABv1/justflow/apps/backend/pkg/telemetry"
 
 	"github.com/google/uuid"
 	"github.com/uptrace/bun"

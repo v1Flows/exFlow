@@ -8,8 +8,8 @@ import (
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 	"github.com/uptrace/bun"
-	"github.com/JustLABv1/justflow/services/backend/functions/encryption"
-	"github.com/JustLABv1/justflow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/apps/backend/functions/encryption"
+	"github.com/JustLABv1/justflow/apps/backend/pkg/models"
 )
 
 func scheduleFlowExecutions(db *bun.DB) {

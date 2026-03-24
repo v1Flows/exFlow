@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/uptrace/bun"
-	"github.com/JustLABv1/justflow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/apps/backend/pkg/models"
 
 	log "github.com/sirupsen/logrus"
 )

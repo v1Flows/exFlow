@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/JustLABv1/justflow/services/backend/functions/encryption"
-	"github.com/JustLABv1/justflow/services/backend/functions/gatekeeper"
-	"github.com/JustLABv1/justflow/services/backend/functions/httperror"
-	functions_project "github.com/JustLABv1/justflow/services/backend/functions/project"
-	"github.com/JustLABv1/justflow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/apps/backend/functions/encryption"
+	"github.com/JustLABv1/justflow/apps/backend/functions/gatekeeper"
+	"github.com/JustLABv1/justflow/apps/backend/functions/httperror"
+	functions_project "github.com/JustLABv1/justflow/apps/backend/functions/project"
+	"github.com/JustLABv1/justflow/apps/backend/pkg/models"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"

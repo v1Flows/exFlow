@@ -4,8 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/JustLABv1/justflow/services/backend/config"
-	"github.com/JustLABv1/justflow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/apps/backend/config"
+	"github.com/JustLABv1/justflow/apps/backend/pkg/models"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"

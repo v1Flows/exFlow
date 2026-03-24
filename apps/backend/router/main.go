@@ -11,7 +11,7 @@ import (
 	"github.com/uptrace/bun"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 
-	"github.com/JustLABv1/justflow/services/backend/middlewares"
+	"github.com/JustLABv1/justflow/apps/backend/middlewares"
 	log "github.com/sirupsen/logrus"
 )
 

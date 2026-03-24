@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/JustLABv1/justflow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/apps/backend/pkg/models"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	log "github.com/sirupsen/logrus"

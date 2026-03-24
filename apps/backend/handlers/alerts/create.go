@@ -5,11 +5,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/JustLABv1/justflow/services/backend/functions/encryption"
-	functions "github.com/JustLABv1/justflow/services/backend/functions/flow"
-	"github.com/JustLABv1/justflow/services/backend/functions/gatekeeper"
-	"github.com/JustLABv1/justflow/services/backend/functions/httperror"
-	"github.com/JustLABv1/justflow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/apps/backend/functions/encryption"
+	functions "github.com/JustLABv1/justflow/apps/backend/functions/flow"
+	"github.com/JustLABv1/justflow/apps/backend/functions/gatekeeper"
+	"github.com/JustLABv1/justflow/apps/backend/functions/httperror"
+	"github.com/JustLABv1/justflow/apps/backend/pkg/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

@@ -3,9 +3,9 @@ package database
 import (
 	"context"
 
-	"github.com/JustLABv1/justflow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/apps/backend/pkg/models"
 
-	functions_runner "github.com/JustLABv1/justflow/services/backend/functions/runner"
+	functions_runner "github.com/JustLABv1/justflow/apps/backend/functions/runner"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/uptrace/bun"

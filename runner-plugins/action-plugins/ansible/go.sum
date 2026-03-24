@@ -1,5 +1,5 @@
-github.com/JustLABv1/justflow/services/backend v0.0.0-20251130104321-781435597f44 h1:2KQwJsDg/kvjkda4fGGe9S3+/kP3dvHnAEFNtHb3bmc=
-github.com/JustLABv1/justflow/services/backend v0.0.0-20251130104321-781435597f44/go.mod h1:BBcBVhhkxICZw1dUcfTTHy7m3nWaifqvLtfT/UVbbKI=
+github.com/JustLABv1/justflow/apps/backend v0.0.0-20251130104321-781435597f44 h1:2KQwJsDg/kvjkda4fGGe9S3+/kP3dvHnAEFNtHb3bmc=
+github.com/JustLABv1/justflow/apps/backend v0.0.0-20251130104321-781435597f44/go.mod h1:BBcBVhhkxICZw1dUcfTTHy7m3nWaifqvLtfT/UVbbKI=
 github.com/JustLABv1/runner v1.3.3-0.20251130114418-9c6e8455bd50 h1:cRJAayQ5TrScZhbcjhPJ1GiTG4ojhProJ18BQ+maDFE=
 github.com/JustLABv1/runner v1.3.3-0.20251130114418-9c6e8455bd50/go.mod h1:A5VU4m9fTxStuxKmN5F2b2+isM46BosJ7DfkCdrJTtg=
 github.com/apenella/go-ansible/v2 v2.4.1 h1:bepwxCNIVg3185dKmb60jhNhgvVWvVpICCnGHEF9MQc=

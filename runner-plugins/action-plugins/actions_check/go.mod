@@ -8,7 +8,7 @@ require (
 )
 
 require (
-	github.com/JustLABv1/justflow/services/backend v0.0.0-20251130104321-781435597f44 // indirect
+	github.com/JustLABv1/justflow/apps/backend v0.0.0-20251130104321-781435597f44 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 )
 

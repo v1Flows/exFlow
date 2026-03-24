@@ -14,7 +14,7 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 
-	"github.com/JustLABv1/justflow/services/backend/database/migrations"
+	"github.com/JustLABv1/justflow/apps/backend/database/migrations"
 
 	log "github.com/sirupsen/logrus"
 )

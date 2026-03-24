@@ -1,11 +1,11 @@
 package projects
 
 import (
-	"github.com/JustLABv1/justflow/services/backend/functions/auth"
-	"github.com/JustLABv1/justflow/services/backend/functions/httperror"
-	functions_project "github.com/JustLABv1/justflow/services/backend/functions/project"
-	functions "github.com/JustLABv1/justflow/services/backend/functions/user"
-	"github.com/JustLABv1/justflow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/apps/backend/functions/auth"
+	"github.com/JustLABv1/justflow/apps/backend/functions/httperror"
+	functions_project "github.com/JustLABv1/justflow/apps/backend/functions/project"
+	functions "github.com/JustLABv1/justflow/apps/backend/functions/user"
+	"github.com/JustLABv1/justflow/apps/backend/pkg/models"
 	"errors"
 	"net/http"
 

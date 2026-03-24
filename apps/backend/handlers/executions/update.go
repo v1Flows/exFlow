@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/JustLABv1/justflow/services/backend/functions/httperror"
-	"github.com/JustLABv1/justflow/services/backend/pkg/models"
-	"github.com/JustLABv1/justflow/services/backend/pkg/telemetry"
+	"github.com/JustLABv1/justflow/apps/backend/functions/httperror"
+	"github.com/JustLABv1/justflow/apps/backend/pkg/models"
+	"github.com/JustLABv1/justflow/apps/backend/pkg/telemetry"
 
 	"github.com/gin-gonic/gin"
 	"github.com/uptrace/bun"

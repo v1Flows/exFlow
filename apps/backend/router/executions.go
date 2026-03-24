@@ -1,8 +1,8 @@
 package router
 
 import (
-	"github.com/JustLABv1/justflow/services/backend/handlers/executions"
-	"github.com/JustLABv1/justflow/services/backend/middlewares"
+	"github.com/JustLABv1/justflow/apps/backend/handlers/executions"
+	"github.com/JustLABv1/justflow/apps/backend/middlewares"
 
 	"github.com/gin-gonic/gin"
 	"github.com/uptrace/bun"

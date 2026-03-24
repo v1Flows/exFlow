@@ -1,7 +1,7 @@
 package router
 
 import (
-	"github.com/JustLABv1/justflow/services/backend/handlers/setup"
+	"github.com/JustLABv1/justflow/apps/backend/handlers/setup"
 	"github.com/gin-gonic/gin"
 )
 

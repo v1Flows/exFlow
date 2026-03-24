@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/JustLABv1/justflow/services/backend/functions/auth"
-	"github.com/JustLABv1/justflow/services/backend/functions/httperror"
-	"github.com/JustLABv1/justflow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/apps/backend/functions/auth"
+	"github.com/JustLABv1/justflow/apps/backend/functions/httperror"
+	"github.com/JustLABv1/justflow/apps/backend/pkg/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/uptrace/bun"

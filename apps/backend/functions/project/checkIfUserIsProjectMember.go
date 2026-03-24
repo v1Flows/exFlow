@@ -1,7 +1,7 @@
 package functions_project
 
 import (
-	"github.com/JustLABv1/justflow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/apps/backend/pkg/models"
 	"context"
 
 	"github.com/uptrace/bun"

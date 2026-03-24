@@ -8,7 +8,7 @@ require (
 )
 
 require (
-	github.com/JustLABv1/justflow/services/backend v0.0.0-20251130104321-781435597f44 // indirect
+	github.com/JustLABv1/justflow/apps/backend v0.0.0-20251130104321-781435597f44 // indirect
 	github.com/apenella/go-common-utils/data v0.0.0-20220913191136-86daaa87e7df // indirect
 	github.com/apenella/go-common-utils/error v0.0.0-20220913191136-86daaa87e7df // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect

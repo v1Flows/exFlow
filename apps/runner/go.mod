@@ -64,7 +64,7 @@ require (
 
 require (
 	github.com/JustLABv1/justflow/pkg/contracts v0.0.0
-	github.com/JustLABv1/justflow/services/backend v0.0.0-20251130104321-781435597f44
+	github.com/JustLABv1/justflow/apps/backend v0.0.0-20251130104321-781435597f44
 	github.com/alecthomas/units v0.0.0-20240927000941-0f3dac36c52b // indirect
 	github.com/gin-contrib/cors v1.7.6
 	github.com/gin-gonic/gin v1.11.0

@@ -9,7 +9,7 @@ require (
 	golang.org/x/crypto v0.45.0
 )
 
-require github.com/JustLABv1/justflow/services/backend v0.0.0-20251130104321-781435597f44 // indirect
+require github.com/JustLABv1/justflow/apps/backend v0.0.0-20251130104321-781435597f44 // indirect
 
 require (
 	github.com/JustLABv1/justflow/pkg/contracts v0.0.0

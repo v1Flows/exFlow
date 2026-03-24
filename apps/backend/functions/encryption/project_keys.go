@@ -10,8 +10,8 @@ import (
 	"golang.org/x/crypto/pbkdf2"
 
 	"github.com/uptrace/bun"
-	"github.com/JustLABv1/justflow/services/backend/config"
-	"github.com/JustLABv1/justflow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/apps/backend/config"
+	"github.com/JustLABv1/justflow/apps/backend/pkg/models"
 )
 
 // GenerateProjectSalt generates a new random salt for a project

@@ -1,7 +1,7 @@
 package functions
 
 import (
-	"github.com/JustLABv1/justflow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/apps/backend/pkg/models"
 	"context"
 
 	_ "github.com/lib/pq"

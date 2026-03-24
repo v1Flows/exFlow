@@ -1,4 +1,4 @@
-module github.com/JustLABv1/justflow/services/backend
+module github.com/JustLABv1/justflow/apps/backend
 
 go 1.24.0
 

@@ -6,10 +6,10 @@ import (
 
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
-	"github.com/JustLABv1/justflow/services/backend/functions/auth"
-	"github.com/JustLABv1/justflow/services/backend/functions/encryption"
-	"github.com/JustLABv1/justflow/services/backend/functions/httperror"
-	"github.com/JustLABv1/justflow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/apps/backend/functions/auth"
+	"github.com/JustLABv1/justflow/apps/backend/functions/encryption"
+	"github.com/JustLABv1/justflow/apps/backend/functions/httperror"
+	"github.com/JustLABv1/justflow/apps/backend/pkg/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/uptrace/bun"

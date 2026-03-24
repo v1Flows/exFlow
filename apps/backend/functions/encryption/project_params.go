@@ -12,8 +12,8 @@ import (
 	"io"
 
 	"github.com/uptrace/bun"
-	"github.com/JustLABv1/justflow/services/backend/config"
-	"github.com/JustLABv1/justflow/services/backend/pkg/models"
+	"github.com/JustLABv1/justflow/apps/backend/config"
+	"github.com/JustLABv1/justflow/apps/backend/pkg/models"
 )
 
 // getEncryptionKey returns the appropriate encryption key for a project
