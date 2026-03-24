@@ -57,7 +57,8 @@ type EncryptionConf struct {
 }
 
 type RunnerConf struct {
-	SharedRunnerSecret string `mapstructure:"shared_runner_secret"`
+	SharedRunnerSecret  string `mapstructure:"shared_runner_secret"`
+	TokenExpirationDays int    `mapstructure:"token_expiration_days"`
 }
 
 // GetInstance returns the singleton configuration manager instance
@@ -93,7 +94,8 @@ func (cm *ConfigurationManager) LoadConfig(configFile string) error {
 		"encryption.key":              "BACKEND_ENCRYPTION_KEY",
 		"encryption.master_secret":    "BACKEND_ENCRYPTION_MASTER_SECRET",
 		"jwt.secret":                  "BACKEND_JWT_SECRET",
-		"runner.shared_runner_secret": "BACKEND_RUNNER_SHARED_RUNNER_SECRET",
+		"runner.shared_runner_secret":  "BACKEND_RUNNER_SHARED_RUNNER_SECRET",
+		"runner.token_expiration_days": "BACKEND_RUNNER_TOKEN_EXPIRATION_DAYS",
 	}
 
 	for configKey, envVar := range envBindings {
@@ -137,6 +139,9 @@ func (cm *ConfigurationManager) LoadConfig(configFile string) error {
 }
 
 func (cm *ConfigurationManager) setDefaults(config *RestfulConf) {
+	if config.Runner.TokenExpirationDays == 0 {
+		config.Runner.TokenExpirationDays = 365
+	}
 	if config.Logging.Level == "" {
 		config.Logging.Level = "info"
 	}

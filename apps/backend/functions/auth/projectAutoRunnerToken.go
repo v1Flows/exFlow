@@ -13,7 +13,8 @@ import (
 func GenerateProjectAutoRunnerJWT(projectID string, id uuid.UUID) (tokenString string, expirationTime time.Time, err error) {
 	var jwtKey = []byte(config.Config.JWT.Secret)
 
-	expirationTime = time.Now().Add(50 * 365 * 24 * time.Hour) // 10 years
+	expirationDays := time.Duration(config.Config.Runner.TokenExpirationDays)
+	expirationTime = time.Now().Add(expirationDays * 24 * time.Hour)
 	claims := &models.JWTProjectRunnerClaim{
 		ProjectID: projectID,
 		ID:        id,

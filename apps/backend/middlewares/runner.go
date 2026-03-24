@@ -11,6 +11,8 @@ import (
 	"github.com/uptrace/bun"
 )
 
+// Runner validates JWT tokens for authenticated runner endpoints.
+// The shared runner secret is NOT accepted here — use RunnerRegister for /register.
 func Runner(db *bun.DB) gin.HandlerFunc {
 	return func(context *gin.Context) {
 		tokenString := context.GetHeader("Authorization")
@@ -21,20 +23,43 @@ func Runner(db *bun.DB) gin.HandlerFunc {
 
 		err := auth.ValidateToken(tokenString)
 		if err != nil {
-			// if the token is not valid
-			// check if the token matches the config.runner.shared_runner_secret
-			if config.Config.Runner.SharedRunnerSecret != "" {
-				if tokenString != config.Config.Runner.SharedRunnerSecret {
-					httperror.Unauthorized(context, "The provided secret is not valid", err)
-					return
-				}
+			httperror.Unauthorized(context, "The provided token is not valid", err)
+			return
+		}
 
+		valid, err := auth.ValidateTokenDBEntry(tokenString, db, context)
+		if err != nil {
+			httperror.InternalServerError(context, "Error receiving token from db", err)
+			return
+		}
+
+		if !valid {
+			return
+		}
+
+		context.Next()
+	}
+}
+
+// RunnerRegister validates runner tokens for the /register endpoint.
+// Accepts both JWT tokens and the configured shared runner secret.
+func RunnerRegister(db *bun.DB) gin.HandlerFunc {
+	return func(context *gin.Context) {
+		tokenString := context.GetHeader("Authorization")
+		if tokenString == "" {
+			httperror.Unauthorized(context, "Request does not contain an access token", errors.New("request does not contain an access token"))
+			return
+		}
+
+		err := auth.ValidateToken(tokenString)
+		if err != nil {
+			// Fall back to shared runner secret only for registration
+			if config.Config.Runner.SharedRunnerSecret != "" && tokenString == config.Config.Runner.SharedRunnerSecret {
 				context.Next()
 				return
-			} else {
-				httperror.Unauthorized(context, "The provided token is not valid", err)
-				return
 			}
+			httperror.Unauthorized(context, "The provided token is not valid", err)
+			return
 		}
 
 		valid, err := auth.ValidateTokenDBEntry(tokenString, db, context)

@@ -20,21 +20,21 @@ func Busy(context *gin.Context, db *bun.DB) {
 		return
 	}
 
-	// check if runner is disabled
-	var runnerDB models.Runners
-	err := db.NewSelect().Model(&runnerDB).Where("id = ?", runnerID).Scan(context)
+	// Update executing_job only for non-disabled runners in a single query
+	res, err := db.NewUpdate().Model(&runner).Column("executing_job").
+		Where("id = ? AND disabled = false", runnerID).Exec(context)
 	if err != nil {
-		httperror.InternalServerError(context, "Error collecting runner data from db", err)
-		return
-	}
-	if runnerDB.Disabled {
-		httperror.StatusBadRequest(context, "Runner is disabled", errors.New("runner is disabled"))
+		httperror.InternalServerError(context, "Error updating runner informations on db", err)
 		return
 	}
 
-	_, err = db.NewUpdate().Model(&runner).Column("executing_job").Where("id = ?", runnerID).Exec(context)
+	rowsAffected, err := res.RowsAffected()
 	if err != nil {
-		httperror.InternalServerError(context, "Error updating runner informations on db", err)
+		httperror.InternalServerError(context, "Error checking rows affected", err)
+		return
+	}
+	if rowsAffected == 0 {
+		httperror.StatusBadRequest(context, "Runner is disabled or not found", errors.New("runner is disabled or not found"))
 		return
 	}
 

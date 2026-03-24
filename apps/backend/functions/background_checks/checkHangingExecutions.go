@@ -26,8 +26,8 @@ func checkHangingExecutions(db *bun.DB) {
 	// get steps for each execution
 	for _, execution := range executions {
 
-		// check if the last heartbeat is older than 15 seconds
-		if time.Since(execution.LastHeartbeat) > 15*time.Second {
+		// check if the last heartbeat is older than 45 seconds (allows for 3 missed 10s heartbeats + buffer)
+		if time.Since(execution.LastHeartbeat) > 45*time.Second {
 			log.Info("Bot: Execution is hanging, marking as error", execution.ID)
 
 			// get flow data

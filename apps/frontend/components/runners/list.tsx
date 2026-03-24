@@ -47,27 +47,24 @@ export default function RunnersList({
   const addRunnerModal = useDisclosure();
 
   function heartbeatColor(runner: any) {
-    const timeAgo =
-      (new Date(runner.last_heartbeat).getTime() - Date.now()) / 1000;
+    // secondsAgo is positive: how many seconds since the last heartbeat
+    const secondsAgo =
+      (Date.now() - new Date(runner.last_heartbeat).getTime()) / 1000;
 
-    if (timeAgo < 0 && timeAgo > -30) {
+    if (secondsAgo < 30) {
       return "success";
-    } else if (timeAgo <= -30 && timeAgo > -60) {
+    } else if (secondsAgo < 60) {
       return "warning";
-    } else if (timeAgo <= -60) {
+    } else {
       return "danger";
     }
   }
 
   function heartbeatStatus(runner: any) {
-    const timeAgo =
-      (new Date(runner.last_heartbeat).getTime() - Date.now()) / 1000;
+    const secondsAgo =
+      (Date.now() - new Date(runner.last_heartbeat).getTime()) / 1000;
 
-    if (timeAgo < 0 && timeAgo > -30) {
-      return true;
-    } else if (timeAgo <= -30) {
-      return false;
-    }
+    return secondsAgo < 30;
   }
 
   return (

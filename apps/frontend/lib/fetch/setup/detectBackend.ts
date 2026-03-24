@@ -6,98 +6,50 @@ type DetectBackendResponse = {
   message: string;
 };
 
-export async function detectBackend(): Promise<DetectBackendResponse> {
-  const dockerServices = [
-    "justflow-backend:8080",
-    "backend:8080",
-    "justflow:8080",
-  ];
-
-  const kubernetesServices = [
-    "justflow.justflow.svc.cluster.local:8080",
-    "justflow-backend.justflow.svc.cluster.local:8080",
-    "justflow-backend.default.svc.cluster.local:8080",
-    "justflow-backend.svc.cluster.local:8080",
-  ];
-
-  const localhostUrl = "http://localhost:8080";
-  const backendUrlEnv = process.env.BACKEND_URL;
-
-  // Try Docker services first
-  for (const service of dockerServices) {
-    try {
-      const response = await fetch(`http://${service}/api/v1/setup/status`, {
-        method: "GET",
-        signal: AbortSignal.timeout(2000),
-      });
-
-      if (response.ok) {
-        return {
-          detected: true,
-          url: `http://${service}`,
-          message: `Backend detected at ${service}`,
-        };
-      }
-    } catch {
-      // Continue to next service
-    }
-  }
-
-  // Try Kubernetes services
-  for (const service of kubernetesServices) {
-    try {
-      const response = await fetch(`http://${service}/api/v1/setup/status`, {
-        method: "GET",
-        signal: AbortSignal.timeout(2000),
-      });
-
-      if (response.ok) {
-        return {
-          detected: true,
-          url: `http://${service}`,
-          message: `Backend detected at ${service}`,
-        };
-      }
-    } catch {
-      // Continue to next service
-    }
-  }
-
-  // Try localhost
+async function probeUrl(url: string): Promise<string | null> {
   try {
-    const response = await fetch(`${localhostUrl}/api/v1/setup/status`, {
+    const response = await fetch(`${url}/api/v1/setup/status`, {
       method: "GET",
       signal: AbortSignal.timeout(2000),
     });
-
-    if (response.ok) {
-      return {
-        detected: true,
-        url: localhostUrl,
-        message: "Backend detected at localhost:8080",
-      };
-    }
+    return response.ok ? url : null;
   } catch {
-    // Continue to fallback
+    return null;
+  }
+}
+
+export async function detectBackend(): Promise<DetectBackendResponse> {
+  // Check explicit env vars first — fastest path, no network probing needed
+  const backendUrlEnv = process.env.BACKEND_URL;
+  const publicApiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  for (const envUrl of [backendUrlEnv, publicApiUrl]) {
+    if (envUrl) {
+      const result = await probeUrl(envUrl);
+      if (result) {
+        return { detected: true, url: result, message: `Backend detected at ${result}` };
+      }
+    }
   }
 
-  // Try BACKEND_URL environment variable
-  if (backendUrlEnv) {
-    try {
-      const response = await fetch(`${backendUrlEnv}/api/v1/setup/status`, {
-        method: "GET",
-        signal: AbortSignal.timeout(2000),
-      });
+  // Probe all candidate URLs concurrently
+  const candidates = [
+    "http://justflow-backend:8080",
+    "http://backend:8080",
+    "http://justflow:8080",
+    "http://justflow.justflow.svc.cluster.local:8080",
+    "http://justflow-backend.justflow.svc.cluster.local:8080",
+    "http://justflow-backend.default.svc.cluster.local:8080",
+    "http://justflow-backend.svc.cluster.local:8080",
+    "http://localhost:8080",
+  ];
 
-      if (response.ok) {
-        return {
-          detected: true,
-          url: backendUrlEnv,
-          message: `Backend detected at ${backendUrlEnv}`,
-        };
-      }
-    } catch {
-      // Continue to error
+  const results = await Promise.allSettled(candidates.map(probeUrl));
+
+  for (let i = 0; i < results.length; i++) {
+    const r = results[i];
+    if (r.status === "fulfilled" && r.value) {
+      return { detected: true, url: r.value, message: `Backend detected at ${r.value}` };
     }
   }
 
@@ -297,51 +249,52 @@ export async function validateSetupData(
   }
 }
 
+async function probeSetupStatus(url: string): Promise<boolean | null> {
+  try {
+    const response = await fetch(`${url}/api/v1/setup/status`, {
+      method: "GET",
+      signal: AbortSignal.timeout(2000),
+    });
+    if (!response.ok) return null;
+    const data = await response.json();
+    return data.is_setup || false;
+  } catch {
+    return null;
+  }
+}
+
 export async function isSetupComplete(): Promise<boolean> {
-  const dockerServices = [
-    "justflow-backend:8080",
-    "backend:8080",
-    "justflow:8080",
-  ];
-
-  const kubernetesServices = [
-    "justflow.justflow.svc.cluster.local:8080",
-    "justflow-backend.justflow.svc.cluster.local:8080",
-    "justflow-backend.default.svc.cluster.local:8080",
-    "justflow-backend.svc.cluster.local:8080",
-  ];
-
-  const localhostUrl = "http://localhost:8080";
+  // Check explicit env vars first — fastest path
   const backendUrlEnv = process.env.BACKEND_URL;
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+  const publicApiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-  // Try all possible backend URLs
-  const urlsToTry = [
-    ...dockerServices.map((s) => `http://${s}`),
-    ...kubernetesServices.map((s) => `http://${s}`),
-    localhostUrl,
-    ...(backendUrlEnv ? [backendUrlEnv] : []),
-    apiUrl,
-  ];
-
-  for (const url of urlsToTry) {
-    try {
-      const response = await fetch(`${url}/api/v1/setup/status`, {
-        method: "GET",
-        signal: AbortSignal.timeout(2000),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-
-        return data.is_setup || false;
-      }
-    } catch {
-      // Continue to next URL
+  for (const envUrl of [backendUrlEnv, publicApiUrl]) {
+    if (envUrl) {
+      const result = await probeSetupStatus(envUrl);
+      if (result !== null) return result;
     }
   }
 
-  // If we can't reach any backend, assume setup is not complete
+  // Probe all candidate URLs concurrently
+  const candidates = [
+    "http://justflow-backend:8080",
+    "http://backend:8080",
+    "http://justflow:8080",
+    "http://justflow.justflow.svc.cluster.local:8080",
+    "http://justflow-backend.justflow.svc.cluster.local:8080",
+    "http://justflow-backend.default.svc.cluster.local:8080",
+    "http://justflow-backend.svc.cluster.local:8080",
+    "http://localhost:8080",
+  ];
+
+  const results = await Promise.allSettled(candidates.map(probeSetupStatus));
+
+  for (const r of results) {
+    if (r.status === "fulfilled" && r.value !== null) {
+      return r.value;
+    }
+  }
+
   return false;
 }
 

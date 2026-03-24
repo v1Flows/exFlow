@@ -123,7 +123,21 @@ export async function middleware(request: NextRequest) {
     }
 
     // 4. Role & Maintenance Checks
-    const userData = userCookie ? JSON.parse(userCookie.value) : null;
+    let userData: { role?: string } | null = null;
+
+    if (userCookie) {
+      try {
+        userData = JSON.parse(userCookie.value);
+      } catch {
+        // Malformed cookie — treat as unauthenticated and redirect to login
+        const response = NextResponse.redirect(new URL("/auth/login", request.url));
+
+        response.cookies.delete("session");
+        response.cookies.delete("user");
+
+        return response;
+      }
+    }
     const settings = settingsResult as any;
     const isMaintenanceMode =
       settings?.success && settings.data?.settings?.maintenance;

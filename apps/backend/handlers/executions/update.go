@@ -21,6 +21,11 @@ func Update(context *gin.Context, db *bun.DB) {
 		return
 	}
 
+	if err := models.ValidateExecutionStatus(execution.Status); err != nil {
+		httperror.StatusBadRequest(context, err.Error(), err)
+		return
+	}
+
 	// Fetch existing execution to get FlowID and ExecutedAt for metrics
 	var existingExec models.Executions
 	err := db.NewSelect().Model(&existingExec).Column("flow_id", "executed_at").Where("id = ?", executionID).Scan(context)

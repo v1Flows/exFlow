@@ -53,59 +53,31 @@ export function useRefreshCache() {
     refreshFolderExecutions: (folderId: string) =>
       mutate(`folder-executions-${folderId}`),
 
-    // Helper to refresh all alert-related caches (useful after deletion)
+    // Helper to refresh all alert-related caches (useful after deletion/mutation).
+    // Uses SWR's filter-based mutate to invalidate all matching keys at once,
+    // instead of enumerating hard-coded limit/offset combinations.
     refreshAllAlertCaches: (flowId?: string) => {
-      // Refresh all paginated alert caches with common pagination values
-      const limits = [4, 6, 10]; // Common limits used in the app
-      const offsets = [0, 10, 20, 30]; // Common offset values
-      const statuses = [null, "all"]; // Common status filters
-
-      limits.forEach((limit) => {
-        offsets.forEach((offset) => {
-          statuses.forEach((status) => {
-            mutate(`alerts-${limit}-${offset}-${status || "all"}`);
-            if (flowId) {
-              mutate(
-                `flow-alerts-paginated-${flowId}-${limit}-${offset}-${status || "all"}`,
-              );
-            }
-          });
-        });
-      });
-
-      // Refresh specific flow alerts if flowId provided
+      mutate((key) => typeof key === "string" && key.startsWith("alerts-"));
       if (flowId) {
-        mutate(`flow-alerts-${flowId}`);
+        mutate(
+          (key) =>
+            typeof key === "string" &&
+            key.startsWith(`flow-alerts-${flowId}`),
+        );
       }
     },
 
-    // Helper to refresh all execution-related caches (useful after deletion)
+    // Helper to refresh all execution-related caches (useful after deletion/mutation).
     refreshAllExecutionCaches: (flowId?: string) => {
-      // Refresh general execution caches
       mutate("executions-with-attention");
       mutate("running-executions");
-
-      // Refresh all paginated execution caches with common pagination values
-      const limits = [4, 6, 10]; // Common limits used in the app
-      const offsets = [0, 10, 20, 30]; // Common offset values
-      const statuses = [null, "all"]; // Common status filters
-
-      limits.forEach((limit) => {
-        offsets.forEach((offset) => {
-          statuses.forEach((status) => {
-            mutate(`executions-${limit}-${offset}-${status || "all"}`);
-            if (flowId) {
-              mutate(
-                `flow-executions-paginated-${flowId}-${limit}-${offset}-${status || "all"}`,
-              );
-            }
-          });
-        });
-      });
-
-      // Refresh specific flow executions if flowId provided
+      mutate((key) => typeof key === "string" && key.startsWith("executions-"));
       if (flowId) {
-        mutate(`flow-executions-${flowId}`);
+        mutate(
+          (key) =>
+            typeof key === "string" &&
+            key.startsWith(`flow-executions-${flowId}`),
+        );
       }
     },
 

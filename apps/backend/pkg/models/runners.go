@@ -31,6 +31,19 @@ type Runners struct {
 	ApiToken           string     `bun:"api_token,type:text,default:''" json:"api_token"`
 }
 
+// maxExecutedExecutions is the maximum number of execution IDs kept in the
+// ExecutedExecutions history. Older entries are dropped when the cap is reached.
+const maxExecutedExecutions = 1000
+
+// AppendExecutedExecution adds an execution ID to the runner's history and
+// trims the list to maxExecutedExecutions to prevent unbounded growth.
+func (r *Runners) AppendExecutedExecution(executionID string) {
+	r.ExecutedExecutions = append(r.ExecutedExecutions, executionID)
+	if len(r.ExecutedExecutions) > maxExecutedExecutions {
+		r.ExecutedExecutions = r.ExecutedExecutions[len(r.ExecutedExecutions)-maxExecutedExecutions:]
+	}
+}
+
 type Endpoint struct {
 	ID    string `json:"id"`
 	Name  string `json:"name"`

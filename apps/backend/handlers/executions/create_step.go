@@ -1,6 +1,8 @@
 package executions
 
 import (
+	"context"
+	"database/sql"
 	"net/http"
 	"time"
 
@@ -14,54 +16,56 @@ import (
 	"github.com/uptrace/bun"
 )
 
-func CreateStep(context *gin.Context, db *bun.DB) {
+func CreateStep(ginCtx *gin.Context, db *bun.DB) {
 	var step models.ExecutionSteps
-	if err := context.ShouldBindJSON(&step); err != nil {
-		httperror.StatusBadRequest(context, "Error parsing incoming data", err)
+	if err := ginCtx.ShouldBindJSON(&step); err != nil {
+		httperror.StatusBadRequest(ginCtx, "Error parsing incoming data", err)
 		return
 	}
 
-	// get parent execution data
-	var execution models.Executions
-	err := db.NewSelect().Model(&execution).Column("flow_id").Where("id = ?", step.ExecutionID).Scan(context)
-	if err != nil {
-		httperror.InternalServerError(context, "Error fetching parent execution data", err)
-		return
-	}
-	// get flow data
-	var flow models.Flows
-	err = db.NewSelect().Model(&flow).Where("id = ?", execution.FlowID).Scan(context)
-	if err != nil {
-		httperror.InternalServerError(context, "Error fetching flow data", err)
-		return
-	}
-	// get project data
-	var project models.Projects
-	err = db.NewSelect().Model(&project).Where("id = ?", flow.ProjectID).Scan(context)
-	if err != nil {
-		httperror.InternalServerError(context, "Error collecting project data from db", err)
-		return
-	}
+	ctx := context.Background()
+	var stepID uuid.UUID
 
-	// check for encryption
-	if project.EncryptionEnabled && step.Messages != nil && len(step.Messages) > 0 {
-		step.Messages, err = encryption.EncryptExecutionStepActionMessageWithProject(step.Messages, project.ID.String(), db)
-		if err != nil {
-			httperror.InternalServerError(context, "Error encrypting execution step action messages", err)
-			return
+	err := db.RunInTx(ctx, &sql.TxOptions{}, func(ctx context.Context, tx bun.Tx) error {
+		// get parent execution data
+		var execution models.Executions
+		if err := tx.NewSelect().Model(&execution).Column("flow_id").Where("id = ?", step.ExecutionID).Scan(ctx); err != nil {
+			return err
+		}
+		// get flow data
+		var flow models.Flows
+		if err := tx.NewSelect().Model(&flow).Where("id = ?", execution.FlowID).Scan(ctx); err != nil {
+			return err
+		}
+		// get project data
+		var project models.Projects
+		if err := tx.NewSelect().Model(&project).Where("id = ?", flow.ProjectID).Scan(ctx); err != nil {
+			return err
 		}
 
-		step.Encrypted = true
-	}
+		// check for encryption
+		if project.EncryptionEnabled && len(step.Messages) > 0 {
+			var encErr error
+			step.Messages, encErr = encryption.EncryptExecutionStepActionMessageWithProject(step.Messages, project.ID.String(), db)
+			if encErr != nil {
+				return encErr
+			}
+			step.Encrypted = true
+		}
 
-	step.ID = uuid.New()
-	step.CreatedAt = time.Now()
-	_, err = db.NewInsert().Model(&step).Exec(context)
+		step.ID = uuid.New()
+		step.CreatedAt = time.Now()
+		stepID = step.ID
+
+		_, err := tx.NewInsert().Model(&step).Exec(ctx)
+		return err
+	})
+
 	if err != nil {
-		httperror.InternalServerError(context, "Error creating execution step on db", err)
-		log.Error("Error creating execution step on db", err)
+		httperror.InternalServerError(ginCtx, "Error creating execution step", err)
+		log.Error("Error creating execution step", err)
 		return
 	}
 
-	context.JSON(http.StatusCreated, gin.H{"result": "success", "id": step.ID})
+	ginCtx.JSON(http.StatusCreated, gin.H{"result": "success", "id": stepID})
 }

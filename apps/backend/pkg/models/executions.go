@@ -1,11 +1,45 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/uptrace/bun"
 )
+
+// Valid execution status values
+const (
+	ExecutionStatusPending        = "pending"
+	ExecutionStatusRunning        = "running"
+	ExecutionStatusPaused         = "paused"
+	ExecutionStatusScheduled      = "scheduled"
+	ExecutionStatusSuccess        = "success"
+	ExecutionStatusError          = "error"
+	ExecutionStatusCanceled       = "canceled"
+	ExecutionStatusNoPatternMatch = "noPatternMatch"
+	ExecutionStatusRecovered      = "recovered"
+)
+
+var validExecutionStatuses = map[string]bool{
+	ExecutionStatusPending:        true,
+	ExecutionStatusRunning:        true,
+	ExecutionStatusPaused:         true,
+	ExecutionStatusScheduled:      true,
+	ExecutionStatusSuccess:        true,
+	ExecutionStatusError:          true,
+	ExecutionStatusCanceled:       true,
+	ExecutionStatusNoPatternMatch: true,
+	ExecutionStatusRecovered:      true,
+}
+
+// ValidateExecutionStatus returns an error if the given status is not a recognized execution status.
+func ValidateExecutionStatus(status string) error {
+	if status == "" || validExecutionStatuses[status] {
+		return nil
+	}
+	return fmt.Errorf("invalid execution status: %q", status)
+}
 
 type Executions struct {
 	bun.BaseModel `bun:"table:executions"`

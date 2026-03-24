@@ -16,8 +16,6 @@ func Init(db *bun.DB) {
 		for {
 			select {
 			case <-ticker.C:
-				runCheck("checkHangingExecutions", func() { checkHangingExecutions(db) })
-				runCheck("checkHangingExecutionSteps", func() { checkHangingExecutionSteps(db) })
 				runCheck("checkDisconnectedAutoRunners", func() { checkDisconnectedAutoRunners(db) })
 				runCheck("checkForFlowActionUpdates", func() { checkForFlowActionUpdates(db) })
 				runCheck("scheduleFlowExecutions", func() { scheduleFlowExecutions(db) })
@@ -32,6 +30,9 @@ func Init(db *bun.DB) {
 		for {
 			select {
 			case <-ticker2.C:
+				// Run hanging-execution checks on the fast ticker for quicker detection
+				runCheck("checkHangingExecutions", func() { checkHangingExecutions(db) })
+				runCheck("checkHangingExecutionSteps", func() { checkHangingExecutionSteps(db) })
 				runCheck("checkScheduledExecutions", func() { checkScheduledExecutions(db) })
 			case <-quit:
 				ticker2.Stop()

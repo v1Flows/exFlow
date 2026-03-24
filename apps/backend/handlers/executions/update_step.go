@@ -1,6 +1,7 @@
 package executions
 
 import (
+	"errors"
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
@@ -19,6 +20,11 @@ func UpdateStep(context *gin.Context, db *bun.DB) {
 	if err := context.ShouldBindJSON(&step); err != nil {
 		httperror.StatusBadRequest(context, "Error parsing incoming data", err)
 		log.Error("Error parsing incoming data", err)
+		return
+	}
+
+	if err := models.ValidateStepStatus(step.Status); err != nil {
+		httperror.StatusBadRequest(context, err.Error(), err)
 		return
 	}
 
@@ -92,10 +98,28 @@ func UpdateStep(context *gin.Context, db *bun.DB) {
 		step.Status = dbStep.Status
 	}
 
-	_, err = db.NewUpdate().Model(&step).ExcludeColumn("id", "execution_id", "action", "created_at").Where("id = ?", stepID).Exec(context)
+	// Optimistic concurrency: include the version we read in the WHERE clause,
+	// then increment it. If another writer updated the row first, 0 rows are affected.
+	currentVersion := dbStep.Version
+	step.Version = currentVersion + 1
+
+	res, err := db.NewUpdate().Model(&step).
+		ExcludeColumn("id", "execution_id", "action", "created_at").
+		Where("id = ? AND version = ?", stepID, currentVersion).
+		Exec(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error updating step on db", err)
 		log.Error("Error updating step on db", err)
+		return
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		httperror.InternalServerError(context, "Error checking rows affected", err)
+		return
+	}
+	if rowsAffected == 0 {
+		httperror.StatusConflict(context, "Step was modified by another request; please retry", errors.New("optimistic concurrency conflict on execution step"))
 		return
 	}
 

@@ -147,7 +147,7 @@ func autoRunnerRegister(projectID string, runner models.Runners, context *gin.Co
 	}
 
 	if project.DisableRunnerJoin {
-		httperror.StatusBadRequest(context, "Runner join is not disabled for this project", errors.New("runner join is not disabled for this project"))
+		httperror.StatusBadRequest(context, "Runner join is disabled for this project", errors.New("runner join is disabled for this project"))
 		return
 	}
 
@@ -190,7 +190,7 @@ func sharedAutoRunnerRegister(requiresToken bool, runner models.Runners, context
 	}
 
 	if !settings.AllowSharedRunnerJoin {
-		httperror.StatusBadRequest(context, "Runner join is not disabled for JustFlow", errors.New("runner join is not disabled for justflow"))
+		httperror.StatusBadRequest(context, "Runner join is disabled for JustFlow", errors.New("runner join is disabled for justflow"))
 		return
 	}
 

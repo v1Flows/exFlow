@@ -11,6 +11,10 @@ import (
 	"github.com/uptrace/bun"
 )
 
+// stepTimeoutDuration is the maximum time a step may remain in an active state
+// before it is automatically marked as error. Interaction steps are excluded.
+const stepTimeoutDuration = 30 * time.Minute
+
 func checkHangingExecutionSteps(db *bun.DB) {
 	context := context.Background()
 
@@ -46,6 +50,32 @@ func checkHangingExecutionSteps(db *bun.DB) {
 		err = db.NewSelect().Model(&project).Where("id = ?", flow.ProjectID).Scan(context)
 		if err != nil {
 			log.Error("Bot: Error getting project data for flow ", flow.ID, err)
+			continue
+		}
+
+		// Independent step timeout: fail steps that have been running too long,
+		// even if the parent execution is still active.
+		// Interaction-waiting steps are exempt — they may legitimately wait for user input.
+		if step.Status == "running" && !step.StartedAt.IsZero() && time.Since(step.StartedAt) > stepTimeoutDuration {
+			log.Infof("Bot: Step %s has been running for %s, marking as timed out", step.ID, time.Since(step.StartedAt).Round(time.Second))
+
+			step.Status = "error"
+			step.FinishedAt = time.Now()
+			step.Messages = append(step.Messages, models.Message{
+				Title: "Automated Check",
+				Lines: []models.Line{
+					{
+						Content:   "Step exceeded maximum run time of 30 minutes, marking as error",
+						Color:     "danger",
+						Timestamp: time.Now(),
+					},
+				},
+			})
+
+			_, err := db.NewUpdate().Model(&step).Column("status", "messages", "finished_at").Where("id = ?", step.ID).Exec(context)
+			if err != nil {
+				log.Error("Bot: Error updating timed-out step", err)
+			}
 			continue
 		}
 

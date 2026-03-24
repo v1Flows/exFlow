@@ -10,6 +10,15 @@ import (
 )
 
 func Runners(router *gin.RouterGroup, db *bun.DB) {
+	// /register uses RunnerRegister middleware (accepts JWT + shared secret)
+	registerGroup := router.Group("/runners").Use(middlewares.RunnerRegister(db))
+	{
+		registerGroup.PUT("/register", func(c *gin.Context) {
+			runners.RegisterRunner(c, db)
+		})
+	}
+
+	// All other runner endpoints require a valid JWT only
 	runner := router.Group("/runners").Use(middlewares.Runner(db))
 	{
 		runner.GET("/", func(c *gin.Context) {
@@ -34,13 +43,10 @@ func Runners(router *gin.RouterGroup, db *bun.DB) {
 		runner.GET("/:runnerID/executions/pending", func(c *gin.Context) {
 			executions.GetPendingExecutions(c, db)
 		})
-		runner.PUT("/register", func(c *gin.Context) {
-			runners.RegisterRunner(c, db)
-		})
-		runner.PUT("/:runnerID/heartbeat", func(c *gin.Context) {
+		runner.PUT("/:runnerID/heartbeat", middlewares.RunnerHeartbeatRateLimit(), func(c *gin.Context) {
 			runners.Hearbeat(c, db)
 		})
-		runner.PUT("/:runnerID/busy", func(c *gin.Context) {
+		runner.PUT("/:runnerID/busy", middlewares.RunnerBusyRateLimit(), func(c *gin.Context) {
 			runners.Busy(c, db)
 		})
 		runner.PUT("/:runnerID/actions", func(c *gin.Context) {

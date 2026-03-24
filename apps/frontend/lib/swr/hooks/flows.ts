@@ -1,5 +1,18 @@
 import useSWR from "swr";
 
+// Execution statuses that require continued polling
+const ACTIVE_EXECUTION_STATUSES = new Set([
+  "running",
+  "pending",
+  "paused",
+  "interactionWaiting",
+  "scheduled",
+]);
+
+function isActiveExecution(status: string | undefined): boolean {
+  return !status || ACTIVE_EXECUTION_STATUSES.has(status);
+}
+
 import { GetFlow } from "@/lib/fetch/flow/flow";
 import { GetFlowExecutions } from "@/lib/fetch/flow/executions";
 import GetFlows from "@/lib/fetch/flow/all";
@@ -100,7 +113,7 @@ export function useFlowExecutions(flowId: string) {
     flowId ? `flow-executions-${flowId}` : null,
     () => GetFlowExecutions(flowId, 50, 0),
     {
-      refreshInterval: 2000,
+      refreshInterval: 5000,
       refreshWhenHidden: false,
       refreshWhenOffline: false,
     },
@@ -128,7 +141,7 @@ export function useFlowExecutionsPaginated(
       : null,
     () => GetFlowExecutions(flowId, limit, offset, status),
     {
-      refreshInterval: 2000,
+      refreshInterval: 5000,
       refreshWhenHidden: false,
       refreshWhenOffline: false,
     },
@@ -153,7 +166,7 @@ export function useExecutions(
     limit > 0 ? `executions-${limit}-${offset}-${status || "all"}` : null,
     () => GetExecutions(limit, offset, status),
     {
-      refreshInterval: 2000,
+      refreshInterval: 5000,
       refreshWhenHidden: false,
       refreshWhenOffline: false,
     },
@@ -354,13 +367,17 @@ export function useProjectApiKeys(projectId: string) {
   };
 }
 
-// Hook for fetching a single execution
+// Hook for fetching a single execution.
+// Polls every 5s while the execution is active; stops polling on terminal states.
 export function useExecution(executionId: string) {
   const { data, error, mutate, isLoading } = useSWR(
     executionId ? `execution-${executionId}` : null,
     () => GetExecution(executionId),
     {
-      refreshInterval: 2000,
+      refreshInterval: (latestData) => {
+        const status = latestData?.data?.execution?.status;
+        return isActiveExecution(status) ? 5000 : 0;
+      },
       refreshWhenHidden: false,
       refreshWhenOffline: false,
     },
@@ -374,13 +391,14 @@ export function useExecution(executionId: string) {
   };
 }
 
-// Hook for fetching execution steps with auto-refresh for running executions
-export function useExecutionSteps(executionId: string) {
+// Hook for fetching execution steps.
+// Polls every 5s while the execution is active; stops polling on terminal states.
+export function useExecutionSteps(executionId: string, executionStatus?: string) {
   const { data, error, mutate, isLoading } = useSWR(
     executionId ? `execution-steps-${executionId}` : null,
     () => GetExecutionSteps(executionId),
     {
-      refreshInterval: 2000,
+      refreshInterval: isActiveExecution(executionStatus) ? 5000 : 0,
       refreshWhenHidden: false,
       refreshWhenOffline: false,
     },

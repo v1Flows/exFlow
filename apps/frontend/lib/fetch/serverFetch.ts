@@ -15,7 +15,7 @@ export async function serverFetch(
   endpoint: string,
   options: FetchOptions = {},
 ): Promise<Response> {
-  const base = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081";
+  const base = process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_URL || "http://localhost:8080";
   const url = `${base}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
 
   const timeout = options.timeout ?? 8000;

@@ -25,8 +25,8 @@ export function Execution({ flow, execution, runners, userDetails }: any) {
     execution.status === "scheduled" ||
     execution.status === "interactionWaiting";
 
-  // Use SWR for auto-refreshing execution steps data
-  const { steps, isError } = useExecutionSteps(execution.id);
+  // Use SWR for auto-refreshing execution steps data; pass status to stop polling on terminal states
+  const { steps, isError } = useExecutionSteps(execution.id, execution.status);
   const { refreshExecution, refreshExecutionSteps } = useRefreshCache();
   const [executionLoading, setExecutionLoading] = useState(false);
 

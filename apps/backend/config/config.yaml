@@ -22,3 +22,5 @@ jwt:
 
 runner:
   shared_runner_secret: null
+  # Token expiration in days (default: 365). Reduce for tighter security.
+  token_expiration_days: 365
