@@ -6,10 +6,10 @@ FROM node:24.7-alpine AS frontend-builder
 LABEL org.opencontainers.image.source = "https://github.com/JustLabV1/justflow"
 RUN apk add --no-cache libc6-compat
 WORKDIR /app/frontend
-COPY services/frontend/package.json services/frontend/pnpm-lock.yaml ./
+COPY apps/frontend/package.json apps/frontend/pnpm-lock.yaml ./
 RUN corepack enable pnpm && pnpm --version
 RUN pnpm install
-COPY services/frontend/ ./
+COPY apps/frontend/ ./
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
@@ -19,9 +19,9 @@ RUN pnpm run build
 FROM golang:1.24-alpine AS backend-builder
 LABEL org.opencontainers.image.source = "https://github.com/JustLabV1/justflow"
 WORKDIR /app/backend
-COPY services/backend/go.mod services/backend/go.sum ./
+COPY apps/backend/go.mod apps/backend/go.sum ./
 RUN go mod download
-COPY services/backend/ ./
+COPY apps/backend/ ./
 RUN go build -o justflow-backend
 
 # Stage 3: Create the final image
