@@ -10,17 +10,20 @@ import {
   Chip,
   Divider,
   Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerBody,
+  DrawerFooter,
   Radio,
   ScrollShadow,
   Select,
   SelectItem,
   Spacer,
   Textarea,
+  Tabs,
+  Tab,
+  Switch,
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -31,7 +34,6 @@ import { cn } from "@/components/cn/cn";
 import ErrorCard from "@/components/error/ErrorCard";
 import AddFlowActions from "@/lib/fetch/flow/POST/AddFlowActions";
 import AddFlowFailurePipelineActions from "@/lib/fetch/flow/POST/AddFlowFailurePipelineActions";
-import MinimalRowSteps from "@/components/steps/minimal-row-steps";
 
 export const CustomRadio = (props: any) => {
   const { children, ...otherProps } = props;
@@ -71,9 +73,6 @@ export default function CopyActionToDifferentFlowModal({
   const router = useRouter();
   const { isOpen, onOpenChange } = disclosure;
 
-  const [steps] = useState(4);
-  const [currentStep, setCurrentStep] = useState(0);
-
   const [isLoading, setLoading] = useState(false);
   const [targetFlow, setTargetFlow] = useState({} as any);
   const [targetFailurePipeline, setTargetFailurePipeline] = useState({} as any);
@@ -108,22 +107,6 @@ export default function CopyActionToDifferentFlowModal({
     });
 
     setActionParamsCategorys(Array.from(categories));
-  }
-
-  function checkNextDisabled() {
-    if (currentStep === 0) {
-      if (isFailurePipeline) {
-        if (!targetFailurePipeline?.id) {
-          return true;
-        }
-      } else {
-        if (!targetFlow?.id) {
-          return true;
-        }
-      }
-    }
-
-    return false;
   }
 
   function cancel() {
@@ -332,212 +315,178 @@ export default function CopyActionToDifferentFlowModal({
   }
 
   return (
-    <main>
-      <Modal
-        isDismissable={false}
-        isOpen={isOpen}
-        placement="center"
-        size="5xl"
-        onOpenChange={onOpenChange}
-      >
-        <ModalContent>
-          {() => (
-            <>
-              <ModalHeader className="flex flex-wrap items-center">
-                <div className="flex flex-col">
-                  <p className="text-lg font-bold">
-                    Copy Action to another Flow
-                  </p>
-                  <p className="text-sm text-default-500">
-                    Copy this action to another flow with all the details it
-                    currently has.
-                  </p>
-                </div>
-              </ModalHeader>
-              <ModalBody>
-                {error && (
-                  <ErrorCard error={errorText} message={errorMessage} />
-                )}
-                <div
-                  className={`flex ${isMobile ? "flex-col" : "flex-cols"}  items-center gap-2`}
+    <Drawer
+      backdrop="blur"
+      isOpen={isOpen}
+      size="2xl"
+      onOpenChange={onOpenChange}
+    >
+      <DrawerContent>
+        {() => (
+          <>
+            <DrawerHeader className="flex flex-col gap-1">
+              <p className="text-lg font-bold">Copy Action to another Flow</p>
+              <p className="text-sm text-default-500 font-normal">
+                Copy this action to another flow with all the details it
+                currently has.
+              </p>
+            </DrawerHeader>
+            <DrawerBody className="overflow-hidden flex flex-col">
+              {error && <ErrorCard error={errorText} message={errorMessage} />}
+
+              <div className="flex flex-col w-full h-full gap-6 overflow-hidden">
+                {/* Action Info Card */}
+                <Card className="bg-content1/60 backdrop-blur-md border border-primary/20 shadow-sm">
+                  <CardBody>
+                    <div className="flex items-center gap-4">
+                      <div className="flex size-14 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
+                        <Icon icon={action.icon} width={32} />
+                      </div>
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-2">
+                          <p className="text-xl font-bold">
+                            {action.custom_name || action.name}
+                          </p>
+                          <Chip color="primary" size="sm" variant="flat">
+                            v{action.version}
+                          </Chip>
+                        </div>
+                        <p className="text-default-500">
+                          {action.custom_description || action.description}
+                        </p>
+                      </div>
+                    </div>
+                  </CardBody>
+                </Card>
+
+                <Tabs
+                  aria-label="Configuration Options"
+                  className="flex flex-col overflow-hidden"
+                  classNames={{
+                    tabList:
+                      "gap-6 w-full relative rounded-none p-0 border-b border-divider",
+                    cursor: "w-full bg-primary",
+                    tab: "max-w-fit px-0 h-12",
+                    tabContent:
+                      "group-data-[selected=true]:text-primary font-medium text-lg",
+                    panel: "flex-1 overflow-y-auto p-1 pt-0",
+                  }}
+                  color="primary"
+                  variant="underlined"
                 >
-                  <Card
-                    fullWidth
-                    className="border-2 border-default-200 border-primary"
-                    radius="sm"
-                  >
-                    <CardBody>
-                      <div className="flex items-center gap-2">
-                        <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
-                          <Icon icon={action.icon} width={26} />
-                        </div>
-                        <div className="flex flex-col">
-                          <div className="flex flex-cols gap-2 items-center">
-                            <p className="text-lg font-bold">
-                              {action.custom_name || action.name}
-                            </p>
-                            <Chip
-                              color="primary"
-                              radius="sm"
-                              size="sm"
-                              variant="flat"
-                            >
-                              Ver. {action.version}
-                            </Chip>
-                          </div>
-                          <p className="text-sm text-default-500">
-                            {action.custom_description || action.description}
-                          </p>
-                        </div>
-                      </div>
-                    </CardBody>
-                  </Card>
-                  <div className="flex items-center justify-center col-span-1">
-                    <Icon
-                      icon={
-                        isMobile
-                          ? "hugeicons:arrow-down-double"
-                          : "hugeicons:arrow-right-double"
-                      }
-                      width={26}
-                    />
-                  </div>
-                  <Card
-                    fullWidth
-                    className="col-span-2 border-2 border-default-200 border-primary"
-                    radius="sm"
-                  >
-                    <CardBody>
-                      <div className="flex items-center gap-2">
-                        <div className="flex size-10 items-center justify-center rounded-small bg-primary/10 text-primary">
-                          <Icon
-                            icon="hugeicons:workflow-square-10"
-                            width={26}
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <div className="flex flex-cols gap-2 items-center">
-                            <p className="text-lg font-bold">
-                              {targetFlow?.name || "N/A"}
-                            </p>
-                            <Chip
-                              color="primary"
-                              radius="sm"
-                              size="sm"
-                              variant="flat"
-                            >
-                              Project:{" "}
-                              {projects.find(
-                                (p: any) => p.id === targetFlow?.project_id,
-                              )?.name || "N/A"}
-                            </Chip>
-                          </div>
-                          <p className="text-sm text-default-500">
-                            {targetFlow?.description || "N/A"}
-                          </p>
-                        </div>
-                      </div>
-                    </CardBody>
-                  </Card>
-                </div>
-                <div className="flex items-center justify-center">
-                  <MinimalRowSteps
-                    ref={null}
-                    className="w-fit overflow-hidden"
-                    currentStep={currentStep}
-                    label={`Step ${currentStep + 1} of ${steps}`}
-                    stepsCount={steps}
-                    onStepChange={setCurrentStep}
-                  />
-                </div>
-                <div className="flex w-full flex-col gap-4">
-                  {currentStep === 0 && (
-                    <div>
-                      <p className="text-lg font-bold">Target</p>
-                      <Spacer y={2} />
-                      <div className="flex items-center gap-2">
-                        <Select
-                          isRequired
-                          label="Target Flow"
-                          placeholder="Select the flow to copy the action to"
-                          selectedKeys={[targetFlow?.id]}
-                          onSelectionChange={(e) => {
-                            setTargetFlow(
-                              flows.find((fw: any) => fw.id === e.currentKey),
-                            );
-                          }}
-                        >
-                          {flows.map((fw: any) => (
-                            <SelectItem
-                              key={fw.id}
-                              isDisabled={fw.id === flow.id}
-                              textValue={fw.name}
-                            >
-                              <div className="flex gap-2 items-center">
-                                {fw.name}
-                                {fw.id === flow.id && (
-                                  <Chip
-                                    color="primary"
-                                    radius="sm"
-                                    size="sm"
-                                    variant="flat"
-                                  >
-                                    Current
-                                  </Chip>
-                                )}
+                  <Tab key="target" title="Target Flow">
+                    <div className="flex flex-col gap-4 pb-4">
+                      <Select
+                        isRequired
+                        label="Target Flow"
+                        placeholder="Select the flow to copy the action to"
+                        selectedKeys={targetFlow?.id ? [targetFlow.id] : []}
+                        variant="bordered"
+                        onSelectionChange={(e) => {
+                          setTargetFlow(
+                            flows.find((fw: any) => fw.id === e.currentKey),
+                          );
+                        }}
+                      >
+                        {flows.map((fw: any) => (
+                          <SelectItem
+                            key={fw.id}
+                            isDisabled={fw.id === flow.id}
+                            textValue={fw.name}
+                          >
+                            <div className="flex gap-2 items-center">
+                              {fw.name}
+                              {fw.id === flow.id && (
                                 <Chip
                                   color="primary"
                                   radius="sm"
                                   size="sm"
                                   variant="flat"
                                 >
-                                  Project:{" "}
-                                  {projects.find(
-                                    (p: any) => p.id === fw.project_id,
-                                  )?.name || "N/A"}
+                                  Current
                                 </Chip>
-                              </div>
+                              )}
+                              <Chip
+                                color="primary"
+                                radius="sm"
+                                size="sm"
+                                variant="flat"
+                              >
+                                Project:{" "}
+                                {projects.find(
+                                  (p: any) => p.id === fw.project_id,
+                                )?.name || "N/A"}
+                              </Chip>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </Select>
+                      {isFailurePipeline && (
+                        <Select
+                          isRequired
+                          isDisabled={
+                            !targetFlow?.failure_pipelines ||
+                            targetFlow?.failure_pipelines.length === 0
+                          }
+                          label="Target Failure Pipeline"
+                          placeholder="Select the failure pipeline to copy the action to"
+                          selectedKeys={
+                            targetFailurePipeline?.id
+                              ? [targetFailurePipeline.id]
+                              : []
+                          }
+                          variant="bordered"
+                          onSelectionChange={(e) => {
+                            setTargetFailurePipeline(
+                              targetFlow?.failure_pipelines.find(
+                                (ffp: any) => ffp.id === e.currentKey,
+                              ),
+                            );
+                          }}
+                        >
+                          {targetFlow?.failure_pipelines?.map((ffp: any) => (
+                            <SelectItem key={ffp.id} textValue={ffp.name}>
+                              {ffp.name}
                             </SelectItem>
                           ))}
                         </Select>
-                        {isFailurePipeline && (
-                          <Select
-                            isRequired
-                            isDisabled={
-                              !targetFlow?.failure_pipelines ||
-                              targetFlow?.failure_pipelines.length === 0
-                            }
-                            label="Target Failure Pipeline"
-                            placeholder="Select the failure pipeline to copy the action to"
-                            selectedKeys={[targetFailurePipeline?.id]}
-                            onSelectionChange={(e) => {
-                              setTargetFailurePipeline(
-                                targetFlow?.failure_pipelines.find(
-                                  (ffp: any) => ffp.id === e.currentKey,
-                                ),
-                              );
-                            }}
-                          >
-                            {targetFlow?.failure_pipelines?.map((ffp: any) => (
-                              <SelectItem key={ffp.id} textValue={ffp.name}>
-                                {ffp.name}
-                              </SelectItem>
-                            ))}
-                          </Select>
-                        )}
-                      </div>
+                      )}
+
+                      {targetFlow?.id && (
+                        <Card className="bg-content1/40 border border-default-200">
+                          <CardBody>
+                            <div className="flex items-center gap-4">
+                              <div className="flex size-10 items-center justify-center rounded-lg bg-default-100 text-default-500">
+                                <Icon
+                                  icon="hugeicons:workflow-square-10"
+                                  width={20}
+                                />
+                              </div>
+                              <div className="flex flex-col">
+                                <p className="font-bold">{targetFlow.name}</p>
+                                <p className="text-tiny text-default-500">
+                                  Project:{" "}
+                                  {projects.find(
+                                    (p: any) => p.id === targetFlow.project_id,
+                                  )?.name || "N/A"}
+                                </p>
+                              </div>
+                            </div>
+                          </CardBody>
+                        </Card>
+                      )}
                     </div>
-                  )}
-                  {currentStep === 1 && (
-                    <div>
-                      <p className="text-lg font-bold">Details</p>
-                      <Spacer y={2} />
-                      <div className="grid grid-cols-2 gap-2">
+                  </Tab>
+
+                  <Tab key="general" title="General Settings">
+                    <div className="flex flex-col gap-4 pb-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Input
                           description="Custom name for this action (optional)"
                           label="Custom Name"
-                          type="text"
+                          placeholder="Enter a custom name"
                           value={action.custom_name}
+                          variant="bordered"
                           onValueChange={(e) =>
                             setAction({ ...action, custom_name: e })
                           }
@@ -545,260 +494,206 @@ export default function CopyActionToDifferentFlowModal({
                         <Input
                           description="Custom description for this action (optional)"
                           label="Custom Description"
-                          type="text"
+                          placeholder="Enter a description"
                           value={action.custom_description}
+                          variant="bordered"
                           onValueChange={(e) =>
                             setAction({ ...action, custom_description: e })
                           }
                         />
-                        <Select
-                          isRequired
-                          className={isFailurePipeline ? "col-span-2" : ""}
-                          label="Status"
-                          placeholder="Select the flow to copy the action to"
-                          selectedKeys={[action.active.toString()]}
-                          variant="flat"
-                          onSelectionChange={(e) => {
-                            if (e.currentKey === "true") {
-                              setAction({ ...action, active: true });
-                            }
-                            if (e.currentKey === "false") {
-                              setAction({ ...action, active: false });
-                            }
-                          }}
-                        >
-                          <SelectItem key="true" color="success" variant="flat">
-                            Enabled
-                          </SelectItem>
-                          <SelectItem key="false" color="danger" variant="flat">
-                            Disabled
-                          </SelectItem>
-                        </Select>
-                        {!isFailurePipeline && (
-                          <Select
-                            label="Failure Pipeline"
-                            placeholder="Select an failure pipeline"
-                            selectedKeys={[
-                              action.failure_pipeline_id || "none",
-                            ]}
-                            onSelectionChange={(e) => {
-                              setAction({
-                                ...action,
-                                failure_pipeline_id: e.currentKey,
-                              });
-                            }}
-                          >
-                            <SelectItem key="none">None</SelectItem>
-                            {flow.failure_pipelines.map((pipeline: any) => (
-                              <SelectItem key={pipeline.id}>
-                                {pipeline.name}
-                              </SelectItem>
-                            ))}
-                          </Select>
-                        )}
                       </div>
-                    </div>
-                  )}
-                  {currentStep === 2 && (
-                    <div>
-                      <p className="text-lg font-bold text-default-600">
-                        Conditional Execution
-                      </p>
-                      <Spacer y={2} />
-                      <Alert color="warning" variant="faded">
-                        You cannot copy the current action conditions to an
+
+                      <Select
+                        isRequired
+                        label="Status"
+                        placeholder="Select status"
+                        selectedKeys={[action?.active?.toString()]}
+                        variant="bordered"
+                        onSelectionChange={(e) => {
+                          if (e.currentKey === "true") {
+                            setAction({ ...action, active: true });
+                          }
+                          if (e.currentKey === "false") {
+                            setAction({ ...action, active: false });
+                          }
+                        }}
+                      >
+                        <SelectItem key="true" color="success" variant="flat">
+                          Enabled
+                        </SelectItem>
+                        <SelectItem key="false" color="danger" variant="flat">
+                          Disabled
+                        </SelectItem>
+                      </Select>
+
+                      {!isFailurePipeline && (
+                        <Select
+                          description="Pipeline to execute if this action fails"
+                          label="Failure Pipeline"
+                          placeholder="Select a failure pipeline"
+                          selectedKeys={[
+                            action.failure_pipeline_id || "none",
+                          ]}
+                          variant="bordered"
+                          onSelectionChange={(e) =>
+                            setAction({
+                              ...action,
+                              failure_pipeline_id: e.currentKey,
+                            })
+                          }
+                        >
+                          <SelectItem key="none">None</SelectItem>
+                          {flow.failure_pipelines.map((pipeline: any) => (
+                            <SelectItem key={pipeline.id}>
+                              {pipeline.name}
+                            </SelectItem>
+                          ))}
+                        </Select>
+                      )}
+
+                      <Alert color="warning" title="Note" variant="faded">
+                        You cannot copy the current action conditions to a
                         different flow.
                       </Alert>
                     </div>
-                  )}
-                  {currentStep === 3 && (
-                    <div>
-                      <Spacer y={2} />
-                      <p className="text-lg font-bold text-default-600">
-                        Parameters
-                      </p>
-                      <Spacer y={2} />
-                      <ScrollShadow className="max-h-[60vh]">
-                        {actionParamsCategorys.length > 0 ? (
-                          <div className="flex flex-col w-full gap-2">
-                            {actionParamsCategorys.map((category: any) => (
-                              <div key={category}>
-                                <p className="font-semibold text-default-500 mb-2">
+                  </Tab>
+
+                  <Tab key="parameters" title="Parameters">
+                    <div className="flex flex-col gap-4 pb-4">
+                      {actionParamsCategorys.length > 0 ? (
+                        <div className="flex flex-col gap-6">
+                          {actionParamsCategorys.map((category: any) => (
+                            <div
+                              key={category}
+                              className="flex flex-col gap-3"
+                            >
+                              <div className="flex items-center gap-2">
+                                <div className="h-px flex-1 bg-divider" />
+                                <span className="text-default-500 font-medium text-sm uppercase tracking-wider">
                                   {category}
-                                </p>
-                                <div className="grid lg:grid-cols-2 gap-2">
-                                  {action.params.map((param: any) => {
-                                    // Check if param belongs to this category first
-                                    if (
-                                      (param.category || "Uncategorized") !==
-                                      category
-                                    ) {
-                                      return null;
-                                    }
+                                </span>
+                                <div className="h-px flex-1 bg-divider" />
+                              </div>
+                              <div className="grid lg:grid-cols-2 gap-4">
+                                {action.params.map((param: any) => {
+                                  if (
+                                    (param.category || "Uncategorized") !==
+                                    category
+                                  )
+                                    return null;
 
-                                    // Check if param has depends_on set and evaluate the condition
-                                    let isDisabled = false;
+                                  let isDisabled = false;
 
-                                    if (param.depends_on.key !== "") {
-                                      const dependsOnParam = action.params.find(
-                                        (p: any) =>
-                                          p.key === param.depends_on.key,
-                                      );
+                                  if (param.depends_on.key !== "") {
+                                    const dependsOnParam = action.params.find(
+                                      (p: any) =>
+                                        p.key === param.depends_on.key,
+                                    );
 
-                                      if (!dependsOnParam) {
-                                        isDisabled = true;
-                                      } else if (
-                                        param.depends_on.value === "*"
-                                      ) {
-                                        // Wildcard: any non-empty value is acceptable
-                                        isDisabled =
-                                          !dependsOnParam.value ||
-                                          dependsOnParam.value.trim() === "";
-                                      } else {
-                                        // Exact match required
-                                        isDisabled =
-                                          dependsOnParam.value !==
-                                          param.depends_on.value;
-                                      }
-                                    }
+                                    if (!dependsOnParam) isDisabled = true;
+                                    else if (param.depends_on.value === "*")
+                                      isDisabled =
+                                        !dependsOnParam.value ||
+                                        dependsOnParam.value.trim() === "";
+                                    else
+                                      isDisabled =
+                                        dependsOnParam.value !==
+                                        param.depends_on.value;
+                                  }
 
-                                    return param.type === "text" ||
-                                      param.type === "number" ? (
-                                      <Input
+                                  const commonProps = {
+                                    key: param.key,
+                                    label: param.title || param.key,
+                                    description: param.description,
+                                    isDisabled,
+                                    isRequired: param.required,
+                                    variant: "bordered" as const,
+                                    labelPlacement: "outside" as const,
+                                  };
+
+                                  if (param.type === "boolean") {
+                                    return (
+                                      <div
                                         key={param.key}
-                                        description={param?.description}
-                                        isDisabled={isDisabled}
-                                        isRequired={param.required}
-                                        label={param.title || param.key}
-                                        type={param.type}
-                                        value={param.value}
-                                        onValueChange={(e) => {
-                                          if (!isDisabled) {
-                                            setAction({
-                                              ...action,
-                                              params: action.params.map(
-                                                (x: any) => {
-                                                  if (x.key === param.key) {
-                                                    return { ...x, value: e };
-                                                  }
-
-                                                  return x;
-                                                },
-                                              ),
-                                            });
-                                          }
-                                        }}
-                                      />
-                                    ) : param.type === "boolean" ? (
-                                      <Select
-                                        key={param.key}
-                                        description={param?.description}
-                                        isDisabled={isDisabled}
-                                        isRequired={param.required}
-                                        label={param.title || param.key}
-                                        selectedKeys={[param.value]}
-                                        onSelectionChange={(e) => {
-                                          if (!isDisabled) {
-                                            const value =
-                                              Array.from(e).join("");
-
-                                            setAction({
-                                              ...action,
-                                              params: action.params.map(
-                                                (x: any) => {
-                                                  if (x.key === param.key) {
-                                                    return { ...x, value };
-                                                  }
-
-                                                  return x;
-                                                },
-                                              ),
-                                            });
-                                          }
-                                        }}
+                                        className="flex flex-col gap-1.5"
                                       >
-                                        <SelectItem key="true">true</SelectItem>
-                                        <SelectItem key="false">
-                                          false
-                                        </SelectItem>
-                                      </Select>
-                                    ) : param.type === "textarea" ? (
-                                      <Textarea
-                                        key={param.key}
-                                        className="col-span-2"
-                                        description={param?.description}
-                                        isDisabled={isDisabled}
-                                        isRequired={param.required}
-                                        label={param.title || param.key}
-                                        type={param.type}
-                                        value={param.value}
-                                        onValueChange={(e) => {
-                                          if (!isDisabled) {
-                                            setAction({
-                                              ...action,
-                                              params: action.params.map(
-                                                (x: any) => {
-                                                  if (x.key === param.key) {
-                                                    return { ...x, value: e };
-                                                  }
+                                        <span className="text-small font-medium text-foreground">
+                                          {param.title || param.key}
+                                          {param.required && (
+                                            <span className="text-danger ml-0.5">
+                                              *
+                                            </span>
+                                          )}
+                                        </span>
+                                        <div
+                                          className={`flex items-center px-3 min-h-10 rounded-medium bg-content1/40 hover:bg-content1/60 transition-colors border-2 border-default-200 hover:border-default-400 ${isDisabled ? "opacity-50 pointer-events-none" : ""}`}
+                                        >
+                                          <Switch
+                                            isDisabled={isDisabled}
+                                            isSelected={
+                                              param.value === "true"
+                                            }
+                                            size="sm"
+                                            onValueChange={(e) => {
+                                              if (!isDisabled) {
+                                                setAction({
+                                                  ...action,
+                                                  params: action.params.map(
+                                                    (x: any) =>
+                                                      x.key === param.key
+                                                        ? {
+                                                            ...x,
+                                                            value: e
+                                                              ? "true"
+                                                              : "false",
+                                                          }
+                                                        : x,
+                                                  ),
+                                                });
+                                              }
+                                            }}
+                                          >
+                                            <span className="text-small text-default-500">
+                                              {param.value === "true"
+                                                ? "True"
+                                                : "False"}
+                                            </span>
+                                          </Switch>
+                                        </div>
+                                        {param.description && (
+                                          <span className="text-tiny text-default-400">
+                                            {param.description}
+                                          </span>
+                                        )}
+                                      </div>
+                                    );
+                                  }
 
-                                                  return x;
-                                                },
-                                              ),
-                                            });
-                                          }
-                                        }}
-                                      />
-                                    ) : param.type === "password" ? (
-                                      <Input
-                                        key={param.key}
-                                        description={param?.description}
-                                        isDisabled={isDisabled}
-                                        isRequired={param.required}
-                                        label={param.title || param.key}
-                                        type={param.type}
-                                        value={param.value}
-                                        onValueChange={(e) => {
-                                          if (!isDisabled) {
-                                            setAction({
-                                              ...action,
-                                              params: action.params.map(
-                                                (x: any) => {
-                                                  if (x.key === param.key) {
-                                                    return { ...x, value: e };
-                                                  }
-
-                                                  return x;
-                                                },
-                                              ),
-                                            });
-                                          }
-                                        }}
-                                      />
-                                    ) : param.type === "select" ? (
+                                  if (param.type === "select") {
+                                    return (
                                       <Select
+                                        {...commonProps}
                                         key={param.key}
-                                        defaultSelectedKeys={[param.default]}
-                                        description={param?.description}
-                                        isDisabled={isDisabled}
-                                        isRequired={param.required}
-                                        label={param.title || param.key}
+                                        classNames={{
+                                          trigger:
+                                            "bg-content1/40 hover:bg-content1/60 transition-colors",
+                                        }}
                                         selectedKeys={[param.value]}
                                         onSelectionChange={(e) => {
                                           if (!isDisabled) {
-                                            const value =
-                                              Array.from(e).join("");
-
                                             setAction({
                                               ...action,
                                               params: action.params.map(
-                                                (x: any) => {
-                                                  if (x.key === param.key) {
-                                                    return { ...x, value };
-                                                  }
-
-                                                  return x;
-                                                },
+                                                (x: any) =>
+                                                  x.key === param.key
+                                                    ? {
+                                                        ...x,
+                                                        value:
+                                                          Array.from(e).join(
+                                                            "",
+                                                          ),
+                                                      }
+                                                    : x,
                                               ),
                                             });
                                           }
@@ -810,89 +705,118 @@ export default function CopyActionToDifferentFlowModal({
                                           </SelectItem>
                                         ))}
                                       </Select>
-                                    ) : null;
-                                  })}
-                                </div>
-                                <Divider className="mb-2 mt-2" />
+                                    );
+                                  }
+
+                                  if (param.type === "textarea") {
+                                    return (
+                                      <Textarea
+                                        {...commonProps}
+                                        key={param.key}
+                                        className="col-span-2"
+                                        classNames={{
+                                          inputWrapper:
+                                            "bg-content1/40 hover:bg-content1/60 transition-colors",
+                                        }}
+                                        value={param.value}
+                                        onValueChange={(e) => {
+                                          if (!isDisabled) {
+                                            setAction({
+                                              ...action,
+                                              params: action.params.map(
+                                                (x: any) =>
+                                                  x.key === param.key
+                                                    ? { ...x, value: e }
+                                                    : x,
+                                              ),
+                                            });
+                                          }
+                                        }}
+                                      />
+                                    );
+                                  }
+
+                                  return (
+                                    <Input
+                                      {...commonProps}
+                                      key={param.key}
+                                      classNames={{
+                                        inputWrapper:
+                                          "bg-content1/40 hover:bg-content1/60 transition-colors",
+                                      }}
+                                      type={
+                                        param.type === "password"
+                                          ? "password"
+                                          : "text"
+                                      }
+                                      value={param.value}
+                                      onValueChange={(e) => {
+                                        if (!isDisabled) {
+                                          setAction({
+                                            ...action,
+                                            params: action.params.map(
+                                              (x: any) =>
+                                                x.key === param.key
+                                                  ? { ...x, value: e }
+                                                  : x,
+                                              ),
+                                          });
+                                        }
+                                      }}
+                                    />
+                                  );
+                                })}
                               </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <p>No parameters for this action found.</p>
-                        )}
-                      </ScrollShadow>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center py-12 text-default-500">
+                          <Icon
+                            className="mb-4 opacity-50"
+                            icon="hugeicons:settings-01"
+                            width={48}
+                          />
+                          <p>No parameters available for this action.</p>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              </ModalBody>
-              <ModalFooter>
-                <Button
-                  color="default"
-                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
-                  variant="ghost"
-                  onPress={cancel}
-                >
-                  Cancel
-                </Button>
-                {currentStep > 0 ? (
-                  <Button
-                    color="default"
-                    startContent={
-                      <Icon icon="hugeicons:backward-02" width={18} />
-                    }
-                    variant="flat"
-                    onPress={() => {
-                      setCurrentStep(currentStep - 1);
-                    }}
-                  >
-                    Back
-                  </Button>
-                ) : (
-                  <Button
-                    isDisabled
-                    color="default"
-                    startContent={
-                      <Icon icon="hugeicons:backward-02" width={18} />
-                    }
-                    variant="flat"
-                  >
-                    Back
-                  </Button>
-                )}
-                {currentStep + 1 === steps ? (
-                  <Button
-                    color="primary"
-                    isLoading={isLoading}
-                    startContent={
-                      <Icon icon="hugeicons:delivery-sent-02" width={18} />
-                    }
-                    variant="solid"
-                    onPress={
-                      isFailurePipeline
-                        ? copyFlowFailurePipelineAction
-                        : copyFlowAction
-                    }
-                  >
-                    Copy Action
-                  </Button>
-                ) : (
-                  <Button
-                    color="primary"
-                    isDisabled={checkNextDisabled()}
-                    isLoading={isLoading}
-                    startContent={
-                      <Icon icon="hugeicons:forward-02" width={18} />
-                    }
-                    onPress={() => setCurrentStep(currentStep + 1)}
-                  >
-                    Next Step
-                  </Button>
-                )}
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
-    </main>
+                  </Tab>
+                </Tabs>
+              </div>
+            </DrawerBody>
+            <DrawerFooter>
+              <Button
+                color="danger"
+                startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
+                variant="light"
+                onPress={cancel}
+              >
+                Cancel
+              </Button>
+              <Button
+                color="primary"
+                isDisabled={
+                  isFailurePipeline
+                    ? !targetFailurePipeline?.id
+                    : !targetFlow?.id
+                }
+                isLoading={isLoading}
+                startContent={
+                  <Icon icon="hugeicons:delivery-sent-02" width={18} />
+                }
+                onPress={
+                  isFailurePipeline
+                    ? copyFlowFailurePipelineAction
+                    : copyFlowAction
+                }
+              >
+                Copy Action
+              </Button>
+            </DrawerFooter>
+          </>
+        )}
+      </DrawerContent>
+    </Drawer>
   );
 }

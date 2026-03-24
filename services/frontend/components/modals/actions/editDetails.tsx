@@ -7,16 +7,19 @@ import {
   Button,
   ButtonGroup,
   Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerBody,
+  DrawerFooter,
   Radio,
   Select,
   SelectItem,
   Spacer,
   Tooltip,
+  Tabs,
+  Tab,
+  Switch,
 } from "@heroui/react";
 import React, { useEffect, useState } from "react";
 
@@ -118,219 +121,254 @@ export default function EditFlowActionsDetails({
   }
 
   return (
-    <main>
-      <Modal
-        isDismissable={false}
-        isOpen={isOpen}
-        placement="center"
-        size="xl"
-        onOpenChange={onOpenChange}
-      >
-        <ModalContent>
-          {() => (
-            <>
-              <ModalHeader className="flex flex-wrap items-center">
-                <div className="flex flex-col gap-2">
-                  <p className="text-lg font-bold">Edit Actions Details</p>
-                  <p className="text-sm text-default-500">
-                    Actions Details determine how the action will be executed
-                    and for which patterns it should check the alert payload
-                    for.
-                  </p>
-                </div>
-              </ModalHeader>
-              <ModalBody>
-                {error && (
-                  <ErrorCard error={errorText} message={errorMessage} />
-                )}
-                <div className="flex w-full flex-col gap-4">
-                  <div className="flex flex-col gap-1">
-                    <p className="font-bold">Action Parameters</p>
-                    <Alert
-                      hideIconWrapper
-                      color="primary"
-                      description="All existing action parameters will be automatically encrypted/unencrypted when this setting is changed."
-                      title="Info"
-                      variant="flat"
-                    />
-                    <Spacer y={2} />
-                    <div>
-                      <ButtonGroup radius="sm" variant="flat">
-                        <Button
-                          className={`${encryptedActionParams ? "bg-success" : ""}`}
-                          onPress={() => {
-                            setEncryptedActionParams(true);
-                          }}
-                        >
-                          <Icon icon="solar:lock-linear" width={22} />
-                          Encrypted
-                        </Button>
-                        <Button
-                          className={`${!encryptedActionParams ? "bg-warning" : ""}`}
-                          onPress={() => {
-                            setEncryptedActionParams(false);
-                          }}
-                        >
-                          <Icon icon="solar:lock-unlocked-linear" width={22} />
-                          Unencrypted
-                        </Button>
-                      </ButtonGroup>
-                    </div>
-                  </div>
-                  {/* Status */}
-                  <div className="flex flex-col gap-1">
-                    <div className="flex-cols flex items-center gap-2">
-                      <p className="font-bold">Execution Order</p>
-                      <Tooltip content="Defined Actions will either be executed one after the other or all in parallel. If in Sequential type one action fails, the others won't be processed anymore.">
-                        <Icon
-                          className="text-default-500"
-                          icon="solar:info-circle-linear"
-                          width={18}
+    <Drawer
+      backdrop="blur"
+      isOpen={isOpen}
+      size="2xl"
+      onOpenChange={onOpenChange}
+    >
+      <DrawerContent>
+        {() => (
+          <>
+            <DrawerHeader className="flex flex-col gap-1">
+              <p className="text-lg font-bold">Edit Actions Details</p>
+              <p className="text-sm text-default-500 font-normal">
+                Actions Details determine how the action will be executed and
+                for which patterns it should check the alert payload for.
+              </p>
+            </DrawerHeader>
+            <DrawerBody className="overflow-hidden flex flex-col">
+              {error && <ErrorCard error={errorText} message={errorMessage} />}
+
+              <div className="flex flex-col w-full h-full gap-6 overflow-hidden">
+                <Tabs
+                  aria-label="Configuration Options"
+                  className="flex flex-col overflow-hidden"
+                  classNames={{
+                    tabList:
+                      "gap-6 w-full relative rounded-none p-0 border-b border-divider",
+                    cursor: "w-full bg-primary",
+                    tab: "max-w-fit px-0 h-12",
+                    tabContent:
+                      "group-data-[selected=true]:text-primary font-medium text-lg",
+                    panel: "flex-1 overflow-y-auto p-1 pt-0",
+                  }}
+                  color="primary"
+                  variant="underlined"
+                >
+                  <Tab key="general" title="General Settings">
+                    <div className="flex flex-col gap-6 pb-4">
+                      {/* Encryption Settings */}
+                      <div className="flex flex-col gap-2">
+                        <p className="font-bold text-sm uppercase tracking-wider">
+                          Action Parameters
+                        </p>
+                        <Alert
+                          hideIconWrapper
+                          color="primary"
+                          description="All existing action parameters will be automatically encrypted/unencrypted when this setting is changed."
+                          title="Info"
+                          variant="flat"
                         />
-                      </Tooltip>
+                        <div className="flex items-center justify-between p-4 rounded-lg bg-content1/40 border border-default-200">
+                          <div className="flex flex-col gap-1">
+                            <p className="font-medium">Encryption Status</p>
+                            <p className="text-tiny text-default-500">
+                              {encryptedActionParams
+                                ? "Parameters are encrypted"
+                                : "Parameters are unencrypted"}
+                            </p>
+                          </div>
+                          <Switch
+                            color="success"
+                            isSelected={encryptedActionParams}
+                            thumbIcon={({ isSelected, className }) =>
+                              isSelected ? (
+                                <Icon
+                                  className={className}
+                                  icon="solar:lock-linear"
+                                />
+                              ) : (
+                                <Icon
+                                  className={className}
+                                  icon="solar:lock-unlocked-linear"
+                                />
+                              )
+                            }
+                            onValueChange={setEncryptedActionParams}
+                          >
+                            {encryptedActionParams
+                              ? "Encrypted"
+                              : "Unencrypted"}
+                          </Switch>
+                        </div>
+                      </div>
+
+                      {/* Execution Order */}
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2">
+                          <p className="font-bold text-sm uppercase tracking-wider">
+                            Execution Order
+                          </p>
+                          <Tooltip content="Defined Actions will either be executed one after the other or all in parallel. If in Sequential type one action fails, the others won't be processed anymore.">
+                            <Icon
+                              className="text-default-500"
+                              icon="solar:info-circle-linear"
+                              width={18}
+                            />
+                          </Tooltip>
+                        </div>
+                        <div className="flex items-center justify-between p-4 rounded-lg bg-content1/40 border border-default-200">
+                          <div className="flex flex-col gap-1">
+                            <p className="font-medium">Execution Mode</p>
+                            <p className="text-tiny text-default-500">
+                              {execParallel
+                                ? "Actions run in parallel"
+                                : "Actions run sequentially"}
+                            </p>
+                          </div>
+                          <ButtonGroup radius="sm" variant="flat">
+                            <Button
+                              className={`${execParallel ? "bg-primary text-primary-foreground" : ""}`}
+                              startContent={
+                                <Icon
+                                  icon="solar:align-horizontal-center-outline"
+                                  width={20}
+                                />
+                              }
+                              onPress={() => setExecParallel(true)}
+                            >
+                              Parallel
+                            </Button>
+                            <Button
+                              className={`${!execParallel ? "bg-primary text-primary-foreground" : ""}`}
+                              startContent={
+                                <Icon
+                                  icon="solar:align-vertical-center-linear"
+                                  width={20}
+                                />
+                              }
+                              onPress={() => setExecParallel(false)}
+                            >
+                              Sequential
+                            </Button>
+                          </ButtonGroup>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <ButtonGroup radius="sm" variant="flat">
-                        <Button
-                          className={`${execParallel ? "bg-primary" : ""}`}
-                          onPress={() => {
-                            setExecParallel(true);
-                          }}
-                        >
-                          <Icon
-                            icon="solar:align-horizontal-center-outline"
-                            width={22}
-                          />
-                          Parallel
-                        </Button>
-                        <Button
-                          className={`${!execParallel ? "bg-primary" : ""}`}
-                          onPress={() => {
-                            setExecParallel(false);
-                          }}
-                        >
-                          <Icon
-                            icon="solar:align-vertical-center-linear"
-                            width={22}
-                          />
-                          Sequential
-                        </Button>
-                      </ButtonGroup>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="font-bold">Patterns</p>
-                    <p className="text-sm text-default-500">
-                      You can access object values by using dot (.) notation.
-                    </p>
-                    <p className="text-sm text-default-500">
-                      Example: commonLabels.alertname or alerts.0.status
-                    </p>
-                    <Spacer y={2} />
-                    <div>
+                  </Tab>
+                  <Tab key="patterns" title="Patterns">
+                    <div className="flex flex-col gap-4 pb-4">
+                      <div className="flex flex-col gap-1">
+                        <p className="text-sm text-default-500">
+                          You can access object values by using dot (.)
+                          notation. Example: commonLabels.alertname or
+                          alerts.0.status
+                        </p>
+                      </div>
+
                       <div className="flex flex-col gap-4">
                         {patterns.length > 0 ? (
-                          <>
+                          <div className="flex flex-col gap-3">
                             {patterns.map((pattern: any, index: number) => (
-                              <div key={index}>
-                                <div className="flex-cols flex items-center gap-4">
-                                  <Input
-                                    label="Key"
-                                    radius="sm"
-                                    size="sm"
-                                    value={pattern.key}
-                                    onValueChange={(value) => {
-                                      setPatterns([
-                                        ...patterns.slice(0, index),
-                                        {
-                                          ...pattern,
-                                          key: value,
-                                        },
-                                        ...patterns.slice(index + 1),
-                                      ]);
-                                    }}
+                              <div
+                                key={index}
+                                className="flex items-center gap-2 w-full animate-appearance-in"
+                              >
+                                <Input
+                                  className="flex-1"
+                                  label="Key"
+                                  placeholder="e.g. commonLabels.alertname"
+                                  size="sm"
+                                  value={pattern.key}
+                                  variant="bordered"
+                                  onValueChange={(value) => {
+                                    setPatterns([
+                                      ...patterns.slice(0, index),
+                                      { ...pattern, key: value },
+                                      ...patterns.slice(index + 1),
+                                    ]);
+                                  }}
+                                />
+                                <Select
+                                  disallowEmptySelection
+                                  className="w-32"
+                                  defaultSelectedKeys={[pattern.type]}
+                                  label="Type"
+                                  size="sm"
+                                  variant="bordered"
+                                  onSelectionChange={(key: any) => {
+                                    setPatterns([
+                                      ...patterns.slice(0, index),
+                                      {
+                                        ...pattern,
+                                        type: key.currentKey,
+                                      },
+                                      ...patterns.slice(index + 1),
+                                    ]);
+                                  }}
+                                >
+                                  <SelectItem key="equals">equals</SelectItem>
+                                  <SelectItem key="not_equals">
+                                    not equals
+                                  </SelectItem>
+                                </Select>
+                                <Input
+                                  className="flex-1"
+                                  label="Value"
+                                  placeholder="Value to match"
+                                  size="sm"
+                                  value={pattern.value}
+                                  variant="bordered"
+                                  onValueChange={(value) => {
+                                    setPatterns([
+                                      ...patterns.slice(0, index),
+                                      { ...pattern, value },
+                                      ...patterns.slice(index + 1),
+                                    ]);
+                                  }}
+                                />
+                                <Button
+                                  isIconOnly
+                                  color="danger"
+                                  variant="light"
+                                  onPress={() => {
+                                    setPatterns([
+                                      ...patterns.slice(0, index),
+                                      ...patterns.slice(index + 1),
+                                    ]);
+                                  }}
+                                >
+                                  <Icon
+                                    icon="hugeicons:delete-02"
+                                    width={20}
                                   />
-                                  <Select
-                                    disallowEmptySelection
-                                    className="max-w-xs"
-                                    defaultSelectedKeys={[pattern.type]}
-                                    label="Type"
-                                    radius="sm"
-                                    size="sm"
-                                    variant="flat"
-                                    onSelectionChange={(key: any) => {
-                                      setPatterns([
-                                        ...patterns.slice(0, index),
-                                        {
-                                          ...pattern,
-                                          type: key.currentKey,
-                                        },
-                                        ...patterns.slice(index + 1),
-                                      ]);
-                                    }}
-                                  >
-                                    <SelectItem key="equals">equals</SelectItem>
-                                    <SelectItem key="not_equals">
-                                      not equals
-                                    </SelectItem>
-                                  </Select>
-                                  <Input
-                                    label="Value"
-                                    radius="sm"
-                                    size="sm"
-                                    value={pattern.value}
-                                    onValueChange={(value) => {
-                                      setPatterns([
-                                        ...patterns.slice(0, index),
-                                        {
-                                          ...pattern,
-                                          value,
-                                        },
-                                        ...patterns.slice(index + 1),
-                                      ]);
-                                    }}
-                                  />
-                                  <Button
-                                    isIconOnly
-                                    color="danger"
-                                    size="sm"
-                                    variant="light"
-                                    onPress={() => {
-                                      setPatterns([
-                                        ...patterns.slice(0, index),
-                                        ...patterns.slice(index + 1),
-                                      ]);
-                                    }}
-                                  >
-                                    <Icon
-                                      icon="hugeicons:delete-02"
-                                      width={20}
-                                    />
-                                  </Button>
-                                </div>
+                                </Button>
                               </div>
                             ))}
-                          </>
+                          </div>
                         ) : (
-                          <p className="text-default-500">
-                            No patterns defined yet.
-                          </p>
+                          <div className="flex flex-col items-center justify-center py-12 text-default-500 border-2 border-dashed border-default-200 rounded-lg">
+                            <Icon
+                              className="mb-4 opacity-50"
+                              icon="hugeicons:search-02"
+                              width={48}
+                            />
+                            <p>No patterns defined yet.</p>
+                            <p className="text-tiny">
+                              Add a pattern to filter alerts.
+                            </p>
+                          </div>
                         )}
-                      </div>
-                      <div className="mt-4">
+
                         <Button
-                          fullWidth
                           color="primary"
                           startContent={<Icon icon="hugeicons:plus-sign" />}
                           variant="flat"
                           onPress={() => {
                             setPatterns([
                               ...patterns,
-                              {
-                                key: "",
-                                type: "equals",
-                                value: "",
-                              },
+                              { key: "", type: "equals", value: "" },
                             ]);
                           }}
                         >
@@ -338,26 +376,31 @@ export default function EditFlowActionsDetails({
                         </Button>
                       </div>
                     </div>
-                  </div>
-                </div>
-              </ModalBody>
-              <ModalFooter>
-                <Button color="default" variant="ghost" onPress={cancel}>
-                  Cancel
-                </Button>
-                <Button
-                  color="warning"
-                  isLoading={isLoading}
-                  variant="flat"
-                  onPress={updateDetails}
-                >
-                  Update Details
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
-    </main>
+                  </Tab>
+                </Tabs>
+              </div>
+            </DrawerBody>
+            <DrawerFooter>
+              <Button
+                color="danger"
+                startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
+                variant="light"
+                onPress={cancel}
+              >
+                Cancel
+              </Button>
+              <Button
+                color="primary"
+                isLoading={isLoading}
+                startContent={<Icon icon="hugeicons:floppy-disk" width={18} />}
+                onPress={updateDetails}
+              >
+                Update Details
+              </Button>
+            </DrawerFooter>
+          </>
+        )}
+      </DrawerContent>
+    </Drawer>
   );
 }
