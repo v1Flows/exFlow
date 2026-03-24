@@ -1,0 +1,124 @@
+import { mutate } from "swr";
+
+/**
+ * Custom hook that provides SWR cache refresh functions for different data types
+ * Use this in modals instead of router.refresh() to update SWR cache after mutations
+ *
+ * This approach uses direct cache key mutations instead of importing all hooks
+ * to avoid potential circular dependencies and bundle size issues.
+ */
+export function useRefreshCache() {
+  return {
+    // Direct cache key refreshes
+    refreshFlows: () => mutate("flows"),
+    refreshProjects: () => mutate("projects"),
+    refreshFolders: () => mutate("folders"),
+    refreshRunners: () => mutate("runners"),
+    refreshUser: () => mutate("user-details"),
+    refreshUserStats: () => mutate("user-stats"),
+    refreshExecutionsWithAttention: () => mutate("executions-with-attention"),
+    refreshRunningExecutions: () => mutate("running-executions"),
+    refreshPageSettings: () => mutate("page-settings"),
+
+    // Specific entity refreshes
+    refreshFlow: (flowId: string) => mutate(`flow-${flowId}`),
+    refreshFlowExecutions: (flowId: string) =>
+      mutate(`flow-executions-${flowId}`),
+    refreshFlowExecutionsPaginated: (
+      flowId: string,
+      limit: number,
+      offset: number,
+      status: string | null = null,
+    ) =>
+      mutate(
+        `flow-executions-paginated-${flowId}-${limit}-${offset}-${status || "all"}`,
+      ),
+    refreshExecutions: (
+      limit: number,
+      offset: number,
+      status: string | null = null,
+    ) => mutate(`executions-${limit}-${offset}-${status || "all"}`),
+    refreshProject: (projectId: string) => mutate(`project-${projectId}`),
+    refreshProjectRunners: (projectId: string) =>
+      mutate(`project-runners-${projectId}`),
+    refreshProjectAudit: (projectId: string) =>
+      mutate(`project-audit-${projectId}`),
+    refreshProjectTokens: (projectId: string) =>
+      mutate(`project-tokens-${projectId}`),
+    refreshExecution: (executionId: string) =>
+      mutate(`execution-${executionId}`),
+    refreshExecutionSteps: (executionId: string) =>
+      mutate(`execution-steps-${executionId}`),
+    refreshFolder: (folderId: string) => mutate(`folder-${folderId}`),
+    refreshFolderExecutions: (folderId: string) =>
+      mutate(`folder-executions-${folderId}`),
+
+    // Helper to refresh all alert-related caches (useful after deletion/mutation).
+    // Uses SWR's filter-based mutate to invalidate all matching keys at once,
+    // instead of enumerating hard-coded limit/offset combinations.
+    refreshAllAlertCaches: (flowId?: string) => {
+      mutate((key) => typeof key === "string" && key.startsWith("alerts-"));
+      if (flowId) {
+        mutate(
+          (key) =>
+            typeof key === "string" &&
+            key.startsWith(`flow-alerts-${flowId}`),
+        );
+      }
+    },
+
+    // Helper to refresh all execution-related caches (useful after deletion/mutation).
+    refreshAllExecutionCaches: (flowId?: string) => {
+      mutate("executions-with-attention");
+      mutate("running-executions");
+      mutate((key) => typeof key === "string" && key.startsWith("executions-"));
+      if (flowId) {
+        mutate(
+          (key) =>
+            typeof key === "string" &&
+            key.startsWith(`flow-executions-${flowId}`),
+        );
+      }
+    },
+
+    // Convenience methods for common combinations
+    refreshAll: () => {
+      mutate("flows");
+      mutate("projects");
+      mutate("folders");
+      mutate("runners");
+      mutate("user-details");
+      mutate("user-stats");
+      mutate("executions-with-attention");
+      mutate("running-executions");
+      mutate("page-settings");
+    },
+
+    refreshProjectData: () => {
+      mutate("projects");
+      mutate("flows");
+      mutate("folders");
+      mutate("runners");
+    },
+
+    refreshFlowData: (flowId?: string) => {
+      mutate("flows");
+      mutate("running-executions");
+      mutate("executions-with-attention");
+      if (flowId) {
+        mutate(`flow-${flowId}`);
+        mutate(`flow-executions-${flowId}`);
+      }
+    },
+
+    refreshAllFlowData: (flowId?: string) => {
+      mutate("flows");
+      mutate("running-executions");
+      mutate("executions-with-attention");
+      if (flowId) {
+        mutate(`flow-${flowId}`);
+        mutate(`flow-executions-${flowId}`);
+      }
+    },
+  };
+}

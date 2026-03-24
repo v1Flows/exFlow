@@ -15,7 +15,7 @@ updates:
     target-branch: "develop"
 
   - package-ecosystem: "gomod" # See documentation for possible values
-    directory: "/services/backend" # Location of package manifests
+    directory: "/apps/backend" # Location of package manifests
     schedule:
       interval: "weekly"
     labels:

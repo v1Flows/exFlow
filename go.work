@@ -1,0 +1,23 @@
+go 1.24.0
+
+use (
+	./apps/backend
+	./apps/runner
+	./pkg/contracts
+	./runner-plugins/action-plugins/actions_check
+	./runner-plugins/action-plugins/ansible
+	./runner-plugins/action-plugins/collect_data
+	./runner-plugins/action-plugins/debug
+	./runner-plugins/action-plugins/git
+	./runner-plugins/action-plugins/interaction
+	./runner-plugins/action-plugins/log
+	./runner-plugins/action-plugins/mail
+	./runner-plugins/action-plugins/pattern_check
+	./runner-plugins/action-plugins/ping
+	./runner-plugins/action-plugins/port_checker
+	./runner-plugins/action-plugins/ssh
+	./runner-plugins/action-plugins/terraform
+	./runner-plugins/action-plugins/wait
+	./runner-plugins/endpoint-plugins/alertmanager
+	./runner-plugins/template
+)

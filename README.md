@@ -5,9 +5,9 @@
 
 # JustFlow
 
-JustFlow is a modern workflow automation platform, combining powerful orchestration with a beautiful interface. This repository contains both the frontend and backend code for the JustFlow application.
+JustFlow is a modern workflow automation platform, combining orchestration, execution, and a web interface in a single monorepo.
 
-![Dashboard Image](https://github.com/JustLABv1/justflow/blob/develop/services/frontend/public/images/full_dashboard.png?raw=true)
+![Dashboard Image](https://github.com/JustLABv1/justflow/blob/develop/apps/frontend/public/images/full_dashboard.png?raw=true)
 
 ## Table of Contents
 
@@ -16,6 +16,7 @@ JustFlow is a modern workflow automation platform, combining powerful orchestrat
 - [Runners](#runners)
 - [Project Structure](#project-structure)
 - [Local Development](#local-development)
+- [Release Conventions](#release-conventions)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -40,6 +41,7 @@ JustFlow can be self-hosted using Docker, Docker Compose, or Helm. You can set u
 - **ghcr.io/justlabv1/justflow:vx.x.x** – Versioned releases
 - **ghcr.io/justlabv1/justflow:frontend-latest** – Frontend only
 - **ghcr.io/justlabv1/justflow:backend-latest** – Backend only
+- **ghcr.io/justlabv1/justflow:runner-latest** – Runner only
 
 ### Setup Options
 
@@ -56,7 +58,7 @@ You can still use a manual `config.yaml` for backend configuration. Mount your c
 docker run -p 8080:8080 -v /your/config/path/config.yaml:/etc/justflow/config.yaml ghcr.io/justlabv1/justflow:latest
 ```
 
-Example config: [config.yaml](https://github.com/v1Flows/JustFlow/blob/main/services/backend/config/config.yaml)
+Example config: [apps/backend/config/config.yaml](apps/backend/config/config.yaml)
 
 ### Docker Compose
 Use our [docker-compose.yaml](https://github.com/JustLABv1/justflow/blob/main/docker-compose.yaml) for a quick start. It includes PostgreSQL and the full JustFlow image. You can use the setup wizard or mount your own config file as described above.
@@ -79,15 +81,18 @@ docker run -p 80:3000 -v /your/config/path/config.yaml:/etc/justflow/config.yaml
 
 JustFlow uses the v1Flows Runner as its execution engine. At least one runner must be connected for flows to run. You can add runners via the setup wizard, project settings, or the admin runner page.
 
-See the [Runner](https://github.com/v1Flows/runner) repository for more information.
+The runner source now lives in [apps/runner](apps/runner). Built-in and maintained plugins live in [runner-plugins](runner-plugins).
 
 ## Project Structure
 
 
 The project structure is organized as follows:
 
-- **backend**: API, business logic, database, configuration
-- **frontend**: User interface, components, pages, styles
+- **apps/backend**: API, business logic, database, configuration
+- **apps/frontend**: Next.js frontend
+- **apps/runner**: Runner service and release artifacts
+- **runner-plugins**: Action and endpoint plugins, each with its own Go module
+- **pkg/contracts**: Shared transport types used by runner and plugins
 
 
 ## Local Development
@@ -104,7 +109,7 @@ To develop JustFlow locally, you can use either the automated setup or manual co
 
 2. Install dependencies:
     ```sh
-    cd services/backend && go mod download
+    cd apps/backend && go mod download
     ```
 
 3. Start the backend:
@@ -119,16 +124,33 @@ To develop JustFlow locally, you can use either the automated setup or manual co
       go run main.go --config config/config.yaml
       ```
 
-### Frontend
+### Runner
 
-1. Navigate to the frontend directory:
+1. Navigate to the runner directory:
     ```sh
-    cd services/frontend
+    cd apps/runner
     ```
 
 2. Install dependencies:
     ```sh
-    npm install
+    go mod download
+    ```
+
+3. Start the runner:
+    ```sh
+    go run ./cmd/runner --config config/config.yaml
+    ```
+
+### Frontend
+
+1. Navigate to the frontend directory:
+    ```sh
+    cd apps/frontend
+    ```
+
+2. Install dependencies:
+    ```sh
+    pnpm install
     ```
 
 3. Create a `.env.local` file and add the backend API URL:
@@ -138,8 +160,17 @@ To develop JustFlow locally, you can use either the automated setup or manual co
 
 4. Start the development server:
     ```sh
-    npm run dev
+    pnpm dev
     ```
+
+## Release Conventions
+
+- **JustFlow app releases**: push tags like `justflow-v1.2.3`
+- **Runner releases**: push tags like `runner-v1.2.3`
+- **Plugin releases**: update a plugin `.version` file on `main` or `develop`
+- **Manual image builds**: use the root `Build Docker Images Manually` workflow
+
+All active CI and release workflows live in the root `.github/workflows` directory.
 
 
 ## Contributing

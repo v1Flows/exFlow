@@ -1,0 +1,141 @@
+name: Plugin Release
+
+on:
+  push:
+    branches: [ 'main', 'develop' ]
+    paths:
+      - 'runner-plugins/**/.version'
+      - 'runner-plugins/**/*.go'
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Release plugin artifacts
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          branch="${GITHUB_REF_NAME}"
+          prerelease=false
+          if [[ "$branch" == "develop" ]]; then
+            prerelease=true
+          fi
+
+          declare -A plugin_dirs=()
+
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            while IFS= read -r version_file; do
+              plugin_dirs["$(dirname "$version_file")"]=1
+            done < <(find runner-plugins \( -path 'runner-plugins/action-plugins/*/.version' -o -path 'runner-plugins/endpoint-plugins/*/.version' -o -path 'runner-plugins/template/.version' \) | sort)
+          else
+            while IFS= read -r changed_file; do
+              case "$changed_file" in
+                runner-plugins/action-plugins/*/*)
+                  plugin_dirs["$(echo "$changed_file" | cut -d/ -f1-3)"]=1
+                  ;;
+                runner-plugins/endpoint-plugins/*/*)
+                  plugin_dirs["$(echo "$changed_file" | cut -d/ -f1-3)"]=1
+                  ;;
+                runner-plugins/template/*)
+                  plugin_dirs["runner-plugins/template"]=1
+                  ;;
+              esac
+            done < <(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" -- runner-plugins)
+          fi
+
+          if [[ ${#plugin_dirs[@]} -eq 0 ]]; then
+            echo "No plugin changes detected"
+            exit 0
+          fi
+
+          while IFS= read -r plugin_dir; do
+            if [[ ! -f "$plugin_dir/.version" ]]; then
+              echo "Skipping ${plugin_dir}: no version file"
+              continue
+            fi
+
+            plugin_name=$(basename "$plugin_dir")
+            version=$(tr -d '[:space:]' < "$plugin_dir/.version")
+
+            if [[ -z "$version" ]]; then
+              echo "Skipping ${plugin_name}: empty version"
+              continue
+            fi
+
+            if [[ "$prerelease" == true ]]; then
+              if [[ ! "$version" =~ -(alpha|beta|rc|a|b) ]]; then
+                echo "Skipping ${plugin_name}: ${version} is not a pre-release version"
+                continue
+              fi
+            else
+              if [[ "$version" =~ -(alpha|beta|rc|a|b) ]]; then
+                echo "Skipping ${plugin_name}: ${version} is a pre-release version"
+                continue
+              fi
+            fi
+
+            version_tag="plugin-${plugin_name}-v${version}"
+            latest_tag="plugin-${plugin_name}-latest"
+
+            if git ls-remote --tags origin | grep -q "refs/tags/${version_tag}$"; then
+              echo "Skipping ${plugin_name}: ${version_tag} already exists"
+              continue
+            fi
+
+            echo "Building ${plugin_name} ${version}"
+            rm -rf "${plugin_dir}/dist"
+            mkdir -p "${plugin_dir}/dist"
+
+            pushd "$plugin_dir" >/dev/null
+            for os in darwin linux; do
+              for arch in amd64 arm64; do
+                if [[ "$os" == "linux" && "$arch" == "arm64" ]]; then
+                  continue
+                fi
+
+                GOOS="$os" GOARCH="$arch" go build -o "dist/${plugin_name}-v${version}-${os}-${arch}" .
+
+                if [[ "$prerelease" == false ]]; then
+                  GOOS="$os" GOARCH="$arch" go build -o "dist/${plugin_name}-latest-${os}-${arch}" .
+                fi
+              done
+            done
+            popd >/dev/null
+
+            git tag "$version_tag"
+            git push origin "$version_tag"
+
+            gh release create "$version_tag" "${plugin_dir}"/dist/${plugin_name}-v${version}-* \
+              --title "Plugin ${plugin_name} v${version}" \
+              --generate-notes \
+              $( [[ "$prerelease" == true ]] && echo "--prerelease" )
+
+            if [[ "$prerelease" == false ]]; then
+              git tag -d "$latest_tag" 2>/dev/null || true
+              git push origin ":refs/tags/${latest_tag}" 2>/dev/null || true
+              gh release delete "$latest_tag" --yes 2>/dev/null || true
+
+              git tag "$latest_tag"
+              git push origin "$latest_tag" --force
+
+              gh release create "$latest_tag" "${plugin_dir}"/dist/${plugin_name}-latest-* \
+                --title "Plugin ${plugin_name} latest"
+            fi
+          done < <(printf '%s\n' "${!plugin_dirs[@]}" | sort)

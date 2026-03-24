@@ -3,7 +3,7 @@ name: Check Image Build
 on:
   pull_request:
     types: [opened, reopened, edited, synchronize]
-    branches: [ "release/**", "develop", "v*" ]
+    branches: [ "main", "release/**", "develop" ]
     paths-ignore:
       - '.github/**'
       - '*.md'
@@ -18,6 +18,8 @@ jobs:
     outputs:
       frontend: ${{ steps.changes.outputs.frontend }}
       backend: ${{ steps.changes.outputs.backend }}
+      runner: ${{ steps.changes.outputs.runner }}
+      plugins: ${{ steps.changes.outputs.plugins }}
       justflow: ${{ steps.changes.outputs.justflow }}
     steps:
       - name: Checkout code
@@ -27,10 +29,21 @@ jobs:
         with:
           filters: |
             frontend:
-              - 'services/frontend/**'
+              - 'apps/frontend/**'
             backend:
-              - 'services/backend/**'
+              - 'apps/backend/**'
+            runner:
+              - 'apps/runner/**'
+              - 'apps/backend/**'
+              - 'go.work'
+            plugins:
+              - 'runner-plugins/**'
+              - 'apps/backend/**'
+              - 'apps/runner/**'
+              - 'go.work'
             justflow:
+              - 'apps/frontend/**'
+              - 'apps/backend/**'
               - 'Dockerfile'
               - 'entrypoint.sh'
   frontend:
@@ -43,7 +56,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build Frontend Docker Image
-        run: cd services/frontend && docker build . --file Dockerfile --tag justnz/justflow:frontend-test
+        run: docker build apps/frontend --file apps/frontend/Dockerfile --tag justnz/justflow:frontend-test
   backend:
     name: Check Standalone Backend Build
     runs-on: ubuntu-latest
@@ -54,7 +67,43 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build Backend Docker Image
-        run: cd services/backend && docker build . --file Dockerfile --tag justnz/justflow:backend-test
+        run: docker build apps/backend --file apps/backend/Dockerfile --tag justnz/justflow:backend-test
+  runner:
+    name: Check Runner Build
+    runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.runner == 'true' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Runner Docker Image
+        run: docker build . --file apps/runner/Dockerfile --tag justnz/runner:test
+  plugins:
+    name: Check Plugins Build
+    runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.plugins == 'true' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Build Plugin Modules
+        run: |
+          set -euo pipefail
+          while IFS= read -r modfile; do
+            plugin_dir=$(dirname "$modfile")
+            echo "Building ${plugin_dir}"
+            (
+              cd "$plugin_dir"
+              go build ./...
+            )
+          done < <(find runner-plugins -name go.mod | sort)
   justflow:
     name: Check justFlow Build
     runs-on: ubuntu-latest

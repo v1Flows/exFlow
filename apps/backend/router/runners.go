@@ -1,0 +1,56 @@
+package router
+
+import (
+	"github.com/JustLABv1/justflow/apps/backend/handlers/executions"
+	"github.com/JustLABv1/justflow/apps/backend/handlers/runners"
+	"github.com/JustLABv1/justflow/apps/backend/middlewares"
+
+	"github.com/gin-gonic/gin"
+	"github.com/uptrace/bun"
+)
+
+func Runners(router *gin.RouterGroup, db *bun.DB) {
+	// /register uses RunnerRegister middleware (accepts JWT + shared secret)
+	registerGroup := router.Group("/runners").Use(middlewares.RunnerRegister(db))
+	{
+		registerGroup.PUT("/register", func(c *gin.Context) {
+			runners.RegisterRunner(c, db)
+		})
+	}
+
+	// All other runner endpoints require a valid JWT only
+	runner := router.Group("/runners").Use(middlewares.Runner(db))
+	{
+		runner.GET("/", func(c *gin.Context) {
+			runners.GetRunners(c, db)
+		})
+		runner.POST("/", func(c *gin.Context) {
+			runners.CreateRunner(c, db)
+		})
+
+		runner.PUT("/:runnerID", func(c *gin.Context) {
+			runners.EditRunner(c, db)
+		})
+		runner.DELETE("/:runnerID", func(c *gin.Context) {
+			runners.DeleteRunner(c, db)
+		})
+
+		runner.GET("/:runnerID/flows/links", func(c *gin.Context) {
+			runners.GetRunnerFlowLinks(c, db)
+		})
+
+		// Runner Access Endpoints
+		runner.GET("/:runnerID/executions/pending", func(c *gin.Context) {
+			executions.GetPendingExecutions(c, db)
+		})
+		runner.PUT("/:runnerID/heartbeat", middlewares.RunnerHeartbeatRateLimit(), func(c *gin.Context) {
+			runners.Hearbeat(c, db)
+		})
+		runner.PUT("/:runnerID/busy", middlewares.RunnerBusyRateLimit(), func(c *gin.Context) {
+			runners.Busy(c, db)
+		})
+		runner.PUT("/:runnerID/actions", func(c *gin.Context) {
+			runners.SetRunnerActions(c, db)
+		})
+	}
+}
