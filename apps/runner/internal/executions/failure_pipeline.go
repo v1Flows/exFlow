@@ -2,6 +2,7 @@ package internal_executions
 
 import (
 	"errors"
+	"sync"
 	"time"
 
 	"github.com/JustLABv1/justflow/pkg/contracts"
@@ -161,48 +162,50 @@ func startFailurePipeline(cfg *config.Config, workspace string, actions []models
 		}
 	} else {
 		// parallel execution
-		var executedSteps int
-		var failedSteps int
-		var noPatternMatchSteps int
-		var canceledSteps int
-		var successSteps int
+		type stepResult struct {
+			failed         bool
+			canceled       bool
+			noPatternMatch bool
+		}
+
+		var wg sync.WaitGroup
+		resultsCh := make(chan stepResult, len(failurePipelineSteps))
+
 		for _, step := range failurePipelineSteps {
 			if step.Status == "pending" {
+				wg.Add(1)
+				step := step // capture loop variable
 				go func() {
+					defer wg.Done()
+					r := stepResult{}
 					res, success, canceled, err := processStep(cfg, workspace, actions, loadedPlugins, flow, flowBytes, alert, failurePipelineSteps, step, execution)
-					if err != nil {
-						failedSteps++
+					if err != nil || !success {
+						r.failed = true
 					}
-
-					executedSteps++
-
 					if res.Data["status"] == "noPatternMatch" {
-						noPatternMatchSteps++
+						r.noPatternMatch = true
 					}
-
-					if res.Data["status"] == "canceled" {
-						canceledSteps++
+					if res.Data["status"] == "canceled" || canceled {
+						r.canceled = true
 					}
-
-					if canceled {
-						canceledSteps++
-					}
-
-					if !success {
-						failedSteps++
-					}
-
-					if success {
-						successSteps++
-					}
+					resultsCh <- r
 				}()
 			}
 		}
 
-		// wait for all steps to finish
-		for executedSteps < len(failurePipelineSteps) {
-			if executedSteps == len(failurePipelineSteps) {
-				break
+		wg.Wait()
+		close(resultsCh)
+
+		var failedSteps, canceledSteps, noPatternMatchSteps int
+		for r := range resultsCh {
+			if r.failed {
+				failedSteps++
+			}
+			if r.canceled {
+				canceledSteps++
+			}
+			if r.noPatternMatch {
+				noPatternMatchSteps++
 			}
 		}
 

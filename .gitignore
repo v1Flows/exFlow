@@ -58,6 +58,6 @@ apps/backend/vendor/
 apps/backend/go.work
 
 apps/backend/.envrc
-apps/backend/alertflow-backend
+apps/backend/justflow-backend
 
-apps/backend/config.yaml
+apps/backend/config_local.yaml

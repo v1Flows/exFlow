@@ -14,6 +14,14 @@ module.exports = async (phase) => {
   /** @type {import("next").NextConfig} */
   const nextConfig = {
     output: 'standalone',
+    serverExternalPackages: [
+      '@opentelemetry/exporter-trace-otlp-grpc',
+      '@opentelemetry/sdk-node',
+      '@opentelemetry/resources',
+      '@opentelemetry/sdk-trace-node',
+      '@opentelemetry/instrumentation',
+      'require-in-the-middle',
+    ],
     trailingSlash: false,
     env: {
       NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
