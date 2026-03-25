@@ -102,25 +102,27 @@ export default function FlowTabs({
               user={user}
             />
           </Tab>
-          <Tab
-            key="failure-pipelines"
-            title={
-              <div className="flex items-center space-x-2">
-                <Icon height={20} icon="hugeicons:structure-fail" width="20" />
-                <span>Failure Pipelines</span>
-              </div>
-            }
-          >
-            <FlowFailurePipelines
-              canEdit={checkUserCanEdit()}
-              flow={flow}
-              flows={flows}
-              projects={projects}
-              runners={runners}
-              settings={settings}
-              user={user}
-            />
-          </Tab>
+          {!flow.use_dag && (
+            <Tab
+              key="failure-pipelines"
+              title={
+                <div className="flex items-center space-x-2">
+                  <Icon height={20} icon="hugeicons:structure-fail" width="20" />
+                  <span>Failure Pipelines</span>
+                </div>
+              }
+            >
+              <FlowFailurePipelines
+                canEdit={checkUserCanEdit()}
+                flow={flow}
+                flows={flows}
+                projects={projects}
+                runners={runners}
+                settings={settings}
+                user={user}
+              />
+            </Tab>
+          )}
 
           {flow.type === "alert" && (
             <Tab

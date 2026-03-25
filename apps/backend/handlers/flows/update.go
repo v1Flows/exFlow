@@ -98,6 +98,7 @@ func UpdateFlow(context *gin.Context, db *bun.DB) {
 		"always_cleanup_workspace": "always_cleanup_workspace",
 		"patterns":                 "patterns",
 		"exec_parallel":            "exec_parallel",
+		"use_dag":                  "use_dag",
 		"failure_pipeline_id":      "failure_pipeline_id",
 	}
 

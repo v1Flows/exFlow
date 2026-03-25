@@ -19,6 +19,12 @@ func sendFlowActionSteps(cfg *config.Config, execution models.Executions, flow m
 			Status:      "pending",
 		}
 
+		// activate parent_id lineage tracking for single-parent DAG nodes
+		if len(action.DependsOn) == 1 {
+			parentID, _ := parseDep(action.DependsOn[0])
+			step.ParentID = parentID
+		}
+
 		// handle custom name
 		if action.CustomName != "" {
 			step.Action.Name = action.CustomName
