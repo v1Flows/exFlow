@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 import { Button, Chip, Input } from "@heroui/react";
 

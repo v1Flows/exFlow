@@ -111,17 +111,18 @@ type Pattern struct {
 }
 
 type Executions struct {
-	ID            uuid.UUID `json:"id"`
-	FlowID        string    `json:"flow_id"`
-	RunnerID      string    `json:"runner_id"`
-	Status        string    `json:"status"`
-	CreatedAt     time.Time `json:"created_at"`
-	ExecutedAt    time.Time `json:"executed_at"`
-	FinishedAt    time.Time `json:"finished_at"`
-	LastHeartbeat time.Time `json:"last_heartbeat"`
-	ScheduledAt   time.Time `json:"scheduled_at"`
-	TriggeredBy   string    `json:"triggered_by"`
-	AlertID       string    `json:"alert_id"`
+	ID            uuid.UUID              `json:"id"`
+	FlowID        string                 `json:"flow_id"`
+	RunnerID      string                 `json:"runner_id"`
+	Status        string                 `json:"status"`
+	CreatedAt     time.Time              `json:"created_at"`
+	ExecutedAt    time.Time              `json:"executed_at"`
+	FinishedAt    time.Time              `json:"finished_at"`
+	LastHeartbeat time.Time              `json:"last_heartbeat"`
+	ScheduledAt   time.Time              `json:"scheduled_at"`
+	TriggeredBy   string                 `json:"triggered_by"`
+	AlertID       string                 `json:"alert_id"`
+	InputValues   map[string]interface{} `json:"input_values"`
 }
 
 type ExecutionSteps struct {

@@ -71,40 +71,58 @@ export default function EditActionModal({
   const { refreshFlowData, refreshProject } = useRefreshCache();
 
   const [isLoading, setLoading] = useState(false);
-  const [action, setAction] = useState({} as any);
+  const [action, setAction] = useState({
+    condition: {
+      selected_action_id: "",
+      condition_items: [
+        {
+          condition_key: "",
+          condition_type: "",
+          condition_value: "",
+          condition_logic: "and",
+        },
+      ],
+      cancel_execution: false,
+    },
+  } as any);
   const [actionParamsCategorys, setActionParamsCategorys] = useState([] as any);
   const [error, setError] = React.useState(false);
   const [errorText, setErrorText] = React.useState("");
   const [errorMessage, setErrorMessage] = React.useState("");
 
   useEffect(() => {
-    if (!targetAction) {
+    if (!targetAction || !disclosure.isOpen) {
       return;
     }
 
-    if (disclosure.isOpen) {
-      if (
-        targetAction.condition === undefined ||
-        targetAction.condition.condition_items === null
-      ) {
-        targetAction.condition = {
-          selected_action_id: "",
-          condition_items: [
-            {
-              condition_key: "",
-              condition_type: "",
-              condition_value: "",
-              condition_logic: "and",
+    // Ensure condition is always a well-formed object before setting state
+    const normalized = {
+      ...targetAction,
+      condition:
+        targetAction.condition == null ||
+        targetAction.condition.selected_action_id === undefined
+          ? {
+              selected_action_id: "",
+              condition_items: [
+                {
+                  condition_key: "",
+                  condition_type: "",
+                  condition_value: "",
+                  condition_logic: "and",
+                },
+              ],
+              cancel_execution: false,
+            }
+          : {
+              ...targetAction.condition,
+              condition_items:
+                targetAction.condition.condition_items ?? [],
             },
-          ],
-          cancel_execution: false,
-        };
-      }
-    }
+    };
 
-    setAction(targetAction);
-    getParamsCategorys(targetAction.params);
-  }, [targetAction]);
+    setAction(normalized);
+    getParamsCategorys(normalized.params);
+  }, [targetAction, disclosure.isOpen]);
 
   function getParamsCategorys(params: any) {
     const categories = new Set();
@@ -488,6 +506,33 @@ export default function EditActionModal({
 
                   <Tab key="parameters" title="Parameters">
                     <div className="flex flex-col gap-4 pb-4">
+                      {!isProject && flow?.input_params?.length > 0 && (
+                        <div className="flex flex-col gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20">
+                          <p className="text-xs font-medium text-primary uppercase tracking-wider">
+                            Available Input Variables
+                          </p>
+                          <p className="text-tiny text-default-400">
+                            Use these placeholders in parameter values to pass user-provided inputs at runtime.
+                          </p>
+                          <div className="flex flex-wrap gap-1.5 mt-1">
+                            {flow.input_params.map((ip: any) => (
+                              <Chip
+                                key={ip.id}
+                                className="cursor-pointer font-mono text-tiny"
+                                color="primary"
+                                size="sm"
+                                variant="flat"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(`{{inputs.${ip.name}}}`);
+                                  addToast({ title: "Copied", description: `{{inputs.${ip.name}}} copied to clipboard`, color: "success", variant: "flat" });
+                                }}
+                              >
+                                {`{{inputs.${ip.name}}}`}
+                              </Chip>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                       {actionParamsCategorys.length > 0 ? (
                         <div className="flex flex-col gap-6">
                           {actionParamsCategorys.map((category: any) => (

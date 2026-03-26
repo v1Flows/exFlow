@@ -56,6 +56,8 @@ export function AdminUsersList({ users }: any) {
     switch (role) {
       case "admin":
         return "danger";
+      case "editor":
+        return "primary";
       case "vip":
         return "warning";
       default:

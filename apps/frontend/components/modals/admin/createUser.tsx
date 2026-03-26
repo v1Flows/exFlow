@@ -320,6 +320,9 @@ export default function AdminCreateUserModal({
                           onSelectionChange={handleSelectRole}
                         >
                           <SelectItem key="user">User</SelectItem>
+                          <SelectItem key="editor" color="primary">
+                            Editor
+                          </SelectItem>
                           <SelectItem key="admin" color="danger">
                             Admin
                           </SelectItem>

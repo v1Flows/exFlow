@@ -100,6 +100,7 @@ func UpdateFlow(context *gin.Context, db *bun.DB) {
 		"exec_parallel":            "exec_parallel",
 		"use_dag":                  "use_dag",
 		"failure_pipeline_id":      "failure_pipeline_id",
+		"input_params":             "input_params",
 	}
 
 	columns := []string{"updated_at"}

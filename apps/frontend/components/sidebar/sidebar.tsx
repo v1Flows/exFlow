@@ -153,6 +153,38 @@ export default function Sidebar({
 
         <Spacer y={4} />
 
+        {/* Services Management — Editor/Admin */}
+        {(userDetails.role === "admin" || userDetails.role === "editor") && (
+          <>
+            {!isCollapsed && (
+              <p className="px-2 text-xs font-bold uppercase text-default-400">
+                Manage
+              </p>
+            )}
+            <div className="mt-2 flex flex-col gap-1">
+              <Tooltip
+                content={isCollapsed ? "Create Service Page" : null}
+                placement="right"
+              >
+                <NextLink
+                  className={clsx(
+                    "flex items-center gap-3 rounded-large px-3 py-2.5 transition-colors",
+                    pathname === "/services/create"
+                      ? "bg-primary/10 text-primary font-medium"
+                      : "text-default-500 hover:bg-default-100/50 hover:text-foreground",
+                    isCollapsed && "justify-center px-0",
+                  )}
+                  href="/services/create"
+                >
+                  <Icon icon="hugeicons:add-square" width={22} />
+                  {!isCollapsed && <span>Create Service Page</span>}
+                </NextLink>
+              </Tooltip>
+            </div>
+            <Spacer y={2} />
+          </>
+        )}
+
         {/* Admin Section */}
         {userDetails.role === "admin" && (
           <>
@@ -264,6 +296,9 @@ export default function Sidebar({
                 {userDetails.username}
                 {userDetails.role === "admin" && (
                   <span className="ml-1 font-bold text-danger">Admin</span>
+                )}
+                {userDetails.role === "editor" && (
+                  <span className="ml-1 font-bold text-primary">Editor</span>
                 )}
               </p>
             </DropdownItem>

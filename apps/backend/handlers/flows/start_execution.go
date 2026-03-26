@@ -1,19 +1,25 @@
 package flows
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
-	"github.com/google/uuid"
-	log "github.com/sirupsen/logrus"
 	"github.com/JustLABv1/justflow/apps/backend/functions/auth"
 	"github.com/JustLABv1/justflow/apps/backend/functions/encryption"
 	"github.com/JustLABv1/justflow/apps/backend/functions/httperror"
 	"github.com/JustLABv1/justflow/apps/backend/pkg/models"
+	"github.com/google/uuid"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/gin-gonic/gin"
 	"github.com/uptrace/bun"
 )
+
+type startExecutionRequest struct {
+	Inputs map[string]interface{} `json:"inputs"`
+}
 
 func StartExecution(context *gin.Context, db *bun.DB) {
 	flowID := context.Param("flowID")
@@ -24,6 +30,25 @@ func StartExecution(context *gin.Context, db *bun.DB) {
 	if err != nil {
 		httperror.InternalServerError(context, "Error fetching flow data", err)
 		return
+	}
+
+	// parse optional request body for input values
+	var req startExecutionRequest
+	// ShouldBindJSON is best-effort; empty body is fine for flows without inputs
+	_ = context.ShouldBindJSON(&req)
+	if req.Inputs == nil {
+		req.Inputs = map[string]interface{}{}
+	}
+
+	// validate required input params
+	for _, param := range flow.InputParams {
+		if param.Required {
+			val, exists := req.Inputs[param.Name]
+			if !exists || val == nil || fmt.Sprintf("%v", val) == "" {
+				httperror.StatusBadRequest(context, fmt.Sprintf("Required input '%s' is missing", param.Label), errors.New("missing required input"))
+				return
+			}
+		}
 	}
 
 	// get project data
@@ -51,6 +76,7 @@ func StartExecution(context *gin.Context, db *bun.DB) {
 	execution.FlowID = flowID
 	execution.Status = "pending"
 	execution.TriggeredBy = tokenType
+	execution.InputValues = req.Inputs
 	_, err = db.NewInsert().Model(&execution).Exec(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error creating execution on db", err)

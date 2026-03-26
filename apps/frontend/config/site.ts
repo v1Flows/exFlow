@@ -30,6 +30,16 @@ export const siteConfig = {
       href: "/runners",
       icon: "hugeicons:ai-brain-04",
     },
+    {
+      label: "Services",
+      href: "/services",
+      icon: "hugeicons:layout-01",
+    },
+    {
+      label: "Portal",
+      href: "/portal",
+      icon: "hugeicons:search-list-02",
+    },
   ],
   navMenuItems: [
     {
@@ -51,6 +61,14 @@ export const siteConfig = {
     {
       label: "Runners",
       href: "/runners",
+    },
+    {
+      label: "Services",
+      href: "/services",
+    },
+    {
+      label: "Portal",
+      href: "/portal",
     },
   ],
   links: {

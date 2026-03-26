@@ -12,6 +12,7 @@ import FlowStats from "./stats";
 import FlowSettings from "./settings";
 import FlowInfo from "./info";
 import FlowFailurePipelines from "./failure-pipelines";
+import FlowInputParams from "./input-params";
 
 export default function FlowTabs({
   projects,
@@ -155,6 +156,20 @@ export default function FlowTabs({
             <FlowInfo flow={flow} />
             <Spacer y={4} />
             <FlowStats flowID={flow.id} />
+          </Tab>
+          <Tab
+            key="input-params"
+            title={
+              <div className="flex items-center space-x-2">
+                <Icon icon="hugeicons:form-01" width={20} />
+                <span>Input Parameters</span>
+              </div>
+            }
+          >
+            <FlowInputParams
+              canEdit={checkUserCanEdit()}
+              flow={flow}
+            />
           </Tab>
           <Tab
             key="settings"

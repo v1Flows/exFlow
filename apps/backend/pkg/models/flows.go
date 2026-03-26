@@ -35,6 +35,21 @@ type Flows struct {
 	GroupAlertsIdentifier  string            `bun:"group_alerts_identifier,type:text,default:''" json:"group_alerts_identifier"`
 	AlertThreshold         int               `bun:"alert_threshold,type:int,default:0" json:"alert_threshold"`
 	AlwaysCleanupWorkspace bool              `bun:"always_cleanup_workspace,type:bool,default:false" json:"always_cleanup_workspace"`
+	InputParams            []InputParam      `bun:"type:jsonb,default:jsonb('[]')" json:"input_params"`
+}
+
+// InputParam defines a user-facing input field for a flow.
+// Values supplied by the user at execution time are stored as InputValues on the Execution.
+type InputParam struct {
+	ID          string   `json:"id"`
+	Name        string   `json:"name"`
+	Label       string   `json:"label"`
+	Description string   `json:"description"`
+	Type        string   `json:"type"` // text | number | boolean | select | textarea
+	Required    bool     `json:"required"`
+	Default     string   `json:"default"`
+	Options     []Option `json:"options,omitempty"` // for type=select
+	Order       int      `json:"order"`
 }
 
 type NodePosition struct {

@@ -158,6 +158,7 @@ export default function AdminEditUserModal({
                   onSelectionChange={setRole}
                 >
                   <SelectItem key="user">User</SelectItem>
+                  <SelectItem key="editor">Editor</SelectItem>
                   <SelectItem key="admin">Admin</SelectItem>
                 </Select>
                 <Input
