@@ -1,6 +1,4 @@
 "use client";
-
-import type { ButtonProps } from "@heroui/react";
 import type { ComponentProps } from "react";
 
 import { useControlledState } from "@react-stately/utils";
@@ -25,7 +23,13 @@ export type MinimalRowStepsProps = {
    *
    * @default "primary"
    */
-  color?: ButtonProps["color"];
+  color?:
+    | "primary"
+    | "secondary"
+    | "success"
+    | "warning"
+    | "danger"
+    | "default";
   /**
    * The current step index.
    */
@@ -119,8 +123,8 @@ const MinimalRowSteps = ({
 
     switch (color) {
       case "primary":
-        userColor = "[--step-color:var(--heroui-primary)]";
-        fgColor = "[--step-fg-color:var(--heroui-primary-foreground)]";
+        userColor = "[--step-color:var(--heroui-accent)]";
+        fgColor = "[--step-fg-color:var(--heroui-accent-foreground)]";
         break;
       case "secondary":
         userColor = "[--step-color:var(--heroui-secondary)]";
@@ -143,8 +147,8 @@ const MinimalRowSteps = ({
         fgColor = "[--step-fg-color:var(--heroui-default-foreground)]";
         break;
       default:
-        userColor = "[--step-color:var(--heroui-primary)]";
-        fgColor = "[--step-fg-color:var(--heroui-primary-foreground)]";
+        userColor = "[--step-color:var(--heroui-accent)]";
+        fgColor = "[--step-fg-color:var(--heroui-accent-foreground)]";
         break;
     }
 
@@ -157,7 +161,7 @@ const MinimalRowSteps = ({
   return (
     <nav aria-label="Progress" className="flex max-w-fit items-center">
       {label && (
-        <label className="w-28 text-small font-medium text-default-foreground lg:text-medium">
+        <label className="w-28 text-sm font-medium text-default-foreground lg:text-base">
           {label}
         </label>
       )}
@@ -186,7 +190,7 @@ const MinimalRowSteps = ({
                 ref={ref}
                 aria-current={status === "active" ? "step" : undefined}
                 className={cn(
-                  "group flex w-full cursor-pointer flex-row items-center justify-center gap-x-3 rounded-large py-2.5",
+                  "group flex w-full cursor-pointer flex-row items-center justify-center gap-x-3 rounded-lg py-2.5",
                   stepClassName,
                 )}
                 onClick={() => setCurrentStep(stepIdx)}
@@ -197,7 +201,7 @@ const MinimalRowSteps = ({
                     <m.div animate={status} className="relative">
                       <m.div
                         className={cn(
-                          "relative flex h-[26px] w-[26px] items-center justify-center rounded-full border-medium text-large font-semibold text-default-foreground",
+                          "relative flex h-[26px] w-[26px] items-center justify-center rounded-full border-2 text-lg font-semibold text-default-foreground",
                           {
                             "shadow-lg": status === "complete",
                           },
@@ -243,7 +247,7 @@ const MinimalRowSteps = ({
                   >
                     <div
                       className={cn(
-                        "relative h-0.5 w-full bg-default-200 transition-colors duration-300",
+                        "relative h-0.5 w-full bg-default transition-colors duration-300",
                         "after:absolute after:block after:h-full after:w-0 after:bg-(--active-border-color) after:transition-[width] after:duration-300 after:content-['']",
                         {
                           "after:w-full": stepIdx < currentStep,

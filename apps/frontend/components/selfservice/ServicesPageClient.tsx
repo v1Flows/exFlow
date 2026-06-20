@@ -1,22 +1,16 @@
 "use client";
-
 import { Button, Skeleton } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-
 import PageCard from "@/components/selfservice/PageCard";
 import { useSelfServicePages } from "@/lib/swr/hooks/selfservice";
 import { useUserDetails } from "@/lib/swr/hooks/flows";
-
 export default function ServicesPageClient() {
   const router = useRouter();
   const { pages, isLoading } = useSelfServicePages();
   const { user } = useUserDetails();
-
-  const canManage =
-    user?.role === "admin" || user?.role === "editor";
-
+  const canManage = user?.role === "admin" || user?.role === "editor";
   return (
     <div className="p-4 space-y-6">
       <motion.div
@@ -26,16 +20,16 @@ export default function ServicesPageClient() {
       >
         <div>
           <h1 className="text-2xl font-bold">Services</h1>
-          <p className="text-default-400 text-sm mt-1">
+          <p className="text-muted text-sm mt-1">
             Run self-service workflows and automate tasks.
           </p>
         </div>
         {canManage && (
           <Button
-            color="primary"
-            startContent={<Icon icon="hugeicons:add-01" width={18} />}
             onPress={() => router.push("/services/create")}
+            variant="primary"
           >
+            {<Icon icon="hugeicons:add-01" width={18} />}
             New Service Page
           </Button>
         )}
@@ -50,7 +44,7 @@ export default function ServicesPageClient() {
       ) : pages.length === 0 ? (
         <motion.div
           animate={{ opacity: 1 }}
-          className="flex flex-col items-center justify-center py-24 text-default-400"
+          className="flex flex-col items-center justify-center py-24 text-muted"
           initial={{ opacity: 0 }}
         >
           <Icon icon="hugeicons:layout-01" width={56} />

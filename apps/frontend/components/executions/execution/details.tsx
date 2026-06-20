@@ -2,13 +2,11 @@ import { Icon } from "@iconify/react";
 import { Tooltip } from "@heroui/react";
 import NumberFlow from "@number-flow/react";
 import ReactTimeago from "react-timeago";
-
 import {
   executionStatusColor,
   executionStatusName,
   executionStatusWrapper,
 } from "@/lib/functions/executionStyles";
-
 interface StatCardProps {
   icon: string;
   label: string;
@@ -19,7 +17,6 @@ interface StatCardProps {
   color?: string;
   tooltip?: string;
 }
-
 function StatCard({
   icon,
   label,
@@ -35,37 +32,32 @@ function StatCard({
         <Icon icon={icon} width={20} />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-default-500">{label}</p>
+        <p className="truncate text-sm font-medium text-muted">{label}</p>
         <div className="truncate text-sm font-bold text-foreground">
           {value}
         </div>
       </div>
     </div>
   );
-
   if (tooltip) {
     return (
-      <Tooltip content={tooltip} placement="top">
-        {content}
+      <Tooltip>
+        <Tooltip.Trigger>{content}</Tooltip.Trigger>
+        <Tooltip.Content placement="top">{tooltip}</Tooltip.Content>
       </Tooltip>
     );
   }
-
   return content;
 }
-
 export default function ExecutionDetails({ runners, execution, steps }: any) {
   function getDuration() {
     let calFinished = new Date().toISOString();
-
     if (execution.executed_at === "0001-01-01T00:00:00Z") {
       return "N/A";
     }
-
     if (execution.finished_at !== "0001-01-01T00:00:00Z") {
       calFinished = execution.finished_at;
     }
-
     const ms =
       new Date(calFinished).getTime() -
       new Date(execution.executed_at).getTime();
@@ -73,7 +65,6 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
     const min = Math.floor(sec / 60);
     const hr = Math.floor(min / 60);
     const day = Math.floor(hr / 24);
-
     if (day > 0) {
       return `${day}d ${hr % 24}h ${min % 60}m ${sec % 60}s`;
     } else if (hr > 0) {
@@ -84,19 +75,15 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
       return `${sec}s`;
     }
   }
-
   function heartbeatColor() {
     const timeAgo =
       (new Date(execution.last_heartbeat).getTime() - Date.now()) / 1000;
-
     if (execution.status === "pending" || execution.status === "scheduled") {
       return "default";
     }
-
     if (execution.status === "success" || execution.status === "recovered") {
       return "success";
     }
-
     if (timeAgo < 0 && timeAgo > -10) {
       return "success";
     } else if (timeAgo <= -10 && timeAgo > -20) {
@@ -104,34 +91,26 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
     } else if (timeAgo <= -20) {
       return "danger";
     }
-
     return "default";
   }
-
   function heartbeatStatus() {
     const timeAgo =
       (new Date(execution.last_heartbeat).getTime() - Date.now()) / 1000;
-
     if (execution.status === "pending" || execution.status === "scheduled") {
       return "N/A";
     }
-
     if (execution.status === "success") {
       return "Healthy";
     }
-
     if (timeAgo < 0 && timeAgo > -10) {
       return "Healthy";
     } else if (timeAgo <= -11) {
       return "Unhealthy";
     }
-
     return "Unknown";
   }
-
   const runnerName =
     runners.find((r: any) => r.id === execution.runner_id)?.name || "N/A";
-
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
       {/* Status */}
@@ -140,9 +119,7 @@ export default function ExecutionDetails({ runners, execution, steps }: any) {
           {executionStatusWrapper(execution)}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium text-default-500">
-            Status
-          </p>
+          <p className="truncate text-sm font-medium text-muted">Status</p>
           <p
             className={`truncate text-sm font-bold text-${executionStatusColor(execution)}`}
           >

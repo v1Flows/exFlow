@@ -1,81 +1,64 @@
-import type { UseDisclosureReturn } from "@heroui/use-disclosure";
-
+import { CopySnippet } from "@/components/ui/copy-snippet";
 import {
-  addToast,
   Button,
+  Description,
+  FieldError,
   Input,
+  InputGroup,
+  Label,
   Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Snippet,
+  TextField,
+  toast,
+  type UseOverlayStateReturn,
 } from "@heroui/react";
 import React from "react";
 import { Icon } from "@iconify/react";
-
 import ErrorCard from "@/components/error/ErrorCard";
 import ChangeProjectTokenStatus from "@/lib/fetch/project/PUT/ChangeProjectTokenStatus";
 import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
-
 export default function ChangeProjectTokenStatusModal({
   disclosure,
   projectID,
   token,
   disabled,
 }: {
-  disclosure: UseDisclosureReturn;
+  disclosure: UseOverlayStateReturn;
   projectID: string;
   token: any;
   disabled: any;
 }) {
   const { refreshProjectTokens } = useRefreshCache();
-
-  const { isOpen, onOpenChange } = disclosure;
-
+  const { isOpen, setOpen: onOpenChange } = disclosure;
   const [disableReason, setDisableReason] = React.useState("");
   const [isLoading, setLoading] = React.useState(false);
   const [error, setError] = React.useState(false);
   const [errorText, setErrorText] = React.useState("");
   const [errorMessage, setErrorMessage] = React.useState("");
-
   async function changeTokenStatus() {
     setLoading(true);
-
     const res = (await ChangeProjectTokenStatus(
       projectID,
       token.id,
       disabled,
       disableReason || "no info provided",
     )) as any;
-
     if (!res) {
       setLoading(false);
       setError(true);
       setErrorText("Failed to update token status");
       setErrorMessage("Failed to update token status");
-      addToast({
-        title: "Project",
-        description: "Failed to update token status",
-        color: "danger",
-        variant: "flat",
-      });
-
+      toast.danger("Project", { description: "Failed to update token status" });
       return;
     }
-
     if (res.success) {
       setLoading(false);
       setError(false);
       setErrorText("");
       setErrorMessage("");
-      onOpenChange();
+      onOpenChange(false);
       refreshProjectTokens(projectID);
-      addToast({
-        title: "Project",
+      toast.success("Project", {
         description: "Token status updated successfully",
-        color: "success",
-        variant: "flat",
       });
     } else {
       setLoading(false);
@@ -83,114 +66,98 @@ export default function ChangeProjectTokenStatusModal({
       setErrorText(res.error);
       setErrorMessage(res.message);
       refreshProjectTokens(projectID);
-      addToast({
-        title: "Project",
-        description: "Failed to update token status",
-        color: "danger",
-        variant: "flat",
-      });
+      toast.danger("Project", { description: "Failed to update token status" });
     }
   }
-
   return (
     <main>
-      <Modal isOpen={isOpen} placement="top-center" onOpenChange={onOpenChange}>
-        {disabled && (
-          <ModalContent>
-            {(onClose) => (
-              <>
-                <ModalHeader className="flex flex-wrap items-center">
-                  <div className="flex flex-col">
-                    <p className="text-lg font-bold">Disable Token</p>
-                    <p className="text-sm text-default-500">
-                      Are you sure you want to disable this token?
-                    </p>
-                  </div>
-                </ModalHeader>
-                <ModalBody>
-                  {error && (
-                    <ErrorCard error={errorText} message={errorMessage} />
-                  )}
-                  <Snippet hideCopyButton hideSymbol>
-                    <span>ID: {token.id}</span>
-                  </Snippet>
-                  <Input
-                    label="Disable Reason"
-                    placeholder="Enter the reason for disabling this flow"
-                    value={disableReason}
-                    variant="flat"
-                    onValueChange={setDisableReason}
-                  />
-                </ModalBody>
-                <ModalFooter>
-                  <Button
-                    color="default"
-                    startContent={
-                      <Icon icon="hugeicons:cancel-01" width={18} />
-                    }
-                    variant="ghost"
-                    onPress={onClose}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    color="danger"
-                    isLoading={isLoading}
-                    startContent={
-                      <Icon icon="hugeicons:square-lock-01" width={18} />
-                    }
-                    onPress={changeTokenStatus}
-                  >
-                    Disable
-                  </Button>
-                </ModalFooter>
-              </>
+      <Modal>
+        <Modal.Backdrop isOpen={isOpen} onOpenChange={onOpenChange}>
+          <Modal.Container placement="top">
+            {disabled && (
+              <Modal.Dialog>
+                {({ close: onClose }) => (
+                  <>
+                    <Modal.Header className="flex flex-wrap items-center">
+                      <Modal.Heading>
+                        <div className="flex flex-col">
+                          <p className="text-lg font-bold">Disable Token</p>
+                          <p className="text-sm text-muted">
+                            Are you sure you want to disable this token?
+                          </p>
+                        </div>
+                      </Modal.Heading>
+                    </Modal.Header>
+                    <Modal.Body>
+                      {error && (
+                        <ErrorCard error={errorText} message={errorMessage} />
+                      )}
+                      <CopySnippet copyable={false} showPrompt={false}>
+                        <span>ID: {token.id}</span>
+                      </CopySnippet>
+                      <TextField
+                        value={disableReason}
+                        onChange={setDisableReason}
+                      >
+                        <Label>{"Disable Reason"}</Label>
+                        <InputGroup>
+                          <Input placeholder="Enter the reason for disabling this flow" />
+                        </InputGroup>
+                      </TextField>
+                    </Modal.Body>
+                    <Modal.Footer>
+                      <Button variant="ghost" onPress={onClose}>
+                        {<Icon icon="hugeicons:cancel-01" width={18} />}
+                        Cancel
+                      </Button>
+                      <Button
+                        isPending={isLoading}
+                        onPress={changeTokenStatus}
+                        variant="danger"
+                      >
+                        {<Icon icon="hugeicons:square-lock-01" width={18} />}
+                        Disable
+                      </Button>
+                    </Modal.Footer>
+                  </>
+                )}
+              </Modal.Dialog>
             )}
-          </ModalContent>
-        )}
-        {!disabled && (
-          <ModalContent>
-            {(onClose) => (
-              <>
-                <ModalHeader className="flex flex-wrap items-center">
-                  <div className="flex flex-col">
-                    <p className="text-lg font-bold">Enable Token</p>
-                    <p className="text-sm text-default-500">
-                      Are you sure you want to enable this token?
-                    </p>
-                  </div>
-                </ModalHeader>
-                <ModalBody>
-                  <Snippet hideCopyButton hideSymbol>
-                    <span>ID: {token.id}</span>
-                  </Snippet>
-                </ModalBody>
-                <ModalFooter>
-                  <Button
-                    color="default"
-                    startContent={
-                      <Icon icon="hugeicons:cancel-01" width={18} />
-                    }
-                    variant="flat"
-                    onPress={onClose}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    color="success"
-                    isLoading={isLoading}
-                    startContent={
-                      <Icon icon="hugeicons:square-unlock-01" width={18} />
-                    }
-                    onPress={changeTokenStatus}
-                  >
-                    Enable
-                  </Button>
-                </ModalFooter>
-              </>
+            {!disabled && (
+              <Modal.Dialog>
+                {({ close: onClose }) => (
+                  <>
+                    <Modal.Header className="flex flex-wrap items-center">
+                      <Modal.Heading>
+                        <div className="flex flex-col">
+                          <p className="text-lg font-bold">Enable Token</p>
+                          <p className="text-sm text-muted">
+                            Are you sure you want to enable this token?
+                          </p>
+                        </div>
+                      </Modal.Heading>
+                    </Modal.Header>
+                    <Modal.Body>
+                      <CopySnippet copyable={false} showPrompt={false}>
+                        <span>ID: {token.id}</span>
+                      </CopySnippet>
+                    </Modal.Body>
+                    <Modal.Footer>
+                      <Button onPress={onClose}>
+                        {<Icon icon="hugeicons:cancel-01" width={18} />}
+                        Cancel
+                      </Button>
+                      <Button isPending={isLoading} onPress={changeTokenStatus}>
+                        {<Icon icon="hugeicons:square-unlock-01" width={18} />}
+                        Enable
+                      </Button>
+                    </Modal.Footer>
+                  </>
+                )}
+              </Modal.Dialog>
             )}
-          </ModalContent>
-        )}
+          </Modal.Container>
+        </Modal.Backdrop>
       </Modal>
     </main>
   );

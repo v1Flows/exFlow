@@ -1,5 +1,3 @@
-import { Divider } from "@heroui/react";
-
 import GetUserDetails from "@/lib/fetch/user/getDetails";
 import AdminGetFlows from "@/lib/fetch/admin/flows";
 import AdminGetProjects from "@/lib/fetch/admin/projects";
@@ -35,7 +33,7 @@ export default async function AdminFlowsPage() {
               folders={folders.data.folders}
               projects={projects.data.projects}
             />
-            <Divider className="mt-4 mb-4" />
+            <hr className="my-4 border-default" />
             <AdminFlowsList
               flows={flows.data.flows}
               folders={folders.data.folders}

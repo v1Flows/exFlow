@@ -1,5 +1,3 @@
-import { Divider } from "@heroui/react";
-
 import AdminRunnersHeading from "@/components/admin/runners/heading";
 import RunnersList from "@/components/runners/list";
 import AdminGetProjects from "@/lib/fetch/admin/projects";
@@ -23,7 +21,7 @@ export default async function AdminRunnersPage() {
   return (
     <main>
       <AdminRunnersHeading settings={settings.data.settings} />
-      <Divider className="mt-4 mb-4" />
+      <hr className="my-4 border-default" />
       {projects.success && runners.success && userDetails.success && (
         <RunnersList
           globalView

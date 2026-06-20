@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useCallback, useMemo, useState } from "react";
 import {
   Background,
@@ -13,10 +12,9 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { Icon } from "@iconify/react";
-import { Button, useDisclosure } from "@heroui/react";
+import { Button, useOverlayState } from "@heroui/react";
 import { useTheme } from "next-themes";
 import { v4 as uuidv4 } from "uuid";
-
 import ActionNode from "./ActionNode";
 import { useFlowDAG } from "./useFlowDAG";
 import PluginSidebar from "./PluginSidebar";
@@ -28,9 +26,7 @@ import DeleteActionModal from "@/components/modals/actions/delete";
 import UpgradeActionModal from "@/components/modals/actions/upgrade";
 import CopyActionToDifferentFlowModal from "@/components/modals/actions/transferCopy";
 import UpdateFlowActions from "@/lib/fetch/flow/PUT/UpdateActions";
-
 const nodeTypes = { actionNode: ActionNode };
-
 const DEFAULT_CONDITION = {
   selected_action_id: "",
   condition_items: [
@@ -43,7 +39,6 @@ const DEFAULT_CONDITION = {
   ],
   cancel_execution: false,
 };
-
 function FlowCanvasInner({
   flow,
   flows,
@@ -61,47 +56,34 @@ function FlowCanvasInner({
   canEdit: boolean;
   settings: any;
 }) {
-  const {
-    nodes,
-    edges,
-    onNodesChange,
-    onEdgesChange,
-    onConnect,
-    actionsRef,
-  } = useFlowDAG(flow);
-
+  const { nodes, edges, onNodesChange, onEdgesChange, onConnect, actionsRef } =
+    useFlowDAG(flow);
   const { screenToFlowPosition } = useReactFlow();
-
   const [targetAction, setTargetAction] = useState<any>({});
   const [updatedAction, setUpdatedAction] = useState<any>({});
   const [sidebarOpen, setSidebarOpen] = useState(true);
-
-  const viewFlowActionDetails = useDisclosure();
-  const addFlowActionModal = useDisclosure();
-  const editActionModal = useDisclosure();
-  const copyFlowActionModal = useDisclosure();
-  const upgradeFlowActionModal = useDisclosure();
-  const deleteActionModal = useDisclosure();
-  const copyActionToDifferentFlowModal = useDisclosure();
-
+  const viewFlowActionDetails = useOverlayState();
+  const addFlowActionModal = useOverlayState();
+  const editActionModal = useOverlayState();
+  const copyFlowActionModal = useOverlayState();
+  const upgradeFlowActionModal = useOverlayState();
+  const deleteActionModal = useOverlayState();
+  const copyActionToDifferentFlowModal = useOverlayState();
   const isDisabled = (!canEdit || flow.disabled) && user.role !== "admin";
-
   const handleNodeOpen = useCallback(
     (action: any) => {
       setTargetAction(action);
-      viewFlowActionDetails.onOpen();
+      viewFlowActionDetails.open();
     },
     [viewFlowActionDetails],
   );
-
   const handleNodeEdit = useCallback(
     (action: any) => {
       setTargetAction(action);
-      editActionModal.onOpen();
+      editActionModal.open();
     },
     [editActionModal],
   );
-
   const handleNodeCopy = useCallback(
     (action: any) => {
       // Duplicate the node directly in the canvas at a slight offset
@@ -110,7 +92,9 @@ function FlowCanvasInner({
       const duplicate = {
         ...original,
         id: uuidv4(),
-        custom_name: original.custom_name ? `${original.custom_name} (copy)` : "",
+        custom_name: original.custom_name
+          ? `${original.custom_name} (copy)`
+          : "",
         position: {
           x: (original.position?.x ?? 0) + 40,
           y: (original.position?.y ?? 0) + 40,
@@ -122,19 +106,17 @@ function FlowCanvasInner({
       actionsRef.current = updatedActions;
       void UpdateFlowActions(flow.id, updatedActions);
       setTargetAction(duplicate);
-      setTimeout(() => editActionModal.onOpen(), 0);
+      setTimeout(() => editActionModal.open(), 0);
     },
     [actionsRef, flow.id, editActionModal],
   );
-
   const handleNodeDelete = useCallback(
     (action: any) => {
       setTargetAction(action);
-      deleteActionModal.onOpen();
+      deleteActionModal.open();
     },
     [deleteActionModal],
   );
-
   const nodesWithHandlers = useMemo(
     () =>
       nodes.map((node) => ({
@@ -149,59 +131,53 @@ function FlowCanvasInner({
       })),
     [nodes, handleNodeOpen, handleNodeEdit, handleNodeCopy, handleNodeDelete],
   );
-
   const { theme } = useTheme();
   const colorMode = theme === "light" ? "light" : "dark";
-
   // Drop handler: create a new node from a dragged sidebar action
   const onDrop = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
       const raw = e.dataTransfer.getData("application/reactflow");
       if (!raw) return;
-
       let plugin: any;
       try {
         plugin = JSON.parse(raw);
       } catch {
         return;
       }
-
       const position = screenToFlowPosition({ x: e.clientX, y: e.clientY });
-
       const newAction = {
         ...plugin,
         id: uuidv4(),
         custom_name: "",
         custom_description: "",
-        params: (plugin.params ?? []).map((p: any) => ({ ...p, value: p.default ?? "" })),
+        params: (plugin.params ?? []).map((p: any) => ({
+          ...p,
+          value: p.default ?? "",
+        })),
         depends_on: [],
         position,
         active: true,
         failure_pipeline_id: "",
         condition: DEFAULT_CONDITION,
       };
-
       const updatedActions = [...actionsRef.current, newAction];
       actionsRef.current = updatedActions;
       void UpdateFlowActions(flow.id, updatedActions);
-
       // Set targetAction first, defer modal open so the edit modal's useEffect
       // can populate its internal `action` state before content renders.
       setTargetAction(newAction);
-      setTimeout(() => editActionModal.onOpen(), 0);
+      setTimeout(() => editActionModal.open(), 0);
     },
     [screenToFlowPosition, actionsRef, flow.id, editActionModal],
   );
-
   const onDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "copy";
   }, []);
-
   return (
     <div
-      className="flex rounded-xl border border-default-100 overflow-hidden bg-content1"
+      className="flex rounded-xl border border-default overflow-hidden bg-surface"
       style={{ height: 600 }}
     >
       {/* Collapsible action sidebar */}
@@ -226,27 +202,29 @@ function FlowCanvasInner({
           nodes={nodesWithHandlers}
           snapGrid={[20, 20]}
           snapToGrid
-          style={{
-            "--xy-background-color-default": "hsl(var(--heroui-content1))",
-            "--xy-background-pattern-dots-color-default":
-              "hsl(var(--heroui-default-300))",
-            "--xy-edge-stroke-default": "hsl(var(--heroui-primary))",
-            "--xy-edge-stroke-selected-default":
-              "hsl(var(--heroui-primary-400))",
-            "--xy-connectionline-stroke-default": "hsl(var(--heroui-primary))",
-            "--xy-controls-button-background-color-default":
-              "hsl(var(--heroui-content2))",
-            "--xy-controls-button-background-color-hover-default":
-              "hsl(var(--heroui-content3))",
-            "--xy-controls-button-color-default":
-              "hsl(var(--heroui-foreground))",
-            "--xy-controls-button-border-color-default":
-              "hsl(var(--heroui-default-100))",
-            "--xy-minimap-background-color-default":
-              "hsl(var(--heroui-content2))",
-            "--xy-minimap-mask-background-color-default":
-              "hsl(var(--heroui-content1) / 0.7)",
-          } as React.CSSProperties}
+          style={
+            {
+              "--xy-background-color-default": "hsl(var(--heroui-content1))",
+              "--xy-background-pattern-dots-color-default":
+                "hsl(var(--heroui-default-300))",
+              "--xy-edge-stroke-default": "hsl(var(--heroui-accent))",
+              "--xy-edge-stroke-selected-default":
+                "hsl(var(--heroui-accent-400))",
+              "--xy-connectionline-stroke-default": "hsl(var(--heroui-accent))",
+              "--xy-controls-button-background-color-default":
+                "hsl(var(--heroui-content2))",
+              "--xy-controls-button-background-color-hover-default":
+                "hsl(var(--heroui-content3))",
+              "--xy-controls-button-color-default":
+                "hsl(var(--heroui-foreground))",
+              "--xy-controls-button-border-color-default":
+                "hsl(var(--heroui-default-100))",
+              "--xy-minimap-background-color-default":
+                "hsl(var(--heroui-content2))",
+              "--xy-minimap-mask-background-color-default":
+                "hsl(var(--heroui-content1) / 0.7)",
+            } as React.CSSProperties
+          }
           onConnect={isDisabled ? undefined : onConnect}
           onDragOver={isDisabled ? undefined : onDragOver}
           onDrop={isDisabled ? undefined : onDrop}
@@ -258,20 +236,20 @@ function FlowCanvasInner({
             {!sidebarOpen && (
               <div className="flex gap-2">
                 <Button
-                  isIconOnly
                   size="sm"
-                  variant="flat"
+                  variant="tertiary"
                   onPress={() => setSidebarOpen(true)}
+                  className="aspect-square p-0"
                 >
                   <Icon icon="hugeicons:sidebar-right" width={16} />
                 </Button>
                 <Button
-                  color="primary"
                   isDisabled={isDisabled || !settings.add_flow_actions}
                   size="sm"
-                  startContent={<Icon icon="hugeicons:plus-sign" width={16} />}
-                  onPress={addFlowActionModal.onOpen}
+                  onPress={addFlowActionModal.open}
+                  variant="primary"
                 >
+                  {<Icon icon="hugeicons:plus-sign" width={16} />}
                   Add Action
                 </Button>
               </div>
@@ -355,7 +333,6 @@ function FlowCanvasInner({
     </div>
   );
 }
-
 export default function FlowCanvas(props: {
   flow: any;
   flows: any;

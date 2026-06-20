@@ -1,16 +1,6 @@
 "use client";
-
 import { Icon } from "@iconify/react";
-import {
-  addToast,
-  Card,
-  CardBody,
-  CardHeader,
-  Chip,
-  cn,
-  Tab,
-  Tabs,
-} from "@heroui/react";
+import { Card, Chip, cn, Tabs, toast } from "@heroui/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
@@ -23,14 +13,11 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-
 import GetFlowStats from "@/lib/fetch/flow/stats";
-
 type ChartData = {
   key: string;
   executions: number;
 };
-
 type Chart = {
   key: string;
   title: string;
@@ -40,7 +27,6 @@ type Chart = {
   changeType: "positive" | "negative" | "neutral";
   chartData: ChartData[];
 };
-
 const formatValue = (value: number, type: string | undefined) => {
   if (type === "number") {
     if (value >= 1000000) {
@@ -48,52 +34,38 @@ const formatValue = (value: number, type: string | undefined) => {
     } else if (value >= 1000) {
       return `${(value / 1000).toFixed(0)}k`;
     }
-
     return value.toLocaleString();
   }
   if (type === "percentage") {
     return `${value}%`;
   }
-
   return value;
 };
-
 export default function FlowStats({ flowID }: { flowID: string }) {
   const [interval, setInterval] = useState("24-hours");
   const [stats, setStats] = useState<any>({});
-
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams.toString());
-
   const handleTabChange = (key: any) => {
     setInterval(key);
     params.set("interval", key);
     router.push(`${pathname}?${params.toString()}`);
   };
-
   async function getStats() {
     const stats = await GetFlowStats(flowID, interval);
-
     if (stats.success) {
       setStats(stats.data);
     } else {
       if ("message" in stats) {
-        addToast({
-          title: "Stats",
-          description: stats.message,
-          color: "danger",
-          variant: "flat",
-        });
+        toast.danger("Stats", { description: stats.message });
       }
     }
   }
-
   useEffect(() => {
     getStats();
   }, [interval]);
-
   const data: Chart[] = [
     {
       key: "executions",
@@ -106,14 +78,11 @@ export default function FlowStats({ flowID }: { flowID: string }) {
       chartData: stats.executions_stats || [],
     },
   ];
-
   const [activeChart, setActiveChart] = React.useState<
     (typeof data)[number]["key"]
   >(data[0].key);
-
   const activeChartData = React.useMemo(() => {
     const chart = data.find((d) => d.key === activeChart);
-
     return {
       chartData: chart?.chartData ?? [],
       color:
@@ -125,9 +94,7 @@ export default function FlowStats({ flowID }: { flowID: string }) {
       type: chart?.type,
     };
   }, [activeChart, stats]);
-
   const { chartData, color, type } = activeChartData;
-
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -137,43 +104,56 @@ export default function FlowStats({ flowID }: { flowID: string }) {
       },
     },
   };
-
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
     visible: { y: 0, opacity: 1 },
   };
-
   return (
     <motion.div animate="visible" initial="hidden" variants={containerVariants}>
       <motion.div variants={itemVariants}>
-        <Card className="bg-content1/60 backdrop-blur-md border border-default-100 shadow-sm">
-          <CardHeader className="flex flex-col gap-4 px-6 pt-6 pb-0">
+        <Card className="bg-surface/60 backdrop-blur-md border border-default shadow-sm">
+          <Card.Header className="flex flex-col gap-4 px-6 pt-6 pb-0">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center w-full gap-4">
               <div className="flex gap-3">
-                <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                <div className="p-2 rounded-lg bg-accent/10 text-accent">
                   <Icon icon="hugeicons:analytics-01" width={24} />
                 </div>
                 <div className="flex flex-col">
                   <p className="text-md font-bold">Analytics</p>
-                  <p className="text-small text-default-500">
+                  <p className="text-sm text-muted">
                     Performance metrics over time.
                   </p>
                 </div>
               </div>
               <Tabs
-                classNames={{
-                  tabList: "bg-content2/50 border-default-200",
-                }}
                 selectedKey={interval}
-                size="sm"
-                variant="bordered"
+                variant={"primary"}
                 onSelectionChange={handleTabChange}
               >
-                <Tab key="24-hours" title="24 Hours" />
-                <Tab key="7-days" title="7 Days" />
-                <Tab key="30-days" title="30 Days" />
-                <Tab key="3-months" title="3 Months" />
-                <Tab key="6-months" title="6 Months" />
+                <Tabs.ListContainer>
+                  <Tabs.List aria-label={"Options"}>
+                    <Tabs.Tab id={"24-hours"}>
+                      {"24 Hours"}
+                      <Tabs.Indicator />
+                    </Tabs.Tab>
+                    <Tabs.Tab id={"7-days"}>
+                      {"7 Days"}
+                      <Tabs.Indicator />
+                    </Tabs.Tab>
+                    <Tabs.Tab id={"30-days"}>
+                      {"30 Days"}
+                      <Tabs.Indicator />
+                    </Tabs.Tab>
+                    <Tabs.Tab id={"3-months"}>
+                      {"3 Months"}
+                      <Tabs.Indicator />
+                    </Tabs.Tab>
+                    <Tabs.Tab id={"6-months"}>
+                      {"6 Months"}
+                      <Tabs.Indicator />
+                    </Tabs.Tab>
+                  </Tabs.List>
+                </Tabs.ListContainer>
               </Tabs>
             </div>
 
@@ -185,18 +165,18 @@ export default function FlowStats({ flowID }: { flowID: string }) {
                   className={cn(
                     "flex flex-col gap-2 rounded-xl p-3 transition-all border border-transparent min-w-[200px] text-left",
                     {
-                      "bg-content2/50 border-default-200 shadow-sm":
+                      "bg-surface-secondary/50 border-default shadow-sm":
                         activeChart === key,
-                      "hover:bg-content2/30": activeChart !== key,
+                      "hover:bg-surface-secondary/30": activeChart !== key,
                     },
                   )}
                   onClick={() => setActiveChart(key)}
                 >
                   <span
                     className={cn(
-                      "text-small font-medium text-default-500 transition-colors",
+                      "text-sm font-medium text-muted transition-colors",
                       {
-                        "text-primary": activeChart === key,
+                        "text-accent": activeChart === key,
                       },
                     )}
                   >
@@ -207,9 +187,6 @@ export default function FlowStats({ flowID }: { flowID: string }) {
                       {formatValue(value, type)}
                     </span>
                     <Chip
-                      classNames={{
-                        content: "font-medium text-tiny",
-                      }}
                       color={
                         changeType === "positive"
                           ? "success"
@@ -217,31 +194,25 @@ export default function FlowStats({ flowID }: { flowID: string }) {
                             ? "danger"
                             : "default"
                       }
-                      radius="sm"
                       size="sm"
-                      startContent={
-                        changeType === "positive" ? (
-                          <Icon icon="solar:arrow-right-up-linear" width={12} />
-                        ) : changeType === "negative" ? (
-                          <Icon
-                            icon="solar:arrow-right-down-linear"
-                            width={12}
-                          />
-                        ) : (
-                          <Icon icon="solar:arrow-right-linear" width={12} />
-                        )
-                      }
-                      variant="flat"
+                      variant="soft"
                     >
-                      {change}%
+                      {changeType === "positive" ? (
+                        <Icon icon="solar:arrow-right-up-linear" width={12} />
+                      ) : changeType === "negative" ? (
+                        <Icon icon="solar:arrow-right-down-linear" width={12} />
+                      ) : (
+                        <Icon icon="solar:arrow-right-linear" width={12} />
+                      )}
+                      <Chip.Label>{change}%</Chip.Label>
                     </Chip>
                   </div>
                 </button>
               ))}
             </div>
-          </CardHeader>
+          </Card.Header>
 
-          <CardBody className="px-2 pb-4 h-[350px]">
+          <Card.Content className="px-2 pb-4 h-[350px]">
             <ResponsiveContainer height="100%" width="100%">
               <AreaChart
                 data={chartData}
@@ -287,25 +258,22 @@ export default function FlowStats({ flowID }: { flowID: string }) {
                   content={({ active, payload, label }) => {
                     if (active && payload && payload.length) {
                       return (
-                        <div className="bg-content1/80 backdrop-blur-md border border-default-200 p-3 rounded-lg shadow-lg">
-                          <p className="text-tiny text-default-500 mb-1">
-                            {label}
-                          </p>
+                        <div className="bg-surface/80 backdrop-blur-md border border-default p-3 rounded-lg shadow-lg">
+                          <p className="text-xs text-muted mb-1">{label}</p>
                           <div className="flex items-center gap-2">
                             <div
                               className={`w-2 h-2 rounded-full bg-${color}-500`}
                             />
-                            <span className="font-bold text-small">
+                            <span className="font-bold text-sm">
                               {formatValue(payload[0].value as number, type)}
                             </span>
-                            <span className="text-tiny text-default-400 capitalize">
+                            <span className="text-xs text-muted capitalize">
                               {payload[0].name}
                             </span>
                           </div>
                         </div>
                       );
                     }
-
                     return null;
                   }}
                 />
@@ -325,7 +293,7 @@ export default function FlowStats({ flowID }: { flowID: string }) {
                 />
               </AreaChart>
             </ResponsiveContainer>
-          </CardBody>
+          </Card.Content>
         </Card>
       </motion.div>
     </motion.div>

@@ -1,69 +1,49 @@
 "use client";
-
-import type { UseDisclosureReturn } from "@heroui/use-disclosure";
-
 import {
-  addToast,
   Button,
   Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
+  toast,
+  type UseOverlayStateReturn,
 } from "@heroui/react";
 import React, { useState } from "react";
 import { Icon } from "@iconify/react";
-
 import LeaveProject from "@/lib/fetch/project/DELETE/leave";
 import ErrorCard from "@/components/error/ErrorCard";
 import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
-
 export default function LeaveProjectModal({
   disclosure,
   projectID,
 }: {
-  disclosure: UseDisclosureReturn;
+  disclosure: UseOverlayStateReturn;
   projectID: string;
 }) {
   const { refreshProject } = useRefreshCache();
-  const { isOpen, onOpenChange } = disclosure;
+  const { isOpen, setOpen: onOpenChange } = disclosure;
   const [isLeaveLoading, setIsLeaveLoading] = useState(false);
-
   const [error, setError] = React.useState(false);
   const [errorText, setErrorText] = React.useState("");
   const [errorMessage, setErrorMessage] = React.useState("");
-
   async function handleLeaveProject() {
     setIsLeaveLoading(true);
-
     const res = (await LeaveProject(projectID)) as any;
-
     if (!res) {
       setIsLeaveLoading(false);
       setError(true);
       setErrorText("An error occurred");
       setErrorMessage("An error occurred while leaving the project");
-      addToast({
-        title: "Project",
+      toast.danger("Project", {
         description: "An error occurred while leaving the project",
-        color: "danger",
-        variant: "flat",
       });
-
       return;
     }
-
     if (res.success) {
       setIsLeaveLoading(false);
-      onOpenChange();
+      onOpenChange(false);
       setError(false);
       setErrorText("");
       setErrorMessage("");
-      addToast({
-        title: "Project",
+      toast.success("Project", {
         description: "You have left the project successfully",
-        color: "success",
-        variant: "flat",
       });
       refreshProject(projectID);
     } else {
@@ -71,60 +51,53 @@ export default function LeaveProjectModal({
       setError(true);
       setErrorText(res.error);
       setErrorMessage(res.message);
-      addToast({
-        title: "Project",
-        description: res.error,
-        color: "danger",
-        variant: "flat",
-      });
+      toast.danger("Project", { description: res.error });
     }
-
     setIsLeaveLoading(false);
   }
-
   return (
     <>
-      <Modal isOpen={isOpen} placement="center" onOpenChange={onOpenChange}>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-wrap items-center">
-                <div className="flex flex-col">
-                  <p className="text-lg font-bold">Are you sure?</p>
-                  <p className="text-sm text-default-500">
-                    You will lose all access to this project. You can always
-                    rejoin if you are invited back.
-                  </p>
-                </div>
-              </ModalHeader>
-              <ModalBody>
-                {error && (
-                  <ErrorCard error={errorText} message={errorMessage} />
-                )}
-              </ModalBody>
-              <ModalFooter>
-                <Button
-                  color="default"
-                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
-                  variant="ghost"
-                  onPress={onClose}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  color="danger"
-                  isLoading={isLeaveLoading}
-                  startContent={
-                    <Icon icon="hugeicons:self-transfer" width={18} />
-                  }
-                  onPress={handleLeaveProject}
-                >
-                  Leave Project
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
+      <Modal>
+        <Modal.Backdrop isOpen={isOpen} onOpenChange={onOpenChange}>
+          <Modal.Container placement="center">
+            <Modal.Dialog>
+              {({ close: onClose }) => (
+                <>
+                  <Modal.Header className="flex flex-wrap items-center">
+                    <Modal.Heading>
+                      <div className="flex flex-col">
+                        <p className="text-lg font-bold">Are you sure?</p>
+                        <p className="text-sm text-muted">
+                          You will lose all access to this project. You can
+                          always rejoin if you are invited back.
+                        </p>
+                      </div>
+                    </Modal.Heading>
+                  </Modal.Header>
+                  <Modal.Body>
+                    {error && (
+                      <ErrorCard error={errorText} message={errorMessage} />
+                    )}
+                  </Modal.Body>
+                  <Modal.Footer>
+                    <Button variant="ghost" onPress={onClose}>
+                      {<Icon icon="hugeicons:cancel-01" width={18} />}
+                      Cancel
+                    </Button>
+                    <Button
+                      isPending={isLeaveLoading}
+                      onPress={handleLeaveProject}
+                      variant="danger"
+                    >
+                      {<Icon icon="hugeicons:self-transfer" width={18} />}
+                      Leave Project
+                    </Button>
+                  </Modal.Footer>
+                </>
+              )}
+            </Modal.Dialog>
+          </Modal.Container>
+        </Modal.Backdrop>
       </Modal>
     </>
   );

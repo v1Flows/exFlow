@@ -1,16 +1,12 @@
 "use client";
-
 import { Icon } from "@iconify/react";
-import { Alert, Button, Card, CardBody, useDisclosure } from "@heroui/react";
+import { Alert, Button, Card, useOverlayState } from "@heroui/react";
 import NumberFlow from "@number-flow/react";
 import { motion } from "framer-motion";
 import React from "react";
-
 import EditProjectModal from "@/components/modals/projects/edit";
 import canEditProject from "@/lib/functions/canEditProject";
-
 import ProjectTabs from "./project/tabs";
-
 export default function Project({
   user,
   settings,
@@ -20,8 +16,7 @@ export default function Project({
   audit,
   flows,
 }: any) {
-  const editProjectModal = useDisclosure();
-
+  const editProjectModal = useOverlayState();
   return (
     <main className="w-full p-4 space-y-8">
       {/* Header Section */}
@@ -44,20 +39,19 @@ export default function Project({
           </div>
           <div>
             <h1 className="text-2xl font-bold leading-tight">{project.name}</h1>
-            <p className="text-small text-default-500">{project.description}</p>
+            <p className="text-sm text-muted">{project.description}</p>
           </div>
         </div>
         <Button
           className="bg-warning/10 text-warning hover:bg-warning/20"
-          color="warning"
           isDisabled={
             (project.disabled || !canEditProject(user.id, project.members)) &&
             user.role !== "admin"
           }
-          startContent={<Icon icon="hugeicons:pencil-edit-02" width={20} />}
-          variant="flat"
-          onPress={() => editProjectModal.onOpen()}
+          variant="tertiary"
+          onPress={() => editProjectModal.open()}
         >
+          {<Icon icon="hugeicons:pencil-edit-02" width={20} />}
           Edit Project
         </Button>
       </motion.div>
@@ -67,12 +61,13 @@ export default function Project({
           animate={{ opacity: 1, scale: 1 }}
           initial={{ opacity: 0, scale: 0.95 }}
         >
-          <Alert
-            color="danger"
-            description={project.disabled_reason}
-            title="Project is currently disabled"
-            variant="faded"
-          />
+          <Alert status={"danger"}>
+            <Alert.Indicator></Alert.Indicator>
+            <Alert.Content>
+              <Alert.Title>{"Project is currently disabled"}</Alert.Title>
+              <Alert.Description>{project.disabled_reason}</Alert.Description>
+            </Alert.Content>
+          </Alert>
         </motion.div>
       )}
 
@@ -114,9 +109,9 @@ export default function Project({
           >
             <Card
               key={index}
-              className="border-none shadow-lg bg-content1/60 backdrop-blur-md border border-default-100"
+              className="border-none shadow-lg bg-surface/60 backdrop-blur-md border border-default"
             >
-              <CardBody className="p-3">
+              <Card.Content className="p-3">
                 <div className="flex items-center justify-between gap-3">
                   <div
                     className={`flex size-10 items-center justify-center rounded-lg bg-${stat.color}/20 text-${stat.color}`}
@@ -124,15 +119,15 @@ export default function Project({
                     <Icon icon={stat.icon} width={20} />
                   </div>
                   <div className="flex flex-col items-end">
-                    <p className="text-small font-medium text-default-500">
+                    <p className="text-sm font-medium text-muted">
                       {stat.title}
                     </p>
-                    <p className="text-xl font-bold text-default-900">
+                    <p className="text-xl font-bold text-foreground">
                       <NumberFlow value={stat.value} />
                     </p>
                   </div>
                 </div>
-              </CardBody>
+              </Card.Content>
             </Card>
           </motion.div>
         ))}

@@ -1,5 +1,4 @@
 "use client";
-
 import { Skeleton } from "@heroui/react";
 
 import PageBuilder from "@/components/selfservice/PageBuilder";
@@ -25,9 +24,7 @@ export default function EditServicePageClient({
 
   if (isError || !page) {
     return (
-      <div className="p-4 text-default-400 text-center py-16">
-        Page not found.
-      </div>
+      <div className="p-4 text-muted text-center py-16">Page not found.</div>
     );
   }
 

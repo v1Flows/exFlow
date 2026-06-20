@@ -1,6 +1,5 @@
 "use client";
-
-import { Alert, Card, CardBody } from "@heroui/react";
+import { Alert, Button, Card } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import NumberFlow from "@number-flow/react";
 import { useRouter } from "next/navigation";
@@ -72,53 +71,54 @@ export default function FlowDetails({
           initial={{ opacity: 0, y: 20 }}
           transition={{ delay: index * 0.1 + 0.2 }}
         >
-          <Card
-            fullWidth
-            className="h-full border-none shadow-lg bg-content1/60 backdrop-blur-md border border-default-100"
-            isHoverable={!!stat.isLink}
-            isPressable={!!stat.isLink}
+          <Button
+            className="h-auto w-full justify-start p-0 text-left"
+            variant="tertiary"
             onPress={() => {
               if (stat.isLink) {
                 router.push(stat.link);
               }
             }}
           >
-            <CardBody className="p-3">
-              <div className="flex items-center justify-between gap-3">
-                <div
-                  className={`flex size-10 items-center justify-center rounded-lg bg-${stat.color}/20 text-${stat.color}`}
-                >
-                  <Icon icon={stat.icon} width={20} />
-                </div>
-                <div className="flex flex-col items-end">
-                  <p className="text-small font-medium text-default-500">
-                    {stat.title}
-                  </p>
-                  {stat.isText ? (
-                    <p
-                      className={`text-md font-bold text-default-900 ${stat.capitalize ? "capitalize" : ""} ${stat.title === "Status" ? (stat.value === "Active" ? "text-success" : "text-danger") : ""}`}
-                    >
-                      {stat.value}
+            <Card className="h-full border-none shadow-lg bg-surface/60 backdrop-blur-md border border-default">
+              <Card.Content className="p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div
+                    className={`flex size-10 items-center justify-center rounded-lg bg-${stat.color}/20 text-${stat.color}`}
+                  >
+                    <Icon icon={stat.icon} width={20} />
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <p className="text-sm font-medium text-muted">
+                      {stat.title}
                     </p>
-                  ) : (
-                    <p className="text-xl font-bold text-default-900">
-                      <NumberFlow value={stat.value} />
-                    </p>
-                  )}
+                    {stat.isText ? (
+                      <p
+                        className={`text-md font-bold text-foreground ${stat.capitalize ? "capitalize" : ""} ${stat.title === "Status" ? (stat.value === "Active" ? "text-success" : "text-danger") : ""}`}
+                      >
+                        {stat.value}
+                      </p>
+                    ) : (
+                      <p className="text-xl font-bold text-foreground">
+                        <NumberFlow value={stat.value} />
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </CardBody>
-          </Card>
+              </Card.Content>
+            </Card>
+          </Button>
         </motion.div>
       ))}
       {flow.disabled && (
         <div className="col-span-2 lg:col-span-5 mt-4">
-          <Alert
-            color="danger"
-            description={flow.disabled_reason}
-            title="Flow is currently disabled"
-            variant="faded"
-          />
+          <Alert status={"danger"}>
+            <Alert.Indicator></Alert.Indicator>
+            <Alert.Content>
+              <Alert.Title>{"Flow is currently disabled"}</Alert.Title>
+              <Alert.Description>{flow.disabled_reason}</Alert.Description>
+            </Alert.Content>
+          </Alert>
         </div>
       )}
     </div>

@@ -1,22 +1,11 @@
 "use client";
 import { Icon } from "@iconify/react";
-import {
-  addToast,
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
-  Switch,
-  Tooltip,
-} from "@heroui/react";
+import { Button, Card, Switch, toast, Tooltip } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import React from "react";
-
 import UpdateSettings from "@/lib/fetch/admin/PUT/UpdateSettings";
-
 export function AdminSystemSettings({ settings }: any) {
   const router = useRouter();
-
   const [maintenance, setMaintenance] = React.useState(settings.maintenance);
   const [signup, setSignup] = React.useState(settings.signup);
   const [createProjects, setCreateProjects] = React.useState(
@@ -39,9 +28,7 @@ export function AdminSystemSettings({ settings }: any) {
     settings.start_executions,
   );
   const [receiveAlerts] = React.useState(settings.receive_alerts);
-
   const [isLoading, setIsLoading] = React.useState(false);
-
   async function updateSettings() {
     setIsLoading(true);
     const response = (await UpdateSettings(
@@ -59,42 +46,32 @@ export function AdminSystemSettings({ settings }: any) {
       settings.allow_shared_runner_join,
       settings.shared_runner_auto_join_token,
     )) as any;
-
     if (response.success) {
       setIsLoading(false);
-      addToast({
-        title: "Settings",
+      toast.success("Settings", {
         description: "Settings updated successfully",
-        color: "success",
-        variant: "flat",
       });
       router.refresh();
     } else {
       setIsLoading(false);
       router.refresh();
-      addToast({
-        title: "Settings",
-        description: "Failed to update settings",
-        color: "danger",
-        variant: "flat",
-      });
+      toast.danger("Settings", { description: "Failed to update settings" });
     }
   }
-
   return (
     <main>
       <Card>
-        <CardHeader>
+        <Card.Header>
           <p className="text-lg font-bold">System Settings</p>
-        </CardHeader>
-        <CardBody>
+        </Card.Header>
+        <Card.Content>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 items-center justify-between gap-4">
             <Card>
-              <CardBody className="bg-content2">
+              <Card.Content className="bg-surface-secondary">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <div
-                      className={`flex ${maintenance ? "bg-danger/10 text-danger" : "bg-primary/10 text-primary"} size-10 items-center justify-center rounded-small`}
+                      className={`flex ${maintenance ? "bg-danger/10 text-danger" : "bg-accent/10 text-accent"} size-10 items-center justify-center rounded-sm`}
                     >
                       <Icon icon="hugeicons:wrench-01" width={20} />
                     </div>
@@ -103,41 +80,43 @@ export function AdminSystemSettings({ settings }: any) {
                         <p className="text-md font-bold">
                           {maintenance ? "Active" : "Inactive"}
                         </p>
-                        <Tooltip
-                          content={
-                            <p className="text-sm text-default-500">
-                              {maintenance
-                                ? "Users will see a maintenance page when they visit the website."
-                                : "Users will be able to access the website normally."}
-                            </p>
-                          }
-                        >
-                          <Icon
-                            className="text-default-500"
-                            icon="hugeicons:information-circle"
-                            width={18}
-                          />
+                        <Tooltip>
+                          <Tooltip.Trigger>
+                            <Icon
+                              className="text-muted"
+                              icon="hugeicons:information-circle"
+                              width={18}
+                            />
+                          </Tooltip.Trigger>
+                          <Tooltip.Content>
+                            {
+                              <p className="text-sm text-muted">
+                                {maintenance
+                                  ? "Users will see a maintenance page when they visit the website."
+                                  : "Users will be able to access the website normally."}
+                              </p>
+                            }
+                          </Tooltip.Content>
                         </Tooltip>
                       </div>
-                      <p className="text-sm text-default-500">Maintenance</p>
+                      <p className="text-sm text-muted">Maintenance</p>
                     </div>
                   </div>
-                  <Switch
-                    color="danger"
-                    isSelected={maintenance}
-                    size="sm"
-                    onValueChange={setMaintenance}
-                  />
+                  <Switch isSelected={maintenance} onChange={setMaintenance}>
+                    <Switch.Control>
+                      <Switch.Thumb />
+                    </Switch.Control>
+                  </Switch>
                 </div>
-              </CardBody>
+              </Card.Content>
             </Card>
 
             <Card>
-              <CardBody className="bg-content2">
+              <Card.Content className="bg-surface-secondary">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <div
-                      className={`flex ${signup ? "bg-primary/10 text-primary" : "bg-danger/10 text-danger"} size-10 items-center justify-center rounded-small`}
+                      className={`flex ${signup ? "bg-accent/10 text-accent" : "bg-danger/10 text-danger"} size-10 items-center justify-center rounded-sm`}
                     >
                       <Icon icon="hugeicons:user-add-01" width={20} />
                     </div>
@@ -146,33 +125,39 @@ export function AdminSystemSettings({ settings }: any) {
                         <p className="text-md font-bold">
                           {signup ? "Enabled" : "Disabled"}
                         </p>
-                        <Tooltip content="Disabling this option will prevent users from signing up.">
-                          <Icon
-                            className="text-default-500"
-                            icon="hugeicons:information-circle"
-                            width={18}
-                          />
+                        <Tooltip>
+                          <Tooltip.Trigger>
+                            <Icon
+                              className="text-muted"
+                              icon="hugeicons:information-circle"
+                              width={18}
+                            />
+                          </Tooltip.Trigger>
+                          <Tooltip.Content>
+                            {
+                              "Disabling this option will prevent users from signing up."
+                            }
+                          </Tooltip.Content>
                         </Tooltip>
                       </div>
-                      <p className="text-sm text-default-500">Sign Up</p>
+                      <p className="text-sm text-muted">Sign Up</p>
                     </div>
                   </div>
-                  <Switch
-                    color="success"
-                    isSelected={signup}
-                    size="sm"
-                    onValueChange={setSignup}
-                  />
+                  <Switch isSelected={signup} onChange={setSignup}>
+                    <Switch.Control>
+                      <Switch.Thumb />
+                    </Switch.Control>
+                  </Switch>
                 </div>
-              </CardBody>
+              </Card.Content>
             </Card>
 
             <Card>
-              <CardBody className="bg-content2">
+              <Card.Content className="bg-surface-secondary">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <div
-                      className={`flex ${createProjects ? "bg-primary/10 text-primary" : "bg-danger/10 text-danger"} size-10 items-center justify-center rounded-small`}
+                      className={`flex ${createProjects ? "bg-accent/10 text-accent" : "bg-danger/10 text-danger"} size-10 items-center justify-center rounded-sm`}
                     >
                       <Icon icon="hugeicons:ai-folder-01" width={20} />
                     </div>
@@ -181,35 +166,42 @@ export function AdminSystemSettings({ settings }: any) {
                         <p className="text-md font-bold">
                           {createProjects ? "Enabled" : "Disabled"}
                         </p>
-                        <Tooltip content="Disabling this option will prevent users from creating new projects">
-                          <Icon
-                            className="text-default-500"
-                            icon="hugeicons:information-circle"
-                            width={18}
-                          />
+                        <Tooltip>
+                          <Tooltip.Trigger>
+                            <Icon
+                              className="text-muted"
+                              icon="hugeicons:information-circle"
+                              width={18}
+                            />
+                          </Tooltip.Trigger>
+                          <Tooltip.Content>
+                            {
+                              "Disabling this option will prevent users from creating new projects"
+                            }
+                          </Tooltip.Content>
                         </Tooltip>
                       </div>
-                      <p className="text-sm text-default-500">
-                        Create Projects
-                      </p>
+                      <p className="text-sm text-muted">Create Projects</p>
                     </div>
                   </div>
                   <Switch
-                    color="success"
                     isSelected={createProjects}
-                    size="sm"
-                    onValueChange={setCreateProjects}
-                  />
+                    onChange={setCreateProjects}
+                  >
+                    <Switch.Control>
+                      <Switch.Thumb />
+                    </Switch.Control>
+                  </Switch>
                 </div>
-              </CardBody>
+              </Card.Content>
             </Card>
 
             <Card>
-              <CardBody className="bg-content2">
+              <Card.Content className="bg-surface-secondary">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <div
-                      className={`flex ${createFlows ? "bg-primary/10 text-primary" : "bg-danger/10 text-danger"} size-10 items-center justify-center rounded-small`}
+                      className={`flex ${createFlows ? "bg-accent/10 text-accent" : "bg-danger/10 text-danger"} size-10 items-center justify-center rounded-sm`}
                     >
                       <Icon icon="hugeicons:workflow-square-10" width={20} />
                     </div>
@@ -218,33 +210,39 @@ export function AdminSystemSettings({ settings }: any) {
                         <p className="text-md font-bold">
                           {createFlows ? "Enabled" : "Disabled"}
                         </p>
-                        <Tooltip content="Disabling this option will prevent users from creating new flows">
-                          <Icon
-                            className="text-default-500"
-                            icon="hugeicons:information-circle"
-                            width={18}
-                          />
+                        <Tooltip>
+                          <Tooltip.Trigger>
+                            <Icon
+                              className="text-muted"
+                              icon="hugeicons:information-circle"
+                              width={18}
+                            />
+                          </Tooltip.Trigger>
+                          <Tooltip.Content>
+                            {
+                              "Disabling this option will prevent users from creating new flows"
+                            }
+                          </Tooltip.Content>
                         </Tooltip>
                       </div>
-                      <p className="text-sm text-default-500">Create Flows</p>
+                      <p className="text-sm text-muted">Create Flows</p>
                     </div>
                   </div>
-                  <Switch
-                    color="success"
-                    isSelected={createFlows}
-                    size="sm"
-                    onValueChange={setCreateFlows}
-                  />
+                  <Switch isSelected={createFlows} onChange={setCreateFlows}>
+                    <Switch.Control>
+                      <Switch.Thumb />
+                    </Switch.Control>
+                  </Switch>
                 </div>
-              </CardBody>
+              </Card.Content>
             </Card>
 
             <Card>
-              <CardBody className="bg-content2">
+              <Card.Content className="bg-surface-secondary">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <div
-                      className={`flex ${createRunners ? "bg-primary/10 text-primary" : "bg-danger/10 text-danger"} size-10 items-center justify-center rounded-small`}
+                      className={`flex ${createRunners ? "bg-accent/10 text-accent" : "bg-danger/10 text-danger"} size-10 items-center justify-center rounded-sm`}
                     >
                       <Icon icon="hugeicons:ai-brain-04" width={20} />
                     </div>
@@ -253,33 +251,42 @@ export function AdminSystemSettings({ settings }: any) {
                         <p className="text-md font-bold">
                           {createRunners ? "Enabled" : "Disabled"}
                         </p>
-                        <Tooltip content="Disabling this option will prevent users from creating new runners within projects">
-                          <Icon
-                            className="text-default-500"
-                            icon="hugeicons:information-circle"
-                            width={18}
-                          />
+                        <Tooltip>
+                          <Tooltip.Trigger>
+                            <Icon
+                              className="text-muted"
+                              icon="hugeicons:information-circle"
+                              width={18}
+                            />
+                          </Tooltip.Trigger>
+                          <Tooltip.Content>
+                            {
+                              "Disabling this option will prevent users from creating new runners within projects"
+                            }
+                          </Tooltip.Content>
                         </Tooltip>
                       </div>
-                      <p className="text-sm text-default-500">Create Runners</p>
+                      <p className="text-sm text-muted">Create Runners</p>
                     </div>
                   </div>
                   <Switch
-                    color="success"
                     isSelected={createRunners}
-                    size="sm"
-                    onValueChange={setCreateRunners}
-                  />
+                    onChange={setCreateRunners}
+                  >
+                    <Switch.Control>
+                      <Switch.Thumb />
+                    </Switch.Control>
+                  </Switch>
                 </div>
-              </CardBody>
+              </Card.Content>
             </Card>
 
             <Card>
-              <CardBody className="bg-content2">
+              <Card.Content className="bg-surface-secondary">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <div
-                      className={`flex ${createTokens ? "bg-primary/10 text-primary" : "bg-danger/10 text-danger"} size-10 items-center justify-center rounded-small`}
+                      className={`flex ${createTokens ? "bg-accent/10 text-accent" : "bg-danger/10 text-danger"} size-10 items-center justify-center rounded-sm`}
                     >
                       <Icon icon="hugeicons:key-02" width={20} />
                     </div>
@@ -288,33 +295,39 @@ export function AdminSystemSettings({ settings }: any) {
                         <p className="text-md font-bold">
                           {createTokens ? "Enabled" : "Disabled"}
                         </p>
-                        <Tooltip content="Disabling this option will prevent users from creating new tokens within projects">
-                          <Icon
-                            className="text-default-500"
-                            icon="hugeicons:information-circle"
-                            width={18}
-                          />
+                        <Tooltip>
+                          <Tooltip.Trigger>
+                            <Icon
+                              className="text-muted"
+                              icon="hugeicons:information-circle"
+                              width={18}
+                            />
+                          </Tooltip.Trigger>
+                          <Tooltip.Content>
+                            {
+                              "Disabling this option will prevent users from creating new tokens within projects"
+                            }
+                          </Tooltip.Content>
                         </Tooltip>
                       </div>
-                      <p className="text-sm text-default-500">Create Tokens</p>
+                      <p className="text-sm text-muted">Create Tokens</p>
                     </div>
                   </div>
-                  <Switch
-                    color="success"
-                    isSelected={createTokens}
-                    size="sm"
-                    onValueChange={setCreateTokens}
-                  />
+                  <Switch isSelected={createTokens} onChange={setCreateTokens}>
+                    <Switch.Control>
+                      <Switch.Thumb />
+                    </Switch.Control>
+                  </Switch>
                 </div>
-              </CardBody>
+              </Card.Content>
             </Card>
 
             <Card>
-              <CardBody className="bg-content2">
+              <Card.Content className="bg-surface-secondary">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <div
-                      className={`flex ${addProjectMembers ? "bg-primary/10 text-primary" : "bg-danger/10 text-danger"} size-10 items-center justify-center rounded-small`}
+                      className={`flex ${addProjectMembers ? "bg-accent/10 text-accent" : "bg-danger/10 text-danger"} size-10 items-center justify-center rounded-sm`}
                     >
                       <Icon icon="hugeicons:location-user-02" width={20} />
                     </div>
@@ -323,35 +336,44 @@ export function AdminSystemSettings({ settings }: any) {
                         <p className="text-md font-bold">
                           {addProjectMembers ? "Enabled" : "Disabled"}
                         </p>
-                        <Tooltip content="Disabling this option will prevent project owners and editors from inviting new members to projects">
-                          <Icon
-                            className="text-default-500"
-                            icon="hugeicons:information-circle"
-                            width={18}
-                          />
+                        <Tooltip>
+                          <Tooltip.Trigger>
+                            <Icon
+                              className="text-muted"
+                              icon="hugeicons:information-circle"
+                              width={18}
+                            />
+                          </Tooltip.Trigger>
+                          <Tooltip.Content>
+                            {
+                              "Disabling this option will prevent project owners and editors from inviting new members to projects"
+                            }
+                          </Tooltip.Content>
                         </Tooltip>
                       </div>
-                      <p className="text-sm text-default-500">
+                      <p className="text-sm text-muted">
                         Invite Project Members
                       </p>
                     </div>
                   </div>
                   <Switch
-                    color="success"
                     isSelected={addProjectMembers}
-                    size="sm"
-                    onValueChange={setAddProjectMembers}
-                  />
+                    onChange={setAddProjectMembers}
+                  >
+                    <Switch.Control>
+                      <Switch.Thumb />
+                    </Switch.Control>
+                  </Switch>
                 </div>
-              </CardBody>
+              </Card.Content>
             </Card>
 
             <Card>
-              <CardBody className="bg-content2">
+              <Card.Content className="bg-surface-secondary">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <div
-                      className={`flex ${addFlowActions ? "bg-primary/10 text-primary" : "bg-danger/10 text-danger"} size-10 items-center justify-center rounded-small`}
+                      className={`flex ${addFlowActions ? "bg-accent/10 text-accent" : "bg-danger/10 text-danger"} size-10 items-center justify-center rounded-sm`}
                     >
                       <Icon icon="hugeicons:blockchain-06" width={20} />
                     </div>
@@ -360,35 +382,42 @@ export function AdminSystemSettings({ settings }: any) {
                         <p className="text-md font-bold">
                           {addFlowActions ? "Enabled" : "Disabled"}
                         </p>
-                        <Tooltip content="Disabling this option will prevent project owners & editors from adding new actions to any flow">
-                          <Icon
-                            className="text-default-500"
-                            icon="hugeicons:information-circle"
-                            width={18}
-                          />
+                        <Tooltip>
+                          <Tooltip.Trigger>
+                            <Icon
+                              className="text-muted"
+                              icon="hugeicons:information-circle"
+                              width={18}
+                            />
+                          </Tooltip.Trigger>
+                          <Tooltip.Content>
+                            {
+                              "Disabling this option will prevent project owners & editors from adding new actions to any flow"
+                            }
+                          </Tooltip.Content>
                         </Tooltip>
                       </div>
-                      <p className="text-sm text-default-500">
-                        Add Flow Actions
-                      </p>
+                      <p className="text-sm text-muted">Add Flow Actions</p>
                     </div>
                   </div>
                   <Switch
-                    color="success"
                     isSelected={addFlowActions}
-                    size="sm"
-                    onValueChange={setAddFlowActions}
-                  />
+                    onChange={setAddFlowActions}
+                  >
+                    <Switch.Control>
+                      <Switch.Thumb />
+                    </Switch.Control>
+                  </Switch>
                 </div>
-              </CardBody>
+              </Card.Content>
             </Card>
 
             <Card>
-              <CardBody className="bg-content2">
+              <Card.Content className="bg-surface-secondary">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <div
-                      className={`flex ${startExecutions ? "bg-primary/10 text-primary" : "bg-danger/10 text-danger"} size-10 items-center justify-center rounded-small`}
+                      className={`flex ${startExecutions ? "bg-accent/10 text-accent" : "bg-danger/10 text-danger"} size-10 items-center justify-center rounded-sm`}
                     >
                       <Icon icon="hugeicons:rocket-02" width={20} />
                     </div>
@@ -397,41 +426,48 @@ export function AdminSystemSettings({ settings }: any) {
                         <p className="text-md font-bold">
                           {startExecutions ? "Enabled" : "Disabled"}
                         </p>
-                        <Tooltip content="Disabling this option will prevent runners from starting a new executions">
-                          <Icon
-                            className="text-default-500"
-                            icon="hugeicons:information-circle"
-                            width={18}
-                          />
+                        <Tooltip>
+                          <Tooltip.Trigger>
+                            <Icon
+                              className="text-muted"
+                              icon="hugeicons:information-circle"
+                              width={18}
+                            />
+                          </Tooltip.Trigger>
+                          <Tooltip.Content>
+                            {
+                              "Disabling this option will prevent runners from starting a new executions"
+                            }
+                          </Tooltip.Content>
                         </Tooltip>
                       </div>
-                      <p className="text-sm text-default-500">
-                        Start Executions
-                      </p>
+                      <p className="text-sm text-muted">Start Executions</p>
                     </div>
                   </div>
                   <Switch
-                    color="success"
                     isSelected={startExecutions}
-                    size="sm"
-                    onValueChange={setStartExecutions}
-                  />
+                    onChange={setStartExecutions}
+                  >
+                    <Switch.Control>
+                      <Switch.Thumb />
+                    </Switch.Control>
+                  </Switch>
                 </div>
-              </CardBody>
+              </Card.Content>
             </Card>
           </div>
           <div className="mt-4 mb-2 w-full">
             <Button
               className="w-full"
-              color="primary"
-              isLoading={isLoading}
-              startContent={<Icon icon="hugeicons:floppy-disk" width={18} />}
+              isPending={isLoading}
               onPress={updateSettings}
+              variant="primary"
             >
+              {<Icon icon="hugeicons:floppy-disk" width={18} />}
               Save Settings
             </Button>
           </div>
-        </CardBody>
+        </Card.Content>
       </Card>
     </main>
   );

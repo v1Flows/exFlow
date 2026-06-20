@@ -1,7 +1,8 @@
 "use client";
+import Image from "next/image";
 
 import { Icon } from "@iconify/react";
-import { Link, Spacer, Image } from "@heroui/react";
+import { Link } from "@heroui/react";
 import React from "react";
 import { useTheme } from "next-themes";
 
@@ -28,8 +29,6 @@ export default function Footer() {
           <Image
             alt="Logo"
             height={132}
-            radius="none"
-            shadow="none"
             src={
               theme === "light"
                 ? `/images/justflow_logo_full_transparent_dark.png`
@@ -38,25 +37,19 @@ export default function Footer() {
             width={132}
           />
         </div>
-        <Spacer y={4} />
+        <div aria-hidden className="h-4" />
         <div className="flex flex-wrap justify-center gap-x-4 gap-y-1">
           {navLinks.map((item) => (
-            <Link
-              key={item.name}
-              isExternal
-              className="text-default-500"
-              href={item.href}
-              size="sm"
-            >
+            <Link key={item.name} className="text-muted" href={item.href}>
               {item.name}
             </Link>
           ))}
         </div>
-        <Spacer y={2} />
-        <p className="mt-1 text-center text-small text-default-400">
+        <div aria-hidden className="h-2" />
+        <p className="mt-1 text-center text-sm text-muted">
           &copy; 2025 JustLAB. All rights reserved. Version {siteConfig.version}
         </p>
-        <p className="mt-1 flex gap-1 text-center text-small text-default-400">
+        <p className="mt-1 flex gap-1 text-center text-sm text-muted">
           Made with <Icon icon="hugeicons:love-korean-finger" width={18} /> in
           Germany
         </p>

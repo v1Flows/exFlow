@@ -1,44 +1,40 @@
 "use client";
-
 import {
-  addToast,
   Button,
   Card,
-  CardBody,
-  CardHeader,
-  Divider,
+  Description,
+  FieldError,
   Input,
+  InputGroup,
+  Label,
+  ListBox,
   Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
   Select,
-  SelectItem,
+  Separator,
   Switch,
-  Textarea,
-  useDisclosure,
+  TextField,
+  toast,
+  useOverlayState,
 } from "@heroui/react";
 import { useState } from "react";
 import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
-
 import UpdateFlowInputParams from "@/lib/fetch/flow/PUT/UpdateFlowInputParams";
 import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 import { InputParam, InputParamOption, InputParamType } from "@/types";
-
-const PARAM_TYPES: { key: InputParamType; label: string }[] = [
+const PARAM_TYPES: {
+  key: InputParamType;
+  label: string;
+}[] = [
   { key: "text", label: "Text" },
   { key: "textarea", label: "Text Area" },
   { key: "number", label: "Number" },
   { key: "boolean", label: "Boolean (Toggle)" },
   { key: "select", label: "Select (Dropdown)" },
 ];
-
 function generateId() {
   return Math.random().toString(36).slice(2, 10);
 }
-
 function emptyParam(): InputParam {
   return {
     id: generateId(),
@@ -52,7 +48,6 @@ function emptyParam(): InputParam {
     order: 0,
   };
 }
-
 export default function FlowInputParams({
   flow,
   canEdit,
@@ -67,34 +62,26 @@ export default function FlowInputParams({
   const [editingParam, setEditingParam] = useState<InputParam | null>(null);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
-
+  const { isOpen, open: onOpen, setOpen: onOpenChange } = useOverlayState();
   function openNew() {
     setEditingParam(emptyParam());
     setEditingIndex(null);
     onOpen();
   }
-
   function openEdit(param: InputParam, index: number) {
     setEditingParam({ ...param });
     setEditingIndex(index);
     onOpen();
   }
-
   function saveParam(onClose: () => void) {
     if (!editingParam) return;
     if (!editingParam.name.trim() || !editingParam.label.trim()) {
-      addToast({
-        title: "Validation",
+      toast.warning("Validation", {
         description: "Name and Label are required.",
-        color: "warning",
-        variant: "flat",
       });
-
       return;
     }
     const updated = [...params];
-
     if (editingIndex === null) {
       updated.push({ ...editingParam, order: updated.length });
     } else {
@@ -103,50 +90,38 @@ export default function FlowInputParams({
     setParams(updated);
     onClose();
   }
-
   function removeParam(index: number) {
     setParams((prev) => prev.filter((_, i) => i !== index));
   }
-
   function moveParam(index: number, direction: -1 | 1) {
     const updated = [...params];
     const target = index + direction;
-
     if (target < 0 || target >= updated.length) return;
     [updated[index], updated[target]] = [updated[target], updated[index]];
     setParams(updated.map((p, i) => ({ ...p, order: i })));
   }
-
   async function saveAll() {
     setSaving(true);
     const ordered = params.map((p, i) => ({ ...p, order: i }));
     const response = await UpdateFlowInputParams(flow.id, ordered);
-
     setSaving(false);
     if (response.success) {
       refreshFlowData(flow.id);
-      addToast({
-        title: "Input Parameters",
-        description: "Saved successfully.",
-        color: "success",
-        variant: "flat",
-      });
+      toast.success("Input Parameters", { description: "Saved successfully." });
     } else {
-      addToast({
-        title: "Input Parameters",
-        description: ("message" in response ? response.message : ""),
-        color: "danger",
-        variant: "flat",
+      toast.danger("Input Parameters", {
+        description: "message" in response ? response.message : "",
       });
     }
   }
-
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.07 } },
   };
-  const itemVariants = { hidden: { y: 16, opacity: 0 }, visible: { y: 0, opacity: 1 } };
-
+  const itemVariants = {
+    hidden: { y: 16, opacity: 0 },
+    visible: { y: 0, opacity: 1 },
+  };
   return (
     <motion.div
       animate="visible"
@@ -155,56 +130,43 @@ export default function FlowInputParams({
       variants={containerVariants}
     >
       <motion.div variants={itemVariants}>
-        <Card className="bg-content1/60 backdrop-blur-md border border-default-100 shadow-sm">
-          <CardHeader className="flex justify-between items-center">
+        <Card className="bg-surface/60 backdrop-blur-md border border-default shadow-sm">
+          <Card.Header className="flex justify-between items-center">
             <div className="flex gap-3 items-center">
-              <div className="p-2 rounded-lg bg-primary/10 text-primary">
+              <div className="p-2 rounded-lg bg-accent/10 text-accent">
                 <Icon icon="hugeicons:form-01" width={24} />
               </div>
               <div>
                 <p className="text-md font-bold">Input Parameters</p>
-                <p className="text-small text-default-500">
-                  Define inputs that users fill in when triggering this flow from a
-                  self-service page.
+                <p className="text-sm text-muted">
+                  Define inputs that users fill in when triggering this flow
+                  from a self-service page.
                 </p>
               </div>
             </div>
             <div className="flex gap-2">
               {canEdit && (
-                <Button
-                  color="primary"
-                  size="sm"
-                  startContent={<Icon icon="hugeicons:add-01" width={16} />}
-                  variant="flat"
-                  onPress={openNew}
-                >
+                <Button onPress={openNew} variant="primary">
+                  {<Icon icon="hugeicons:add-01" width={16} />}
                   Add Parameter
                 </Button>
               )}
               {canEdit && (
-                <Button
-                  color="success"
-                  isLoading={saving}
-                  size="sm"
-                  startContent={
-                    !saving && <Icon icon="hugeicons:floppy-disk" width={16} />
-                  }
-                  variant="flat"
-                  onPress={saveAll}
-                >
+                <Button isPending={saving} onPress={saveAll}>
+                  {!saving && <Icon icon="hugeicons:floppy-disk" width={16} />}
                   Save
                 </Button>
               )}
             </div>
-          </CardHeader>
-          <Divider />
-          <CardBody className="gap-3">
+          </Card.Header>
+          <Separator />
+          <Card.Content className="gap-3">
             {params.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-12 text-default-400">
+              <div className="flex flex-col items-center justify-center py-12 text-muted">
                 <Icon icon="hugeicons:form-01" width={48} />
                 <p className="mt-3 text-sm">No input parameters defined.</p>
                 {canEdit && (
-                  <p className="text-tiny mt-1">
+                  <p className="text-xs mt-1">
                     Click &quot;Add Parameter&quot; to get started.
                   </p>
                 )}
@@ -212,45 +174,45 @@ export default function FlowInputParams({
             )}
             {params.map((param, index) => (
               <motion.div key={param.id} variants={itemVariants}>
-                <Card className="bg-content2/40 border border-default-100">
-                  <CardBody className="flex flex-row items-center gap-3 py-3">
+                <Card className="bg-surface-secondary/40 border border-default">
+                  <Card.Content className="flex flex-row items-center gap-3 py-3">
                     <div className="flex flex-col gap-1 mr-1">
                       <Button
                         isDisabled={!canEdit || index === 0}
-                        isIconOnly
-                        size="sm"
-                        variant="light"
+                        variant="ghost"
                         onPress={() => moveParam(index, -1)}
+                        className="aspect-square p-0"
                       >
                         <Icon icon="hugeicons:arrow-up-01" width={14} />
                       </Button>
                       <Button
                         isDisabled={!canEdit || index === params.length - 1}
-                        isIconOnly
-                        size="sm"
-                        variant="light"
+                        variant="ghost"
                         onPress={() => moveParam(index, 1)}
+                        className="aspect-square p-0"
                       >
                         <Icon icon="hugeicons:arrow-down-01" width={14} />
                       </Button>
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-medium text-sm">{param.label}</span>
-                        <span className="font-mono text-tiny text-default-400">
+                        <span className="font-medium text-sm">
+                          {param.label}
+                        </span>
+                        <span className="font-mono text-xs text-muted">
                           {param.name}
                         </span>
-                        <span className="text-tiny bg-default-100 rounded px-1.5 py-0.5">
+                        <span className="text-xs bg-default rounded px-1.5 py-0.5">
                           {param.type}
                         </span>
                         {param.required && (
-                          <span className="text-tiny bg-danger/10 text-danger rounded px-1.5 py-0.5">
+                          <span className="text-xs bg-danger/10 text-danger rounded px-1.5 py-0.5">
                             required
                           </span>
                         )}
                       </div>
                       {param.description && (
-                        <p className="text-tiny text-default-400 mt-0.5 truncate">
+                        <p className="text-xs text-muted mt-0.5 truncate">
                           {param.description}
                         </p>
                       )}
@@ -258,211 +220,243 @@ export default function FlowInputParams({
                     {canEdit && (
                       <div className="flex gap-1 shrink-0">
                         <Button
-                          isIconOnly
-                          size="sm"
-                          variant="light"
+                          variant="ghost"
                           onPress={() => openEdit(param, index)}
+                          className="aspect-square p-0"
                         >
                           <Icon icon="hugeicons:pencil-edit-02" width={16} />
                         </Button>
                         <Button
-                          color="danger"
-                          isIconOnly
-                          size="sm"
-                          variant="light"
+                          variant="danger"
                           onPress={() => removeParam(index)}
+                          className="aspect-square p-0"
                         >
                           <Icon icon="hugeicons:delete-02" width={16} />
                         </Button>
                       </div>
                     )}
-                  </CardBody>
+                  </Card.Content>
                 </Card>
               </motion.div>
             ))}
-          </CardBody>
+          </Card.Content>
         </Card>
       </motion.div>
 
       {/* Edit / Add Modal */}
-      <Modal isOpen={isOpen} size="lg" onOpenChange={onOpenChange}>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader>
-                {editingIndex === null ? "Add Parameter" : "Edit Parameter"}
-              </ModalHeader>
-              <ModalBody className="gap-4">
-                {editingParam && (
-                  <>
-                    <div className="grid grid-cols-2 gap-3">
-                      <Input
-                        description="Internal identifier (snake_case), used in action params."
-                        label="Name (key)"
-                        placeholder="e.g. target_host"
-                        value={editingParam.name}
-                        variant="bordered"
-                        onValueChange={(v) =>
-                          setEditingParam({ ...editingParam, name: v })
-                        }
-                      />
-                      <Input
-                        description="Displayed to the user on the form."
-                        label="Label"
-                        placeholder="e.g. Target Host"
-                        value={editingParam.label}
-                        variant="bordered"
-                        onValueChange={(v) =>
-                          setEditingParam({ ...editingParam, label: v })
-                        }
-                      />
-                    </div>
-                    <Input
-                      label="Description"
-                      placeholder="Brief explanation shown below the field"
-                      value={editingParam.description}
-                      variant="bordered"
-                      onValueChange={(v) =>
-                        setEditingParam({ ...editingParam, description: v })
-                      }
-                    />
-                    <div className="grid grid-cols-2 gap-3">
-                      <Select
-                        label="Type"
-                        selectedKeys={[editingParam.type]}
-                        variant="bordered"
-                        onSelectionChange={(keys) =>
-                          setEditingParam({
-                            ...editingParam,
-                            type: keys.currentKey as InputParamType,
-                          })
-                        }
-                      >
-                        {PARAM_TYPES.map((t) => (
-                          <SelectItem key={t.key}>{t.label}</SelectItem>
-                        ))}
-                      </Select>
-                      <Input
-                        label="Default Value"
-                        placeholder="Optional default"
-                        value={editingParam.default}
-                        variant="bordered"
-                        onValueChange={(v) =>
-                          setEditingParam({ ...editingParam, default: v })
-                        }
-                      />
-                    </div>
-                    <Switch
-                      isSelected={editingParam.required}
-                      onValueChange={(v) =>
-                        setEditingParam({ ...editingParam, required: v })
-                      }
-                    >
-                      Required
-                    </Switch>
-                    {editingParam.type === "select" && (
-                      <div>
-                        <p className="text-sm font-medium mb-2">
-                          Options{" "}
-                          <span className="text-default-400 text-tiny">
-                            (key=value pairs)
-                          </span>
-                        </p>
-                        <div className="space-y-2">
-                          {(editingParam.options ?? []).map((opt, oi) => (
-                            <div key={oi} className="flex gap-2 items-center">
-                              <Input
-                                placeholder="key"
-                                size="sm"
-                                value={opt.key}
-                                variant="bordered"
-                                onValueChange={(v) => {
-                                  const opts = [
-                                    ...(editingParam.options ?? []),
-                                  ];
-
-                                  opts[oi] = { ...opts[oi], key: v };
-                                  setEditingParam({
-                                    ...editingParam,
-                                    options: opts,
-                                  });
-                                }}
-                              />
-                              <Input
-                                placeholder="display label"
-                                size="sm"
-                                value={opt.value}
-                                variant="bordered"
-                                onValueChange={(v) => {
-                                  const opts = [
-                                    ...(editingParam.options ?? []),
-                                  ];
-
-                                  opts[oi] = { ...opts[oi], value: v };
-                                  setEditingParam({
-                                    ...editingParam,
-                                    options: opts,
-                                  });
-                                }}
-                              />
-                              <Button
-                                color="danger"
-                                isIconOnly
-                                size="sm"
-                                variant="light"
-                                onPress={() => {
-                                  const opts = (
-                                    editingParam.options ?? []
-                                  ).filter((_, i) => i !== oi);
-
-                                  setEditingParam({
-                                    ...editingParam,
-                                    options: opts,
-                                  });
-                                }}
-                              >
-                                <Icon icon="hugeicons:delete-02" width={14} />
-                              </Button>
-                            </div>
-                          ))}
-                          <Button
-                            size="sm"
-                            startContent={
-                              <Icon icon="hugeicons:add-01" width={14} />
+      <Modal>
+        <Modal.Backdrop isOpen={isOpen} onOpenChange={onOpenChange}>
+          <Modal.Container size="lg">
+            <Modal.Dialog>
+              {({ close: onClose }) => (
+                <>
+                  <Modal.Header>
+                    <Modal.Heading>
+                      {editingIndex === null
+                        ? "Add Parameter"
+                        : "Edit Parameter"}
+                    </Modal.Heading>
+                  </Modal.Header>
+                  <Modal.Body className="gap-4">
+                    {editingParam && (
+                      <>
+                        <div className="grid grid-cols-2 gap-3">
+                          <TextField
+                            value={editingParam.name}
+                            onChange={(v) =>
+                              setEditingParam({ ...editingParam, name: v })
                             }
-                            variant="flat"
-                            onPress={() =>
+                          >
+                            <Label>{"Name (key)"}</Label>
+                            <InputGroup>
+                              <Input placeholder="e.g. target_host" />
+                            </InputGroup>
+                            <Description>
+                              {
+                                "Internal identifier (snake_case), used in action params."
+                              }
+                            </Description>
+                          </TextField>
+                          <TextField
+                            value={editingParam.label}
+                            onChange={(v) =>
+                              setEditingParam({ ...editingParam, label: v })
+                            }
+                          >
+                            <Label>{"Label"}</Label>
+                            <InputGroup>
+                              <Input placeholder="e.g. Target Host" />
+                            </InputGroup>
+                            <Description>
+                              {"Displayed to the user on the form."}
+                            </Description>
+                          </TextField>
+                        </div>
+                        <TextField
+                          value={editingParam.description}
+                          onChange={(v) =>
+                            setEditingParam({ ...editingParam, description: v })
+                          }
+                        >
+                          <Label>{"Description"}</Label>
+                          <InputGroup>
+                            <Input placeholder="Brief explanation shown below the field" />
+                          </InputGroup>
+                        </TextField>
+                        <div className="grid grid-cols-2 gap-3">
+                          <Select
+                            selectedKey={editingParam.type}
+                            onSelectionChange={(keys) =>
                               setEditingParam({
                                 ...editingParam,
-                                options: [
-                                  ...(editingParam.options ?? []),
-                                  { key: "", value: "" } as InputParamOption,
-                                ],
+                                type: keys as InputParamType,
                               })
                             }
                           >
-                            Add Option
-                          </Button>
+                            <Label>{"Type"}</Label>
+                            <Select.Trigger>
+                              <Select.Value />
+                              <Select.Indicator />
+                            </Select.Trigger>
+                            <Select.Popover>
+                              <ListBox>
+                                {PARAM_TYPES.map((t) => (
+                                  <ListBox.Item key={t.key} id={t.key}>
+                                    {t.label}
+                                    <ListBox.ItemIndicator />
+                                  </ListBox.Item>
+                                ))}
+                              </ListBox>
+                            </Select.Popover>
+                          </Select>
+                          <TextField
+                            value={editingParam.default}
+                            onChange={(v) =>
+                              setEditingParam({ ...editingParam, default: v })
+                            }
+                          >
+                            <Label>{"Default Value"}</Label>
+                            <InputGroup>
+                              <Input placeholder="Optional default" />
+                            </InputGroup>
+                          </TextField>
                         </div>
-                      </div>
+                        <Switch
+                          isSelected={editingParam.required}
+                          onChange={(v) =>
+                            setEditingParam({ ...editingParam, required: v })
+                          }
+                        >
+                          <Switch.Control>
+                            <Switch.Thumb />
+                          </Switch.Control>
+                          <Switch.Content>Required</Switch.Content>
+                        </Switch>
+                        {editingParam.type === "select" && (
+                          <div>
+                            <p className="text-sm font-medium mb-2">
+                              Options{" "}
+                              <span className="text-muted text-xs">
+                                (key=value pairs)
+                              </span>
+                            </p>
+                            <div className="space-y-2">
+                              {(editingParam.options ?? []).map((opt, oi) => (
+                                <div
+                                  key={oi}
+                                  className="flex gap-2 items-center"
+                                >
+                                  <TextField
+                                    value={opt.key}
+                                    onChange={(v) => {
+                                      const opts = [
+                                        ...(editingParam.options ?? []),
+                                      ];
+                                      opts[oi] = { ...opts[oi], key: v };
+                                      setEditingParam({
+                                        ...editingParam,
+                                        options: opts,
+                                      });
+                                    }}
+                                  >
+                                    <InputGroup>
+                                      <Input placeholder="key" />
+                                    </InputGroup>
+                                  </TextField>
+                                  <TextField
+                                    value={opt.value}
+                                    onChange={(v) => {
+                                      const opts = [
+                                        ...(editingParam.options ?? []),
+                                      ];
+                                      opts[oi] = { ...opts[oi], value: v };
+                                      setEditingParam({
+                                        ...editingParam,
+                                        options: opts,
+                                      });
+                                    }}
+                                  >
+                                    <InputGroup>
+                                      <Input placeholder="display label" />
+                                    </InputGroup>
+                                  </TextField>
+                                  <Button
+                                    variant="danger"
+                                    onPress={() => {
+                                      const opts = (
+                                        editingParam.options ?? []
+                                      ).filter((_, i) => i !== oi);
+                                      setEditingParam({
+                                        ...editingParam,
+                                        options: opts,
+                                      });
+                                    }}
+                                    className="aspect-square p-0"
+                                  >
+                                    <Icon
+                                      icon="hugeicons:delete-02"
+                                      width={14}
+                                    />
+                                  </Button>
+                                </div>
+                              ))}
+                              <Button
+                                onPress={() =>
+                                  setEditingParam({
+                                    ...editingParam,
+                                    options: [
+                                      ...(editingParam.options ?? []),
+                                      {
+                                        key: "",
+                                        value: "",
+                                      } as InputParamOption,
+                                    ],
+                                  })
+                                }
+                              >
+                                {<Icon icon="hugeicons:add-01" width={14} />}
+                                Add Option
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </>
                     )}
-                  </>
-                )}
-              </ModalBody>
-              <ModalFooter>
-                <Button variant="flat" onPress={onClose}>
-                  Cancel
-                </Button>
-                <Button
-                  color="primary"
-                  onPress={() => saveParam(onClose)}
-                >
-                  {editingIndex === null ? "Add" : "Save"}
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
+                  </Modal.Body>
+                  <Modal.Footer>
+                    <Button onPress={onClose}>Cancel</Button>
+                    <Button
+                      onPress={() => saveParam(onClose)}
+                      variant="primary"
+                    >
+                      {editingIndex === null ? "Add" : "Save"}
+                    </Button>
+                  </Modal.Footer>
+                </>
+              )}
+            </Modal.Dialog>
+          </Modal.Container>
+        </Modal.Backdrop>
       </Modal>
     </motion.div>
   );

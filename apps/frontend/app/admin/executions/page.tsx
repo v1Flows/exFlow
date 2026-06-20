@@ -1,5 +1,3 @@
-import { Divider } from "@heroui/react";
-
 import ErrorCard from "@/components/error/ErrorCard";
 import AdminGetFlows from "@/lib/fetch/admin/flows";
 import AdminGetExecutions from "@/lib/fetch/admin/executions";
@@ -24,7 +22,7 @@ export default async function AdminExecutionsPage() {
           <p className="text-2xl font-bold mb-1">
             <span className="text-danger">Admin</span> | Executions
           </p>
-          <Divider className="mt-4 mb-4" />
+          <hr className="my-4 border-default" />
           <Executions
             canEdit
             displayToFlow

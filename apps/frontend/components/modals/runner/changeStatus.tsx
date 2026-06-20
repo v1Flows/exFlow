@@ -1,81 +1,64 @@
-import type { UseDisclosureReturn } from "@heroui/use-disclosure";
-
+import { CopySnippet } from "@/components/ui/copy-snippet";
 import {
-  addToast,
   Button,
+  Description,
+  FieldError,
   Input,
+  InputGroup,
+  Label,
   Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Snippet,
+  TextField,
+  toast,
+  type UseOverlayStateReturn,
 } from "@heroui/react";
 import React from "react";
 import { Icon } from "@iconify/react";
-
 import ErrorCard from "@/components/error/ErrorCard";
 import ChangeRunnerStatus from "@/lib/fetch/admin/PUT/ChangeRunnerStatus";
 import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
-
 export default function ChangeRunnerStatusModal({
   disclosure,
   runner,
   status,
 }: {
-  disclosure: UseDisclosureReturn;
+  disclosure: UseOverlayStateReturn;
   runner: any;
   status: any;
 }) {
   const { refreshRunners, refreshProjectRunners } = useRefreshCache();
-
-  const { isOpen, onOpenChange } = disclosure;
-
+  const { isOpen, setOpen: onOpenChange } = disclosure;
   const [disableReason, setDisableReason] = React.useState("");
   const [isLoading, setLoading] = React.useState(false);
   const [error, setError] = React.useState(false);
   const [errorText, setErrorText] = React.useState("");
   const [errorMessage, setErrorMessage] = React.useState("");
-
   async function changeRunnerStatus() {
     setLoading(true);
-
     const res = (await ChangeRunnerStatus(
       runner.id,
       status,
       disableReason || "no info provided",
     )) as any;
-
     if (!res) {
       setLoading(false);
       setError(true);
       setErrorText("Failed to update runner status");
       setErrorMessage("An error occurred while updating the runner status");
-      addToast({
-        title: "Runner",
-        description: "Failed to update runner status",
-        color: "danger",
-        variant: "flat",
-      });
-
+      toast.danger("Runner", { description: "Failed to update runner status" });
       return;
     }
-
     if (res.success) {
       setLoading(false);
       setError(false);
       setErrorText("");
       setErrorMessage("");
-      onOpenChange();
+      onOpenChange(false);
       refreshRunners();
       if (runner.project_id) {
         refreshProjectRunners(runner.project_id);
       }
-      addToast({
-        title: "Runner",
+      toast.success("Runner", {
         description: "Runner status updated successfully",
-        color: "success",
-        variant: "flat",
       });
     } else {
       setLoading(false);
@@ -83,113 +66,104 @@ export default function ChangeRunnerStatusModal({
       setErrorText(res.error);
       setErrorMessage(res.message);
       refreshRunners();
-      addToast({
-        title: "Runner",
-        description: "Failed to update runner status",
-        color: "danger",
-        variant: "flat",
-      });
+      toast.danger("Runner", { description: "Failed to update runner status" });
     }
   }
-
   return (
     <main>
-      <Modal isOpen={isOpen} placement="top-center" onOpenChange={onOpenChange}>
-        {status && (
-          <ModalContent>
-            {(onClose) => (
-              <>
-                <ModalHeader className="flex flex-wrap items-center">
-                  <div className="flex flex-col">
-                    <p className="text-lg font-bold">Disable Runner</p>
-                    <p className="text-sm text-default-500">
-                      Are you sure you want to disable this runner?
-                    </p>
-                  </div>
-                </ModalHeader>
-                <ModalBody>
-                  {error && (
-                    <ErrorCard error={errorText} message={errorMessage} />
-                  )}
-                  <Snippet hideCopyButton hideSymbol>
-                    <span>ID: {runner.id}</span>
-                  </Snippet>
-                  <Input
-                    label="Disable Reason"
-                    placeholder="Enter the reason for disabling this runner"
-                    value={disableReason}
-                    variant="flat"
-                    onValueChange={setDisableReason}
-                  />
-                </ModalBody>
-                <ModalFooter>
-                  <Button
-                    color="default"
-                    startContent={
-                      <Icon icon="hugeicons:cancel-01" width={18} />
-                    }
-                    variant="ghost"
-                    onPress={onClose}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    color="danger"
-                    isLoading={isLoading}
-                    startContent={<Icon icon="hugeicons:pause" width={18} />}
-                    onPress={changeRunnerStatus}
-                  >
-                    Disable
-                  </Button>
-                </ModalFooter>
-              </>
+      <Modal>
+        <Modal.Backdrop isOpen={isOpen} onOpenChange={onOpenChange}>
+          <Modal.Container placement="top">
+            {status && (
+              <Modal.Dialog>
+                {({ close: onClose }) => (
+                  <>
+                    <Modal.Header className="flex flex-wrap items-center">
+                      <Modal.Heading>
+                        <div className="flex flex-col">
+                          <p className="text-lg font-bold">Disable Runner</p>
+                          <p className="text-sm text-muted">
+                            Are you sure you want to disable this runner?
+                          </p>
+                        </div>
+                      </Modal.Heading>
+                    </Modal.Header>
+                    <Modal.Body>
+                      {error && (
+                        <ErrorCard error={errorText} message={errorMessage} />
+                      )}
+                      <CopySnippet copyable={false} showPrompt={false}>
+                        <span>ID: {runner.id}</span>
+                      </CopySnippet>
+                      <TextField
+                        value={disableReason}
+                        onChange={setDisableReason}
+                      >
+                        <Label>{"Disable Reason"}</Label>
+                        <InputGroup>
+                          <Input placeholder="Enter the reason for disabling this runner" />
+                        </InputGroup>
+                      </TextField>
+                    </Modal.Body>
+                    <Modal.Footer>
+                      <Button variant="ghost" onPress={onClose}>
+                        {<Icon icon="hugeicons:cancel-01" width={18} />}
+                        Cancel
+                      </Button>
+                      <Button
+                        isPending={isLoading}
+                        onPress={changeRunnerStatus}
+                        variant="danger"
+                      >
+                        {<Icon icon="hugeicons:pause" width={18} />}
+                        Disable
+                      </Button>
+                    </Modal.Footer>
+                  </>
+                )}
+              </Modal.Dialog>
             )}
-          </ModalContent>
-        )}
-        {!status && (
-          <ModalContent>
-            {(onClose) => (
-              <>
-                <ModalHeader className="flex flex-wrap items-center">
-                  <div className="flex flex-col">
-                    <p className="text-lg font-bold">Enable Runner</p>
-                    <p className="text-sm text-default-500">
-                      Are you sure you want to enable this runner?
-                    </p>
-                  </div>
-                </ModalHeader>
-                <ModalBody>
-                  <Snippet hideCopyButton hideSymbol>
-                    <span>
-                      ID:
-                      {runner.id}
-                    </span>
-                  </Snippet>
-                </ModalBody>
-                <ModalFooter>
-                  <Button
-                    color="default"
-                    startContent={
-                      <Icon icon="hugeicons:cancel-01" width={18} />
-                    }
-                    variant="ghost"
-                    onPress={onClose}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    color="success"
-                    isLoading={isLoading}
-                    startContent={<Icon icon="hugeicons:play" width={18} />}
-                    onPress={changeRunnerStatus}
-                  >
-                    Enable
-                  </Button>
-                </ModalFooter>
-              </>
+            {!status && (
+              <Modal.Dialog>
+                {({ close: onClose }) => (
+                  <>
+                    <Modal.Header className="flex flex-wrap items-center">
+                      <Modal.Heading>
+                        <div className="flex flex-col">
+                          <p className="text-lg font-bold">Enable Runner</p>
+                          <p className="text-sm text-muted">
+                            Are you sure you want to enable this runner?
+                          </p>
+                        </div>
+                      </Modal.Heading>
+                    </Modal.Header>
+                    <Modal.Body>
+                      <CopySnippet copyable={false} showPrompt={false}>
+                        <span>
+                          ID:
+                          {runner.id}
+                        </span>
+                      </CopySnippet>
+                    </Modal.Body>
+                    <Modal.Footer>
+                      <Button variant="ghost" onPress={onClose}>
+                        {<Icon icon="hugeicons:cancel-01" width={18} />}
+                        Cancel
+                      </Button>
+                      <Button
+                        isPending={isLoading}
+                        onPress={changeRunnerStatus}
+                      >
+                        {<Icon icon="hugeicons:play" width={18} />}
+                        Enable
+                      </Button>
+                    </Modal.Footer>
+                  </>
+                )}
+              </Modal.Dialog>
             )}
-          </ModalContent>
-        )}
+          </Modal.Container>
+        </Modal.Backdrop>
       </Modal>
     </main>
   );

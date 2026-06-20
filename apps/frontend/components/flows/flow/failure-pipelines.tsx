@@ -8,23 +8,18 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { Icon } from "@iconify/react";
 import {
-  addToast,
   Button,
   ButtonGroup,
   Card,
-  CardBody,
   Chip,
   Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownTrigger,
-  Tooltip,
-  useDisclosure,
   ScrollShadow,
+  toast,
+  Tooltip,
+  useOverlayState,
 } from "@heroui/react";
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
-
 import EditActionModal from "@/components/modals/actions/edit";
 import DeleteActionModal from "@/components/modals/actions/delete";
 import CreateFailurePipelineModal from "@/components/modals/failurePipelines/create";
@@ -36,7 +31,6 @@ import UpgradeActionModal from "@/components/modals/actions/upgrade";
 import CopyActionToDifferentFlowModal from "@/components/modals/actions/transferCopy";
 import FlowActionDetails from "@/components/modals/actions/details";
 import AddFlowActionModal from "@/components/modals/actions/addFlow";
-
 export default function FlowFailurePipelines({
   projects,
   flows,
@@ -55,47 +49,39 @@ export default function FlowFailurePipelines({
   settings: any;
 }) {
   const router = useRouter();
-
   const [targetAction, setTargetAction] = React.useState({} as any);
   const [updatedAction, setUpdatedAction] = React.useState({} as any);
-
   const [failurePipelines, setFailurePipelines] = React.useState([] as any);
   const [targetFailurePipeline, setTargetFailurePipeline] = React.useState(
     {} as any,
   );
-
   const [selectedPipelineId, setSelectedPipelineId] = React.useState<
     string | null
   >(null);
-
-  const viewFlowActionDetails = useDisclosure();
-  const createFlowFailurePipelineModal = useDisclosure();
-  const editFlowFailurePipelineModal = useDisclosure();
-  const deleteFailurePipelineModal = useDisclosure();
-  const addFlowFailurePipelineActionModal = useDisclosure();
-  const editFlowFailurePipelineActionModal = useDisclosure();
-  const deleteFlowFailurePipelineActionModal = useDisclosure();
-  const copyFlowFailurePipelineActionModal = useDisclosure();
-  const upgradeFlowFailurePipelineActionModal = useDisclosure();
-  const copyActionToDifferentFlowModal = useDisclosure();
-  const copyFailurePipelineActionToDifferentFlowModal = useDisclosure();
-
+  const viewFlowActionDetails = useOverlayState();
+  const createFlowFailurePipelineModal = useOverlayState();
+  const editFlowFailurePipelineModal = useOverlayState();
+  const deleteFailurePipelineModal = useOverlayState();
+  const addFlowFailurePipelineActionModal = useOverlayState();
+  const editFlowFailurePipelineActionModal = useOverlayState();
+  const deleteFlowFailurePipelineActionModal = useOverlayState();
+  const copyFlowFailurePipelineActionModal = useOverlayState();
+  const upgradeFlowFailurePipelineActionModal = useOverlayState();
+  const copyActionToDifferentFlowModal = useOverlayState();
+  const copyFailurePipelineActionToDifferentFlowModal = useOverlayState();
   useEffect(() => {
     if (flow.failure_pipelines !== null) {
       setFailurePipelines(flow.failure_pipelines);
-
       if (!selectedPipelineId && flow.failure_pipelines.length > 0) {
         setSelectedPipelineId(flow.failure_pipelines[0].id);
       }
     }
   }, [flow]);
-
   // function to get action from clipboard
   const getClipboardAction = async () => {
     try {
       const clipboardText = await navigator.clipboard.readText();
       const parsedAction = JSON.parse(clipboardText);
-
       if (parsedAction && parsedAction.id && parsedAction.plugin) {
         return parsedAction;
       } else {
@@ -105,7 +91,6 @@ export default function FlowFailurePipelines({
       return null;
     }
   };
-
   const SortableItem = ({
     action,
     index,
@@ -117,12 +102,10 @@ export default function FlowFailurePipelines({
   }) => {
     const { attributes, listeners, setNodeRef, transform, transition } =
       useSortable({ id: action.id });
-
     const style = {
       transform: CSS.Transform.toString(transform),
       transition,
     };
-
     return (
       <div
         ref={setNodeRef}
@@ -132,255 +115,270 @@ export default function FlowFailurePipelines({
       >
         {/* Timeline Line */}
         {index !== total - 1 && (
-          <div className="absolute left-[19px] top-8 bottom-0 w-[2px] bg-default-200/50" />
+          <div className="absolute left-[19px] top-8 bottom-0 w-[2px] bg-default/50" />
         )}
 
         {/* Timeline Dot */}
-        <div className="absolute left-[9px] top-8 -translate-y-1/2 w-5 h-5 rounded-full bg-background border-2 border-primary z-10 flex items-center justify-center shadow-sm">
-          <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+        <div className="absolute left-[9px] top-8 -translate-y-1/2 w-5 h-5 rounded-full bg-background border-2 border-accent z-10 flex items-center justify-center shadow-sm">
+          <div className="w-1.5 h-1.5 rounded-full bg-accent" />
         </div>
 
         {/* Step Number */}
-        <div className="absolute left-0 top-0 -translate-x-full pr-4 pt-6 text-xs font-bold text-default-400 hidden md:block">
+        <div className="absolute left-0 top-0 -translate-x-full pr-4 pt-6 text-xs font-bold text-muted hidden md:block">
           Step {index + 1}
         </div>
 
-        <Card
-          key={action.id}
-          fullWidth
-          isPressable
-          className="bg-content1/40 border border-default-200/50 hover:bg-content1/60 transition-all"
-          isDisabled={!action.active}
+        <Button
+          className="h-auto w-full justify-start p-0 text-left"
+          variant="tertiary"
           onPress={() => {
             setTargetAction(action);
-            viewFlowActionDetails.onOpen();
+            viewFlowActionDetails.open();
           }}
         >
-          <CardBody className="p-3">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
-                  <Icon icon={action.icon} width={24} />
-                </div>
-                <div className="flex flex-col gap-0.5">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold text-foreground">
-                      {action.custom_name || action.name}
-                    </p>
-                    <Chip
-                      className="h-5 text-[10px] px-1"
-                      color="primary"
-                      size="sm"
-                      variant="flat"
-                    >
-                      v{action.version}
-                    </Chip>
+          <Card
+            key={action.id}
+            className="w-full bg-surface/40 border border-default/50 hover:bg-surface/60 transition-all"
+          >
+            <Card.Content className="p-3">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex size-10 items-center justify-center rounded-lg bg-accent/10 text-accent shrink-0">
+                    <Icon icon={action.icon} width={24} />
                   </div>
-                  <p className="text-xs text-default-500 line-clamp-1">
-                    {action.custom_description || action.description}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-2 mr-2">
-                  <Chip
-                    className="border-none"
-                    color={action.active ? "success" : "danger"}
-                    size="sm"
-                    variant="dot"
-                  >
-                    {action.active ? "Active" : "Disabled"}
-                  </Chip>
-                  {action.update_available && (
-                    <Chip color="primary" size="sm" variant="flat">
-                      Update
-                    </Chip>
-                  )}
+                  <div className="flex flex-col gap-0.5">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-semibold text-foreground">
+                        {action.custom_name || action.name}
+                      </p>
+                      <Chip
+                        className="h-5 text-[10px] px-1"
+                        color="accent"
+                        size="sm"
+                        variant="soft"
+                      >
+                        <Chip.Label>v{action.version}</Chip.Label>
+                      </Chip>
+                    </div>
+                    <p className="text-xs text-muted line-clamp-1">
+                      {action.custom_description || action.description}
+                    </p>
+                  </div>
                 </div>
 
-                <ButtonGroup size="sm" variant="light">
-                  {action.update_available && (
-                    <Tooltip content="Upgrade Plugin Version">
-                      <Button
-                        isIconOnly
-                        color="primary"
-                        isDisabled={
-                          (!canEdit || flow.disabled) && user.role !== "admin"
-                        }
-                        onPress={() => {
-                          setTargetAction(action);
-                          setUpdatedAction(action.updated_action);
-                          setTargetFailurePipeline(
-                            flow.failure_pipelines.find(
-                              (p: any) => p.id === selectedPipelineId,
-                            ),
-                          );
-                          upgradeFlowFailurePipelineActionModal.onOpen();
-                        }}
-                      >
-                        <Icon icon="hugeicons:system-update-02" width={16} />
-                      </Button>
-                    </Tooltip>
-                  )}
-
-                  <Dropdown>
-                    <DropdownTrigger>
-                      <Button
-                        isIconOnly
-                        isDisabled={
-                          (!canEdit || flow.disabled) && user.role !== "admin"
-                        }
-                      >
-                        <Icon icon="hugeicons:more-vertical" width={16} />
-                      </Button>
-                    </DropdownTrigger>
-                    <DropdownMenu aria-label="Action Options">
-                      <DropdownItem
-                        key="details"
-                        startContent={<Icon icon="hugeicons:view" width={18} />}
-                        onPress={() => {
-                          setTargetAction(action);
-                          viewFlowActionDetails.onOpen();
-                        }}
-                      >
-                        View Details
-                      </DropdownItem>
-                      <DropdownItem
-                        key="edit"
-                        startContent={
-                          <Icon icon="hugeicons:pencil-edit-02" width={18} />
-                        }
-                        onPress={() => {
-                          setTargetAction(action);
-                          setTargetFailurePipeline(
-                            flow.failure_pipelines.find(
-                              (p: any) => p.id === selectedPipelineId,
-                            ),
-                          );
-                          editFlowFailurePipelineActionModal.onOpen();
-                        }}
-                      >
-                        Edit Action
-                      </DropdownItem>
-                      <DropdownItem
-                        key="copy"
-                        startContent={
-                          <Icon icon="hugeicons:copy-02" width={18} />
-                        }
-                        onPress={() => {
-                          setTargetAction(action);
-                          setTargetFailurePipeline(
-                            flow.failure_pipelines.find(
-                              (p: any) => p.id === selectedPipelineId,
-                            ),
-                          );
-                          copyFlowFailurePipelineActionModal.onOpen();
-                        }}
-                      >
-                        Copy Local
-                      </DropdownItem>
-                      <DropdownItem
-                        key="transfer"
-                        startContent={
-                          <Icon icon="hugeicons:delivery-sent-02" width={18} />
-                        }
-                        onPress={() => {
-                          setTargetAction(action);
-                          copyActionToDifferentFlowModal.onOpen();
-                        }}
-                      >
-                        Transfer
-                      </DropdownItem>
-                      <DropdownItem
-                        key="delete"
-                        className="text-danger"
-                        color="danger"
-                        startContent={
-                          <Icon icon="hugeicons:delete-02" width={18} />
-                        }
-                        onPress={() => {
-                          setTargetAction(action.id);
-                          setTargetFailurePipeline(
-                            flow.failure_pipelines.find(
-                              (p: any) => p.id === selectedPipelineId,
-                            ),
-                          );
-                          deleteFlowFailurePipelineActionModal.onOpen();
-                        }}
-                      >
-                        Delete Action
-                      </DropdownItem>
-                    </DropdownMenu>
-                  </Dropdown>
-
-                  <Tooltip content="Drag to reorder">
-                    <Button
-                      isIconOnly
-                      className="cursor-grab active:cursor-grabbing"
-                      isDisabled={
-                        (!canEdit || flow.disabled) && user.role !== "admin"
-                      }
-                      {...listeners}
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 mr-2">
+                    <Chip
+                      className="border-none"
+                      color={action.active ? "success" : "danger"}
+                      size="sm"
+                      variant="soft"
                     >
-                      <Icon icon="hugeicons:drag-02" width={16} />
-                    </Button>
-                  </Tooltip>
-                </ButtonGroup>
+                      <Chip.Label>
+                        {action.active ? "Active" : "Disabled"}
+                      </Chip.Label>
+                    </Chip>
+                    {action.update_available && (
+                      <Chip color="accent" size="sm" variant="soft">
+                        <Chip.Label>Update</Chip.Label>
+                      </Chip>
+                    )}
+                  </div>
+
+                  <ButtonGroup size="sm" variant="ghost">
+                    {action.update_available && (
+                      <Tooltip>
+                        <Tooltip.Trigger>
+                          <Button
+                            isDisabled={
+                              (!canEdit || flow.disabled) &&
+                              user.role !== "admin"
+                            }
+                            onPress={() => {
+                              setTargetAction(action);
+                              setUpdatedAction(action.updated_action);
+                              setTargetFailurePipeline(
+                                flow.failure_pipelines.find(
+                                  (p: any) => p.id === selectedPipelineId,
+                                ),
+                              );
+                              upgradeFlowFailurePipelineActionModal.open();
+                            }}
+                            variant="primary"
+                            className="aspect-square p-0"
+                          >
+                            <Icon
+                              icon="hugeicons:system-update-02"
+                              width={16}
+                            />
+                          </Button>
+                        </Tooltip.Trigger>
+                        <Tooltip.Content>
+                          {"Upgrade Plugin Version"}
+                        </Tooltip.Content>
+                      </Tooltip>
+                    )}
+
+                    <Dropdown>
+                      <Dropdown.Trigger>
+                        <Button
+                          isDisabled={
+                            (!canEdit || flow.disabled) && user.role !== "admin"
+                          }
+                          className="aspect-square p-0"
+                        >
+                          <Icon icon="hugeicons:more-vertical" width={16} />
+                        </Button>
+                      </Dropdown.Trigger>
+                      <Dropdown.Popover>
+                        <Dropdown.Menu aria-label="Action Options">
+                          <Dropdown.Item
+                            key="details"
+                            id="details"
+                            onPress={() => {
+                              setTargetAction(action);
+                              viewFlowActionDetails.open();
+                            }}
+                            textValue="View Details"
+                          >
+                            {<Icon icon="hugeicons:view" width={18} />}
+                            View Details
+                          </Dropdown.Item>
+                          <Dropdown.Item
+                            key="edit"
+                            id="edit"
+                            onPress={() => {
+                              setTargetAction(action);
+                              setTargetFailurePipeline(
+                                flow.failure_pipelines.find(
+                                  (p: any) => p.id === selectedPipelineId,
+                                ),
+                              );
+                              editFlowFailurePipelineActionModal.open();
+                            }}
+                            textValue="Edit Action"
+                          >
+                            {
+                              <Icon
+                                icon="hugeicons:pencil-edit-02"
+                                width={18}
+                              />
+                            }
+                            Edit Action
+                          </Dropdown.Item>
+                          <Dropdown.Item
+                            key="copy"
+                            id="copy"
+                            onPress={() => {
+                              setTargetAction(action);
+                              setTargetFailurePipeline(
+                                flow.failure_pipelines.find(
+                                  (p: any) => p.id === selectedPipelineId,
+                                ),
+                              );
+                              copyFlowFailurePipelineActionModal.open();
+                            }}
+                            textValue="Copy Local"
+                          >
+                            {<Icon icon="hugeicons:copy-02" width={18} />}
+                            Copy Local
+                          </Dropdown.Item>
+                          <Dropdown.Item
+                            key="transfer"
+                            id="transfer"
+                            onPress={() => {
+                              setTargetAction(action);
+                              copyActionToDifferentFlowModal.open();
+                            }}
+                            textValue="Transfer"
+                          >
+                            {
+                              <Icon
+                                icon="hugeicons:delivery-sent-02"
+                                width={18}
+                              />
+                            }
+                            Transfer
+                          </Dropdown.Item>
+                          <Dropdown.Item
+                            key="delete"
+                            id="delete"
+                            className="text-danger"
+                            onPress={() => {
+                              setTargetAction(action.id);
+                              setTargetFailurePipeline(
+                                flow.failure_pipelines.find(
+                                  (p: any) => p.id === selectedPipelineId,
+                                ),
+                              );
+                              deleteFlowFailurePipelineActionModal.open();
+                            }}
+                            textValue="Delete Action"
+                          >
+                            {<Icon icon="hugeicons:delete-02" width={18} />}
+                            Delete Action
+                          </Dropdown.Item>
+                        </Dropdown.Menu>
+                      </Dropdown.Popover>
+                    </Dropdown>
+
+                    <Tooltip>
+                      <Tooltip.Trigger>
+                        <Button
+                          className="cursor-grab active:cursor-grabbing"
+                          isDisabled={
+                            (!canEdit || flow.disabled) && user.role !== "admin"
+                          }
+                          {...listeners}
+                        >
+                          <Icon icon="hugeicons:drag-02" width={16} />
+                        </Button>
+                      </Tooltip.Trigger>
+                      <Tooltip.Content>{"Drag to reorder"}</Tooltip.Content>
+                    </Tooltip>
+                  </ButtonGroup>
+                </div>
               </div>
-            </div>
-          </CardBody>
-        </Card>
+            </Card.Content>
+          </Card>
+        </Button>
       </div>
     );
   };
-
   const handleDragEndPipeline = (pipeline: any, event: any) => {
     const { active, over } = event;
-
     if (active.id !== over.id) {
       const items = [...pipeline.actions];
       const oldIndex = items.findIndex((item: any) => item.id === active.id);
       const newIndex = items.findIndex((item: any) => item.id === over.id);
-
       const newArray = arrayMove(items, oldIndex, newIndex);
-
       updateFlowFailurePipelineActions(pipeline, newArray);
     }
   };
-
   function updateFlowFailurePipelineActions(pipeline: any, actions: any) {
     UpdateFlowFailurePipelineActions(flow.id, pipeline.id, actions)
       .then(() => {
         router.refresh();
-        addToast({
-          title: "Flow",
+        toast.success("Flow", {
           description:
             "Flow failure pipeline actions order updated successfully.",
-          color: "success",
-          variant: "flat",
         });
       })
       .catch(() => {
         router.refresh();
-        addToast({
-          title: "Flow",
+        toast.danger("Flow", {
           description: "Failed to update flow failure pipeline actions order.",
-          color: "danger",
-          variant: "flat",
         });
       });
   }
-
   const selectedPipeline = failurePipelines.find(
     (p: any) => p.id === selectedPipelineId,
   );
-
   return (
     <div className="flex flex-col gap-6 h-[calc(100vh-200px)]">
       <div className="flex flex-col gap-2">
         <h3 className="text-lg font-bold">Failure Pipelines</h3>
-        <p className="text-sm text-default-500">
+        <p className="text-sm text-muted">
           Configure failure pipelines to handle errors gracefully. These
           pipelines can be triggered when specific actions or the entire flow
           fails.
@@ -389,19 +387,19 @@ export default function FlowFailurePipelines({
 
       <div className="flex flex-col lg:flex-row gap-6 h-full overflow-hidden">
         {/* Left Sidebar - Pipeline List */}
-        <Card className="w-full lg:w-1/3 h-full bg-content1/60 backdrop-blur-md border border-white/10">
-          <CardBody className="p-0 flex flex-col h-full">
-            <div className="p-4 border-b border-divider flex items-center justify-between sticky top-0 bg-content1/60 backdrop-blur-md z-10">
-              <span className="font-semibold text-default-700">Pipelines</span>
+        <Card className="w-full lg:w-1/3 h-full bg-surface/60 backdrop-blur-md border border-white/10">
+          <Card.Content className="p-0 flex flex-col h-full">
+            <div className="p-4 border-b border-separator flex items-center justify-between sticky top-0 bg-surface/60 backdrop-blur-md z-10">
+              <span className="font-semibold text-foreground">Pipelines</span>
               <Button
-                color="primary"
                 isDisabled={
                   (!canEdit || flow.disabled) && user.role !== "admin"
                 }
                 size="sm"
-                startContent={<Icon icon="hugeicons:plus-sign" width={16} />}
-                onPress={createFlowFailurePipelineModal.onOpen}
+                onPress={createFlowFailurePipelineModal.open}
+                variant="primary"
               >
+                {<Icon icon="hugeicons:plus-sign" width={16} />}
                 New Pipeline
               </Button>
             </div>
@@ -409,7 +407,7 @@ export default function FlowFailurePipelines({
             <ScrollShadow className="flex-1 p-2">
               <div className="flex flex-col gap-2">
                 {failurePipelines.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-12 text-default-400 gap-2">
+                  <div className="flex flex-col items-center justify-center py-12 text-muted gap-2">
                     <Icon
                       className="opacity-50"
                       icon="hugeicons:folder-02"
@@ -424,136 +422,151 @@ export default function FlowFailurePipelines({
                     const assignedStepsCount = flow.actions.filter(
                       (a: any) => a.failure_pipeline_id === pipeline.id,
                     ).length;
-
                     return (
-                      <Card
+                      <Button
                         key={pipeline.id}
-                        isPressable
-                        className={`border transition-all ${
-                          selectedPipelineId === pipeline.id
-                            ? "bg-primary/10 border-primary/50"
-                            : "bg-transparent border-transparent hover:bg-content2/50"
-                        }`}
+                        className="h-auto w-full justify-start p-0 text-left"
+                        variant="tertiary"
                         onPress={() => setSelectedPipelineId(pipeline.id)}
                       >
-                        <CardBody className="p-3">
-                          <div className="flex flex-col gap-2 w-full">
-                            <div className="flex items-center justify-between w-full">
-                              <span
-                                className={`font-medium ${selectedPipelineId === pipeline.id ? "text-primary" : "text-foreground"}`}
-                              >
-                                {pipeline.name}
-                              </span>
-                              {pipeline.exec_parallel && (
-                                <Icon
-                                  className="text-default-400"
-                                  icon="hugeicons:parallel"
-                                  width={16}
-                                />
-                              )}
-                            </div>
+                        <Card
+                          key={pipeline.id}
+                          className={`border transition-all ${
+                            selectedPipelineId === pipeline.id
+                              ? "bg-accent/10 border-accent/50"
+                              : "bg-transparent border-transparent hover:bg-surface-secondary/50"
+                          }`}
+                        >
+                          <Card.Content className="p-3">
+                            <div className="flex flex-col gap-2 w-full">
+                              <div className="flex items-center justify-between w-full">
+                                <span
+                                  className={`font-medium ${selectedPipelineId === pipeline.id ? "text-accent" : "text-foreground"}`}
+                                >
+                                  {pipeline.name}
+                                </span>
+                                {pipeline.exec_parallel && (
+                                  <Icon
+                                    className="text-muted"
+                                    icon="hugeicons:parallel"
+                                    width={16}
+                                  />
+                                )}
+                              </div>
 
-                            <div className="flex items-center gap-2 flex-wrap">
-                              {isAssignedToFlow && (
-                                <Chip
-                                  className="h-5 text-[10px] px-1"
-                                  color="success"
-                                  size="sm"
-                                  variant="flat"
-                                >
-                                  Flow Default
-                                </Chip>
-                              )}
-                              {assignedStepsCount > 0 && (
-                                <Chip
-                                  className="h-5 text-[10px] px-1"
-                                  color="secondary"
-                                  size="sm"
-                                  variant="flat"
-                                >
-                                  {assignedStepsCount} Steps
-                                </Chip>
-                              )}
-                              {!isAssignedToFlow &&
-                                assignedStepsCount === 0 && (
+                              <div className="flex items-center gap-2 flex-wrap">
+                                {isAssignedToFlow && (
                                   <Chip
-                                    className="h-5 text-[10px] px-1 bg-default-100 text-default-500"
+                                    className="h-5 text-[10px] px-1"
+                                    color="success"
                                     size="sm"
-                                    variant="flat"
+                                    variant="soft"
                                   >
-                                    Unused
+                                    <Chip.Label>Flow Default</Chip.Label>
                                   </Chip>
                                 )}
+                                {assignedStepsCount > 0 && (
+                                  <Chip
+                                    className="h-5 text-[10px] px-1"
+                                    color="accent"
+                                    size="sm"
+                                    variant="soft"
+                                  >
+                                    <Chip.Label>
+                                      {assignedStepsCount} Steps
+                                    </Chip.Label>
+                                  </Chip>
+                                )}
+                                {!isAssignedToFlow &&
+                                  assignedStepsCount === 0 && (
+                                    <Chip
+                                      className="h-5 text-[10px] px-1 bg-default text-muted"
+                                      size="sm"
+                                      variant="soft"
+                                    >
+                                      <Chip.Label>Unused</Chip.Label>
+                                    </Chip>
+                                  )}
+                              </div>
                             </div>
-                          </div>
-                        </CardBody>
-                      </Card>
+                          </Card.Content>
+                        </Card>
+                      </Button>
                     );
                   })
                 )}
               </div>
             </ScrollShadow>
-          </CardBody>
+          </Card.Content>
         </Card>
 
         {/* Right Content - Pipeline Details */}
-        <Card className="w-full lg:w-2/3 h-full bg-content1/60 backdrop-blur-md border border-white/10">
-          <CardBody className="p-0 flex flex-col h-full">
+        <Card className="w-full lg:w-2/3 h-full bg-surface/60 backdrop-blur-md border border-white/10">
+          <Card.Content className="p-0 flex flex-col h-full">
             {selectedPipeline ? (
               <>
                 {/* Header */}
-                <div className="p-6 border-b border-divider flex flex-col gap-4">
+                <div className="p-6 border-b border-separator flex flex-col gap-4">
                   <div className="flex items-start justify-between">
                     <div className="flex flex-col gap-1">
                       <h2 className="text-xl font-bold">
                         {selectedPipeline.name}
                       </h2>
-                      <div className="flex items-center gap-2 text-tiny text-default-400 font-mono">
+                      <div className="flex items-center gap-2 text-xs text-muted font-mono">
                         <Icon icon="hugeicons:finger-print" width={14} />
                         {selectedPipeline.id}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Tooltip content="Edit Pipeline Settings">
-                        <Button
-                          isIconOnly
-                          isDisabled={
-                            (!canEdit || flow.disabled) && user.role !== "admin"
-                          }
-                          size="sm"
-                          variant="light"
-                          onPress={() => {
-                            setTargetFailurePipeline(selectedPipeline);
-                            editFlowFailurePipelineModal.onOpen();
-                          }}
-                        >
-                          <Icon icon="hugeicons:settings-01" width={20} />
-                        </Button>
+                      <Tooltip>
+                        <Tooltip.Trigger>
+                          <Button
+                            isDisabled={
+                              (!canEdit || flow.disabled) &&
+                              user.role !== "admin"
+                            }
+                            size="sm"
+                            variant="ghost"
+                            onPress={() => {
+                              setTargetFailurePipeline(selectedPipeline);
+                              editFlowFailurePipelineModal.open();
+                            }}
+                            className="aspect-square p-0"
+                          >
+                            <Icon icon="hugeicons:settings-01" width={20} />
+                          </Button>
+                        </Tooltip.Trigger>
+                        <Tooltip.Content>
+                          {"Edit Pipeline Settings"}
+                        </Tooltip.Content>
                       </Tooltip>
-                      <Tooltip content="Delete Pipeline">
-                        <Button
-                          isIconOnly
-                          color="danger"
-                          isDisabled={
-                            (!canEdit || flow.disabled) && user.role !== "admin"
-                          }
-                          size="sm"
-                          variant="light"
-                          onPress={() => {
-                            setTargetFailurePipeline(selectedPipeline.id);
-                            deleteFailurePipelineModal.onOpen();
-                          }}
-                        >
-                          <Icon icon="hugeicons:delete-02" width={20} />
-                        </Button>
+                      <Tooltip>
+                        <Tooltip.Trigger>
+                          <Button
+                            isDisabled={
+                              (!canEdit || flow.disabled) &&
+                              user.role !== "admin"
+                            }
+                            size="sm"
+                            variant="danger"
+                            onPress={() => {
+                              setTargetFailurePipeline(selectedPipeline.id);
+                              deleteFailurePipelineModal.open();
+                            }}
+                            className="aspect-square p-0"
+                          >
+                            <Icon icon="hugeicons:delete-02" width={20} />
+                          </Button>
+                        </Tooltip.Trigger>
+                        <Tooltip.Content>{"Delete Pipeline"}</Tooltip.Content>
                       </Tooltip>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-medium bg-content2/50 border border-default-200/50">
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-surface-secondary/50 border border-default/50">
                       <Icon
-                        className="text-default-500"
+                        className="text-muted"
                         icon={
                           selectedPipeline.exec_parallel
                             ? "hugeicons:parallel"
@@ -561,7 +574,7 @@ export default function FlowFailurePipelines({
                         }
                         width={16}
                       />
-                      <span className="text-small text-default-600">
+                      <span className="text-sm text-muted">
                         {selectedPipeline.exec_parallel
                           ? "Parallel Execution"
                           : "Sequential Execution"}
@@ -571,47 +584,43 @@ export default function FlowFailurePipelines({
                 </div>
 
                 {/* Actions List */}
-                <div className="flex-1 flex flex-col overflow-hidden bg-content1/20">
+                <div className="flex-1 flex flex-col overflow-hidden bg-surface/20">
                   <div className="p-4 flex items-center justify-between">
-                    <span className="text-sm font-semibold text-default-600 uppercase tracking-wider">
+                    <span className="text-sm font-semibold text-muted uppercase tracking-wider">
                       Pipeline Actions
                     </span>
                     <div className="flex items-center gap-2">
-                      <Tooltip content="Paste Action">
-                        <Button
-                          isDisabled={
-                            (!canEdit ||
-                              !settings.add_flow_actions ||
-                              flow.disabled) &&
-                            user.role !== "admin"
-                          }
-                          size="sm"
-                          startContent={
-                            <Icon icon="hugeicons:clipboard" width={16} />
-                          }
-                          variant="flat"
-                          onPress={async () => {
-                            const parsedAction = await getClipboardAction();
-
-                            if (parsedAction) {
-                              setTargetAction(parsedAction);
-                              setTargetFailurePipeline(selectedPipeline);
-                              copyFlowFailurePipelineActionModal.onOpen();
-                            } else {
-                              addToast({
-                                title: "Flow",
-                                description: "No action found in clipboard.",
-                                color: "danger",
-                                variant: "flat",
-                              });
+                      <Tooltip>
+                        <Tooltip.Trigger>
+                          <Button
+                            isDisabled={
+                              (!canEdit ||
+                                !settings.add_flow_actions ||
+                                flow.disabled) &&
+                              user.role !== "admin"
                             }
-                          }}
-                        >
-                          Paste
-                        </Button>
+                            size="sm"
+                            variant="tertiary"
+                            onPress={async () => {
+                              const parsedAction = await getClipboardAction();
+                              if (parsedAction) {
+                                setTargetAction(parsedAction);
+                                setTargetFailurePipeline(selectedPipeline);
+                                copyFlowFailurePipelineActionModal.open();
+                              } else {
+                                toast.danger("Flow", {
+                                  description: "No action found in clipboard.",
+                                });
+                              }
+                            }}
+                          >
+                            {<Icon icon="hugeicons:clipboard" width={16} />}
+                            Paste
+                          </Button>
+                        </Tooltip.Trigger>
+                        <Tooltip.Content>{"Paste Action"}</Tooltip.Content>
                       </Tooltip>
                       <Button
-                        color="primary"
                         isDisabled={
                           (!canEdit ||
                             !settings.add_flow_actions ||
@@ -619,14 +628,13 @@ export default function FlowFailurePipelines({
                           user.role !== "admin"
                         }
                         size="sm"
-                        startContent={
-                          <Icon icon="hugeicons:plus-sign" width={16} />
-                        }
                         onPress={() => {
                           setTargetFailurePipeline(selectedPipeline);
-                          addFlowFailurePipelineActionModal.onOpen();
+                          addFlowFailurePipelineActionModal.open();
                         }}
+                        variant="primary"
                       >
+                        {<Icon icon="hugeicons:plus-sign" width={16} />}
                         Add Action
                       </Button>
                     </div>
@@ -646,28 +654,27 @@ export default function FlowFailurePipelines({
                         <div className="flex flex-col gap-3">
                           {!selectedPipeline.actions ||
                           selectedPipeline.actions.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center py-16 border-2 border-dashed border-default-200 rounded-large">
-                              <div className="size-16 rounded-full bg-default-100 flex items-center justify-center mb-4">
+                            <div className="flex flex-col items-center justify-center py-16 border-2 border-dashed border-default rounded-lg">
+                              <div className="size-16 rounded-full bg-default flex items-center justify-center mb-4">
                                 <Icon
-                                  className="text-default-400"
+                                  className="text-muted"
                                   icon="hugeicons:puzzle"
                                   width={32}
                                 />
                               </div>
-                              <p className="text-default-500 font-medium">
+                              <p className="text-muted font-medium">
                                 No actions in this pipeline
                               </p>
-                              <p className="text-tiny text-default-400">
+                              <p className="text-xs text-muted">
                                 Add actions to define the failure handling logic
                               </p>
                               <Button
                                 className="mt-4"
-                                color="primary"
                                 size="sm"
-                                variant="flat"
+                                variant="secondary"
                                 onPress={() => {
                                   setTargetFailurePipeline(selectedPipeline);
-                                  addFlowFailurePipelineActionModal.onOpen();
+                                  addFlowFailurePipelineActionModal.open();
                                 }}
                               >
                                 Add First Action
@@ -692,8 +699,8 @@ export default function FlowFailurePipelines({
                 </div>
               </>
             ) : (
-              <div className="flex flex-col items-center justify-center h-full text-default-400 gap-4">
-                <div className="size-20 rounded-full bg-content2/50 flex items-center justify-center">
+              <div className="flex flex-col items-center justify-center h-full text-muted gap-4">
+                <div className="size-20 rounded-full bg-surface-secondary/50 flex items-center justify-center">
                   <Icon
                     className="opacity-50"
                     icon="hugeicons:cursor-magic-selection-04"
@@ -701,7 +708,7 @@ export default function FlowFailurePipelines({
                   />
                 </div>
                 <div className="text-center">
-                  <p className="text-lg font-medium text-default-600">
+                  <p className="text-lg font-medium text-muted">
                     No Pipeline Selected
                   </p>
                   <p className="text-sm">
@@ -709,16 +716,15 @@ export default function FlowFailurePipelines({
                   </p>
                 </div>
                 <Button
-                  color="primary"
-                  startContent={<Icon icon="hugeicons:plus-sign" width={18} />}
-                  variant="flat"
-                  onPress={createFlowFailurePipelineModal.onOpen}
+                  variant="secondary"
+                  onPress={createFlowFailurePipelineModal.open}
                 >
+                  {<Icon icon="hugeicons:plus-sign" width={18} />}
                   Create Pipeline
                 </Button>
               </div>
             )}
-          </CardBody>
+          </Card.Content>
         </Card>
       </div>
 

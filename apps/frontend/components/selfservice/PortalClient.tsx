@@ -1,33 +1,35 @@
 "use client";
-
-import { Button, Input } from "@heroui/react";
+import {
+  Button,
+  Description,
+  FieldError,
+  Input,
+  InputGroup,
+  Label,
+  TextField,
+} from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-
 import { useSelfServicePages } from "@/lib/swr/hooks/selfservice";
 import { useUserDetails } from "@/lib/swr/hooks/flows";
 import { SelfServicePage } from "@/types";
-
 function greeting(name?: string): string {
   const hour = new Date().getHours();
   const part =
     hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
-
   return name ? `${part}, ${name}` : part;
 }
-
 interface PageResultProps {
   page: SelfServicePage;
   onSelect: (slug: string) => void;
 }
-
 function PageResult({ page, onSelect }: PageResultProps) {
   return (
     <motion.button
       animate={{ opacity: 1, y: 0 }}
-      className="w-full text-left flex items-center gap-4 px-5 py-4 rounded-xl border border-default-100 bg-content1/60 backdrop-blur hover:bg-content1/90 hover:border-default-300 transition-all group"
+      className="w-full text-left flex items-center gap-4 px-5 py-4 rounded-xl border border-default bg-surface/60 backdrop-blur hover:bg-surface/90 hover:border-default transition-all group"
       exit={{ opacity: 0, y: -4 }}
       initial={{ opacity: 0, y: 6 }}
       onClick={() => onSelect(page.slug)}
@@ -39,27 +41,27 @@ function PageResult({ page, onSelect }: PageResultProps) {
         <Icon icon={page.icon || "hugeicons:layout-01"} width={22} />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-semibold text-sm truncate group-hover:text-primary transition-colors">
+        <p className="font-semibold text-sm truncate group-hover:text-accent transition-colors">
           {page.name}
         </p>
         {page.description && (
-          <p className="text-xs text-default-400 truncate mt-0.5">
+          <p className="text-xs text-muted truncate mt-0.5">
             {page.description}
           </p>
         )}
       </div>
       <div className="flex items-center gap-2 shrink-0">
-        <span className="text-xs text-default-400">
+        <span className="text-xs text-muted">
           {page.page_flows?.length ?? 0} workflow
           {(page.page_flows?.length ?? 0) !== 1 ? "s" : ""}
         </span>
         {!page.enabled && (
-          <span className="text-xs text-warning-500 bg-warning/10 px-2 py-0.5 rounded-full">
+          <span className="text-xs text-warning bg-warning/10 px-2 py-0.5 rounded-full">
             Disabled
           </span>
         )}
         <Icon
-          className="text-default-300 group-hover:text-primary transition-colors"
+          className="text-muted group-hover:text-accent transition-colors"
           icon="hugeicons:arrow-right-01"
           width={16}
         />
@@ -67,25 +69,20 @@ function PageResult({ page, onSelect }: PageResultProps) {
     </motion.button>
   );
 }
-
 export default function PortalClient() {
   const router = useRouter();
   const { pages, isLoading } = useSelfServicePages();
   const { user } = useUserDetails();
-
   const [query, setQuery] = useState("");
-
   const filtered = useMemo(() => {
     if (!query.trim()) return pages;
     const q = query.toLowerCase();
-
     return pages.filter(
       (p: SelfServicePage) =>
         p.name.toLowerCase().includes(q) ||
         p.description?.toLowerCase().includes(q),
     );
   }, [pages, query]);
-
   const recentPages = useMemo(
     () =>
       [...pages]
@@ -97,27 +94,21 @@ export default function PortalClient() {
         .slice(0, 6),
     [pages],
   );
-
   const showResults = query.trim().length > 0;
-
   return (
     <div className="min-h-screen flex flex-col bg-background">
       {/* Top-right nav */}
       <div className="flex justify-end gap-2 p-4">
-        <Button
-          size="sm"
-          startContent={<Icon icon="hugeicons:dashboard-square-01" width={16} />}
-          variant="flat"
-          onPress={() => router.push("/")}
-        >
+        <Button size="sm" variant="tertiary" onPress={() => router.push("/")}>
+          {<Icon icon="hugeicons:dashboard-square-01" width={16} />}
           Dashboard
         </Button>
         <Button
           size="sm"
-          startContent={<Icon icon="hugeicons:layout-01" width={16} />}
-          variant="flat"
+          variant="tertiary"
           onPress={() => router.push("/services")}
         >
+          {<Icon icon="hugeicons:layout-01" width={16} />}
           All Services
         </Button>
       </div>
@@ -133,35 +124,27 @@ export default function PortalClient() {
           {/* Greeting */}
           <div className="text-center space-y-1">
             <h1 className="text-3xl font-bold tracking-tight">
-              {user
-                ? greeting(user.first_name || user.username)
-                : greeting()}
+              {user ? greeting(user.first_name || user.username) : greeting()}
             </h1>
-            <p className="text-default-400">
-              What would you like to run today?
-            </p>
+            <p className="text-muted">What would you like to run today?</p>
           </div>
 
           {/* Search bar */}
           <div className="w-full relative">
-            <Input
-              classNames={{
-                inputWrapper:
-                  "h-14 text-base shadow-lg border-2 border-default-200 hover:border-primary focus-within:border-primary transition-colors bg-content1/80 backdrop-blur",
-                input: "text-base pl-1",
-              }}
-              placeholder="Search service pages and workflows…"
-              size="lg"
-              startContent={
-                <Icon
-                  className="text-default-400 shrink-0"
-                  icon="hugeicons:search-01"
-                  width={22}
-                />
-              }
-              value={query}
-              onValueChange={setQuery}
-            />
+            <TextField value={query} onChange={setQuery}>
+              <InputGroup>
+                <InputGroup.Prefix>
+                  {
+                    <Icon
+                      className="text-muted shrink-0"
+                      icon="hugeicons:search-01"
+                      width={22}
+                    />
+                  }
+                </InputGroup.Prefix>
+                <Input placeholder="Search service pages and workflows…" />
+              </InputGroup>
+            </TextField>
           </div>
 
           {/* Results */}
@@ -179,7 +162,7 @@ export default function PortalClient() {
                 ) : (
                   <motion.div
                     animate={{ opacity: 1 }}
-                    className="text-center py-8 text-default-400"
+                    className="text-center py-8 text-muted"
                     exit={{ opacity: 0 }}
                     initial={{ opacity: 0 }}
                   >
@@ -188,7 +171,9 @@ export default function PortalClient() {
                       icon="hugeicons:search-remove"
                       width={36}
                     />
-                    <p className="text-sm">No services match &ldquo;{query}&rdquo;</p>
+                    <p className="text-sm">
+                      No services match &ldquo;{query}&rdquo;
+                    </p>
                   </motion.div>
                 )
               ) : isLoading ? (
@@ -196,13 +181,13 @@ export default function PortalClient() {
                   {Array.from({ length: 4 }).map((_, i) => (
                     <div
                       key={i}
-                      className="h-16 rounded-xl bg-content1/40 animate-pulse"
+                      className="h-16 rounded-xl bg-surface/40 animate-pulse"
                     />
                   ))}
                 </div>
               ) : recentPages.length > 0 ? (
                 <>
-                  <p className="text-xs font-medium text-default-400 uppercase tracking-wider px-1 mb-1">
+                  <p className="text-xs font-medium text-muted uppercase tracking-wider px-1 mb-1">
                     Recent services
                   </p>
                   {recentPages.map((page: SelfServicePage, i: number) => (

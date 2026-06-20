@@ -18,11 +18,8 @@
     "@eslint/compat": "^1.2.7",
     "@eslint/eslintrc": "^3.3.3",
     "@eslint/js": "^9.26.0",
-    "@heroui/framer-utils": "2.1.20",
-    "@heroui/react": "2.8.2",
-    "@heroui/system": "2.4.20",
-    "@heroui/theme": "2.4.20",
-    "@heroui/use-disclosure": "2.2.15",
+    "@heroui/react": "^3.2.1",
+    "@heroui/styles": "^3.2.1",
     "@iconify/react": "^6.0.0",
     "@internationalized/date": "^3.7.0",
     "@number-flow/react": "^0.5.7",
@@ -118,13 +115,5 @@
     "@types/react-timeago": "^4.1.7",
     "@types/uuid": "^10.0.0",
     "serwist": "^9.1.1"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@heroui/shared-utils",
-      "@tsparticles/engine",
-      "sharp",
-      "unrs-resolver"
-    ]
   }
 }

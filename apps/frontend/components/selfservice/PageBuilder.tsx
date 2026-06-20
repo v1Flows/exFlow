@@ -1,45 +1,42 @@
 "use client";
-
 import {
-  addToast,
   Button,
   Card,
-  CardBody,
-  CardHeader,
   Chip,
-  Divider,
+  Description,
+  FieldError,
   Input,
+  InputGroup,
+  Label,
+  ListBox,
   Select,
-  SelectItem,
+  Separator,
   Switch,
-  Textarea,
+  TextArea,
+  TextField,
+  toast,
 } from "@heroui/react";
 import { useState } from "react";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
-
 import CreateSelfServicePage from "@/lib/fetch/selfservice/POST/create";
 import UpdateSelfServicePage from "@/lib/fetch/selfservice/PUT/update";
 import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 import { useFlows, useProjects } from "@/lib/swr/hooks/flows";
 import { PageFlow, SelfServicePage } from "@/types";
-
 const EXECUTION_VISIBILITY_OPTIONS = [
   { key: "simplified", label: "Simplified (status only)" },
   { key: "detailed", label: "Detailed (steps)" },
   { key: "full", label: "Full (steps + output)" },
 ];
-
 interface PageBuilderProps {
   existing?: SelfServicePage;
 }
-
 export default function PageBuilder({ existing }: PageBuilderProps) {
   const router = useRouter();
   const { refreshSelfServicePages, refreshSelfServicePage } = useRefreshCache();
   const { flows } = useFlows();
   const { projects } = useProjects();
-
   const [name, setName] = useState(existing?.name ?? "");
   const [description, setDescription] = useState(existing?.description ?? "");
   const [slug, setSlug] = useState(existing?.slug ?? "");
@@ -51,7 +48,6 @@ export default function PageBuilder({ existing }: PageBuilderProps) {
     existing?.page_flows ?? [],
   );
   const [saving, setSaving] = useState(false);
-
   // Auto-generate slug from name (only when creating new)
   function handleNameChange(v: string) {
     setName(v);
@@ -64,7 +60,6 @@ export default function PageBuilder({ existing }: PageBuilderProps) {
       );
     }
   }
-
   function addFlow(flowId: string) {
     if (!flowId || pageFlows.find((pf) => pf.flow_id === flowId)) return;
     setPageFlows([
@@ -79,31 +74,22 @@ export default function PageBuilder({ existing }: PageBuilderProps) {
       },
     ]);
   }
-
   function removeFlow(flowId: string) {
     setPageFlows((prev) => prev.filter((pf) => pf.flow_id !== flowId));
   }
-
   function updatePageFlow(flowId: string, patch: Partial<PageFlow>) {
     setPageFlows((prev) =>
       prev.map((pf) => (pf.flow_id === flowId ? { ...pf, ...patch } : pf)),
     );
   }
-
   async function save() {
     if (!name.trim() || !slug.trim()) {
-      addToast({
-        title: "Validation",
+      toast.warning("Validation", {
         description: "Name and slug are required.",
-        color: "warning",
-        variant: "flat",
       });
-
       return;
     }
-
     setSaving(true);
-
     if (existing) {
       const res = await UpdateSelfServicePage(existing.id, {
         name,
@@ -114,26 +100,16 @@ export default function PageBuilder({ existing }: PageBuilderProps) {
         enabled,
         page_flows: pageFlows,
       });
-
       setSaving(false);
-
       if (res.success) {
         refreshSelfServicePages();
         refreshSelfServicePage(existing.slug);
         refreshSelfServicePage(existing.id);
-        addToast({
-          title: "Service Page",
-          description: "Updated successfully.",
-          color: "success",
-          variant: "flat",
-        });
+        toast.success("Service Page", { description: "Updated successfully." });
         router.push(`/services/${slug}`);
       } else {
-        addToast({
-          title: "Error",
-          description: ("message" in res ? res.message : ""),
-          color: "danger",
-          variant: "flat",
+        toast.danger("Error", {
+          description: "message" in res ? res.message : "",
         });
       }
     } else {
@@ -147,29 +123,18 @@ export default function PageBuilder({ existing }: PageBuilderProps) {
         enabled,
         page_flows: pageFlows,
       });
-
       setSaving(false);
-
       if (res.success) {
         refreshSelfServicePages();
-        addToast({
-          title: "Service Page",
-          description: "Created successfully.",
-          color: "success",
-          variant: "flat",
-        });
+        toast.success("Service Page", { description: "Created successfully." });
         router.push(`/services/${slug}`);
       } else {
-        addToast({
-          title: "Error",
-          description: ("message" in res ? res.message : ""),
-          color: "danger",
-          variant: "flat",
+        toast.danger("Error", {
+          description: "message" in res ? res.message : "",
         });
       }
     }
   }
-
   return (
     <div className="space-y-6 max-w-3xl mx-auto py-6 px-4">
       <div className="flex items-center justify-between">
@@ -177,139 +142,143 @@ export default function PageBuilder({ existing }: PageBuilderProps) {
           <h1 className="text-2xl font-bold">
             {existing ? "Edit Service Page" : "Create Service Page"}
           </h1>
-          <p className="text-default-400 text-sm mt-1">
+          <p className="text-muted text-sm mt-1">
             Configure which workflows users can run from this page.
           </p>
         </div>
-        <Button
-          color="primary"
-          isLoading={saving}
-          startContent={
-            !saving && <Icon icon="hugeicons:floppy-disk" width={18} />
-          }
-          onPress={save}
-        >
+        <Button isPending={saving} onPress={save} variant="primary">
+          {!saving && <Icon icon="hugeicons:floppy-disk" width={18} />}
           {existing ? "Save Changes" : "Create Page"}
         </Button>
       </div>
 
       {/* Basic info */}
-      <Card className="bg-content1/60 backdrop-blur-md border border-default-100">
-        <CardHeader className="flex gap-3">
-          <div className="p-2 rounded-lg bg-primary/10 text-primary">
+      <Card className="bg-surface/60 backdrop-blur-md border border-default">
+        <Card.Header className="flex gap-3">
+          <div className="p-2 rounded-lg bg-accent/10 text-accent">
             <Icon icon="hugeicons:information-circle" width={22} />
           </div>
           <div>
             <p className="font-bold">Basic Info</p>
           </div>
-        </CardHeader>
-        <Divider />
-        <CardBody className="gap-4">
+        </Card.Header>
+        <Separator />
+        <Card.Content className="gap-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
-              isRequired
-              label="Name"
-              placeholder="My Service Page"
-              value={name}
-              variant="bordered"
-              onValueChange={handleNameChange}
-            />
-            <Input
-              isRequired
-              description="URL-friendly identifier (lowercase, hyphens)"
-              label="Slug"
-              placeholder="my-service-page"
-              value={slug}
-              variant="bordered"
-              onValueChange={setSlug}
-            />
+            <TextField isRequired value={name} onChange={handleNameChange}>
+              <Label>{"Name"}</Label>
+              <InputGroup>
+                <Input placeholder="My Service Page" />
+              </InputGroup>
+            </TextField>
+            <TextField isRequired value={slug} onChange={setSlug}>
+              <Label>{"Slug"}</Label>
+              <InputGroup>
+                <Input placeholder="my-service-page" />
+              </InputGroup>
+              <Description>
+                {"URL-friendly identifier (lowercase, hyphens)"}
+              </Description>
+            </TextField>
           </div>
-          <Textarea
-            label="Description"
-            placeholder="What does this page allow users to do?"
-            value={description}
-            variant="bordered"
-            onValueChange={setDescription}
-          />
+          <TextField value={description} onChange={setDescription}>
+            <Label>{"Description"}</Label>
+            <TextArea placeholder={"What does this page allow users to do?"} />
+          </TextField>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Input
-              description="Iconify icon name"
-              label="Icon"
-              placeholder="hugeicons:layout-01"
-              value={icon}
-              variant="bordered"
-              onValueChange={setIcon}
-            />
-            <Input
-              label="Color (hex)"
-              placeholder="#006FEE"
-              type="color"
-              value={color}
-              variant="bordered"
-              onValueChange={setColor}
-            />
+            <TextField value={icon} onChange={setIcon}>
+              <Label>{"Icon"}</Label>
+              <InputGroup>
+                <Input placeholder="hugeicons:layout-01" />
+              </InputGroup>
+              <Description>{"Iconify icon name"}</Description>
+            </TextField>
+            <TextField value={color} onChange={setColor}>
+              <Label>{"Color (hex)"}</Label>
+              <InputGroup>
+                <Input placeholder="#006FEE" type="color" />
+              </InputGroup>
+            </TextField>
             <div className="flex items-center pt-4">
-              <Switch isSelected={enabled} onValueChange={setEnabled}>
-                Enabled
+              <Switch isSelected={enabled} onChange={setEnabled}>
+                <Switch.Control>
+                  <Switch.Thumb />
+                </Switch.Control>
+                <Switch.Content>Enabled</Switch.Content>
               </Switch>
             </div>
           </div>
           {!existing && (
             <Select
               isRequired
-              label="Project"
               placeholder="Select project"
-              selectedKeys={projectId ? [projectId] : []}
-              variant="bordered"
-              onSelectionChange={(keys) =>
-                setProjectId(keys.currentKey as string)
-              }
+              selectedKey={projectId ? projectId : null}
+              onSelectionChange={(keys) => setProjectId(keys as string)}
             >
-              {((projects as any[]) ?? []).map((p: any) => (
-                <SelectItem key={p.id}>{p.name}</SelectItem>
-              ))}
+              <Label>{"Project"}</Label>
+              <Select.Trigger>
+                <Select.Value />
+                <Select.Indicator />
+              </Select.Trigger>
+              <Select.Popover>
+                <ListBox>
+                  {((projects as any[]) ?? []).map((p: any) => (
+                    <ListBox.Item key={p.id} id={p.id}>
+                      {p.name}
+                      <ListBox.ItemIndicator />
+                    </ListBox.Item>
+                  ))}
+                </ListBox>
+              </Select.Popover>
             </Select>
           )}
-        </CardBody>
+        </Card.Content>
       </Card>
 
       {/* Flows */}
-      <Card className="bg-content1/60 backdrop-blur-md border border-default-100">
-        <CardHeader className="flex items-center justify-between">
+      <Card className="bg-surface/60 backdrop-blur-md border border-default">
+        <Card.Header className="flex items-center justify-between">
           <div className="flex gap-3 items-center">
-            <div className="p-2 rounded-lg bg-secondary/10 text-secondary">
+            <div className="p-2 rounded-lg bg-default/10 text-default-foreground">
               <Icon icon="hugeicons:structure-04" width={22} />
             </div>
             <div>
               <p className="font-bold">Workflows</p>
-              <p className="text-small text-default-500">
+              <p className="text-sm text-muted">
                 Add workflows users can trigger from this page.
               </p>
             </div>
           </div>
-        </CardHeader>
-        <Divider />
-        <CardBody className="gap-4">
+        </Card.Header>
+        <Separator />
+        <Card.Content className="gap-4">
           <Select
-            label="Add workflow"
             placeholder="Select a workflow to add"
-            variant="bordered"
-            onSelectionChange={(keys) =>
-              addFlow(keys.currentKey as string)
-            }
+            onSelectionChange={(keys) => addFlow(keys as string)}
           >
-            {(flows ?? [])
-              .filter(
-                (f: any) =>
-                  !pageFlows.find((pf) => pf.flow_id === f.id),
-              )
-              .map((f: any) => (
-                <SelectItem key={f.id}>{f.name}</SelectItem>
-              ))}
+            <Label>{"Add workflow"}</Label>
+            <Select.Trigger>
+              <Select.Value />
+              <Select.Indicator />
+            </Select.Trigger>
+            <Select.Popover>
+              <ListBox>
+                {(flows ?? [])
+                  .filter(
+                    (f: any) => !pageFlows.find((pf) => pf.flow_id === f.id),
+                  )
+                  .map((f: any) => (
+                    <ListBox.Item key={f.id} id={f.id}>
+                      {f.name}
+                      <ListBox.ItemIndicator />
+                    </ListBox.Item>
+                  ))}
+              </ListBox>
+            </Select.Popover>
           </Select>
 
           {pageFlows.length === 0 && (
-            <p className="text-sm text-default-400 text-center py-4">
+            <p className="text-sm text-muted text-center py-4">
               No workflows added yet.
             </p>
           )}
@@ -318,78 +287,87 @@ export default function PageBuilder({ existing }: PageBuilderProps) {
             const flowMeta: any = (flows ?? []).find(
               (f: any) => f.id === pf.flow_id,
             );
-
             return (
               <Card
                 key={pf.flow_id}
-                className="border border-default-100 bg-content2/40"
+                className="border border-default bg-surface-secondary/40"
               >
-                <CardHeader className="flex items-center justify-between py-2">
+                <Card.Header className="flex items-center justify-between py-2">
                   <div className="flex items-center gap-2">
-                    <Chip size="sm" variant="flat">
-                      #{idx + 1}
+                    <Chip size="sm" variant="soft">
+                      <Chip.Label>#{idx + 1}</Chip.Label>
                     </Chip>
                     <span className="font-medium text-sm">
                       {flowMeta?.name ?? pf.flow_id}
                     </span>
                   </div>
                   <Button
-                    color="danger"
-                    isIconOnly
                     size="sm"
-                    variant="light"
+                    variant="danger"
                     onPress={() => removeFlow(pf.flow_id)}
+                    className="aspect-square p-0"
                   >
                     <Icon icon="hugeicons:delete-02" width={16} />
                   </Button>
-                </CardHeader>
-                <Divider />
-                <CardBody className="gap-3 pt-3">
+                </Card.Header>
+                <Separator />
+                <Card.Content className="gap-3 pt-3">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <Input
-                      label="Custom Label"
-                      placeholder={flowMeta?.name ?? ""}
-                      size="sm"
+                    <TextField
                       value={pf.custom_label}
-                      variant="bordered"
-                      onValueChange={(v) =>
+                      onChange={(v) =>
                         updatePageFlow(pf.flow_id, { custom_label: v })
                       }
-                    />
+                    >
+                      <Label>{"Custom Label"}</Label>
+                      <InputGroup>
+                        <Input placeholder={flowMeta?.name ?? ""} />
+                      </InputGroup>
+                    </TextField>
                     <Select
-                      label="Execution Visibility"
-                      selectedKeys={[pf.execution_visibility]}
-                      size="sm"
-                      variant="bordered"
+                      selectedKey={pf.execution_visibility}
                       onSelectionChange={(keys) =>
                         updatePageFlow(pf.flow_id, {
-                          execution_visibility: keys.currentKey as
+                          execution_visibility: keys as
                             | "simplified"
                             | "detailed"
                             | "full",
                         })
                       }
                     >
-                      {EXECUTION_VISIBILITY_OPTIONS.map((opt) => (
-                        <SelectItem key={opt.key}>{opt.label}</SelectItem>
-                      ))}
+                      <Label>{"Execution Visibility"}</Label>
+                      <Select.Trigger>
+                        <Select.Value />
+                        <Select.Indicator />
+                      </Select.Trigger>
+                      <Select.Popover>
+                        <ListBox>
+                          {EXECUTION_VISIBILITY_OPTIONS.map((opt) => (
+                            <ListBox.Item key={opt.key} id={opt.key}>
+                              {opt.label}
+                              <ListBox.ItemIndicator />
+                            </ListBox.Item>
+                          ))}
+                        </ListBox>
+                      </Select.Popover>
                     </Select>
                   </div>
-                  <Input
-                    label="Custom Description"
-                    placeholder={flowMeta?.description ?? ""}
-                    size="sm"
+                  <TextField
                     value={pf.custom_description}
-                    variant="bordered"
-                    onValueChange={(v) =>
+                    onChange={(v) =>
                       updatePageFlow(pf.flow_id, { custom_description: v })
                     }
-                  />
-                </CardBody>
+                  >
+                    <Label>{"Custom Description"}</Label>
+                    <InputGroup>
+                      <Input placeholder={flowMeta?.description ?? ""} />
+                    </InputGroup>
+                  </TextField>
+                </Card.Content>
               </Card>
             );
           })}
-        </CardBody>
+        </Card.Content>
       </Card>
     </div>
   );

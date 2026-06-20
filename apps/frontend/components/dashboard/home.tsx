@@ -1,33 +1,23 @@
 "use client";
-
 import { Icon } from "@iconify/react";
 import {
-  Card,
-  CardBody,
-  CardHeader,
-  Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownTrigger,
-  useDisclosure,
   Button,
+  Card,
   Chip,
+  Dropdown,
   ScrollShadow,
+  useOverlayState,
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import ReactTimeago from "react-timeago";
 import { motion } from "framer-motion";
 import NumberFlow from "@number-flow/react";
-
 import WelcomeModal from "@/components/modals/user/welcome";
 import { Ripple } from "@/components/magicui/ripple";
-
 import Executions from "../executions/executions";
 import Alerts from "../alerts/alerts";
-
 import DashboardExecutionsStats from "./stats-charts";
-
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -37,7 +27,6 @@ const containerVariants = {
     },
   },
 };
-
 const itemVariants = {
   hidden: { y: 20, opacity: 0 },
   visible: {
@@ -50,7 +39,6 @@ const itemVariants = {
     },
   },
 };
-
 export default function DashboardHome({
   stats,
   flows,
@@ -59,25 +47,20 @@ export default function DashboardHome({
   user,
 }: any) {
   const router = useRouter();
-
   const [welcomeModalWasOpened, setWelcomeModalWasOpened] = useState(false);
-  const welcomeModal = useDisclosure();
-
+  const welcomeModal = useOverlayState();
   function runnerHeartbeatStatus(runner: any) {
     const timeAgo =
       (new Date(runner.last_heartbeat).getTime() - Date.now()) / 1000;
-
     if (timeAgo < 0 && timeAgo > -30) {
       return true;
     } else if (timeAgo <= -30) {
       return false;
     }
   }
-
   function heartbeatColor(runner: any) {
     const timeAgo =
       (new Date(runner.last_heartbeat).getTime() - Date.now()) / 1000;
-
     if (timeAgo < 0 && timeAgo > -30) {
       return "success";
     } else if (timeAgo <= -30 && timeAgo > -60) {
@@ -86,14 +69,12 @@ export default function DashboardHome({
       return "danger";
     }
   }
-
   useEffect(() => {
     if (user && !user.welcomed && !welcomeModalWasOpened) {
-      welcomeModal.onOpen();
+      welcomeModal.open();
       setWelcomeModalWasOpened(true);
     }
   });
-
   const StatTile = ({
     title,
     value,
@@ -104,40 +85,39 @@ export default function DashboardHome({
     children,
   }: any) => (
     <motion.div className="h-full" variants={itemVariants}>
-      <Card
-        className="h-full bg-content1/60 backdrop-blur-md shadow-lg border border-default-100 overflow-visible"
-        isPressable={!!onClick}
+      <Button
+        className="h-auto w-full justify-start p-0 text-left"
+        variant="tertiary"
         onPress={onClick}
       >
-        <CardBody className="p-4">
-          <div className="flex justify-between items-start mb-2">
-            <div
-              className={`flex size-10 items-center justify-center rounded-xl bg-${statusColor}/20 text-${statusColor}`}
-            >
-              <Icon icon={icon} width={24} />
+        <Card className="h-full bg-surface/60 backdrop-blur-md shadow-lg border border-default overflow-visible">
+          <Card.Content className="p-4">
+            <div className="flex justify-between items-start mb-2">
+              <div
+                className={`flex size-10 items-center justify-center rounded-xl bg-${statusColor}/20 text-${statusColor}`}
+              >
+                <Icon icon={icon} width={24} />
+              </div>
+              {children}
             </div>
-            {children}
-          </div>
-          <div className="flex flex-col gap-1">
-            <span className="text-default-500 text-sm font-medium">
-              {title}
-            </span>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold tracking-tight">
-                <NumberFlow value={value} />
-              </span>
-              {subtext && (
-                <span className="text-xs text-default-400 font-medium">
-                  {subtext}
+            <div className="flex flex-col gap-1">
+              <span className="text-muted text-sm font-medium">{title}</span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold tracking-tight">
+                  <NumberFlow value={value} />
                 </span>
-              )}
+                {subtext && (
+                  <span className="text-xs text-muted font-medium">
+                    {subtext}
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
-        </CardBody>
-      </Card>
+          </Card.Content>
+        </Card>
+      </Button>
     </motion.div>
   );
-
   const flowIssues = flows.filter((f: any) => f.maintenance).length;
   const executionIssues = executionsWithAttention.filter(
     (e: any) =>
@@ -147,7 +127,6 @@ export default function DashboardHome({
   const runnerIssues = runners.filter(
     (r: any) => !r.shared_runner && !runnerHeartbeatStatus(r),
   ).length;
-
   return (
     <main className="relative w-full min-h-full p-2 md:p-6">
       <div className="relative z-10 mx-auto">
@@ -158,19 +137,15 @@ export default function DashboardHome({
         >
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              Command <span className="text-primary">Center</span>
+              Command <span className="text-accent">Center</span>
             </h1>
-            <p className="text-default-500">
+            <p className="text-muted">
               Welcome back, {user.username}. Systems are operational.
             </p>
           </div>
           <div className="flex gap-2">
-            <Button
-              color="primary"
-              startContent={<Icon icon="hugeicons:arrow-right-01" />}
-              variant="shadow"
-              onPress={() => router.push("/flows")}
-            >
+            <Button variant="primary" onPress={() => router.push("/flows")}>
+              {<Icon icon="hugeicons:arrow-right-01" />}
               To Flows
             </Button>
           </div>
@@ -183,8 +158,8 @@ export default function DashboardHome({
           variants={containerVariants}
         >
           {/* Top Row: Stats Tiles */}
-          <Dropdown backdrop="blur" placement="bottom-start">
-            <DropdownTrigger>
+          <Dropdown>
+            <Dropdown.Trigger>
               <div>
                 <StatTile
                   icon="hugeicons:workflow-square-01"
@@ -194,34 +169,42 @@ export default function DashboardHome({
                   value={flows.length}
                 />
               </div>
-            </DropdownTrigger>
-            <DropdownMenu aria-label="Flow Problems">
-              {flows
-                .filter((f: any) => f.maintenance)
-                .map((flow: any) => (
-                  <DropdownItem
-                    key={flow.id}
-                    startContent={
-                      <Icon
-                        className="text-warning"
-                        icon="hugeicons:alert-02"
-                      />
-                    }
-                    onPress={() => router.push(`/flows/${flow.id}`)}
+            </Dropdown.Trigger>
+            <Dropdown.Popover>
+              <Dropdown.Menu aria-label="Flow Problems">
+                {flows
+                  .filter((f: any) => f.maintenance)
+                  .map((flow: any) => (
+                    <Dropdown.Item
+                      key={flow.id}
+                      id={flow.id}
+                      onPress={() => router.push(`/flows/${flow.id}`)}
+                      textValue=" "
+                    >
+                      {
+                        <Icon
+                          className="text-warning"
+                          icon="hugeicons:alert-02"
+                        />
+                      }
+                      {flow.name}
+                    </Dropdown.Item>
+                  ))}
+                {flowIssues === 0 && (
+                  <Dropdown.Item
+                    key="no-issues"
+                    id="no-issues"
+                    textValue="No issues detected"
                   >
-                    {flow.name}
-                  </DropdownItem>
-                ))}
-              {flowIssues === 0 && (
-                <DropdownItem key="no-issues" isReadOnly>
-                  No issues detected
-                </DropdownItem>
-              )}
-            </DropdownMenu>
+                    No issues detected
+                  </Dropdown.Item>
+                )}
+              </Dropdown.Menu>
+            </Dropdown.Popover>
           </Dropdown>
 
-          <Dropdown backdrop="blur" placement="bottom-start">
-            <DropdownTrigger>
+          <Dropdown>
+            <Dropdown.Trigger>
               <div>
                 <StatTile
                   icon="hugeicons:rocket-02"
@@ -231,53 +214,60 @@ export default function DashboardHome({
                   value={executionsWithAttention.length} // This might need to be total executions count if available, using attention list for now
                 />
               </div>
-            </DropdownTrigger>
-            <DropdownMenu aria-label="Execution Problems">
-              {executionsWithAttention
-                .filter(
-                  (e: any) =>
-                    (e.status === "error" ||
-                      e.status === "interactionWaiting") &&
-                    new Date(e.created_at).getTime() >
-                      Date.now() - 24 * 60 * 60 * 1000,
-                )
-                .map((execution: any) => (
-                  <DropdownItem
-                    key={execution.id}
-                    description={<ReactTimeago date={execution.executed_at} />}
-                    startContent={
-                      <Icon
-                        className={
-                          execution.status === "error"
-                            ? "text-danger"
-                            : "text-primary"
-                        }
-                        icon={
-                          execution.status === "error"
-                            ? "hugeicons:alert-02"
-                            : "hugeicons:waving-hand-01"
-                        }
-                      />
-                    }
-                    onPress={() =>
-                      router.push(
-                        `/flows/${execution.flow_id}/execution/${execution.id}`,
-                      )
-                    }
+            </Dropdown.Trigger>
+            <Dropdown.Popover>
+              <Dropdown.Menu aria-label="Execution Problems">
+                {executionsWithAttention
+                  .filter(
+                    (e: any) =>
+                      (e.status === "error" ||
+                        e.status === "interactionWaiting") &&
+                      new Date(e.created_at).getTime() >
+                        Date.now() - 24 * 60 * 60 * 1000,
+                  )
+                  .map((execution: any) => (
+                    <Dropdown.Item
+                      key={execution.id}
+                      id={execution.id}
+                      onPress={() =>
+                        router.push(
+                          `/flows/${execution.flow_id}/execution/${execution.id}`,
+                        )
+                      }
+                      textValue=" ..."
+                    >
+                      {
+                        <Icon
+                          className={
+                            execution.status === "error"
+                              ? "text-danger"
+                              : "text-accent"
+                          }
+                          icon={
+                            execution.status === "error"
+                              ? "hugeicons:alert-02"
+                              : "hugeicons:waving-hand-01"
+                          }
+                        />
+                      }
+                      {execution.id.substring(0, 8)}...
+                    </Dropdown.Item>
+                  ))}
+                {executionIssues === 0 && (
+                  <Dropdown.Item
+                    key="no-issues"
+                    id="no-issues"
+                    textValue="All systems nominal"
                   >
-                    {execution.id.substring(0, 8)}...
-                  </DropdownItem>
-                ))}
-              {executionIssues === 0 && (
-                <DropdownItem key="no-issues" isReadOnly>
-                  All systems nominal
-                </DropdownItem>
-              )}
-            </DropdownMenu>
+                    All systems nominal
+                  </Dropdown.Item>
+                )}
+              </Dropdown.Menu>
+            </Dropdown.Popover>
           </Dropdown>
 
-          <Dropdown backdrop="blur" placement="bottom-start">
-            <DropdownTrigger>
+          <Dropdown>
+            <Dropdown.Trigger>
               <div>
                 <StatTile
                   icon="hugeicons:ai-brain-04"
@@ -287,82 +277,88 @@ export default function DashboardHome({
                   value={runners.length}
                 />
               </div>
-            </DropdownTrigger>
-            <DropdownMenu aria-label="Runner Problems">
-              {runners
-                .filter(
-                  (r: any) => !r.shared_runner && !runnerHeartbeatStatus(r),
-                )
-                .map((runner: any) => (
-                  <DropdownItem
-                    key={runner.id}
-                    startContent={
-                      <Icon className="text-danger" icon="hugeicons:alert-02" />
-                    }
-                    onPress={() =>
-                      router.push(`/projects/${runner.project_id}?tab=runners`)
-                    }
+            </Dropdown.Trigger>
+            <Dropdown.Popover>
+              <Dropdown.Menu aria-label="Runner Problems">
+                {runners
+                  .filter(
+                    (r: any) => !r.shared_runner && !runnerHeartbeatStatus(r),
+                  )
+                  .map((runner: any) => (
+                    <Dropdown.Item
+                      key={runner.id}
+                      id={runner.id}
+                      onPress={() =>
+                        router.push(
+                          `/projects/${runner.project_id}?tab=runners`,
+                        )
+                      }
+                      textValue=" "
+                    >
+                      {
+                        <Icon
+                          className="text-danger"
+                          icon="hugeicons:alert-02"
+                        />
+                      }
+                      {runner.name}
+                    </Dropdown.Item>
+                  ))}
+                {runnerIssues === 0 && (
+                  <Dropdown.Item
+                    key="no-runner-issues"
+                    id="no-runner-issues"
+                    textValue="All runners operational"
                   >
-                    {runner.name}
-                  </DropdownItem>
-                ))}
-              {runnerIssues === 0 && (
-                <DropdownItem key="no-runner-issues" isReadOnly>
-                  All runners operational
-                </DropdownItem>
-              )}
-            </DropdownMenu>
+                    All runners operational
+                  </Dropdown.Item>
+                )}
+              </Dropdown.Menu>
+            </Dropdown.Popover>
           </Dropdown>
 
           {/* Middle Row: Chart & Pulse */}
           <motion.div className="md:col-span-2 h-full" variants={itemVariants}>
-            <Card className="h-full min-h-[350px] bg-content1/60 backdrop-blur-md shadow-lg border border-default-100">
-              <CardHeader className="pb-0 pt-4 px-4 flex-col items-start">
-                <h4 className="font-bold text-large">Execution Volume</h4>
-                <p className="text-tiny text-default-500">
+            <Card className="h-full min-h-[350px] bg-surface/60 backdrop-blur-md shadow-lg border border-default">
+              <Card.Header className="pb-0 pt-4 px-4 flex-col items-start">
+                <h4 className="font-bold text-lg">Execution Volume</h4>
+                <p className="text-xs text-muted">
                   Daily activity over the last week
                 </p>
-              </CardHeader>
-              <CardBody className="overflow-hidden">
+              </Card.Header>
+              <Card.Content className="overflow-hidden">
                 <DashboardExecutionsStats stats={stats} />
-              </CardBody>
+              </Card.Content>
             </Card>
           </motion.div>
 
           <motion.div className="md:col-span-1 h-full" variants={itemVariants}>
-            <Card className="h-full min-h-[350px] bg-content1/60 backdrop-blur-md shadow-lg border border-default-100">
-              <CardHeader className="pb-0 pt-4 px-4 flex justify-between items-center">
+            <Card className="h-full min-h-[350px] bg-surface/60 backdrop-blur-md shadow-lg border border-default">
+              <Card.Header className="pb-0 pt-4 px-4 flex justify-between items-center">
                 <div>
-                  <h4 className="font-bold text-large">System Pulse</h4>
-                  <p className="text-tiny text-default-500">
-                    Live Runner Status
-                  </p>
+                  <h4 className="font-bold text-lg">System Pulse</h4>
+                  <p className="text-xs text-muted">Live Runner Status</p>
                 </div>
-                <Chip
-                  color="success"
-                  size="sm"
-                  startContent={
+                <Chip color="success" size="sm" variant="soft">
+                  {
                     <span className="relative flex h-2 w-2 ml-1">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success-400 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-success-500" />
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-success" />
                     </span>
                   }
-                  variant="flat"
-                >
-                  Live
+                  <Chip.Label>Live</Chip.Label>
                 </Chip>
-              </CardHeader>
-              <CardBody className="px-2">
+              </Card.Header>
+              <Card.Content className="px-2">
                 <ScrollShadow className="h-[280px]">
                   <div className="flex flex-col gap-2 p-2">
                     {runners.map((runner: any) => {
                       const isAlive = runnerHeartbeatStatus(runner);
                       const color = heartbeatColor(runner);
-
                       return (
                         <div
                           key={runner.id}
-                          className="flex items-center justify-between p-3 rounded-lg bg-content2/50 hover:bg-content2 transition-colors cursor-pointer"
+                          className="flex items-center justify-between p-3 rounded-lg bg-surface-secondary/50 hover:bg-surface-secondary transition-colors cursor-pointer"
                           role="button"
                           tabIndex={0}
                           onClick={() =>
@@ -393,14 +389,14 @@ export default function DashboardHome({
                               <span className="text-sm font-medium">
                                 {runner.name}
                               </span>
-                              <span className="text-[10px] text-default-400">
+                              <span className="text-[10px] text-muted">
                                 {runner.shared_runner
                                   ? "Shared Runner"
                                   : "Private Runner"}
                               </span>
                             </div>
                           </div>
-                          <div className="text-xs text-default-400 font-mono">
+                          <div className="text-xs text-muted font-mono">
                             {runner.last_heartbeat ? (
                               <ReactTimeago date={runner.last_heartbeat} />
                             ) : (
@@ -412,7 +408,7 @@ export default function DashboardHome({
                     })}
                   </div>
                 </ScrollShadow>
-              </CardBody>
+              </Card.Content>
             </Card>
           </motion.div>
 

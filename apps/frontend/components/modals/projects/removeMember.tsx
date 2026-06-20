@@ -1,156 +1,137 @@
 "use client";
-
-import type { UseDisclosureReturn } from "@heroui/use-disclosure";
-
 import {
-  addToast,
+  Avatar,
   Button,
   Chip,
   Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  User,
+  toast,
+  type UseOverlayStateReturn,
 } from "@heroui/react";
 import React, { useState } from "react";
 import { Icon } from "@iconify/react";
-
 import RemoveProjectMember from "@/lib/fetch/project/DELETE/removeProjectMember";
 import ErrorCard from "@/components/error/ErrorCard";
 import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
-
 export default function DeleteProjectMemberModal({
   disclosure,
   projectID,
   user,
 }: {
-  disclosure: UseDisclosureReturn;
+  disclosure: UseOverlayStateReturn;
   projectID: string;
   user: any;
 }) {
   const { refreshProject } = useRefreshCache();
-  const { isOpen, onOpenChange } = disclosure;
+  const { isOpen, setOpen: onOpenChange } = disclosure;
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
-
   const [error, setError] = React.useState(false);
   const [errorText, setErrorText] = React.useState("");
   const [errorMessage, setErrorMessage] = React.useState("");
-
   const statusColorMap: any = {
     Owner: "danger",
     Editor: "primary",
     Viewer: "default",
   };
-
   async function handleDeleteMember() {
     setIsDeleteLoading(true);
-
     const res = (await RemoveProjectMember(projectID, user.user_id)) as any;
-
     if (!res) {
       setIsDeleteLoading(false);
       setError(true);
       setErrorText("An error occurred");
       setErrorMessage("An error occurred while removing the member");
-      addToast({
-        title: "Project",
+      toast.danger("Project", {
         description: "An error occurred while removing the member",
-        color: "danger",
-        variant: "flat",
       });
-
       return;
     }
-
     if (res.success) {
       setIsDeleteLoading(false);
-      onOpenChange();
+      onOpenChange(false);
       setError(false);
       setErrorText("");
       setErrorMessage("");
-      addToast({
-        title: "Project",
-        description: "Member removed successfully",
-        color: "success",
-        variant: "flat",
-      });
+      toast.success("Project", { description: "Member removed successfully" });
       refreshProject(projectID);
     } else {
       setError(true);
       setErrorText(res.error);
       setErrorMessage(res.message);
       setIsDeleteLoading(false);
-      addToast({
-        title: "Project",
-        description: res.error,
-        color: "danger",
-        variant: "flat",
-      });
+      toast.danger("Project", { description: res.error });
     }
-
     setIsDeleteLoading(false);
   }
-
   return (
     <>
-      <Modal isOpen={isOpen} placement="center" onOpenChange={onOpenChange}>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-wrap items-center">
-                <div className="flex flex-col">
-                  <p className="text-lg font-bold">Remove Member</p>
-                  <p className="text-sm text-default-500">
-                    By removing this member, they will no longer have access to
-                    the project.
-                  </p>
-                </div>
-              </ModalHeader>
-              <ModalBody>
-                {error && (
-                  <ErrorCard error={errorText} message={errorMessage} />
-                )}
-                <User
-                  avatarProps={{ radius: "lg", name: user.username }}
-                  className="justify-start"
-                  description={user.email}
-                  name={
-                    <div className="flex items-center gap-2">
-                      <p>{user.username}</p>
-                      <Chip
-                        className="capitalize"
-                        color={statusColorMap[user.role]}
-                        size="sm"
-                        variant="flat"
-                      >
-                        {user.role}
-                      </Chip>
+      <Modal>
+        <Modal.Backdrop isOpen={isOpen} onOpenChange={onOpenChange}>
+          <Modal.Container placement="center">
+            <Modal.Dialog>
+              {({ close: onClose }) => (
+                <>
+                  <Modal.Header className="flex flex-wrap items-center">
+                    <Modal.Heading>
+                      <div className="flex flex-col">
+                        <p className="text-lg font-bold">Remove Member</p>
+                        <p className="text-sm text-muted">
+                          By removing this member, they will no longer have
+                          access to the project.
+                        </p>
+                      </div>
+                    </Modal.Heading>
+                  </Modal.Header>
+                  <Modal.Body>
+                    {error && (
+                      <ErrorCard error={errorText} message={errorMessage} />
+                    )}
+                    <div
+                      className={`flex items-center gap-3 ${"justify-start"}`}
+                    >
+                      <Avatar>
+                        <Avatar.Fallback>
+                          {String("").slice(0, 2).toUpperCase()}
+                        </Avatar.Fallback>
+                      </Avatar>
+                      <div className="min-w-0">
+                        <div className="truncate">
+                          {
+                            <div className="flex items-center gap-2">
+                              <p>{user.username}</p>
+                              <Chip
+                                className="capitalize"
+                                color={statusColorMap[user.role]}
+                              >
+                                <Chip.Label>{user.role}</Chip.Label>
+                              </Chip>
+                            </div>
+                          }
+                        </div>
+                        <div className="truncate text-sm text-muted">
+                          {user.email}
+                        </div>
+                      </div>
                     </div>
-                  }
-                />
-              </ModalBody>
-              <ModalFooter>
-                <Button
-                  color="default"
-                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
-                  variant="ghost"
-                  onPress={onClose}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  color="danger"
-                  isLoading={isDeleteLoading}
-                  startContent={<Icon icon="hugeicons:delete-02" width={18} />}
-                  onPress={handleDeleteMember}
-                >
-                  Remove
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
+                  </Modal.Body>
+                  <Modal.Footer>
+                    <Button variant="ghost" onPress={onClose}>
+                      {<Icon icon="hugeicons:cancel-01" width={18} />}
+                      Cancel
+                    </Button>
+                    <Button
+                      isPending={isDeleteLoading}
+                      onPress={handleDeleteMember}
+                      variant="danger"
+                    >
+                      {<Icon icon="hugeicons:delete-02" width={18} />}
+                      Remove
+                    </Button>
+                  </Modal.Footer>
+                </>
+              )}
+            </Modal.Dialog>
+          </Modal.Container>
+        </Modal.Backdrop>
       </Modal>
     </>
   );

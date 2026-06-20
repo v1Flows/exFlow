@@ -1,27 +1,15 @@
 import { Icon } from "@iconify/react";
-import {
-  addToast,
-  Button,
-  Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownSection,
-  DropdownTrigger,
-} from "@heroui/react";
-
+import { Button, Dropdown, Header, toast } from "@heroui/react";
 import UpdateExecution from "@/lib/fetch/executions/PUT/update";
 import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
-
 export default function AdminExecutionActions({
   execution,
 }: {
   execution: any;
 }) {
   const { refreshExecution } = useRefreshCache();
-
   async function changeExecutionStatus(status: string) {
     const newExecution = { ...execution };
-
     switch (status) {
       case "pending":
         newExecution.status = "pending";
@@ -87,170 +75,178 @@ export default function AdminExecutionActions({
             : new Date().toISOString();
         break;
       default:
-        addToast({
-          title: "Execution",
-          description: "Invalid Status",
-          color: "danger",
-          variant: "flat",
-        });
-
+        toast.danger("Execution", { description: "Invalid Status" });
         return;
     }
-
     const response = await UpdateExecution(newExecution);
-
     if (response.success) {
-      addToast({
-        title: "Execution",
-        description: "Execution Status Changed",
-        color: "success",
-        variant: "flat",
-      });
+      toast.success("Execution", { description: "Execution Status Changed" });
       refreshExecution(execution.id);
     } else {
-      addToast({
-        title: "Execution",
+      toast.danger("Execution", {
         description: "Failed to change Execution Status",
-        color: "danger",
-        variant: "flat",
       });
     }
   }
-
   return (
     <Dropdown>
-      <DropdownTrigger>
-        <Button color="danger" variant="flat">
+      <Dropdown.Trigger>
+        <Button variant="danger-soft">
           <Icon icon="hugeicons:shield-energy" width={20} />
           Admin Actions
         </Button>
-      </DropdownTrigger>
-      <DropdownMenu aria-label="Table Columns" variant="flat">
-        <DropdownSection title="Change Execution Status">
-          <DropdownItem
-            key="pending"
-            className="capitalize"
-            onPress={() => changeExecutionStatus("pending")}
-          >
-            <div className="flex-cols flex gap-2">
-              <Icon
-                className="text-default-500"
-                icon="hugeicons:time-quarter-pass"
-                width={20}
-              />
-              Pending
-            </div>
-          </DropdownItem>
-          <DropdownItem
-            key="running"
-            className="capitalize"
-            onPress={() => changeExecutionStatus("running")}
-          >
-            <div className="flex-cols flex gap-2">
-              <Icon className="text-primary" icon="hugeicons:play" width={20} />
-              Running
-            </div>
-          </DropdownItem>
-          <DropdownItem
-            key="paused"
-            className="capitalize"
-            onPress={() => changeExecutionStatus("paused")}
-          >
-            <div className="flex-cols flex gap-2">
-              <Icon
-                className="text-warning"
-                icon="hugeicons:pause"
-                width={20}
-              />
-              Paused
-            </div>
-          </DropdownItem>
-          <DropdownItem
-            key="canceled"
-            className="capitalize"
-            onPress={() => changeExecutionStatus("canceled")}
-          >
-            <div className="flex-cols flex gap-2">
-              <Icon
-                className="text-danger"
-                icon="hugeicons:cancel-01"
-                width={20}
-              />
-              Canceled
-            </div>
-          </DropdownItem>
-          <DropdownItem
-            key="noPatternMatch"
-            className="capitalize"
-            onPress={() => changeExecutionStatus("noPatternMatch")}
-          >
-            <div className="flex-cols flex gap-2">
-              <Icon
-                className="text-secondary"
-                icon="hugeicons:note-remove"
-                width={20}
-              />
-              No Pattern Match
-            </div>
-          </DropdownItem>
-          <DropdownItem
-            key="interactionWaiting"
-            className="capitalize"
-            onPress={() => changeExecutionStatus("interactionWaiting")}
-          >
-            <div className="flex-cols flex gap-2">
-              <Icon
-                className="text-primary"
-                icon="hugeicons:waving-hand-01"
-                width={20}
-              />
-              Interaction Required
-            </div>
-          </DropdownItem>
-          <DropdownItem
-            key="recovered"
-            className="capitalize"
-            onPress={() => changeExecutionStatus("recovered")}
-          >
-            <div className="flex-cols flex gap-2">
-              <Icon
-                className="text-warning"
-                icon="hugeicons:first-aid-kit"
-                width={20}
-              />
-              Recovered
-            </div>
-          </DropdownItem>
-          <DropdownItem
-            key="error"
-            className="capitalize"
-            onPress={() => changeExecutionStatus("error")}
-          >
-            <div className="flex-cols flex gap-2">
-              <Icon
-                className="text-danger"
-                icon="hugeicons:alert-02"
-                width={20}
-              />
-              Error
-            </div>
-          </DropdownItem>
-          <DropdownItem
-            key="success"
-            className="capitalize"
-            onPress={() => changeExecutionStatus("success")}
-          >
-            <div className="flex-cols flex gap-2">
-              <Icon
-                className="text-success"
-                icon="hugeicons:tick-double-01"
-                width={20}
-              />
-              Success
-            </div>
-          </DropdownItem>
-        </DropdownSection>
-      </DropdownMenu>
+      </Dropdown.Trigger>
+      <Dropdown.Popover>
+        <Dropdown.Menu aria-label="Table Columns">
+          <Dropdown.Section>
+            <Header>{"Change Execution Status"}</Header>
+            <Dropdown.Item
+              key="pending"
+              id="pending"
+              className="capitalize"
+              onPress={() => changeExecutionStatus("pending")}
+              textValue=" "
+            >
+              <div className="flex-cols flex gap-2">
+                <Icon
+                  className="text-muted"
+                  icon="hugeicons:time-quarter-pass"
+                  width={20}
+                />
+                Pending
+              </div>
+            </Dropdown.Item>
+            <Dropdown.Item
+              key="running"
+              id="running"
+              className="capitalize"
+              onPress={() => changeExecutionStatus("running")}
+              textValue=" "
+            >
+              <div className="flex-cols flex gap-2">
+                <Icon
+                  className="text-accent"
+                  icon="hugeicons:play"
+                  width={20}
+                />
+                Running
+              </div>
+            </Dropdown.Item>
+            <Dropdown.Item
+              key="paused"
+              id="paused"
+              className="capitalize"
+              onPress={() => changeExecutionStatus("paused")}
+              textValue=" "
+            >
+              <div className="flex-cols flex gap-2">
+                <Icon
+                  className="text-warning"
+                  icon="hugeicons:pause"
+                  width={20}
+                />
+                Paused
+              </div>
+            </Dropdown.Item>
+            <Dropdown.Item
+              key="canceled"
+              id="canceled"
+              className="capitalize"
+              onPress={() => changeExecutionStatus("canceled")}
+              textValue=" "
+            >
+              <div className="flex-cols flex gap-2">
+                <Icon
+                  className="text-danger"
+                  icon="hugeicons:cancel-01"
+                  width={20}
+                />
+                Canceled
+              </div>
+            </Dropdown.Item>
+            <Dropdown.Item
+              key="noPatternMatch"
+              id="noPatternMatch"
+              className="capitalize"
+              onPress={() => changeExecutionStatus("noPatternMatch")}
+              textValue=" "
+            >
+              <div className="flex-cols flex gap-2">
+                <Icon
+                  className="text-default-foreground"
+                  icon="hugeicons:note-remove"
+                  width={20}
+                />
+                No Pattern Match
+              </div>
+            </Dropdown.Item>
+            <Dropdown.Item
+              key="interactionWaiting"
+              id="interactionWaiting"
+              className="capitalize"
+              onPress={() => changeExecutionStatus("interactionWaiting")}
+              textValue=" "
+            >
+              <div className="flex-cols flex gap-2">
+                <Icon
+                  className="text-accent"
+                  icon="hugeicons:waving-hand-01"
+                  width={20}
+                />
+                Interaction Required
+              </div>
+            </Dropdown.Item>
+            <Dropdown.Item
+              key="recovered"
+              id="recovered"
+              className="capitalize"
+              onPress={() => changeExecutionStatus("recovered")}
+              textValue=" "
+            >
+              <div className="flex-cols flex gap-2">
+                <Icon
+                  className="text-warning"
+                  icon="hugeicons:first-aid-kit"
+                  width={20}
+                />
+                Recovered
+              </div>
+            </Dropdown.Item>
+            <Dropdown.Item
+              key="error"
+              id="error"
+              className="capitalize"
+              onPress={() => changeExecutionStatus("error")}
+              textValue=" "
+            >
+              <div className="flex-cols flex gap-2">
+                <Icon
+                  className="text-danger"
+                  icon="hugeicons:alert-02"
+                  width={20}
+                />
+                Error
+              </div>
+            </Dropdown.Item>
+            <Dropdown.Item
+              key="success"
+              id="success"
+              className="capitalize"
+              onPress={() => changeExecutionStatus("success")}
+              textValue=" "
+            >
+              <div className="flex-cols flex gap-2">
+                <Icon
+                  className="text-success"
+                  icon="hugeicons:tick-double-01"
+                  width={20}
+                />
+                Success
+              </div>
+            </Dropdown.Item>
+          </Dropdown.Section>
+        </Dropdown.Menu>
+      </Dropdown.Popover>
     </Dropdown>
   );
 }

@@ -1,30 +1,26 @@
 "use client";
-
-import type { UseDisclosureReturn } from "@heroui/use-disclosure";
-
 import {
-  addToast,
   Button,
+  Description,
+  FieldError,
   Input,
+  InputGroup,
+  Label,
+  ListBox,
   Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
   Select,
-  SelectItem,
   Switch,
+  TextField,
+  toast,
+  type UseOverlayStateReturn,
 } from "@heroui/react";
 import React, { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
-
 import GetProjectRunners from "@/lib/fetch/project/runners";
 import ErrorCard from "@/components/error/ErrorCard";
 import CopyFlow from "@/lib/fetch/flow/POST/CopyFlow";
 import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
-
 import RowSteps from "../../steps/row-steps";
-
 export default function CopyFlowModal({
   flow,
   folders,
@@ -34,14 +30,12 @@ export default function CopyFlowModal({
   flow: any;
   folders: any;
   projects: any;
-  disclosure: UseDisclosureReturn;
+  disclosure: UseOverlayStateReturn;
 }) {
   const { refreshFlowData, refreshFolders, refreshProjects } =
     useRefreshCache();
-
   // create modal
-  const { isOpen, onOpenChange } = disclosure;
-
+  const { isOpen, setOpen: onOpenChange } = disclosure;
   // stepper
   const [steps] = useState([
     {
@@ -53,14 +47,12 @@ export default function CopyFlowModal({
   ]);
   const [disableNext, setDisableNext] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [folderId, setFolderId] = useState("");
   const [projectId, setProjectId] = useState("");
   const [runnerId, setRunnerId] = useState("");
   const [runnerLimit, setRunnerLimit] = useState(false);
-
   // loading
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -68,7 +60,6 @@ export default function CopyFlowModal({
   const [errorMessage, setErrorMessage] = useState("");
   // runner select list
   const [runners, setRunners] = useState([]);
-
   useEffect(() => {
     if (flow) {
       setName(flow.name);
@@ -79,26 +70,20 @@ export default function CopyFlowModal({
       setRunnerLimit(flow.runner_id !== "any");
     }
   }, [disclosure.isOpen]);
-
   const projectSelected = async (e: any) => {
-    setProjectId(e.currentKey);
+    setProjectId(e);
     setRunnerId("");
-    const runners = await GetProjectRunners(e.currentKey);
-
+    const runners = await GetProjectRunners(e);
     setRunners(runners.success ? runners.data.runners : []);
   };
-
   const folderSelected = async (e: any) => {
-    setFolderId(e.currentKey);
+    setFolderId(e);
   };
-
   const handleSelectRunner = (e: any) => {
-    setRunnerId(e.currentKey);
+    setRunnerId(e);
   };
-
   async function copyFlow() {
     setIsLoading(true);
-
     const response = (await CopyFlow(
       name,
       description,
@@ -110,21 +95,18 @@ export default function CopyFlowModal({
       flow.failure_pipeline_id,
       flow.exec_parallel,
     )) as any;
-
     if (!response) {
       setError(true);
       setErrorText("Failed to copy flow");
       setErrorMessage("Failed to copy flow");
       setIsLoading(false);
-
       return;
     }
-
     if (response.success) {
       refreshFlowData(); // Refresh SWR cache instead of router
       refreshProjects(); // Refresh SWR cache instead of router
       refreshFolders();
-      onOpenChange();
+      onOpenChange(false);
       setName("");
       setDescription("");
       setFolderId("");
@@ -136,27 +118,15 @@ export default function CopyFlowModal({
       setErrorMessage("");
       setCurrentStep(0);
       setDisableNext(false);
-      addToast({
-        title: "Flow",
-        description: "Flow copied successfully",
-        color: "success",
-        variant: "flat",
-      });
+      toast.success("Flow", { description: "Flow copied successfully" });
     } else {
       setError(true);
       setErrorText(response.error);
       setErrorMessage(response.message);
-      addToast({
-        title: "Flow",
-        description: "Failed to copy flow",
-        color: "danger",
-        variant: "flat",
-      });
+      toast.danger("Flow", { description: "Failed to copy flow" });
     }
-
     setIsLoading(false);
   }
-
   function cancel() {
     setName("");
     setDescription("");
@@ -165,179 +135,201 @@ export default function CopyFlowModal({
     setRunnerId("");
     setRunnerLimit(false);
     setIsLoading(false);
-    onOpenChange();
+    onOpenChange(false);
   }
-
   return (
     <>
-      <Modal
-        isOpen={isOpen}
-        placement="center"
-        size="3xl"
-        onOpenChange={onOpenChange}
-      >
-        <ModalContent className="w-full">
-          {() => (
-            <>
-              <ModalHeader className="flex flex-col items-start">
-                <div className="flex flex-col">
-                  <p className="text-lg font-bold">Copy existing Flow</p>
-                  <p className="text-sm text-default-500">
-                    Copy an existing flow to a new one.
-                  </p>
-                </div>
-              </ModalHeader>
-              <ModalBody>
-                {error && (
-                  <ErrorCard error={errorText} message={errorMessage} />
-                )}
-                <div className="flex items-center justify-center">
-                  <RowSteps
-                    currentStep={currentStep}
-                    defaultStep={0}
-                    steps={steps}
-                    onStepChange={setCurrentStep}
-                  />
-                </div>
-                {currentStep === 0 && (
-                  <div className="flex flex-col gap-4">
-                    <Input
-                      isRequired
-                      label="Name"
-                      type="name"
-                      value={name}
-                      variant="flat"
-                      onValueChange={setName}
-                    />
-                    <Input
-                      isRequired
-                      label="Description"
-                      type="description"
-                      value={description}
-                      variant="flat"
-                      onValueChange={setDescription}
-                    />
-                    <Select
-                      isRequired
-                      label="Project"
-                      placeholder="Select the project to assign the flow to"
-                      selectedKeys={[projectId]}
-                      variant="flat"
-                      onSelectionChange={projectSelected}
-                    >
-                      {projects.map((project: any) => (
-                        <SelectItem key={project.id}>{project.name}</SelectItem>
-                      ))}
-                    </Select>
-                    <Select
-                      label="Folder"
-                      placeholder="Select the folder to assign the flow to"
-                      selectedKeys={[folderId]}
-                      variant="flat"
-                      onSelectionChange={folderSelected}
-                    >
-                      {folders.map((folder: any) => (
-                        <SelectItem key={folder.id}>{folder.name}</SelectItem>
-                      ))}
-                    </Select>
-                  </div>
-                )}
-                {currentStep === 1 && (
-                  <>
-                    <div className="flex flex-cols items-center justify-between border-2 border-default-200 p-3 rounded-lg">
-                      <div>
-                        <p className="font-bold">Limit Runner</p>
-                        <p className="text-sm text-default-500">
-                          You can specify a specific runner which should take
-                          care of executing your flow.
+      <Modal>
+        <Modal.Backdrop isOpen={isOpen} onOpenChange={onOpenChange}>
+          <Modal.Container placement="center" size="lg">
+            <Modal.Dialog className="w-full">
+              {() => (
+                <>
+                  <Modal.Header className="flex flex-col items-start">
+                    <Modal.Heading>
+                      <div className="flex flex-col">
+                        <p className="text-lg font-bold">Copy existing Flow</p>
+                        <p className="text-sm text-muted">
+                          Copy an existing flow to a new one.
                         </p>
                       </div>
-                      <Switch
-                        isSelected={runnerLimit}
-                        onValueChange={setRunnerLimit}
+                    </Modal.Heading>
+                  </Modal.Header>
+                  <Modal.Body>
+                    {error && (
+                      <ErrorCard error={errorText} message={errorMessage} />
+                    )}
+                    <div className="flex items-center justify-center">
+                      <RowSteps
+                        currentStep={currentStep}
+                        defaultStep={0}
+                        steps={steps}
+                        onStepChange={setCurrentStep}
                       />
                     </div>
-                    {runnerLimit && (
-                      <Select
-                        label="Runner"
-                        selectedKeys={[runnerId]}
-                        variant="bordered"
-                        onSelectionChange={handleSelectRunner}
-                      >
-                        {runners
-                          .filter(
-                            (runner: any) => runner.shared_runner === false,
-                          )
-                          .map((runner: any) => (
-                            <SelectItem key={runner.id}>
-                              {runner.name}
-                            </SelectItem>
-                          ))}
-                      </Select>
+                    {currentStep === 0 && (
+                      <div className="flex flex-col gap-4">
+                        <TextField isRequired value={name} onChange={setName}>
+                          <Label>{"Name"}</Label>
+                          <InputGroup>
+                            <Input type="name" />
+                          </InputGroup>
+                        </TextField>
+                        <TextField
+                          isRequired
+                          value={description}
+                          onChange={setDescription}
+                        >
+                          <Label>{"Description"}</Label>
+                          <InputGroup>
+                            <Input type="description" />
+                          </InputGroup>
+                        </TextField>
+                        <Select
+                          isRequired
+                          placeholder="Select the project to assign the flow to"
+                          selectedKey={projectId}
+                          onSelectionChange={projectSelected}
+                        >
+                          <Label>{"Project"}</Label>
+                          <Select.Trigger>
+                            <Select.Value />
+                            <Select.Indicator />
+                          </Select.Trigger>
+                          <Select.Popover>
+                            <ListBox>
+                              {projects.map((project: any) => (
+                                <ListBox.Item key={project.id} id={project.id}>
+                                  {project.name}
+                                  <ListBox.ItemIndicator />
+                                </ListBox.Item>
+                              ))}
+                            </ListBox>
+                          </Select.Popover>
+                        </Select>
+                        <Select
+                          placeholder="Select the folder to assign the flow to"
+                          selectedKey={folderId}
+                          onSelectionChange={folderSelected}
+                        >
+                          <Label>{"Folder"}</Label>
+                          <Select.Trigger>
+                            <Select.Value />
+                            <Select.Indicator />
+                          </Select.Trigger>
+                          <Select.Popover>
+                            <ListBox>
+                              {folders.map((folder: any) => (
+                                <ListBox.Item key={folder.id} id={folder.id}>
+                                  {folder.name}
+                                  <ListBox.ItemIndicator />
+                                </ListBox.Item>
+                              ))}
+                            </ListBox>
+                          </Select.Popover>
+                        </Select>
+                      </div>
                     )}
-                  </>
-                )}
-              </ModalBody>
-              <ModalFooter>
-                <Button
-                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
-                  variant="ghost"
-                  onPress={cancel}
-                >
-                  Cancel
-                </Button>
-                {currentStep > 0 ? (
-                  <Button
-                    color="default"
-                    startContent={
-                      <Icon icon="hugeicons:backward-02" width={18} />
-                    }
-                    variant="flat"
-                    onPress={() => {
-                      setCurrentStep(currentStep - 1);
-                      setDisableNext(false);
-                    }}
-                  >
-                    Back
-                  </Button>
-                ) : (
-                  <Button
-                    isDisabled
-                    color="default"
-                    startContent={
-                      <Icon icon="hugeicons:backward-02" width={18} />
-                    }
-                    variant="flat"
-                  >
-                    Back
-                  </Button>
-                )}
-                {currentStep + 1 === steps.length ? (
-                  <Button
-                    color="primary"
-                    isLoading={isLoading}
-                    startContent={<Icon icon="hugeicons:copy-02" width={18} />}
-                    onPress={copyFlow}
-                  >
-                    Copy Flow
-                  </Button>
-                ) : (
-                  <Button
-                    color="primary"
-                    isDisabled={disableNext}
-                    isLoading={isLoading}
-                    startContent={
-                      <Icon icon="hugeicons:forward-02" width={18} />
-                    }
-                    onPress={() => setCurrentStep(currentStep + 1)}
-                  >
-                    Next Step
-                  </Button>
-                )}
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
+                    {currentStep === 1 && (
+                      <>
+                        <div className="flex flex-cols items-center justify-between border-2 border-default p-3 rounded-lg">
+                          <div>
+                            <p className="font-bold">Limit Runner</p>
+                            <p className="text-sm text-muted">
+                              You can specify a specific runner which should
+                              take care of executing your flow.
+                            </p>
+                          </div>
+                          <Switch
+                            isSelected={runnerLimit}
+                            onChange={setRunnerLimit}
+                          >
+                            <Switch.Control>
+                              <Switch.Thumb />
+                            </Switch.Control>
+                          </Switch>
+                        </div>
+                        {runnerLimit && (
+                          <Select
+                            selectedKey={runnerId}
+                            onSelectionChange={handleSelectRunner}
+                          >
+                            <Label>{"Runner"}</Label>
+                            <Select.Trigger>
+                              <Select.Value />
+                              <Select.Indicator />
+                            </Select.Trigger>
+                            <Select.Popover>
+                              <ListBox>
+                                {runners
+                                  .filter(
+                                    (runner: any) =>
+                                      runner.shared_runner === false,
+                                  )
+                                  .map((runner: any) => (
+                                    <ListBox.Item
+                                      key={runner.id}
+                                      id={runner.id}
+                                      textValue=" "
+                                    >
+                                      {runner.name}
+                                      <ListBox.ItemIndicator />
+                                    </ListBox.Item>
+                                  ))}
+                              </ListBox>
+                            </Select.Popover>
+                          </Select>
+                        )}
+                      </>
+                    )}
+                  </Modal.Body>
+                  <Modal.Footer>
+                    <Button variant="ghost" onPress={cancel}>
+                      {<Icon icon="hugeicons:cancel-01" width={18} />}
+                      Cancel
+                    </Button>
+                    {currentStep > 0 ? (
+                      <Button
+                        onPress={() => {
+                          setCurrentStep(currentStep - 1);
+                          setDisableNext(false);
+                        }}
+                      >
+                        {<Icon icon="hugeicons:backward-02" width={18} />}
+                        Back
+                      </Button>
+                    ) : (
+                      <Button isDisabled>
+                        {<Icon icon="hugeicons:backward-02" width={18} />}
+                        Back
+                      </Button>
+                    )}
+                    {currentStep + 1 === steps.length ? (
+                      <Button
+                        isPending={isLoading}
+                        onPress={copyFlow}
+                        variant="primary"
+                      >
+                        {<Icon icon="hugeicons:copy-02" width={18} />}
+                        Copy Flow
+                      </Button>
+                    ) : (
+                      <Button
+                        isDisabled={disableNext}
+                        isPending={isLoading}
+                        onPress={() => setCurrentStep(currentStep + 1)}
+                        variant="primary"
+                      >
+                        {<Icon icon="hugeicons:forward-02" width={18} />}
+                        Next Step
+                      </Button>
+                    )}
+                  </Modal.Footer>
+                </>
+              )}
+            </Modal.Dialog>
+          </Modal.Container>
+        </Modal.Backdrop>
       </Modal>
     </>
   );

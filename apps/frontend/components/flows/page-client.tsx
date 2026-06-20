@@ -1,6 +1,5 @@
 "use client";
-
-import { Divider } from "@heroui/react";
+import { Separator } from "@heroui/react";
 
 import FlowList from "@/components/flows/list";
 import FlowsHeading from "@/components/flows/heading";
@@ -77,7 +76,7 @@ export default function FlowsPageClient() {
         settings={settings}
         user={user}
       />
-      <Divider className="mt-4 mb-4" />
+      <Separator className="mt-4 mb-4" />
       <FlowList
         flows={flows}
         folders={folders}

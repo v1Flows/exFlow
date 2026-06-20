@@ -1,33 +1,30 @@
-import type { UseDisclosureReturn } from "@heroui/use-disclosure";
-
-import { Icon } from "@iconify/react";
 import {
-  addToast,
   Button,
+  Description,
+  FieldError,
   Input,
+  InputGroup,
+  Label,
   Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Textarea,
+  TextArea,
+  TextField,
+  toast,
+  type UseOverlayStateReturn,
 } from "@heroui/react";
+import { Icon } from "@iconify/react";
 import React from "react";
-
 import SimulateAlert from "@/lib/fetch/alert/POST/send";
 import ErrorCard from "@/components/error/ErrorCard";
 import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
-
 export default function SimulateAlertModal({
   disclosure,
   flow,
 }: {
-  disclosure: UseDisclosureReturn;
+  disclosure: UseOverlayStateReturn;
   flow: any;
 }) {
   const { refreshAllAlertCaches } = useRefreshCache();
-  const { isOpen, onOpenChange } = disclosure;
-
+  const { isOpen, setOpen: onOpenChange } = disclosure;
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState(false);
   const [errorText, setErrorText] = React.useState("");
@@ -73,111 +70,93 @@ export default function SimulateAlertModal({
   "version": "4",
   "groupKey": "test"
 }`);
-
   async function sendPayload() {
     setIsLoading(true);
     const send = (await SimulateAlert(target, payload)) as any;
-
     if (!send) {
       setError(true);
       setErrorText("Failed to send alert!");
       setErrorMessage("Please try again later.");
       setIsLoading(false);
-      addToast({
-        title: "Alert Simulation",
+      toast.danger("Alert Simulation", {
         description: "Failed to send alert!",
-        color: "danger",
-        variant: "flat",
       });
-
       return;
     }
-
     if (!send.success) {
       setError(true);
       setErrorText(send.error);
       setErrorMessage(send.message);
-      addToast({
-        title: "Alert Simulation",
+      toast.danger("Alert Simulation", {
         description: "Failed to send alert!",
-        color: "danger",
-        variant: "flat",
       });
     } else {
       refreshAllAlertCaches(flow.id);
-      onOpenChange();
+      onOpenChange(false);
       setError(false);
       setErrorText("");
       setErrorMessage("");
-      addToast({
-        title: "Alert Simulation",
+      toast.success("Alert Simulation", {
         description: "Alert sent successfully!",
-        color: "success",
-        variant: "flat",
       });
     }
-
     setIsLoading(false);
   }
-
   return (
     <>
-      <Modal
-        isOpen={isOpen}
-        placement="center"
-        scrollBehavior="inside"
-        size="2xl"
-        onOpenChange={onOpenChange}
-      >
-        <ModalContent className="w-full">
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-wrap items-center">
-                <div className="flex flex-col gap-2">
-                  <p className="text-lg font-bold">Simulate an Alert</p>
-                  <p className="text-sm text-default-500">
-                    With this Simulation you can test your Flow with a
-                    predefined payload.
-                  </p>
-                </div>
-              </ModalHeader>
-              <ModalBody>
-                {error && (
-                  <ErrorCard error={errorText} message={errorMessage} />
-                )}
-                <Input
-                  description="The target URL where the payload will be sent to."
-                  label="Target"
-                  labelPlacement="outside"
-                  value={target}
-                  onValueChange={setTarget}
-                />
-                <Textarea
-                  isRequired
-                  label="Payload JSON"
-                  labelPlacement="outside"
-                  maxRows={65}
-                  value={JSON.parse(JSON.stringify(payload, null, 2))}
-                  onValueChange={setPayload}
-                />
-              </ModalBody>
-              <ModalFooter>
-                <Button color="default" variant="bordered" onPress={onClose}>
-                  Close
-                </Button>
-                <Button
-                  color="secondary"
-                  isLoading={isLoading}
-                  variant="flat"
-                  onPress={sendPayload}
-                >
-                  <Icon icon="hugeicons:mail-send-02" width={20} />
-                  Send
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
+      <Modal>
+        <Modal.Backdrop isOpen={isOpen} onOpenChange={onOpenChange}>
+          <Modal.Container placement="center" scroll="inside" size="lg">
+            <Modal.Dialog className="w-full">
+              {({ close: onClose }) => (
+                <>
+                  <Modal.Header className="flex flex-wrap items-center">
+                    <Modal.Heading>
+                      <div className="flex flex-col gap-2">
+                        <p className="text-lg font-bold">Simulate an Alert</p>
+                        <p className="text-sm text-muted">
+                          With this Simulation you can test your Flow with a
+                          predefined payload.
+                        </p>
+                      </div>
+                    </Modal.Heading>
+                  </Modal.Header>
+                  <Modal.Body>
+                    {error && (
+                      <ErrorCard error={errorText} message={errorMessage} />
+                    )}
+                    <TextField value={target} onChange={setTarget}>
+                      <Label>{"Target"}</Label>
+                      <InputGroup>
+                        <Input />
+                      </InputGroup>
+                      <Description>
+                        {"The target URL where the payload will be sent to."}
+                      </Description>
+                    </TextField>
+                    <TextField
+                      isRequired
+                      value={JSON.parse(JSON.stringify(payload, null, 2))}
+                      onChange={setPayload}
+                    >
+                      <Label>{"Payload JSON"}</Label>
+                      <TextArea />
+                    </TextField>
+                  </Modal.Body>
+                  <Modal.Footer>
+                    <Button variant="outline" onPress={onClose}>
+                      Close
+                    </Button>
+                    <Button isPending={isLoading} onPress={sendPayload}>
+                      <Icon icon="hugeicons:mail-send-02" width={20} />
+                      Send
+                    </Button>
+                  </Modal.Footer>
+                </>
+              )}
+            </Modal.Dialog>
+          </Modal.Container>
+        </Modal.Backdrop>
       </Modal>
     </>
   );

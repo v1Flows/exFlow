@@ -1,13 +1,11 @@
 "use client";
 
 import type { ComponentProps } from "react";
-import type { ButtonProps } from "@heroui/react";
 
 import React from "react";
-import { Spacer } from "@heroui/react";
 import { useControlledState } from "@react-stately/utils";
 import { m, LazyMotion, domAnimation } from "framer-motion";
-import { cn } from "@heroui/react";
+import { cn } from "@/components/cn/cn";
 
 export type VerticalCollapsibleStepProps = {
   className?: string;
@@ -30,7 +28,13 @@ export interface VerticalCollapsibleStepsProps
    *
    * @default "primary"
    */
-  color?: ButtonProps["color"];
+  color?:
+    | "primary"
+    | "secondary"
+    | "success"
+    | "warning"
+    | "danger"
+    | "default";
   /**
    * The current step index.
    */
@@ -121,8 +125,8 @@ const VerticalCollapsibleSteps = React.forwardRef<
 
       switch (color) {
         case "primary":
-          userColor = "[--step-color:var(--heroui-primary)]";
-          fgColor = "[--step-fg-color:var(--heroui-primary-foreground)]";
+          userColor = "[--step-color:var(--heroui-accent)]";
+          fgColor = "[--step-fg-color:var(--heroui-accent-foreground)]";
           break;
         case "secondary":
           userColor = "[--step-color:var(--heroui-secondary)]";
@@ -145,8 +149,8 @@ const VerticalCollapsibleSteps = React.forwardRef<
           fgColor = "[--step-fg-color:var(--heroui-default-foreground)]";
           break;
         default:
-          userColor = "[--step-color:var(--heroui-primary)]";
-          fgColor = "[--step-fg-color:var(--heroui-primary-foreground)]";
+          userColor = "[--step-color:var(--heroui-accent)]";
+          fgColor = "[--step-fg-color:var(--heroui-accent-foreground)]";
           break;
       }
 
@@ -171,7 +175,7 @@ const VerticalCollapsibleSteps = React.forwardRef<
               <li
                 key={stepIdx}
                 className={cn(
-                  "group rounded-large border-default-200 data-[status=active]:bg-default-100 dark:border-default-50 dark:data-[status=active]:bg-default-50 relative gap-4 border",
+                  "group rounded-lg border-default data-[status=active]:bg-default dark:border-default dark:data-[status=active]:bg-default relative gap-4 border",
                   stepClassName,
                 )}
                 data-status={status}
@@ -182,7 +186,7 @@ const VerticalCollapsibleSteps = React.forwardRef<
                     ref={ref}
                     aria-current={status === "active" ? "step" : undefined}
                     className={cn(
-                      "rounded-large flex w-full cursor-pointer items-center justify-center gap-x-4 px-3 py-2.5",
+                      "rounded-lg flex w-full cursor-pointer items-center justify-center gap-x-4 px-3 py-2.5",
                     )}
                     onClick={() => setCurrentStep(stepIdx)}
                     {...props}
@@ -192,7 +196,7 @@ const VerticalCollapsibleSteps = React.forwardRef<
                         <m.div animate={status} className="relative">
                           <m.div
                             className={cn(
-                              "border-medium text-large text-default-foreground relative flex h-[34px] w-[34px] items-center justify-center rounded-full font-semibold",
+                              "border-2 text-lg text-default-foreground relative flex h-[34px] w-[34px] items-center justify-center rounded-full font-semibold",
                               {
                                 "shadow-lg": status === "complete",
                               },
@@ -232,9 +236,9 @@ const VerticalCollapsibleSteps = React.forwardRef<
                       <div>
                         <div
                           className={cn(
-                            "text-medium text-default-foreground font-medium transition-[color,opacity] duration-300 group-active:opacity-80",
+                            "text-base text-default-foreground font-medium transition-[color,opacity] duration-300 group-active:opacity-80",
                             {
-                              "text-default-500": status === "inactive",
+                              "text-muted": status === "inactive",
                             },
                           )}
                         >
@@ -242,9 +246,9 @@ const VerticalCollapsibleSteps = React.forwardRef<
                         </div>
                         <div
                           className={cn(
-                            "text-tiny text-default-600 lg:text-small transition-[color,opacity] duration-300 group-active:opacity-80",
+                            "text-xs text-muted lg:text-sm transition-[color,opacity] duration-300 group-active:opacity-80",
                             {
-                              "text-default-500": status === "inactive",
+                              "text-muted": status === "inactive",
                             },
                           )}
                         >
@@ -278,10 +282,10 @@ const VerticalCollapsibleSteps = React.forwardRef<
                         complete: { opacity: 0, height: 0 },
                       }}
                     >
-                      <Spacer x={14} />
-                      <ul className="text-default-400 list-disc pr-12 pb-4 pl-1">
+                      <div aria-hidden className="w-14" />
+                      <ul className="text-muted list-disc pr-12 pb-4 pl-1">
                         {step.details.map((detail, idx) => (
-                          <li key={idx} className="text-tiny mb-1">
+                          <li key={idx} className="text-xs mb-1">
                             {detail}
                           </li>
                         ))}

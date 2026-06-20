@@ -21,11 +21,17 @@ import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 
 // Parse a dependency string into { sourceId, handle }.
 // Format: "actionId:success" | "actionId:fail" | "actionId" (defaults to "success").
-function parseDep(dep: string): { sourceId: string; handle: "success" | "fail" } {
+function parseDep(dep: string): {
+  sourceId: string;
+  handle: "success" | "fail";
+} {
   const idx = dep.indexOf(":");
   if (idx >= 0) {
     const h = dep.slice(idx + 1);
-    return { sourceId: dep.slice(0, idx), handle: h === "fail" ? "fail" : "success" };
+    return {
+      sourceId: dep.slice(0, idx),
+      handle: h === "fail" ? "fail" : "success",
+    };
   }
   return { sourceId: dep, handle: "success" };
 }
@@ -33,9 +39,10 @@ function parseDep(dep: string): { sourceId: string; handle: "success" | "fail" }
 function edgeStyle(handle: "success" | "fail") {
   return {
     strokeWidth: 2,
-    stroke: handle === "fail"
-      ? "hsl(var(--heroui-danger))"
-      : "hsl(var(--heroui-success))",
+    stroke:
+      handle === "fail"
+        ? "hsl(var(--heroui-danger))"
+        : "hsl(var(--heroui-success))",
   };
 }
 
@@ -73,9 +80,7 @@ function graphToActions(
   edges: Edge[],
   originalActions: any[],
 ): any[] {
-  const actionById = Object.fromEntries(
-    originalActions.map((a) => [a.id, a]),
-  );
+  const actionById = Object.fromEntries(originalActions.map((a) => [a.id, a]));
 
   return nodes.map((node) => ({
     ...actionById[node.id],
@@ -116,7 +121,10 @@ export function useFlowDAG(flow: any) {
   // Deliberately excludes `position` so that debounced position saves don't
   // re-trigger this effect and snap nodes back while a drag is in flight.
   const actionsKey = (flow?.actions ?? [])
-    .map((a: any) => `${a.id}:${a.custom_name ?? ""}:${a.custom_description ?? ""}:${a.version}:${a.active}`)
+    .map(
+      (a: any) =>
+        `${a.id}:${a.custom_name ?? ""}:${a.custom_description ?? ""}:${a.version}:${a.active}`,
+    )
     .sort()
     .join("|");
 
@@ -152,7 +160,7 @@ export function useFlowDAG(flow: any) {
     const { nodes: n, edges: e } = actionsToGraph(merged);
     setNodes(n);
     setEdges(e);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [flow?.id, flow?.use_dag, actionsKey]);
 
   // Debounced save of current graph state
@@ -168,7 +176,9 @@ export function useFlowDAG(flow: any) {
         // Preserve actions added via modal that aren't yet in the captured canvas
         // nodes (e.g., added after drag started but before the debounce fires).
         const nodeIds = new Set(updatedNodes.map((n) => n.id));
-        const extraActions = actionsRef.current.filter((a: any) => !nodeIds.has(a.id));
+        const extraActions = actionsRef.current.filter(
+          (a: any) => !nodeIds.has(a.id),
+        );
         const finalActions = [...updatedActions, ...extraActions];
         actionsRef.current = finalActions;
         await UpdateFlowActions(flow.id, finalActions);
@@ -207,7 +217,9 @@ export function useFlowDAG(flow: any) {
   const onConnect: OnConnect = useCallback(
     (connection: Connection) => {
       setEdges((eds) => {
-        const handle = (connection.sourceHandle ?? "success") as "success" | "fail";
+        const handle = (connection.sourceHandle ?? "success") as
+          | "success"
+          | "fail";
         const updated = addEdge(
           {
             ...connection,
@@ -229,5 +241,13 @@ export function useFlowDAG(flow: any) {
     refreshFlowData(flow.id);
   }, [flow?.id, refreshFlowData]);
 
-  return { nodes, edges, onNodesChange, onEdgesChange, onConnect, refreshGraph, actionsRef };
+  return {
+    nodes,
+    edges,
+    onNodesChange,
+    onEdgesChange,
+    onConnect,
+    refreshGraph,
+    actionsRef,
+  };
 }

@@ -1,20 +1,10 @@
 "use client";
-
-import {
-  Accordion,
-  AccordionItem,
-  Card,
-  CardBody,
-  Chip,
-  useDisclosure,
-} from "@heroui/react";
+import { Accordion, Card, Chip, useOverlayState } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useState } from "react";
 import ReactTimeago from "react-timeago";
 import { motion } from "framer-motion";
-
 import AlertDrawer from "@/components/modals/alerts/details";
-
 export default function AlertsList({
   alerts,
   runners,
@@ -30,14 +20,11 @@ export default function AlertsList({
   showDelete?: boolean;
   showFlowChip?: boolean;
 }) {
-  const alertDrawer = useDisclosure();
+  const alertDrawer = useOverlayState();
   const [targetAlert, setTargetAlert] = useState<any>(null);
-
   const parentAlerts = alerts.filter((a: any) => a.parent_id === "");
-
   const getChildren = (parentId: string) =>
     alerts.filter((a: any) => a.parent_id === parentId);
-
   return (
     <main className="w-full">
       <motion.div
@@ -53,7 +40,6 @@ export default function AlertsList({
           const hasChildren = children.length > 0;
           const isFiring = alert.status === "firing";
           const statusColor = isFiring ? "danger" : "success";
-
           return (
             <motion.div
               key={alert.id}
@@ -63,22 +49,22 @@ export default function AlertsList({
                 visible: { y: 0, opacity: 1 },
               }}
             >
-              <Card className="w-full bg-content1/60 backdrop-blur-md border border-default-100 transition-all">
-                <CardBody className="p-0">
+              <Card className="w-full bg-surface/60 backdrop-blur-md border border-default transition-all">
+                <Card.Content className="p-0">
                   <div className="flex flex-col w-full">
                     {/* Main Alert Content */}
                     <div
-                      className="flex items-start justify-between gap-4 w-full p-4 cursor-pointer hover:bg-content1/50 transition-colors"
+                      className="flex items-start justify-between gap-4 w-full p-4 cursor-pointer hover:bg-surface/50 transition-colors"
                       role="button"
                       tabIndex={0}
                       onClick={() => {
                         setTargetAlert(alert);
-                        alertDrawer.onOpenChange();
+                        alertDrawer.toggle();
                       }}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" || e.key === " ") {
                           setTargetAlert(alert);
-                          alertDrawer.onOpenChange();
+                          alertDrawer.toggle();
                         }
                       }}
                     >
@@ -105,10 +91,8 @@ export default function AlertsList({
                             >
                               {alert.status}
                             </span>
-                            <span className="text-tiny text-default-400">
-                              •
-                            </span>
-                            <span className="text-tiny text-default-400">
+                            <span className="text-xs text-muted">•</span>
+                            <span className="text-xs text-muted">
                               <ReactTimeago date={alert.created_at} />
                             </span>
                           </div>
@@ -117,19 +101,17 @@ export default function AlertsList({
 
                       <div className="flex flex-wrap justify-end gap-2">
                         {showFlowChip && (
-                          <Chip
-                            className="bg-default-100"
-                            size="sm"
-                            variant="flat"
-                          >
-                            Flow:{" "}
-                            {flows.find((f: any) => f.id === alert.flow_id)
-                              ?.name || "Unknown"}
+                          <Chip className="bg-default" size="sm" variant="soft">
+                            <Chip.Label>
+                              Flow:{" "}
+                              {flows.find((f: any) => f.id === alert.flow_id)
+                                ?.name || "Unknown"}
+                            </Chip.Label>
                           </Chip>
                         )}
                         {alert.execution_id && (
-                          <Chip color="primary" size="sm" variant="flat">
-                            Executed
+                          <Chip color="accent" size="sm" variant="soft">
+                            <Chip.Label>Executed</Chip.Label>
                           </Chip>
                         )}
                       </div>
@@ -138,77 +120,79 @@ export default function AlertsList({
                     {/* Grouped Alerts Section */}
                     {hasChildren && (
                       <div className="w-full px-4 pb-4">
-                        <div className="w-full pt-2 border-t border-default-100/50">
-                          <Accordion
-                            className="px-0"
-                            isCompact={true}
-                            variant="light"
-                          >
-                            <AccordionItem
-                              key="related"
-                              aria-label="Related Alerts"
-                              classNames={{
-                                trigger: "py-2",
-                                title: "text-small text-default-500",
-                              }}
-                              startContent={
-                                <Icon
-                                  className="text-default-400"
-                                  icon="hugeicons:layers-01"
-                                />
-                              }
-                              title={`${children.length} Related Event${children.length !== 1 ? "s" : ""}`}
-                            >
-                              <div className="flex flex-col gap-2 pl-2 pb-2">
-                                {children.map((child: any) => (
-                                  <div
-                                    key={child.id}
-                                    className="flex items-center justify-between p-3 rounded-lg bg-default-50/50 hover:bg-default-100/50 cursor-pointer transition-colors border border-default-200/50"
-                                    role="button"
-                                    tabIndex={0}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setTargetAlert(child);
-                                      alertDrawer.onOpenChange();
-                                    }}
-                                    onKeyDown={(e) => {
-                                      if (e.key === "Enter" || e.key === " ") {
-                                        e.stopPropagation();
-                                        setTargetAlert(child);
-                                        alertDrawer.onOpenChange();
-                                      }
-                                    }}
-                                  >
-                                    <div className="flex items-center gap-3">
-                                      <Icon
-                                        className={
-                                          child.status === "firing"
-                                            ? "text-danger"
-                                            : "text-success"
-                                        }
-                                        icon={
-                                          child.status === "firing"
-                                            ? "hugeicons:fire"
-                                            : "hugeicons:checkmark-badge-01"
-                                        }
-                                      />
-                                      <span className="text-sm font-medium">
-                                        {child.name}
-                                      </span>
-                                    </div>
-                                    <span className="text-xs text-default-400">
-                                      <ReactTimeago date={child.created_at} />
-                                    </span>
+                        <div className="w-full pt-2 border-t border-default/50">
+                          <Accordion className="px-0" variant="surface">
+                            <Accordion.Item id="related">
+                              <Accordion.Heading>
+                                <Accordion.Trigger className="py-2 text-sm text-muted">
+                                  <Icon
+                                    className="text-muted"
+                                    icon="hugeicons:layers-01"
+                                  />
+                                  {children.length} Related Event
+                                  {children.length !== 1 ? "s" : ""}
+                                  <Accordion.Indicator />
+                                </Accordion.Trigger>
+                              </Accordion.Heading>
+                              <Accordion.Panel>
+                                <Accordion.Body>
+                                  <div className="flex flex-col gap-2 pl-2 pb-2">
+                                    {children.map((child: any) => (
+                                      <div
+                                        key={child.id}
+                                        className="flex items-center justify-between p-3 rounded-lg bg-default/50 hover:bg-default/50 cursor-pointer transition-colors border border-default/50"
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setTargetAlert(child);
+                                          alertDrawer.toggle();
+                                        }}
+                                        onKeyDown={(e) => {
+                                          if (
+                                            e.key === "Enter" ||
+                                            e.key === " "
+                                          ) {
+                                            e.stopPropagation();
+                                            setTargetAlert(child);
+                                            alertDrawer.toggle();
+                                          }
+                                        }}
+                                      >
+                                        <div className="flex items-center gap-3">
+                                          <Icon
+                                            className={
+                                              child.status === "firing"
+                                                ? "text-danger"
+                                                : "text-success"
+                                            }
+                                            icon={
+                                              child.status === "firing"
+                                                ? "hugeicons:fire"
+                                                : "hugeicons:checkmark-badge-01"
+                                            }
+                                          />
+                                          <span className="text-sm font-medium">
+                                            {child.name}
+                                          </span>
+                                        </div>
+                                        <span className="text-xs text-muted">
+                                          <ReactTimeago
+                                            date={child.created_at}
+                                          />
+                                        </span>
+                                      </div>
+                                    ))}
                                   </div>
-                                ))}
-                              </div>
-                            </AccordionItem>
+                                </Accordion.Body>
+                              </Accordion.Panel>
+                            </Accordion.Item>
                           </Accordion>
                         </div>
                       </div>
                     )}
                   </div>
-                </CardBody>
+                </Card.Content>
               </Card>
             </motion.div>
           );

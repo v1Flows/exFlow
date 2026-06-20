@@ -1,9 +1,7 @@
 "use client";
-
 import { Icon } from "@iconify/react";
 import { Button, Chip } from "@heroui/react";
 import { Handle, Position, type NodeProps } from "@xyflow/react";
-
 export type ActionNodeData = {
   action: any;
   onOpen: (action: any) => void;
@@ -11,26 +9,25 @@ export type ActionNodeData = {
   onCopy: (action: any) => void;
   onDelete: (action: any) => void;
 };
-
 export default function ActionNode({ data, selected }: NodeProps) {
   const { action, onOpen, onEdit, onCopy, onDelete } = data as ActionNodeData;
-
   return (
     <div
       className={`
         group relative rounded-xl shadow-sm transition-all min-w-[260px] max-w-[320px]
         border backdrop-blur-md
-        bg-content1/80
-        ${selected
-          ? "border-primary shadow-md shadow-primary/20"
-          : "border-default-100 hover:border-default-300 hover:shadow-md"
+        bg-surface/80
+        ${
+          selected
+            ? "border-accent shadow-md shadow-accent/20"
+            : "border-default hover:border-default hover:shadow-md"
         }
         ${!action.active ? "opacity-50" : ""}
       `}
     >
       {/* Incoming connection handle */}
       <Handle
-        className="!w-3 !h-3 !border-2 !border-content1 !bg-primary"
+        className="!w-3 !h-3 !border-2 !border-content1 !bg-accent"
         position={Position.Top}
         type="target"
       />
@@ -38,29 +35,27 @@ export default function ActionNode({ data, selected }: NodeProps) {
       {/* Hover action buttons — top-right overlay */}
       <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
         <Button
-          isIconOnly
           className="min-w-0 w-6 h-6"
           size="sm"
-          variant="flat"
-          onPress={(e) => { onCopy(action); }}
+          variant="tertiary"
+          onPress={(e) => {
+            onCopy(action);
+          }}
         >
           <Icon icon="hugeicons:copy-01" width={13} />
         </Button>
         <Button
-          isIconOnly
           className="min-w-0 w-6 h-6"
           size="sm"
-          variant="flat"
+          variant="tertiary"
           onPress={() => onEdit(action)}
         >
           <Icon icon="hugeicons:pencil-edit-01" width={13} />
         </Button>
         <Button
-          isIconOnly
           className="min-w-0 w-6 h-6 text-danger"
-          color="danger"
           size="sm"
-          variant="light"
+          variant="danger"
           onPress={() => onDelete(action)}
         >
           <Icon icon="hugeicons:delete-02" width={13} />
@@ -75,14 +70,14 @@ export default function ActionNode({ data, selected }: NodeProps) {
         onClick={() => onOpen(action)}
         onKeyDown={(e) => e.key === "Enter" && onOpen(action)}
       >
-        <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
+        <div className="flex size-10 items-center justify-center rounded-lg bg-accent/10 text-accent shrink-0">
           <Icon icon={action.icon} width={22} />
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold truncate text-foreground">
             {action.custom_name || action.name}
           </p>
-          <p className="text-xs text-default-500 truncate">
+          <p className="text-xs text-muted truncate">
             {action.custom_description || action.description}
           </p>
         </div>
@@ -90,18 +85,20 @@ export default function ActionNode({ data, selected }: NodeProps) {
           className="shrink-0 border-none"
           color={action.active ? "success" : "default"}
           size="sm"
-          variant="dot"
-        />
+          variant="soft"
+        >
+          <Chip.Label>{action.active ? "Active" : "Inactive"}</Chip.Label>
+        </Chip>
       </div>
 
       {/* Footer */}
-      <div className="flex items-center gap-2 px-4 pb-6 border-t border-default-100/50 pt-2 mt-1 flex-wrap">
-        <Chip size="sm" variant="flat">
-          v{action.version}
+      <div className="flex items-center gap-2 px-4 pb-6 border-t border-default/50 pt-2 mt-1 flex-wrap">
+        <Chip size="sm" variant="soft">
+          <Chip.Label>v{action.version}</Chip.Label>
         </Chip>
         {action.update_available && (
-          <Chip color="primary" size="sm" variant="solid">
-            Upgrade
+          <Chip color="accent" size="sm" variant="primary">
+            <Chip.Label>Upgrade</Chip.Label>
           </Chip>
         )}
       </div>

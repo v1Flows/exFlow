@@ -1,6 +1,6 @@
 "use client";
 import { Icon } from "@iconify/react";
-import { Spacer, Tab, Tabs } from "@heroui/react";
+import { Tabs } from "@heroui/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 
@@ -56,43 +56,97 @@ export default function FlowTabs({
     <main>
       <div className="flex w-full flex-col">
         <Tabs
-          aria-label="Options"
-          classNames={{
-            tabList:
-              "gap-6 w-full relative rounded-none p-0 border-b border-divider",
-            cursor: "w-full bg-primary",
-            tab: "max-w-fit px-0 h-12",
-            tabContent: "group-data-[selected=true]:text-primary",
-          }}
-          color="primary"
           selectedKey={selected}
-          variant="underlined"
+          variant={"secondary"}
           onSelectionChange={handleTabChange}
         >
-          <Tab
-            key="executions"
-            title={
-              <div className="flex items-center space-x-2">
-                <Icon height={20} icon="hugeicons:rocket-02" width="20" />
-                <span>Executions</span>
-              </div>
-            }
-          >
+          <Tabs.ListContainer>
+            <Tabs.List aria-label={"Options"}>
+              <Tabs.Tab id={"executions"}>
+                {
+                  <div className="flex items-center space-x-2">
+                    <Icon height={20} icon="hugeicons:rocket-02" width="20" />
+                    <span>Executions</span>
+                  </div>
+                }
+                <Tabs.Indicator />
+              </Tabs.Tab>
+              <Tabs.Tab id={"actions"}>
+                {
+                  <div className="flex items-center space-x-2">
+                    <Icon
+                      height={20}
+                      icon="hugeicons:structure-04"
+                      width="20"
+                    />
+                    <span>Actions</span>
+                  </div>
+                }
+                <Tabs.Indicator />
+              </Tabs.Tab>
+              {!flow.use_dag && (
+                <Tabs.Tab id={"failure-pipelines"}>
+                  {
+                    <div className="flex items-center space-x-2">
+                      <Icon
+                        height={20}
+                        icon="hugeicons:structure-fail"
+                        width="20"
+                      />
+                      <span>Failure Pipelines</span>
+                    </div>
+                  }
+                  <Tabs.Indicator />
+                </Tabs.Tab>
+              )}
+              {flow.type === "alert" && (
+                <Tabs.Tab id={"alerts"}>
+                  {
+                    <div className="flex items-center space-x-2">
+                      <Icon height={20} icon="hugeicons:alert-02" width="20" />
+                      <span>Alerts</span>
+                    </div>
+                  }
+                  <Tabs.Indicator />
+                </Tabs.Tab>
+              )}
+              <Tabs.Tab id={"info"}>
+                {
+                  <div className="flex items-center space-x-2">
+                    <Icon icon="hugeicons:information-square" width={20} />
+                    <span>Info</span>
+                  </div>
+                }
+                <Tabs.Indicator />
+              </Tabs.Tab>
+              <Tabs.Tab id={"input-params"}>
+                {
+                  <div className="flex items-center space-x-2">
+                    <Icon icon="hugeicons:form-01" width={20} />
+                    <span>Input Parameters</span>
+                  </div>
+                }
+                <Tabs.Indicator />
+              </Tabs.Tab>
+              <Tabs.Tab id={"settings"}>
+                {
+                  <div className="flex items-center space-x-2">
+                    <Icon icon="hugeicons:settings-02" width={20} />
+                    <span>Settings</span>
+                  </div>
+                }
+                <Tabs.Indicator />
+              </Tabs.Tab>
+            </Tabs.List>
+          </Tabs.ListContainer>
+          <Tabs.Panel id={"executions"}>
             <Executions
               canEdit={checkUserCanEdit()}
               flowID={flow.id}
               runners={runners}
             />
-          </Tab>
-          <Tab
-            key="actions"
-            title={
-              <div className="flex items-center space-x-2">
-                <Icon height={20} icon="hugeicons:structure-04" width="20" />
-                <span>Actions</span>
-              </div>
-            }
-          >
+          </Tabs.Panel>
+          <Tabs.Panel id={"actions"}>
             <Actions
               canEdit={checkUserCanEdit()}
               flow={flow}
@@ -102,17 +156,9 @@ export default function FlowTabs({
               settings={settings}
               user={user}
             />
-          </Tab>
+          </Tabs.Panel>
           {!flow.use_dag && (
-            <Tab
-              key="failure-pipelines"
-              title={
-                <div className="flex items-center space-x-2">
-                  <Icon height={20} icon="hugeicons:structure-fail" width="20" />
-                  <span>Failure Pipelines</span>
-                </div>
-              }
-            >
+            <Tabs.Panel id={"failure-pipelines"}>
               <FlowFailurePipelines
                 canEdit={checkUserCanEdit()}
                 flow={flow}
@@ -122,70 +168,33 @@ export default function FlowTabs({
                 settings={settings}
                 user={user}
               />
-            </Tab>
+            </Tabs.Panel>
           )}
-
           {flow.type === "alert" && (
-            <Tab
-              key="alerts"
-              title={
-                <div className="flex items-center space-x-2">
-                  <Icon height={20} icon="hugeicons:alert-02" width="20" />
-                  <span>Alerts</span>
-                </div>
-              }
-            >
+            <Tabs.Panel id={"alerts"}>
               <Alerts
                 canEdit={checkUserCanEdit()}
                 flowID={flow.id}
                 flows={[flow]}
                 runners={runners}
               />
-            </Tab>
+            </Tabs.Panel>
           )}
-
-          <Tab
-            key="info"
-            title={
-              <div className="flex items-center space-x-2">
-                <Icon icon="hugeicons:information-square" width={20} />
-                <span>Info</span>
-              </div>
-            }
-          >
+          <Tabs.Panel id={"info"}>
             <FlowInfo flow={flow} />
-            <Spacer y={4} />
+            <div aria-hidden className="h-4" />
             <FlowStats flowID={flow.id} />
-          </Tab>
-          <Tab
-            key="input-params"
-            title={
-              <div className="flex items-center space-x-2">
-                <Icon icon="hugeicons:form-01" width={20} />
-                <span>Input Parameters</span>
-              </div>
-            }
-          >
-            <FlowInputParams
-              canEdit={checkUserCanEdit()}
-              flow={flow}
-            />
-          </Tab>
-          <Tab
-            key="settings"
-            title={
-              <div className="flex items-center space-x-2">
-                <Icon icon="hugeicons:settings-02" width={20} />
-                <span>Settings</span>
-              </div>
-            }
-          >
+          </Tabs.Panel>
+          <Tabs.Panel id={"input-params"}>
+            <FlowInputParams canEdit={checkUserCanEdit()} flow={flow} />
+          </Tabs.Panel>
+          <Tabs.Panel id={"settings"}>
             <FlowSettings
               canEdit={checkUserCanEdit()}
               flow={flow}
               user={user}
             />
-          </Tab>
+          </Tabs.Panel>
         </Tabs>
       </div>
     </main>

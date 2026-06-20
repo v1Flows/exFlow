@@ -1,6 +1,5 @@
 "use client";
-
-import { Divider } from "@heroui/react";
+import { Separator } from "@heroui/react";
 
 import ErrorCard from "@/components/error/ErrorCard";
 import { PageSkeleton } from "@/components/loading/page-skeleton";
@@ -44,7 +43,7 @@ export default function AlertsPageClient() {
   return (
     <main>
       <AlertsHeading />
-      <Divider className="mt-4 mb-4" />
+      <Separator className="mt-4 mb-4" />
       <Alerts showFlow flows={flows} runners={runners} />
     </main>
   );

@@ -1,7 +1,5 @@
 "use client";
-
-import type { ButtonProps, CardProps, RadioProps } from "@heroui/react";
-
+import { Card, type CardProps, cn } from "@heroui/react";
 import React from "react";
 import {
   BarChart,
@@ -11,19 +9,18 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { Card, Button, VisuallyHidden, useRadio, cn } from "@heroui/react";
-
 type ChartData = {
   weekday: string;
   [key: string]: string | number;
 };
-
 type BarChartProps = {
   title: string;
-  categories: { title: string; color: string }[];
+  categories: {
+    title: string;
+    color: string;
+  }[];
   chartData: ChartData[];
 };
-
 export default function DashboardExecutionsStats({ stats }: { stats: any }) {
   const data: BarChartProps[] = [
     {
@@ -79,7 +76,6 @@ export default function DashboardExecutionsStats({ stats }: { stats: any }) {
       chartData: stats.alerts,
     },
   ];
-
   return (
     <dl className="grid w-full grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-2">
       {data.map((item, index) => (
@@ -88,7 +84,6 @@ export default function DashboardExecutionsStats({ stats }: { stats: any }) {
     </dl>
   );
 }
-
 const formatWeekday = (weekday: string) => {
   const day =
     {
@@ -100,12 +95,10 @@ const formatWeekday = (weekday: string) => {
       Sat: 6,
       Sun: 0,
     }[weekday] ?? 0;
-
   return new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(
     new Date(2024, 0, day),
   );
 };
-
 const BarChartCard = React.forwardRef<
   // eslint-disable-next-line no-undef
   HTMLDivElement,
@@ -115,16 +108,16 @@ const BarChartCard = React.forwardRef<
     <Card
       ref={ref}
       className={cn(
-        "bg-content1/60 backdrop-blur-md shadow-lg border border-default-100 h-[300px]",
+        "bg-surface/60 backdrop-blur-md shadow-lg border border-default h-[300px]",
         className,
       )}
       {...props}
     >
       <div className="flex flex-col gap-y-4 p-4">
         <dt>
-          <h3 className="text-small text-default-500 font-medium">{title}</h3>
+          <h3 className="text-sm text-muted font-medium">{title}</h3>
         </dt>
-        <dd className="text-tiny text-default-500 flex flex-wrap w-full justify-end gap-4">
+        <dd className="text-xs text-muted flex flex-wrap w-full justify-end gap-4">
           {categories.map((category, index) => (
             <div key={index} className="flex items-center gap-2">
               <span
@@ -166,7 +159,7 @@ const BarChartCard = React.forwardRef<
           />
           <Tooltip
             content={({ label, payload }) => (
-              <div className="rounded-medium bg-background text-tiny shadow-small flex h-auto min-w-[120px] items-center gap-x-2 p-2">
+              <div className="rounded-md bg-background text-xs shadow-sm flex h-auto min-w-[120px] items-center gap-x-2 p-2">
                 <div className="flex w-full flex-col gap-y-1">
                   <span className="text-foreground font-medium">
                     {formatWeekday(label)}
@@ -177,7 +170,6 @@ const BarChartCard = React.forwardRef<
                     const category = categories.find(
                       (c) => c.title.toLowerCase() === name,
                     ) ?? { title: name, color: "default" };
-
                     return (
                       <div
                         key={`${index}-${name}`}
@@ -189,11 +181,9 @@ const BarChartCard = React.forwardRef<
                             backgroundColor: `hsl(var(--heroui-${category.color}))`,
                           }}
                         />
-                        <div className="text-default-700 flex w-full items-center justify-between gap-x-2 pr-1 text-xs">
-                          <span className="text-default-500">
-                            {category.title}
-                          </span>
-                          <span className="text-default-700 font-mono font-medium">
+                        <div className="text-foreground flex w-full items-center justify-between gap-x-2 pr-1 text-xs">
+                          <span className="text-muted">{category.title}</span>
+                          <span className="text-foreground font-mono font-medium">
                             {value}
                           </span>
                         </div>
@@ -222,39 +212,4 @@ const BarChartCard = React.forwardRef<
     </Card>
   );
 });
-
 BarChartCard.displayName = "BarChartCard";
-
-const ButtonRadioItem = React.forwardRef<
-  // eslint-disable-next-line no-undef
-  HTMLInputElement,
-  Omit<RadioProps, "color"> & {
-    color?: ButtonProps["color"];
-    size?: ButtonProps["size"];
-    variant?: ButtonProps["variant"];
-  }
->(({ children, color, size = "sm", variant, ...props }, ref) => {
-  const { Component, isSelected, getBaseProps, getInputProps } =
-    useRadio(props);
-
-  return (
-    <Component {...getBaseProps()} ref={ref}>
-      <VisuallyHidden>
-        <input {...getInputProps()} />
-      </VisuallyHidden>
-      <Button
-        disableRipple
-        className={cn("text-default-500 pointer-events-none", {
-          "text-foreground": isSelected,
-        })}
-        color={color}
-        size={size}
-        variant={variant || isSelected ? "solid" : "flat"}
-      >
-        {children}
-      </Button>
-    </Component>
-  );
-});
-
-ButtonRadioItem.displayName = "ButtonRadioItem";
