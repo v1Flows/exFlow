@@ -3,10 +3,13 @@ package internal_executions
 import (
 	"strings"
 	"sync"
+	"time"
 
 	jf_models "github.com/JustLABv1/justflow/pkg/contracts"
 	"github.com/JustLABv1/runner/config"
+	"github.com/JustLABv1/runner/pkg/executions"
 	"github.com/JustLABv1/runner/pkg/plugins"
+	log "github.com/sirupsen/logrus"
 )
 
 // parseDep splits a dependency string into (actionID, handle).
@@ -39,13 +42,14 @@ type depEdge struct {
 //   - "actionId" or "actionId:success" → depends on the success output
 //   - "actionId:fail"                  → depends on the fail output
 //
-// When an upstream node succeeds, only ":success" (and plain) deps are satisfied;
-// ":fail" deps of that node are permanently blocked (the downstream is canceled).
-// When an upstream node fails, only ":fail" deps are satisfied; ":success" deps
-// are permanently blocked.
+// A node with multiple incoming edges fires once per satisfied edge
+// (run-per-edge semantics). The first firing reuses the pre-created step
+// record; subsequent firings register a new cloned step in the backend so
+// each run has its own DB record.
 //
-// Cancellation propagates naturally: a canceled node emits a canceled result,
-// which in turn blocks its own downstream via the same handle logic.
+// Cancellation propagates: a canceled upstream blocks its downstream nodes
+// regardless of handle. Nodes that are never triggered (all incoming edges
+// mismatched) are marked canceled in the DB after the DAG completes.
 //
 // Returns: "success" | "error" | "canceled" | "noPatternMatch".
 func runDAG(
@@ -59,18 +63,14 @@ func runDAG(
 	steps []jf_models.ExecutionSteps,
 	execution jf_models.Executions,
 ) string {
-	// Build per-node dependency list and in-degree map.
+	// Build per-node dependency list.
 	nodeDeps := make(map[string][]depEdge, len(steps))
-	stepByID := make(map[string]jf_models.ExecutionSteps, len(steps))
-	inDegree := make(map[string]int, len(steps))
 
 	for _, s := range steps {
 		id := s.Action.ID.String()
-		stepByID[id] = s
 		for _, dep := range s.Action.DependsOn {
 			aID, h := parseDep(dep)
 			nodeDeps[id] = append(nodeDeps[id], depEdge{actionID: aID, handle: h})
-			inDegree[id]++
 		}
 	}
 
@@ -84,21 +84,52 @@ func runDAG(
 	}
 
 	var mu sync.Mutex
-	resultCh := make(chan outcome, len(steps))
+	// Buffer generously: each step can be triggered by at most len(steps) edges.
+	resultCh := make(chan outcome, len(steps)*len(steps)+1)
 	canceledSet := make(map[string]bool)
-	launchedSet := make(map[string]bool)
+	launchCount := make(map[string]int, len(steps))
+	totalLaunched := 0
 
 	// launchStep must be called with mu held.
-	// It spawns a goroutine that either skips (canceled) or runs the step.
-	launchStep := func(s jf_models.ExecutionSteps) {
+	// parentActionID is the action ID of the upstream that triggered this launch.
+	// The first launch (launchCount == 0) reuses the pre-created step record.
+	// Subsequent launches register a new cloned step in the backend.
+	launchStep := func(s jf_models.ExecutionSteps, parentActionID string) {
 		id := s.Action.ID.String()
-		if launchedSet[id] {
-			return
-		}
-		launchedSet[id] = true
-		skip := canceledSet[id]
+		count := launchCount[id]
+		launchCount[id]++
+		totalLaunched++
 
-		go func(step jf_models.ExecutionSteps, skipIt bool) {
+		skip := canceledSet[id]
+		isClone := count > 0
+
+		cloneTemplate := jf_models.ExecutionSteps{
+			Action:      s.Action,
+			ExecutionID: s.ExecutionID,
+			Status:      "pending",
+			ParentID:    parentActionID,
+		}
+
+		go func(original jf_models.ExecutionSteps, template jf_models.ExecutionSteps, skipIt bool, clone bool) {
+			var step jf_models.ExecutionSteps
+			if clone && !skipIt {
+				// Register a new step record for this extra run.
+				registered, err := executions.SendStep(nil, execution, template)
+				if err != nil {
+					log.Error("Failed to register cloned step: ", err)
+					resultCh <- outcome{
+						actionID: original.Action.ID.String(),
+						err:      err,
+						step:     original,
+					}
+					return
+				}
+				step = template
+				step.ID = registered.ID
+			} else {
+				step = original
+			}
+
 			if skipIt {
 				resultCh <- outcome{actionID: step.Action.ID.String(), canceled: true, step: step}
 				return
@@ -120,29 +151,27 @@ func runDAG(
 				o.success = false
 			}
 			resultCh <- o
-		}(s, skip)
+		}(s, cloneTemplate, skip, isClone)
 	}
 
 	// Seed: launch all root nodes (no dependencies).
 	mu.Lock()
 	for _, s := range steps {
-		if inDegree[s.Action.ID.String()] == 0 {
-			launchStep(s)
+		if len(nodeDeps[s.Action.ID.String()]) == 0 {
+			launchStep(s, "")
 		}
 	}
 	mu.Unlock()
 
 	finalStatus := "success"
 	completed := 0
-	total := len(steps)
 
-	for completed < total {
+	for {
 		o := <-resultCh
 		completed++
 
 		if o.noPatternMatch {
 			finalStatus = "noPatternMatch"
-			// Cancel everything remaining.
 			mu.Lock()
 			for _, s := range steps {
 				canceledSet[s.Action.ID.String()] = true
@@ -158,41 +187,53 @@ func runDAG(
 			}
 		}
 
-		// Route downstream: for each node that has a dep on the just-completed node,
-		// determine whether that dep is satisfied or permanently blocked.
+		// Route downstream: launch each node that has a satisfied dep on the
+		// just-completed node. Each satisfied edge fires an independent launch
+		// (run-per-edge semantics).
 		mu.Lock()
-		for _, s := range steps {
-			id := s.Action.ID.String()
-			if launchedSet[id] || canceledSet[id] {
-				continue
-			}
-			for _, dep := range nodeDeps[id] {
-				if dep.actionID != o.actionID {
+		if !o.noPatternMatch {
+			for _, s := range steps {
+				id := s.Action.ID.String()
+				if canceledSet[id] {
 					continue
 				}
-				// Determine whether this dependency is satisfied or blocked.
-				var satisfied bool
-				if o.canceled {
-					// Upstream canceled → block this node regardless of handle.
-					canceledSet[id] = true
-					launchStep(s) // goroutine sees canceledSet → sends canceled result
-				} else if (dep.handle == "success" && o.success) || (dep.handle == "fail" && !o.success) {
-					// Handle matches outcome → satisfy this dep.
-					satisfied = true
-					inDegree[id]--
-					if inDegree[id] == 0 {
-						launchStep(s)
+				for _, dep := range nodeDeps[id] {
+					if dep.actionID != o.actionID {
+						continue
 					}
-				} else {
-					// Handle mismatch (e.g. wanted :fail but upstream succeeded) → block.
-					canceledSet[id] = true
-					launchStep(s)
+					if o.canceled {
+						// Upstream canceled → block this node regardless of handle.
+						canceledSet[id] = true
+					} else if (dep.handle == "success" && o.success) || (dep.handle == "fail" && !o.success) {
+						// Handle matches → launch once per satisfied edge.
+						launchStep(s, o.actionID)
+					}
+					// Handle mismatch: this edge does not trigger the node.
+					// Other upstream edges may still trigger it independently.
+					break // each node has at most one dep per upstream action
 				}
-				_ = satisfied
-				break // each node has at most one dep per upstream action
 			}
 		}
+		done := completed >= totalLaunched
 		mu.Unlock()
+
+		if done {
+			break
+		}
+	}
+
+	// Cleanup: cancel steps that were never triggered (all incoming edges
+	// were handle-mismatches or their upstream was canceled before firing).
+	for _, s := range steps {
+		if launchCount[s.Action.ID.String()] == 0 {
+			s.Status = "canceled"
+			s.CanceledBy = "Runner"
+			s.CanceledAt = time.Now()
+			s.FinishedAt = time.Now()
+			if err := executions.UpdateStep(nil, execution.ID.String(), s); err != nil {
+				log.Error("Failed to cancel untriggered step: ", err)
+			}
+		}
 	}
 
 	return finalStatus

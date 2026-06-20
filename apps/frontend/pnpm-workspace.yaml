@@ -1,0 +1,7 @@
+allowBuilds:
+  '@heroui/shared-utils': true
+  '@tailwindcss/oxide': true
+  '@tsparticles/engine': true
+  protobufjs: true
+  sharp: true
+  unrs-resolver: true
