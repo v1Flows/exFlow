@@ -15,6 +15,7 @@ type Flows struct {
 	ProjectID              string            `json:"project_id"`
 	RunnerID               string            `json:"runner_id"`
 	ExecParallel           bool              `json:"exec_parallel"`
+	UseDag                 bool              `json:"use_dag"`
 	Actions                []Action          `json:"actions"`
 	Maintenance            bool              `json:"maintenance"`
 	MaintenanceMessage     string            `json:"maintenance_message"`
@@ -34,23 +35,30 @@ type Flows struct {
 	AlwaysCleanupWorkspace bool              `json:"always_cleanup_workspace"`
 }
 
+type NodePosition struct {
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
+}
+
 type Action struct {
-	ID                uuid.UUID `json:"id"`
-	Name              string    `json:"name"`
-	Description       string    `json:"description"`
-	Plugin            string    `json:"plugin"`
-	Version           string    `json:"version"`
-	Icon              string    `json:"icon"`
-	Category          string    `json:"category"`
-	Active            bool      `json:"active"`
-	Params            []Params  `json:"params"`
-	CustomName        string    `json:"custom_name"`
-	CustomDescription string    `json:"custom_description"`
-	FailurePipelineID string    `json:"failure_pipeline_id"`
-	UpdateAvailable   bool      `json:"update_available"`
-	UpdateVersion     string    `json:"update_version,omitempty"`
-	UpdatedAction     *Action   `json:"updated_action,omitempty"`
-	Condition         Condition `json:"condition,omitempty"`
+	ID                uuid.UUID    `json:"id"`
+	Name              string       `json:"name"`
+	Description       string       `json:"description"`
+	Plugin            string       `json:"plugin"`
+	Version           string       `json:"version"`
+	Icon              string       `json:"icon"`
+	Category          string       `json:"category"`
+	Active            bool         `json:"active"`
+	Params            []Params     `json:"params"`
+	CustomName        string       `json:"custom_name"`
+	CustomDescription string       `json:"custom_description"`
+	FailurePipelineID string       `json:"failure_pipeline_id"`
+	UpdateAvailable   bool         `json:"update_available"`
+	UpdateVersion     string       `json:"update_version,omitempty"`
+	UpdatedAction     *Action      `json:"updated_action,omitempty"`
+	Condition         Condition    `json:"condition,omitempty"`
+	DependsOn         []string     `json:"depends_on,omitempty"`
+	Position          NodePosition `json:"position,omitempty"`
 }
 
 type Params struct {
@@ -103,17 +111,18 @@ type Pattern struct {
 }
 
 type Executions struct {
-	ID            uuid.UUID `json:"id"`
-	FlowID        string    `json:"flow_id"`
-	RunnerID      string    `json:"runner_id"`
-	Status        string    `json:"status"`
-	CreatedAt     time.Time `json:"created_at"`
-	ExecutedAt    time.Time `json:"executed_at"`
-	FinishedAt    time.Time `json:"finished_at"`
-	LastHeartbeat time.Time `json:"last_heartbeat"`
-	ScheduledAt   time.Time `json:"scheduled_at"`
-	TriggeredBy   string    `json:"triggered_by"`
-	AlertID       string    `json:"alert_id"`
+	ID            uuid.UUID              `json:"id"`
+	FlowID        string                 `json:"flow_id"`
+	RunnerID      string                 `json:"runner_id"`
+	Status        string                 `json:"status"`
+	CreatedAt     time.Time              `json:"created_at"`
+	ExecutedAt    time.Time              `json:"executed_at"`
+	FinishedAt    time.Time              `json:"finished_at"`
+	LastHeartbeat time.Time              `json:"last_heartbeat"`
+	ScheduledAt   time.Time              `json:"scheduled_at"`
+	TriggeredBy   string                 `json:"triggered_by"`
+	AlertID       string                 `json:"alert_id"`
+	InputValues   map[string]interface{} `json:"input_values"`
 }
 
 type ExecutionSteps struct {

@@ -61,6 +61,7 @@ func StartRouter(db *bun.DB, port int, configFile string, frontendEnv string) *h
 		User(v1, db)
 		Health(v1)
 		Setup(v1, configFile, frontendEnv)
+		SelfService(v1, db)
 	}
 
 	server := &http.Server{

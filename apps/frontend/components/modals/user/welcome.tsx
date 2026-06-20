@@ -1,36 +1,26 @@
 "use client";
-
-import type { UseDisclosureReturn } from "@heroui/use-disclosure";
-
-import { Icon } from "@iconify/react";
 import {
-  addToast,
   Button,
   Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  Progress,
+  ProgressBar,
+  toast,
+  type UseOverlayStateReturn,
 } from "@heroui/react";
+import { Icon } from "@iconify/react";
 import React, { useState } from "react";
-
 import ErrorCard from "@/components/error/ErrorCard";
 import Welcomed from "@/lib/fetch/user/PUT/welcomed";
 import VerticalCollapsibleSteps from "@/components/steps/vertical-collapsible-steps";
-
 export default function WelcomeModal({
   disclosure,
 }: {
-  disclosure: UseDisclosureReturn;
+  disclosure: UseOverlayStateReturn;
 }) {
-  const { isOpen, onOpenChange } = disclosure;
-
+  const { isOpen, setOpen: onOpenChange } = disclosure;
   const [error, setError] = useState(false);
   const [errorText, setErrorText] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-
   const [isLoading, setLoading] = useState(false);
-
   const [currentStep, setCurrentStep] = useState(0);
   const steps = [
     {
@@ -75,151 +65,122 @@ export default function WelcomeModal({
       ],
     },
   ];
-
   async function handleSetWelcomed() {
     setLoading(true);
     setError(false);
     setErrorText("");
     setErrorMessage("");
-
     // Call the API to set the welcomed status
     const response = (await Welcomed()) as any;
-
     if (!response) {
       setLoading(false);
       setError(true);
       setErrorText("Failed to set welcomed status");
       setErrorMessage("Failed to set welcomed status");
-      addToast({
-        title: "Welcome",
-        description: "Failed to set welcomed status",
-        color: "danger",
-        variant: "flat",
-      });
-
+      toast.danger("Welcome", { description: "Failed to set welcomed status" });
       return;
     }
-
     if (response.success) {
       setLoading(false);
       setError(false);
       setErrorText("");
       setErrorMessage("");
-      onOpenChange();
+      onOpenChange(false);
     } else {
       setLoading(false);
       setError(true);
       setErrorText(response.error);
       setErrorMessage(response.message);
-      addToast({
-        title: "Welcome",
-        description: "Failed to set welcomed status",
-        color: "danger",
-        variant: "flat",
-      });
+      toast.danger("Welcome", { description: "Failed to set welcomed status" });
     }
   }
-
   return (
     <>
-      <Modal
-        isDismissable
-        backdrop="blur"
-        isOpen={isOpen}
-        placement="center"
-        size="2xl"
-        onOpenChange={onOpenChange}
-      >
-        <ModalContent>
-          {() => (
-            <>
-              <ModalBody>
-                {error && (
-                  <ErrorCard error={errorText} message={errorMessage} />
-                )}
-                <h1 className="mb-2 text-xl text-center font-medium">
-                  Welcome to{" "}
-                  <span className="font-bold text-primary">JustFlow</span>!
-                </h1>
-                <p className="text-center text-lg">
-                  This is your first time here, so we&apos;ve prepared a short
-                  guide to help you get started.
-                </p>
-                <Progress
-                  classNames={{
-                    base: "px-0.5 mb-5",
-                    label: "text-small",
-                    value: "text-small text-default-400",
-                  }}
-                  label="Steps"
-                  maxValue={steps.length - 1}
-                  minValue={0}
-                  showValueLabel={true}
-                  size="md"
-                  value={currentStep}
-                  valueLabel={`${currentStep + 1} of ${steps.length}`}
-                />
-                <VerticalCollapsibleSteps
-                  currentStep={currentStep}
-                  steps={steps}
-                  onStepChange={setCurrentStep}
-                />
-              </ModalBody>
-              <ModalFooter>
-                {currentStep > 0 ? (
-                  <Button
-                    color="default"
-                    startContent={
-                      <Icon icon="hugeicons:backward-02" width={18} />
-                    }
-                    variant="flat"
-                    onPress={() => {
-                      setCurrentStep(currentStep - 1);
-                    }}
-                  >
-                    Back
-                  </Button>
-                ) : (
-                  <Button
-                    isDisabled
-                    color="default"
-                    startContent={
-                      <Icon icon="hugeicons:backward-02" width={18} />
-                    }
-                    variant="flat"
-                  >
-                    Back
-                  </Button>
-                )}
-                {currentStep + 1 === steps.length ? (
-                  <Button
-                    color="primary"
-                    isLoading={isLoading}
-                    startContent={
-                      <Icon icon="hugeicons:telescope-01" width={18} />
-                    }
-                    onPress={() => {
-                      handleSetWelcomed();
-                    }}
-                  >
-                    Start Exploring
-                  </Button>
-                ) : (
-                  <Button
-                    color="primary"
-                    isLoading={isLoading}
-                    startContent={
-                      <Icon icon="hugeicons:forward-02" width={18} />
-                    }
-                    onPress={() => setCurrentStep(currentStep + 1)}
-                  >
-                    Next Step
-                  </Button>
-                )}
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
+      <Modal>
+        <Modal.Backdrop
+          isDismissable
+          variant="blur"
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+        >
+          <Modal.Container placement="center" size="lg">
+            <Modal.Dialog>
+              {() => (
+                <>
+                  <Modal.Body>
+                    {error && (
+                      <ErrorCard error={errorText} message={errorMessage} />
+                    )}
+                    <h1 className="mb-2 text-xl text-center font-medium">
+                      Welcome to{" "}
+                      <span className="font-bold text-accent">JustFlow</span>!
+                    </h1>
+                    <p className="text-center text-lg">
+                      This is your first time here, so we&apos;ve prepared a
+                      short guide to help you get started.
+                    </p>
+                    <ProgressBar
+                      aria-label="Welcome steps"
+                      className="mb-5 px-0.5"
+                      maxValue={steps.length - 1}
+                      minValue={0}
+                      size="md"
+                      value={currentStep}
+                    >
+                      <span>Steps</span>
+                      <ProgressBar.Track>
+                        <ProgressBar.Fill />
+                      </ProgressBar.Track>
+                    </ProgressBar>
+                    <VerticalCollapsibleSteps
+                      currentStep={currentStep}
+                      steps={steps}
+                      onStepChange={setCurrentStep}
+                    />
+                  </Modal.Body>
+                  <Modal.Footer>
+                    {currentStep > 0 ? (
+                      <Button
+                        onPress={() => {
+                          setCurrentStep(currentStep - 1);
+                        }}
+                      >
+                        {<Icon icon="hugeicons:backward-02" width={18} />}
+                        Back
+                      </Button>
+                    ) : (
+                      <Button isDisabled>
+                        {<Icon icon="hugeicons:backward-02" width={18} />}
+                        Back
+                      </Button>
+                    )}
+                    {currentStep + 1 === steps.length ? (
+                      <Button
+                        isPending={isLoading}
+                        onPress={() => {
+                          handleSetWelcomed();
+                        }}
+                        variant="primary"
+                      >
+                        {<Icon icon="hugeicons:telescope-01" width={18} />}
+                        Start Exploring
+                      </Button>
+                    ) : (
+                      <Button
+                        isPending={isLoading}
+                        onPress={() => setCurrentStep(currentStep + 1)}
+                        variant="primary"
+                      >
+                        {<Icon icon="hugeicons:forward-02" width={18} />}
+                        Next Step
+                      </Button>
+                    )}
+                  </Modal.Footer>
+                </>
+              )}
+            </Modal.Dialog>
+          </Modal.Container>
+        </Modal.Backdrop>
       </Modal>
     </>
   );

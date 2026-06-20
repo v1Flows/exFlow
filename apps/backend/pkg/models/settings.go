@@ -21,4 +21,5 @@ type Settings struct {
 	AllowSharedRunnerJoin     bool   `bun:"allow_shared_runner_join,type:bool,default:true" json:"allow_shared_runner_join"`
 	SharedRunnerAutoJoinToken string `bun:"shared_runner_auto_join_token,type:text,default:''" json:"shared_runner_auto_join_token"`
 	NewEncryptionMigrated     bool   `bun:"new_encryption_migrated,type:bool,default:false" json:"new_encryption_migrated"`
+	CreateSelfServicePages    bool   `bun:"create_self_service_pages,type:bool,default:true" json:"create_self_service_pages"`
 }

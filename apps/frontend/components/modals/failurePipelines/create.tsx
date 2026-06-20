@@ -1,76 +1,64 @@
 "use client";
-
-import type { UseDisclosureReturn } from "@heroui/use-disclosure";
-
 import {
-  addToast,
   Button,
+  Description,
+  FieldError,
   Input,
+  InputGroup,
+  Label,
+  ListBox,
   Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
   Select,
-  SelectItem,
+  TextField,
+  toast,
+  type UseOverlayStateReturn,
 } from "@heroui/react";
 import React, { useState } from "react";
 import { Icon } from "@iconify/react";
-
 import ErrorCard from "@/components/error/ErrorCard";
 import CreateFlowFailurePipeline from "@/lib/fetch/flow/POST/AddFlowFailurePipeline";
 import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
-
 export default function CreateFailurePipelineModal({
   flow,
   disclosure,
 }: {
   flow: any;
-  disclosure: UseDisclosureReturn;
+  disclosure: UseOverlayStateReturn;
 }) {
   const { refreshFlowData } = useRefreshCache();
-
   // create modal
-  const { isOpen, onOpenChange } = disclosure;
-
+  const { isOpen, setOpen: onOpenChange } = disclosure;
   const [name, setName] = useState("");
   const [execParallel, setExecParallel] = useState(false);
-
   // loading
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(false);
   const [errorText, setErrorText] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-
   const execStrategySelected = (e: any) => {
-    if (e.currentKey === "parallel") {
+    if (e === "parallel") {
       setExecParallel(true);
     } else {
       setExecParallel(false);
     }
   };
-
   async function createFailurePipeline() {
     setIsLoading(true);
-
     const response = (await CreateFlowFailurePipeline(
       flow.id,
       name,
       execParallel,
     )) as any;
-
     if (!response) {
       setError(true);
       setErrorText("Failed to create failure pipeline");
       setErrorMessage("Failed to create failure pipeline");
       setIsLoading(false);
-
       return;
     }
-
     if (response.success) {
       refreshFlowData(flow.id); // Refresh SWR cache with specific flow ID
-      onOpenChange();
+      onOpenChange(false);
       setName("");
       setError(false);
       setErrorText("");
@@ -79,90 +67,102 @@ export default function CreateFailurePipelineModal({
       setError(true);
       setErrorText(response.error);
       setErrorMessage(response.message);
-      addToast({
-        title: "Flow",
+      toast.danger("Flow", {
         description: "Failed to create failure pipeline",
-        color: "danger",
-        variant: "flat",
       });
     }
-
     setIsLoading(false);
   }
-
   function cancel() {
     setName("");
     setIsLoading(false);
-    onOpenChange();
+    onOpenChange(false);
   }
-
   return (
     <>
-      <Modal
-        isOpen={isOpen}
-        placement="center"
-        size="3xl"
-        onOpenChange={onOpenChange}
-      >
-        <ModalContent className="w-full">
-          {() => (
-            <>
-              <ModalHeader className="flex flex-col items-start">
-                <div className="flex flex-col">
-                  <p className="text-lg font-bold">
-                    Create new Failure Pipelines
-                  </p>
-                  <p className="text-sm text-default-500">
-                    Failure Pipelines can be assigned to actions and will
-                    trigger a set of actions when the assigned action fails.
-                  </p>
-                </div>
-              </ModalHeader>
-              <ModalBody>
-                {error && (
-                  <ErrorCard error={errorText} message={errorMessage} />
-                )}
-                <div className="flex flex-col gap-4">
-                  <Input
-                    isRequired
-                    label="Name"
-                    type="name"
-                    value={name}
-                    variant="flat"
-                    onValueChange={setName}
-                  />
-                  <Select
-                    label="Execution Strategy"
-                    placeholder="Select the execution strategy"
-                    selectedKeys={[execParallel ? "parallel" : "sequential"]}
-                    variant="flat"
-                    onSelectionChange={execStrategySelected}
-                  >
-                    <SelectItem key="sequential">Sequential</SelectItem>
-                    <SelectItem key="parallel">Parallel</SelectItem>
-                  </Select>
-                </div>
-              </ModalBody>
-              <ModalFooter>
-                <Button
-                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
-                  variant="ghost"
-                  onPress={cancel}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  color="primary"
-                  isLoading={isLoading}
-                  startContent={<Icon icon="hugeicons:plus-sign" width={18} />}
-                  onPress={createFailurePipeline}
-                >
-                  Create Failure Pipeline
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
+      <Modal>
+        <Modal.Backdrop isOpen={isOpen} onOpenChange={onOpenChange}>
+          <Modal.Container placement="center" size="lg">
+            <Modal.Dialog className="w-full">
+              {() => (
+                <>
+                  <Modal.Header className="flex flex-col items-start">
+                    <Modal.Heading>
+                      <div className="flex flex-col">
+                        <p className="text-lg font-bold">
+                          Create new Failure Pipelines
+                        </p>
+                        <p className="text-sm text-muted">
+                          Failure Pipelines can be assigned to actions and will
+                          trigger a set of actions when the assigned action
+                          fails.
+                        </p>
+                      </div>
+                    </Modal.Heading>
+                  </Modal.Header>
+                  <Modal.Body>
+                    {error && (
+                      <ErrorCard error={errorText} message={errorMessage} />
+                    )}
+                    <div className="flex flex-col gap-4">
+                      <TextField isRequired value={name} onChange={setName}>
+                        <Label>{"Name"}</Label>
+                        <InputGroup>
+                          <Input type="name" />
+                        </InputGroup>
+                      </TextField>
+                      <Select
+                        placeholder="Select the execution strategy"
+                        selectedKey={execParallel ? "parallel" : "sequential"}
+                        onSelectionChange={execStrategySelected}
+                      >
+                        <Label>{"Execution Strategy"}</Label>
+                        <Select.Trigger>
+                          <Select.Value />
+                          <Select.Indicator />
+                        </Select.Trigger>
+                        <Select.Popover>
+                          <ListBox>
+                            <ListBox.Item
+                              key="sequential"
+                              id="sequential"
+                              textValue="Sequential"
+                            >
+                              Sequential
+                              <ListBox.ItemIndicator />
+                            </ListBox.Item>
+                            <ListBox.Item
+                              key="parallel"
+                              id="parallel"
+                              textValue="Parallel"
+                            >
+                              Parallel
+                              <ListBox.ItemIndicator />
+                            </ListBox.Item>
+                          </ListBox>
+                        </Select.Popover>
+                      </Select>
+                    </div>
+                  </Modal.Body>
+                  <Modal.Footer>
+                    <Button variant="ghost" onPress={cancel}>
+                      {<Icon icon="hugeicons:cancel-01" width={18} />}
+                      Cancel
+                    </Button>
+                    <Button
+                      isPending={isLoading}
+                      onPress={createFailurePipeline}
+                      variant="primary"
+                    >
+                      {<Icon icon="hugeicons:plus-sign" width={18} />}
+                      Create Failure Pipeline
+                    </Button>
+                  </Modal.Footer>
+                </>
+              )}
+            </Modal.Dialog>
+          </Modal.Container>
+        </Modal.Backdrop>
       </Modal>
     </>
   );

@@ -63,6 +63,12 @@ func AddFlowActions(context *gin.Context, db *bun.DB) {
 		return
 	}
 
+	// validate DAG: reject cycles
+	if hasCycle(flow.Actions) {
+		context.JSON(http.StatusUnprocessableEntity, gin.H{"error": "Action graph contains a cycle. Check your depends_on connections."})
+		return
+	}
+
 	// encrypt action params
 	if project.EncryptionEnabled {
 		flow.Actions, err = encryption.EncryptParamsWithProject(flow.Actions, flowDB.ProjectID, db)

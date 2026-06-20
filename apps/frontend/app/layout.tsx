@@ -98,6 +98,8 @@ export default async function RootLayout({
   const c = await cookies();
   const session = c.get("session")?.value;
 
+  const isPortal = currentPage.startsWith("/portal");
+
   return (
     <html suppressHydrationWarning lang="en">
       <head>
@@ -112,7 +114,7 @@ export default async function RootLayout({
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
           <AppContent>
             <div className="flex h-screen w-full overflow-hidden bg-background">
-              {sessionCookie && currentPage !== "/setup" && (
+              {sessionCookie && currentPage !== "/setup" && !isPortal && (
                 <Sidebar
                   flows={flows.success ? flows.data.flows : []}
                   folders={folders.success ? folders.data.folders : []}
@@ -123,7 +125,7 @@ export default async function RootLayout({
                 />
               )}
               <div className="flex flex-1 flex-col h-full overflow-hidden relative">
-                {sessionCookie && currentPage !== "/setup" && (
+                {sessionCookie && currentPage !== "/setup" && !isPortal && (
                   <MobileNav
                     flows={flows.success ? flows.data.flows : []}
                     folders={folders.success ? folders.data.folders : []}
@@ -135,9 +137,9 @@ export default async function RootLayout({
                     }
                   />
                 )}
-                <main className="flex-1 overflow-y-auto pt-4 px-6 scrollbar-hide">
+                <main className={clsx("flex-1 overflow-y-auto scrollbar-hide", !isPortal && "pt-4 px-6")}>
                   {children}
-                  <Footer />
+                  {!isPortal && <Footer />}
                 </main>
               </div>
             </div>

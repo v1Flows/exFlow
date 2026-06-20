@@ -1,5 +1,3 @@
-import { Divider } from "@heroui/react";
-
 import AdminUsersHeading from "@/components/admin/users/heading";
 import AdminGetUsers from "@/lib/fetch/admin/users";
 import { AdminUsersList } from "@/components/admin/users/list";
@@ -15,7 +13,7 @@ export default async function AdminUsersPage() {
       {users.success ? (
         <>
           <AdminUsersHeading />
-          <Divider className="mt-4 mb-4" />
+          <hr className="my-4 border-default" />
           <AdminUsersList users={users.data.users} />
         </>
       ) : (

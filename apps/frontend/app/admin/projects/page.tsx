@@ -1,5 +1,3 @@
-import { Divider } from "@heroui/react";
-
 import ErrorCard from "@/components/error/ErrorCard";
 import GetUserDetails from "@/lib/fetch/user/getDetails";
 import AdminGetProjects from "@/lib/fetch/admin/projects";
@@ -23,7 +21,7 @@ export default async function AdminProjectsPage() {
       {projects.success && settings.success && userDetails.success ? (
         <>
           <AdminProjectsHeading />
-          <Divider className="mt-4 mb-4" />
+          <hr className="my-4 border-default" />
           <AdminProjectList projects={projects.data.projects} />
         </>
       ) : (

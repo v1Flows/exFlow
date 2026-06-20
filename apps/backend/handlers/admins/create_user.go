@@ -12,10 +12,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var validRoles = map[string]bool{
+	"user":   true,
+	"editor": true,
+	"admin":  true,
+}
+
 func CreateUser(context *gin.Context, db *bun.DB) {
 	var user models.Users
 	if err := context.ShouldBindJSON(&user); err != nil {
 		httperror.StatusBadRequest(context, "Error parsing incoming data", err)
+		return
+	}
+
+	if user.Role != "" && !validRoles[user.Role] {
+		httperror.StatusBadRequest(context, "Invalid role. Must be one of: user, editor, admin", nil)
 		return
 	}
 

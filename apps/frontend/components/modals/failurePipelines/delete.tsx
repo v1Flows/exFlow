@@ -1,66 +1,50 @@
-import type { UseDisclosureReturn } from "@heroui/use-disclosure";
-
+import { CopySnippet } from "@/components/ui/copy-snippet";
 import {
-  addToast,
   Button,
   Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Snippet,
+  toast,
+  type UseOverlayStateReturn,
 } from "@heroui/react";
 import React from "react";
 import { Icon } from "@iconify/react";
-
 import ErrorCard from "@/components/error/ErrorCard";
 import DeleteFlowFailurePipeline from "@/lib/fetch/flow/DELETE/DeleteFailurePipeline";
 import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
-
 export default function DeleteFailurePipelineModal({
   disclosure,
   flowID,
   failurePipeline,
 }: {
-  disclosure: UseDisclosureReturn;
+  disclosure: UseOverlayStateReturn;
   flowID: any;
   failurePipeline: any;
 }) {
   const { refreshFlowData } = useRefreshCache();
-
-  const { isOpen, onOpenChange } = disclosure;
-
+  const { isOpen, setOpen: onOpenChange } = disclosure;
   const [isDeleteLoading, setIsDeleteLoading] = React.useState(false);
   const [error, setError] = React.useState(false);
   const [errorText, setErrorText] = React.useState("");
   const [errorMessage, setErrorMessage] = React.useState("");
-
   async function deleteFailurePipeline() {
     setIsDeleteLoading(true);
     const res = (await DeleteFlowFailurePipeline(
       flowID,
       failurePipeline,
     )) as any;
-
     if (!res) {
       setError(true);
       setErrorText("Failed to delete failure pipeline");
       setErrorMessage("Failed to delete failure pipeline");
       setIsDeleteLoading(false);
-
       return;
     }
-
     if (res.success) {
-      onOpenChange();
+      onOpenChange(false);
       setError(false);
       setErrorText("");
       setErrorMessage("");
-      addToast({
-        title: "Flow",
+      toast.success("Flow", {
         description: "Failure Pipeline deleted successfully",
-        color: "success",
-        variant: "flat",
       });
       refreshFlowData(flowID);
     } else {
@@ -68,67 +52,63 @@ export default function DeleteFailurePipelineModal({
       setError(true);
       setErrorText(res.error);
       setErrorMessage(res.message);
-      addToast({
-        title: "Flow",
+      toast.danger("Flow", {
         description: "Failed to delete failure pipeline",
-        color: "danger",
-        variant: "flat",
       });
     }
-
     setIsDeleteLoading(false);
   }
-
   return (
     <main>
-      <Modal
-        backdrop="blur"
-        isOpen={isOpen}
-        placement="center"
-        onOpenChange={onOpenChange}
-      >
-        <ModalContent className="w-full">
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-wrap items-center">
-                <div className="flex flex-col">
-                  <p className="text-lg font-bold">Are you sure?</p>
-                  <p className="text-sm text-default-500">
-                    You are about to delete the following failure pipeline which{" "}
-                    <span className="font-bold">cannot be undone</span>
-                  </p>
-                </div>
-              </ModalHeader>
-              <ModalBody>
-                {error && (
-                  <ErrorCard error={errorText} message={errorMessage} />
-                )}
-                <Snippet hideCopyButton hideSymbol>
-                  <span>ID: {failurePipeline}</span>
-                </Snippet>
-              </ModalBody>
-              <ModalFooter>
-                <Button
-                  color="default"
-                  startContent={<Icon icon="hugeicons:cancel-01" width={18} />}
-                  variant="ghost"
-                  onPress={onClose}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  color="danger"
-                  isLoading={isDeleteLoading}
-                  startContent={<Icon icon="hugeicons:delete-02" width={18} />}
-                  variant="solid"
-                  onPress={deleteFailurePipeline}
-                >
-                  Delete
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
+      <Modal>
+        <Modal.Backdrop
+          variant="blur"
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+        >
+          <Modal.Container placement="center">
+            <Modal.Dialog className="w-full">
+              {({ close: onClose }) => (
+                <>
+                  <Modal.Header className="flex flex-wrap items-center">
+                    <Modal.Heading>
+                      <div className="flex flex-col">
+                        <p className="text-lg font-bold">Are you sure?</p>
+                        <p className="text-sm text-muted">
+                          You are about to delete the following failure pipeline
+                          which{" "}
+                          <span className="font-bold">cannot be undone</span>
+                        </p>
+                      </div>
+                    </Modal.Heading>
+                  </Modal.Header>
+                  <Modal.Body>
+                    {error && (
+                      <ErrorCard error={errorText} message={errorMessage} />
+                    )}
+                    <CopySnippet copyable={false} showPrompt={false}>
+                      <span>ID: {failurePipeline}</span>
+                    </CopySnippet>
+                  </Modal.Body>
+                  <Modal.Footer>
+                    <Button variant="ghost" onPress={onClose}>
+                      {<Icon icon="hugeicons:cancel-01" width={18} />}
+                      Cancel
+                    </Button>
+                    <Button
+                      isPending={isDeleteLoading}
+                      variant="danger"
+                      onPress={deleteFailurePipeline}
+                    >
+                      {<Icon icon="hugeicons:delete-02" width={18} />}
+                      Delete
+                    </Button>
+                  </Modal.Footer>
+                </>
+              )}
+            </Modal.Dialog>
+          </Modal.Container>
+        </Modal.Backdrop>
       </Modal>
     </main>
   );

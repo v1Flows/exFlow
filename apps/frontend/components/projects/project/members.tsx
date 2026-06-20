@@ -1,39 +1,32 @@
 import {
+  Avatar,
   Button,
   Card,
-  CardBody,
-  CardFooter,
   Chip,
   Tooltip,
-  useDisclosure,
-  User,
+  useOverlayState,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useState } from "react";
 import { motion } from "framer-motion";
-
 import canEditProject from "@/lib/functions/canEditProject";
 import AddProjectMemberModal from "@/components/modals/projects/members";
 import EditProjectMemberModal from "@/components/modals/projects/editMember";
 import LeaveProjectModal from "@/components/modals/projects/leave";
 import DeleteProjectMemberModal from "@/components/modals/projects/removeMember";
 import ProjectTransferOwnership from "@/components/modals/projects/transferOwnership";
-
 const statusColorMap: any = {
   Owner: "danger",
   Editor: "primary",
   Viewer: "default",
 };
-
 export default function ProjectMembers({ project, settings, user }: any) {
-  const addProjectMemberModal = useDisclosure();
-  const editProjectMemberModal = useDisclosure();
-  const leaveProjectModal = useDisclosure();
-  const deleteProjectMemberModal = useDisclosure();
-  const transferOwnershipModal = useDisclosure();
-
+  const addProjectMemberModal = useOverlayState();
+  const editProjectMemberModal = useOverlayState();
+  const leaveProjectModal = useOverlayState();
+  const deleteProjectMemberModal = useOverlayState();
+  const transferOwnershipModal = useOverlayState();
   const [targetUser, setTargetUser] = useState({});
-
   function checkLeaveProjectDisabled() {
     if (
       project.members.find((m: any) => m.user_id === user.id) &&
@@ -42,14 +35,11 @@ export default function ProjectMembers({ project, settings, user }: any) {
     ) {
       return true;
     }
-
     if (project.disabled) {
       return true;
     }
-
     return false;
   }
-
   return (
     <motion.div
       animate="visible"
@@ -68,13 +58,10 @@ export default function ProjectMembers({ project, settings, user }: any) {
       >
         <div className="flex flex-col items-start">
           <h2 className="text-xl font-bold">Members</h2>
-          <p className="text-small text-default-500">
-            {project.members.length} Members
-          </p>
+          <p className="text-sm text-muted">{project.members.length} Members</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button
-            color="primary"
             isDisabled={
               (!canEditProject(user.id, project.members) ||
                 !settings.add_project_members ||
@@ -82,40 +69,42 @@ export default function ProjectMembers({ project, settings, user }: any) {
               user.role !== "admin"
             }
             size="sm"
-            startContent={<Icon icon="hugeicons:add-team-02" width={18} />}
-            variant="solid"
-            onPress={() => addProjectMemberModal.onOpen()}
+            variant="primary"
+            onPress={() => addProjectMemberModal.open()}
           >
+            {<Icon icon="hugeicons:add-team-02" width={18} />}
             Add Member
           </Button>
 
           {checkLeaveProjectDisabled() ? (
-            <Tooltip content="Transfer Ownership">
-              <Button
-                isIconOnly
-                color="danger"
-                isDisabled={project.disabled}
-                size="sm"
-                startContent={
-                  <Icon icon="hugeicons:self-transfer" width={18} />
-                }
-                variant="flat"
-                onPress={() => transferOwnershipModal.onOpen()}
-              />
+            <Tooltip>
+              <Tooltip.Trigger>
+                <Button
+                  isDisabled={project.disabled}
+                  size="sm"
+                  variant="danger-soft"
+                  onPress={() => transferOwnershipModal.open()}
+                  className="aspect-square p-0"
+                >
+                  {<Icon icon="hugeicons:self-transfer" width={18} />}
+                </Button>
+              </Tooltip.Trigger>
+              <Tooltip.Content>{"Transfer Ownership"}</Tooltip.Content>
             </Tooltip>
           ) : (
-            <Tooltip content="Leave Project">
-              <Button
-                isIconOnly
-                color="secondary"
-                isDisabled={checkLeaveProjectDisabled()}
-                size="sm"
-                startContent={
-                  <Icon icon="solar:undo-left-round-outline" width={18} />
-                }
-                variant="ghost"
-                onPress={() => leaveProjectModal.onOpen()}
-              />
+            <Tooltip>
+              <Tooltip.Trigger>
+                <Button
+                  isDisabled={checkLeaveProjectDisabled()}
+                  size="sm"
+                  variant="ghost"
+                  onPress={() => leaveProjectModal.open()}
+                  className="aspect-square p-0"
+                >
+                  {<Icon icon="solar:undo-left-round-outline" width={18} />}
+                </Button>
+              </Tooltip.Trigger>
+              <Tooltip.Content>{"Leave Project"}</Tooltip.Content>
             </Tooltip>
           )}
         </div>
@@ -131,107 +120,113 @@ export default function ProjectMembers({ project, settings, user }: any) {
             }}
           >
             <Card
-              className={`border-none shadow-sm bg-content1/60 backdrop-blur-md border border-default-100 transition-all duration-300 hover:bg-content1/80 hover:scale-[1.01] group ${member.invite_pending ? "border-warning-200/50" : ""}`}
+              className={`border-none shadow-sm bg-surface/60 backdrop-blur-md border border-default transition-all duration-300 hover:bg-surface/80 hover:scale-[1.01] group ${member.invite_pending ? "border-warning/50" : ""}`}
             >
-              <CardBody className="p-4">
+              <Card.Content className="p-4">
                 <div className="flex items-start justify-between">
-                  <User
-                    avatarProps={{
-                      radius: "lg",
-                      name: member.username,
-                      size: "md",
-                      className: "transition-transform group-hover:scale-105",
-                    }}
-                    description={
-                      <div className="flex flex-col gap-1 mt-1">
-                        <p className="text-tiny text-default-500">
-                          {member.email}
-                        </p>
-                        <div className="flex items-center gap-2">
-                          {member.user_id === user.id && (
-                            <Chip
-                              className="h-5 text-[10px] px-1"
-                              color="primary"
-                              radius="sm"
-                              size="sm"
-                              variant="flat"
-                            >
-                              You
-                            </Chip>
-                          )}
-                          <Chip
-                            className="h-5 text-[10px] px-1"
-                            color={statusColorMap[member.role]}
-                            radius="sm"
-                            size="sm"
-                            variant="flat"
-                          >
-                            {member.role}
-                          </Chip>
-                        </div>
+                  <div className={`flex items-center gap-3 ${""}`}>
+                    <Avatar>
+                      <Avatar.Fallback>
+                        {String("").slice(0, 2).toUpperCase()}
+                      </Avatar.Fallback>
+                    </Avatar>
+                    <div className="min-w-0">
+                      <div className="truncate">
+                        {
+                          <p className="text-sm font-semibold text-foreground">
+                            {member.username}
+                          </p>
+                        }
                       </div>
-                    }
-                    name={
-                      <p className="text-small font-semibold text-default-700">
-                        {member.username}
-                      </p>
-                    }
-                  />
+                      <div className="truncate text-sm text-muted">
+                        {
+                          <div className="flex flex-col gap-1 mt-1">
+                            <p className="text-xs text-muted">{member.email}</p>
+                            <div className="flex items-center gap-2">
+                              {member.user_id === user.id && (
+                                <Chip
+                                  className="h-5 text-[10px] px-1"
+                                  color="accent"
+                                  size="sm"
+                                  variant="soft"
+                                >
+                                  <Chip.Label>You</Chip.Label>
+                                </Chip>
+                              )}
+                              <Chip
+                                className="h-5 text-[10px] px-1"
+                                color={statusColorMap[member.role]}
+                                size="sm"
+                                variant="soft"
+                              >
+                                <Chip.Label>{member.role}</Chip.Label>
+                              </Chip>
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  </div>
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Tooltip content="Edit Member">
-                      <Button
-                        isIconOnly
-                        isDisabled={
-                          (!canEditProject(user.id, project.members) ||
-                            project.disabled) &&
-                          user.role !== "admin"
-                        }
-                        size="sm"
-                        variant="light"
-                        onPress={() => {
-                          setTargetUser(member);
-                          editProjectMemberModal.onOpen();
-                        }}
-                      >
-                        <Icon icon="hugeicons:pencil-edit-02" width={16} />
-                      </Button>
+                    <Tooltip>
+                      <Tooltip.Trigger>
+                        <Button
+                          isDisabled={
+                            (!canEditProject(user.id, project.members) ||
+                              project.disabled) &&
+                            user.role !== "admin"
+                          }
+                          size="sm"
+                          variant="ghost"
+                          onPress={() => {
+                            setTargetUser(member);
+                            editProjectMemberModal.open();
+                          }}
+                          className="aspect-square p-0"
+                        >
+                          <Icon icon="hugeicons:pencil-edit-02" width={16} />
+                        </Button>
+                      </Tooltip.Trigger>
+                      <Tooltip.Content>{"Edit Member"}</Tooltip.Content>
                     </Tooltip>
-                    <Tooltip content="Remove Member">
-                      <Button
-                        isIconOnly
-                        color="danger"
-                        isDisabled={
-                          (!canEditProject(user.id, project.members) ||
-                            member.user_id === user.id ||
-                            project.disabled) &&
-                          user.role !== "admin"
-                        }
-                        size="sm"
-                        variant="light"
-                        onPress={() => {
-                          setTargetUser(member);
-                          deleteProjectMemberModal.onOpen();
-                        }}
-                      >
-                        <Icon icon="hugeicons:delete-02" width={16} />
-                      </Button>
+                    <Tooltip>
+                      <Tooltip.Trigger>
+                        <Button
+                          isDisabled={
+                            (!canEditProject(user.id, project.members) ||
+                              member.user_id === user.id ||
+                              project.disabled) &&
+                            user.role !== "admin"
+                          }
+                          size="sm"
+                          variant="danger"
+                          onPress={() => {
+                            setTargetUser(member);
+                            deleteProjectMemberModal.open();
+                          }}
+                          className="aspect-square p-0"
+                        >
+                          <Icon icon="hugeicons:delete-02" width={16} />
+                        </Button>
+                      </Tooltip.Trigger>
+                      <Tooltip.Content>{"Remove Member"}</Tooltip.Content>
                     </Tooltip>
                   </div>
                 </div>
-              </CardBody>
-              <CardFooter className="px-4 pb-4 pt-0 flex justify-between items-center">
+              </Card.Content>
+              <Card.Footer className="px-4 pb-4 pt-0 flex justify-between items-center">
                 <div className="flex items-center gap-2 w-full">
                   {member.invite_pending ? (
                     <Chip
                       className="border-none"
                       color="warning"
                       size="sm"
-                      variant="dot"
+                      variant="soft"
                     >
-                      Invite Pending
+                      <Chip.Label>Invite Pending</Chip.Label>
                     </Chip>
                   ) : (
-                    <div className="flex items-center justify-between w-full text-tiny text-default-400">
+                    <div className="flex items-center justify-between w-full text-xs text-muted">
                       <div className="flex items-center gap-1">
                         <Icon icon="hugeicons:calendar-03" width={14} />
                         <span>
@@ -244,7 +239,7 @@ export default function ProjectMembers({ project, settings, user }: any) {
                     </div>
                   )}
                 </div>
-              </CardFooter>
+              </Card.Footer>
             </Card>
           </motion.div>
         ))}

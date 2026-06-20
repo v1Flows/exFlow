@@ -1,23 +1,17 @@
 "use client";
 import { Icon } from "@iconify/react";
 import {
-  addToast,
   Button,
   ButtonGroup,
   Card,
-  CardBody,
   Chip,
   Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownTrigger,
-  Spacer,
-  useDisclosure,
+  toast,
+  useOverlayState,
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-
 import CreateProjectModal from "@/components/modals/projects/create";
 import DeleteProjectModal from "@/components/modals/projects/delete";
 import EditProjectModal from "@/components/modals/projects/edit";
@@ -25,15 +19,11 @@ import AcceptProjectInvite from "@/lib/fetch/project/PUT/AcceptProjectInvite";
 import DeclineProjectInvite from "@/lib/fetch/project/PUT/DeclineProjectInvite";
 import canEditProject from "@/lib/functions/canEditProject";
 import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
-
 import { ShineBorder } from "../magicui/shine-border";
-
 export function ProjectsList({ projects, pending_projects, user }: any) {
   const router = useRouter();
   const { refreshProjects } = useRefreshCache();
-
   const [targetProject, setTargetProject] = useState({});
-
   // project invitation button
   const [selectedOption, setSelectedOption] = useState("accept");
   const descriptionsMap = {
@@ -44,100 +34,58 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
     accept: "Accept Invite",
     decline: "Decline Invite",
   };
-
-  const newProjectModal = useDisclosure();
-  const editProjectModal = useDisclosure();
-  const deleteProjectModal = useDisclosure();
-
+  const newProjectModal = useOverlayState();
+  const editProjectModal = useOverlayState();
+  const deleteProjectModal = useOverlayState();
   const copyProjectIDtoClipboard = (key: string) => {
     if (typeof navigator !== "undefined" && navigator.clipboard) {
       navigator.clipboard.writeText(key);
-      addToast({
-        title: "Project",
+      toast.success("Project", {
         description: "ProjectID copied to clipboard!",
-        color: "success",
-        variant: "flat",
       });
     } else {
-      addToast({
-        title: "Project",
+      toast.danger("Project", {
         description: "Failed to copy ProjectID to clipboard",
-        color: "danger",
-        variant: "flat",
       });
     }
   };
-
   function inviteSelectionChange(e: any) {
-    setSelectedOption(e.currentKey);
+    setSelectedOption(String(Array.from(e)[0] ?? "accept"));
   }
-
   async function declineProjectInvite(projectId: string) {
     const res = (await DeclineProjectInvite(projectId)) as any;
-
     if (!res) {
-      addToast({
-        title: "Project Invite",
+      toast.danger("Project Invite", {
         description: "Failed to decline project invite",
-        color: "danger",
-        variant: "flat",
       });
-
       return;
     }
-
     if (res.success) {
-      addToast({
-        title: "Project Invite",
+      toast.success("Project Invite", {
         description: "Project invite declined",
-        color: "success",
-        variant: "flat",
       });
     } else {
-      addToast({
-        title: "Project Invite",
-        description: res.message,
-        color: "danger",
-        variant: "flat",
-      });
+      toast.danger("Project Invite", { description: res.message });
     }
-
     router.refresh();
   }
-
   async function acceptProjectInvite(projectId: string) {
     const res = (await AcceptProjectInvite(projectId)) as any;
-
     if (!res) {
-      addToast({
-        title: "Project Invite",
+      toast.danger("Project Invite", {
         description: "Failed to accept project invite",
-        color: "danger",
-        variant: "flat",
       });
-
       return;
     }
-
     if (res.success) {
-      addToast({
-        title: "Project Invite",
+      toast.success("Project Invite", {
         description: "Project invite accepted",
-        color: "success",
-        variant: "flat",
       });
     } else {
-      addToast({
-        title: "Project Invite",
-        description: res.message,
-        color: "danger",
-        variant: "flat",
-      });
+      toast.danger("Project Invite", { description: res.message });
     }
-
     router.refresh();
   }
-
   return (
     <motion.main
       animate="visible"
@@ -149,11 +97,9 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
       {projects.length === 0 && (
         <>
           <div className="flex items-center justify-center">
-            <p className="text-md text-default-500 font-bold">
-              No projects found
-            </p>
+            <p className="text-md text-muted font-bold">No projects found</p>
           </div>
-          <Spacer y={4} />
+          <div aria-hidden className="h-4" />
         </>
       )}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -165,131 +111,136 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
               visible: { y: 0, opacity: 1 },
             }}
           >
-            <Card
-              isPressable
-              className="w-full h-full bg-content1/60 backdrop-blur-md shadow-sm border border-default-100 hover:scale-[1.02] hover:bg-content1/80 transition-all duration-300 group"
-              isDisabled={project.disabled}
+            <Button
+              className="h-auto w-full justify-start p-0 text-left"
+              variant="tertiary"
               onPress={() => {
                 router.push(`/projects/${project.id}`);
               }}
             >
-              <CardBody className="p-5">
-                <div className="flex flex-col h-full justify-between gap-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div
-                      className="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center shadow-sm transition-transform group-hover:scale-110"
-                      style={{
-                        background: `linear-gradient(135deg, ${project.color}20 0%, ${project.color}40 100%)`,
-                        color: project.color,
-                        border: `1px solid ${project.color}40`,
-                      }}
-                    >
-                      <Icon className="text-2xl" icon={project.icon} />
-                    </div>
-                    <Dropdown
-                      isDisabled={project.disabled}
-                      placement="bottom-end"
-                    >
-                      <DropdownTrigger>
-                        <Button
-                          isIconOnly
-                          className="opacity-0 group-hover:opacity-100 transition-opacity"
-                          size="sm"
-                          variant="light"
-                        >
-                          <Icon
-                            className="text-lg"
-                            icon="hugeicons:more-vertical-circle-01"
-                            width={20}
-                          />
-                        </Button>
-                      </DropdownTrigger>
-                      <DropdownMenu aria-label="Project actions" variant="flat">
-                        <DropdownItem
-                          key="copy"
-                          showDivider
-                          startContent={
-                            <Icon icon="hugeicons:copy-01" width={18} />
-                          }
-                          onPress={() => copyProjectIDtoClipboard(project.id)}
-                        >
-                          Copy ID
-                        </DropdownItem>
-                        <DropdownItem
-                          key="edit"
-                          color="warning"
-                          isDisabled={
-                            (!canEditProject(user.id, project.members) ||
-                              project.disabled) &&
-                            user.role !== "admin"
-                          }
-                          startContent={
-                            <Icon icon="hugeicons:pencil-edit-02" width={18} />
-                          }
-                          onPress={() => {
-                            setTargetProject(project);
-                            editProjectModal.onOpen();
-                          }}
-                        >
-                          Edit
-                        </DropdownItem>
-                        <DropdownItem
-                          key="delete"
-                          className="text-danger"
-                          color="danger"
-                          isDisabled={
-                            (!canEditProject(user.id, project.members) ||
-                              project.disabled) &&
-                            user.role !== "admin"
-                          }
-                          startContent={
-                            <Icon icon="hugeicons:delete-02" width={18} />
-                          }
-                          onPress={() => {
-                            setTargetProject(project);
-                            deleteProjectModal.onOpen();
-                          }}
-                        >
-                          Delete
-                        </DropdownItem>
-                      </DropdownMenu>
-                    </Dropdown>
-                  </div>
-
-                  <div>
-                    <h3 className="font-bold text-lg text-default-900 mb-1 group-hover:text-primary transition-colors">
-                      {project.name}
-                    </h3>
-                    <p className="text-default-500 text-sm line-clamp-2 leading-relaxed">
-                      {project.description}
-                    </p>
-                  </div>
-
-                  <div className="pt-4 border-t border-default-100 flex items-center justify-between">
-                    <Chip
-                      className="border-none pl-0"
-                      color={project.disabled ? "danger" : "success"}
-                      size="sm"
-                      variant="dot"
-                    >
-                      {project.disabled ? "Disabled" : "Active"}
-                    </Chip>
-                    <div className="flex items-center gap-3 text-tiny text-default-400">
-                      <div className="flex items-center gap-1">
-                        <Icon icon="hugeicons:user-group" width={14} />
-                        <span>{project.members.length}</span>
+              <Card className="w-full h-full bg-surface/60 backdrop-blur-md shadow-sm border border-default hover:scale-[1.02] hover:bg-surface/80 transition-all duration-300 group">
+                <Card.Content className="p-5">
+                  <div className="flex flex-col h-full justify-between gap-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div
+                        className="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center shadow-sm transition-transform group-hover:scale-110"
+                        style={{
+                          background: `linear-gradient(135deg, ${project.color}20 0%, ${project.color}40 100%)`,
+                          color: project.color,
+                          border: `1px solid ${project.color}40`,
+                        }}
+                      >
+                        <Icon className="text-2xl" icon={project.icon} />
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Icon icon="hugeicons:calendar-03" width={14} />
-                        <span>
-                          {new Date(project.created_at).toLocaleDateString()}
-                        </span>
+                      <Dropdown>
+                        <Dropdown.Trigger>
+                          <Button
+                            className="opacity-0 group-hover:opacity-100 transition-opacity"
+                            size="sm"
+                            variant="ghost"
+                          >
+                            <Icon
+                              className="text-lg"
+                              icon="hugeicons:more-vertical-circle-01"
+                              width={20}
+                            />
+                          </Button>
+                        </Dropdown.Trigger>
+                        <Dropdown.Popover>
+                          <Dropdown.Menu aria-label="Project actions">
+                            <Dropdown.Item
+                              key="copy"
+                              id="copy"
+                              onPress={() =>
+                                copyProjectIDtoClipboard(project.id)
+                              }
+                              textValue="Copy ID"
+                            >
+                              {<Icon icon="hugeicons:copy-01" width={18} />}
+                              Copy ID
+                            </Dropdown.Item>
+                            <Dropdown.Item
+                              key="edit"
+                              id="edit"
+                              isDisabled={
+                                (!canEditProject(user.id, project.members) ||
+                                  project.disabled) &&
+                                user.role !== "admin"
+                              }
+                              onPress={() => {
+                                setTargetProject(project);
+                                editProjectModal.open();
+                              }}
+                              textValue="Edit"
+                            >
+                              {
+                                <Icon
+                                  icon="hugeicons:pencil-edit-02"
+                                  width={18}
+                                />
+                              }
+                              Edit
+                            </Dropdown.Item>
+                            <Dropdown.Item
+                              key="delete"
+                              id="delete"
+                              className="text-danger"
+                              isDisabled={
+                                (!canEditProject(user.id, project.members) ||
+                                  project.disabled) &&
+                                user.role !== "admin"
+                              }
+                              onPress={() => {
+                                setTargetProject(project);
+                                deleteProjectModal.open();
+                              }}
+                              textValue="Delete"
+                            >
+                              {<Icon icon="hugeicons:delete-02" width={18} />}
+                              Delete
+                            </Dropdown.Item>
+                          </Dropdown.Menu>
+                        </Dropdown.Popover>
+                      </Dropdown>
+                    </div>
+
+                    <div>
+                      <h3 className="font-bold text-lg text-foreground mb-1 group-hover:text-accent transition-colors">
+                        {project.name}
+                      </h3>
+                      <p className="text-muted text-sm line-clamp-2 leading-relaxed">
+                        {project.description}
+                      </p>
+                    </div>
+
+                    <div className="pt-4 border-t border-default flex items-center justify-between">
+                      <Chip
+                        className="border-none pl-0"
+                        color={project.disabled ? "danger" : "success"}
+                        size="sm"
+                        variant="soft"
+                      >
+                        <Chip.Label>
+                          {project.disabled ? "Disabled" : "Active"}
+                        </Chip.Label>
+                      </Chip>
+                      <div className="flex items-center gap-3 text-xs text-muted">
+                        <div className="flex items-center gap-1">
+                          <Icon icon="hugeicons:user-group" width={14} />
+                          <span>{project.members.length}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Icon icon="hugeicons:calendar-03" width={14} />
+                          <span>
+                            {new Date(project.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </CardBody>
-            </Card>
+                </Card.Content>
+              </Card>
+            </Button>
           </motion.div>
         ))}
       </div>
@@ -300,10 +251,10 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
             visible: { y: 0, opacity: 1 },
           }}
         >
-          <Spacer y={8} />
+          <div aria-hidden className="h-8" />
           <div className="flex items-center gap-4 mb-6">
             <div className="h-px flex-1 bg-gradient-to-r from-transparent via-default-200 to-transparent" />
-            <div className="flex items-center gap-2 text-default-500">
+            <div className="flex items-center gap-2 text-muted">
               <Icon icon="hugeicons:mail-02" width={20} />
               <p className="text-sm font-medium uppercase tracking-wider">
                 Pending Invitations
@@ -315,10 +266,10 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
             {pending_projects.map((project: any) => (
               <Card
                 key={project.id}
-                className="border-none shadow-lg bg-content1/60 backdrop-blur-md border border-default-100"
+                className="border-none shadow-lg bg-surface/60 backdrop-blur-md border border-default"
               >
                 <ShineBorder shineColor={["#A07CFE", "#FE8FB5", "#FFBE7B"]} />
-                <CardBody className="p-5">
+                <Card.Content className="p-5">
                   <div className="flex flex-col gap-4">
                     <div className="flex items-start gap-4">
                       <div
@@ -333,74 +284,70 @@ export function ProjectsList({ projects, pending_projects, user }: any) {
                       </div>
                       <div className="grow">
                         <h3 className="font-bold text-lg">{project.name}</h3>
-                        <p className="text-default-500 text-sm line-clamp-2">
+                        <p className="text-muted text-sm line-clamp-2">
                           {project.description}
                         </p>
                       </div>
                     </div>
                     <div className="flex items-center justify-between gap-2 pt-2">
-                      <ButtonGroup className="w-full" variant="flat">
+                      <ButtonGroup className="w-full" variant="tertiary">
                         <Button
                           className="w-full font-medium"
-                          color={
-                            selectedOption === "accept" ? "success" : "danger"
-                          }
                           onPress={() => {
                             if (selectedOption === "accept") {
                               acceptProjectInvite(project.id);
                             } else if (selectedOption === "decline") {
                               declineProjectInvite(project.id);
                             }
-
                             refreshProjects();
                           }}
                         >
                           {labelsMap[selectedOption]}
                         </Button>
-                        <Dropdown placement="bottom-end">
-                          <DropdownTrigger>
-                            <Button isIconOnly>
+                        <Dropdown>
+                          <Dropdown.Trigger>
+                            <Button className="aspect-square p-0">
                               <Icon icon="hugeicons:arrow-down-01" />
                             </Button>
-                          </DropdownTrigger>
-                          <DropdownMenu
-                            disallowEmptySelection
-                            aria-label="Merge options"
-                            className="max-w-[300px]"
-                            selectedKeys={[selectedOption]}
-                            selectionMode="single"
-                            variant="flat"
-                            onSelectionChange={inviteSelectionChange}
-                          >
-                            <DropdownItem
-                              key="accept"
-                              color="success"
-                              description={descriptionsMap["accept"]}
-                              startContent={
-                                <Icon
-                                  icon="hugeicons:tick-double-01"
-                                  width={24}
-                                />
-                              }
+                          </Dropdown.Trigger>
+                          <Dropdown.Popover>
+                            <Dropdown.Menu
+                              disallowEmptySelection
+                              aria-label="Merge options"
+                              className="max-w-[300px]"
+                              selectedKeys={new Set([selectedOption])}
+                              selectionMode="single"
+                              onSelectionChange={inviteSelectionChange}
                             >
-                              {labelsMap["accept"]}
-                            </DropdownItem>
-                            <DropdownItem
-                              key="decline"
-                              color="danger"
-                              description={descriptionsMap["decline"]}
-                              startContent={
-                                <Icon icon="hugeicons:cancel-01" width={24} />
-                              }
-                            >
-                              {labelsMap["decline"]}
-                            </DropdownItem>
-                          </DropdownMenu>
+                              <Dropdown.Item
+                                key="accept"
+                                id="accept"
+                                textValue=" "
+                              >
+                                {
+                                  <Icon
+                                    icon="hugeicons:tick-double-01"
+                                    width={24}
+                                  />
+                                }
+                                {labelsMap["accept"]}
+                              </Dropdown.Item>
+                              <Dropdown.Item
+                                key="decline"
+                                id="decline"
+                                className="text-danger"
+                                textValue=" "
+                              >
+                                {<Icon icon="hugeicons:cancel-01" width={24} />}
+                                {labelsMap["decline"]}
+                              </Dropdown.Item>
+                            </Dropdown.Menu>
+                          </Dropdown.Popover>
                         </Dropdown>
                       </ButtonGroup>
                     </div>
                   </div>
-                </CardBody>
+                </Card.Content>
               </Card>
             ))}
           </div>

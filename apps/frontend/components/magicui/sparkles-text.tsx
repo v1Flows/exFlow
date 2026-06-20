@@ -1,7 +1,6 @@
 "use client";
 
 import type { CSSProperties, ReactElement } from "react";
-
 import { cn } from "@heroui/react";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";

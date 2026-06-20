@@ -42,6 +42,12 @@ func UpdateUser(context *gin.Context, db *bun.DB) {
 
 	user.UpdatedAt = time.Now()
 	user.Role = strings.ToLower(user.Role)
+
+	if user.Role != "" && !validRoles[user.Role] {
+		httperror.StatusBadRequest(context, "Invalid role. Must be one of: user, editor, admin", nil)
+		return
+	}
+
 	_, err = db.NewUpdate().Model(&user).Column("username", "email", "role", "updated_at", "password").Where("id = ?", userID).Exec(context)
 	if err != nil {
 		httperror.InternalServerError(context, "Error updating user on db", err)

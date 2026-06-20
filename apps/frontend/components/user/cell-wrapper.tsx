@@ -15,7 +15,7 @@ const CellWrapper = ({
   <div
     ref={ref}
     className={cn(
-      "flex items-center justify-between gap-2 rounded-medium bg-content2 p-4",
+      "flex items-center justify-between gap-2 rounded-md bg-surface-secondary p-4",
       className,
     )}
     {...props}

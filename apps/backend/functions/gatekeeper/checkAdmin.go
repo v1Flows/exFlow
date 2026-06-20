@@ -1,8 +1,9 @@
 package gatekeeper
 
 import (
-	"github.com/JustLABv1/justflow/apps/backend/pkg/models"
 	"context"
+
+	"github.com/JustLABv1/justflow/apps/backend/pkg/models"
 
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
@@ -22,4 +23,15 @@ func CheckAdmin(userID uuid.UUID, db *bun.DB) (bool, error) {
 	} else {
 		return true, nil
 	}
+}
+
+func CheckEditorOrAdmin(userID uuid.UUID, db *bun.DB) (bool, error) {
+	ctx := context.Background()
+	user := new(models.Users)
+	err := db.NewSelect().Model(user).Where("id = ?", userID).Scan(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	return user.Role == "admin" || user.Role == "editor", nil
 }

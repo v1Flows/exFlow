@@ -1,31 +1,17 @@
 "use client";
-
+import { CopySnippet } from "@/components/ui/copy-snippet";
 import { Icon } from "@iconify/react";
-import {
-  Button,
-  Chip,
-  Snippet,
-  Table,
-  TableBody,
-  TableCell,
-  TableColumn,
-  TableHeader,
-  TableRow,
-  Tooltip,
-  useDisclosure,
-} from "@heroui/react";
+import { Button, Chip, Table, Tooltip, useOverlayState } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import ReactTimeago from "react-timeago";
 import { motion } from "framer-motion";
-
 import DeleteExecutionModal from "@/components/modals/executions/delete";
 import {
   executionStatusColor,
   executionStatusName,
   executionStatusWrapper,
 } from "@/lib/functions/executionStyles";
-
 export default function ExecutionsTable({
   runners,
   executions,
@@ -33,11 +19,8 @@ export default function ExecutionsTable({
   canEdit,
 }: any) {
   const router = useRouter();
-
-  const deleteExecutionModal = useDisclosure();
-
+  const deleteExecutionModal = useOverlayState();
   const [targetExecution, setTargetExecution] = useState({} as any);
-
   function getDuration(execution: any) {
     if (execution.finished_at === "0001-01-01T00:00:00Z") {
       if (execution.executed_at !== "0001-01-01T00:00:00Z") {
@@ -47,7 +30,6 @@ export default function ExecutionsTable({
         const min = Math.floor(sec / 60);
         const hr = Math.floor(min / 60);
         const day = Math.floor(hr / 24);
-
         if (day > 0) {
           return `${day}d ${hr % 24}h ${min % 60}m ${sec % 60}s`;
         } else if (hr > 0) {
@@ -73,7 +55,6 @@ export default function ExecutionsTable({
       const min = Math.floor(sec / 60);
       const hr = Math.floor(min / 60);
       const day = Math.floor(hr / 24);
-
       if (day > 0) {
         return `${day}d ${hr % 24}h ${min % 60}m ${sec % 60}s`;
       } else if (hr > 0) {
@@ -85,10 +66,8 @@ export default function ExecutionsTable({
       }
     }
   }
-
   const renderCell = React.useCallback((execution, columnKey) => {
     const cellValue = execution[columnKey];
-
     switch (columnKey) {
       case "status":
         return (
@@ -101,17 +80,15 @@ export default function ExecutionsTable({
                 {executionStatusName(execution)}
               </p>
               {execution.status !== "scheduled" && (
-                <p className="text-sm text-default-500">
-                  {getDuration(execution)}
-                </p>
+                <p className="text-sm text-muted">{getDuration(execution)}</p>
               )}
             </div>
           </div>
         );
       case "triggered_by":
         return (
-          <Chip className="capitalize" radius="sm" size="sm" variant="flat">
-            {cellValue}
+          <Chip className="capitalize">
+            <Chip.Label>{cellValue}</Chip.Label>
           </Chip>
         );
       case "runner_id":
@@ -120,59 +97,77 @@ export default function ExecutionsTable({
             {runners.find((runner: any) => runner.id === cellValue).name}
           </span>
         ) : (
-          <Tooltip content={`ID: ${cellValue}`}>
-            <span className="text-default-500">Not Found</span>
+          <Tooltip>
+            <Tooltip.Trigger>
+              <span className="text-muted">Not Found</span>
+            </Tooltip.Trigger>
+            <Tooltip.Content>{`ID: ${cellValue}`}</Tooltip.Content>
           </Tooltip>
         );
       case "scheduled_at":
         return cellValue !== "0001-01-01T00:00:00Z" ? (
-          <Tooltip content={new Date(cellValue).toLocaleString()}>
-            {cellValue > new Date().toISOString() ? (
-              <span className="text-secondary font-bold">
+          <Tooltip>
+            <Tooltip.Trigger>
+              {cellValue > new Date().toISOString() ? (
+                <span className="text-default-foreground font-bold">
+                  <ReactTimeago live date={new Date(cellValue)} />
+                </span>
+              ) : (
                 <ReactTimeago live date={new Date(cellValue)} />
-              </span>
-            ) : (
-              <ReactTimeago live date={new Date(cellValue)} />
-            )}
+              )}
+            </Tooltip.Trigger>
+            <Tooltip.Content>
+              {new Date(cellValue).toLocaleString()}
+            </Tooltip.Content>
           </Tooltip>
         ) : (
-          <span className="text-default-500">Not scheduled</span>
+          <span className="text-muted">Not scheduled</span>
         );
       case "created_at":
         return (
-          <Tooltip content={new Date(cellValue).toLocaleString()}>
-            <ReactTimeago date={new Date(cellValue)} locale="de-DE" />
+          <Tooltip>
+            <Tooltip.Trigger>
+              <ReactTimeago date={new Date(cellValue)} locale="de-DE" />
+            </Tooltip.Trigger>
+            <Tooltip.Content>
+              {new Date(cellValue).toLocaleString()}
+            </Tooltip.Content>
           </Tooltip>
         );
       case "executed_at":
         return cellValue !== "0001-01-01T00:00:00Z" ? (
-          <Tooltip content={new Date(cellValue).toLocaleString()}>
-            <ReactTimeago date={new Date(cellValue)} locale="de-DE" />
+          <Tooltip>
+            <Tooltip.Trigger>
+              <ReactTimeago date={new Date(cellValue)} locale="de-DE" />
+            </Tooltip.Trigger>
+            <Tooltip.Content>
+              {new Date(cellValue).toLocaleString()}
+            </Tooltip.Content>
           </Tooltip>
         ) : (
-          <span className="text-default-500">Not executed</span>
+          <span className="text-muted">Not executed</span>
         );
       case "finished_at":
         return cellValue !== "0001-01-01T00:00:00Z" ? (
-          <Tooltip content={new Date(cellValue).toLocaleString()}>
-            <ReactTimeago date={new Date(cellValue)} locale="de-DE" />
+          <Tooltip>
+            <Tooltip.Trigger>
+              <ReactTimeago date={new Date(cellValue)} locale="de-DE" />
+            </Tooltip.Trigger>
+            <Tooltip.Content>
+              {new Date(cellValue).toLocaleString()}
+            </Tooltip.Content>
           </Tooltip>
         ) : (
-          <span className="text-default-500">Not executed</span>
+          <span className="text-muted">Not executed</span>
         );
       case "id":
-        return (
-          <Snippet hideSymbol size="sm" variant="flat">
-            {cellValue}
-          </Snippet>
-        );
+        return <CopySnippet showPrompt={false}>{cellValue}</CopySnippet>;
       case "actions":
         return (
           <div className="flex items-center justify-center gap-2">
             {displayToFlow && (
               <Button
-                color="secondary"
-                variant="flat"
+                variant="tertiary"
                 onPress={() => {
                   router.push(`/flows/${execution.flow_id}`);
                 }}
@@ -182,8 +177,7 @@ export default function ExecutionsTable({
               </Button>
             )}
             <Button
-              color="primary"
-              variant="flat"
+              variant="secondary"
               onPress={() => {
                 router.push(
                   `/flows/${execution.flow_id}/execution/${execution.id}`,
@@ -193,20 +187,23 @@ export default function ExecutionsTable({
               <Icon icon="hugeicons:navigation-03" width={20} />
               View
             </Button>
-            <Tooltip color="danger" content="Delete Execution">
-              <Button
-                isIconOnly
-                isDisabled={!canEdit}
-                variant="light"
-                onPress={() => {
-                  setTargetExecution(execution);
-                  deleteExecutionModal.onOpen();
-                }}
-              >
-                <span className="text-lg text-danger cursor-pointer active:opacity-50">
-                  <Icon icon="hugeicons:delete-02" width={20} />
-                </span>
-              </Button>
+            <Tooltip>
+              <Tooltip.Trigger>
+                <Button
+                  isDisabled={!canEdit}
+                  variant="ghost"
+                  onPress={() => {
+                    setTargetExecution(execution);
+                    deleteExecutionModal.open();
+                  }}
+                  className="aspect-square p-0"
+                >
+                  <span className="text-lg text-danger cursor-pointer active:opacity-50">
+                    <Icon icon="hugeicons:delete-02" width={20} />
+                  </span>
+                </Button>
+              </Tooltip.Trigger>
+              <Tooltip.Content>{"Delete Execution"}</Tooltip.Content>
             </Tooltip>
           </div>
         );
@@ -214,7 +211,6 @@ export default function ExecutionsTable({
         return cellValue;
     }
   }, []);
-
   return (
     <>
       <motion.div
@@ -222,52 +218,77 @@ export default function ExecutionsTable({
         initial={{ opacity: 0, y: 10 }}
         transition={{ duration: 0.3 }}
       >
-        <Table
-          aria-label="Example table with custom cells"
-          classNames={{
-            wrapper: "bg-transparent shadow-none p-0",
-            th: "bg-default-100/50 backdrop-blur-sm",
-          }}
-          topContentPlacement="outside"
-        >
-          <TableHeader>
-            <TableColumn key="status" align="start">
-              Status
-            </TableColumn>
-            <TableColumn key="triggered_by" align="center">
-              Triggered By
-            </TableColumn>
-            <TableColumn key="runner_id" align="center">
-              Runner
-            </TableColumn>
-            <TableColumn key="scheduled_at" align="center">
-              Scheduled At
-            </TableColumn>
-            <TableColumn key="created_at" align="center">
-              Created At
-            </TableColumn>
-            <TableColumn key="executed_at" align="center">
-              Executed At
-            </TableColumn>
-            <TableColumn key="finished_at" align="center">
-              Finished At
-            </TableColumn>
-            <TableColumn key="id" align="center">
-              ID
-            </TableColumn>
-            <TableColumn key="actions" align="center">
-              Actions
-            </TableColumn>
-          </TableHeader>
-          <TableBody items={executions}>
-            {(item: any) => (
-              <TableRow key={item.id}>
-                {(columnKey) => (
-                  <TableCell>{renderCell(item, columnKey)}</TableCell>
+        <Table>
+          <Table.ScrollContainer>
+            <Table.Content aria-label="Example table with custom cells">
+              <Table.Header>
+                <Table.Column key="status" id="status" className="text-start">
+                  Status
+                </Table.Column>
+                <Table.Column
+                  key="triggered_by"
+                  id="triggered_by"
+                  className="text-center"
+                >
+                  Triggered By
+                </Table.Column>
+                <Table.Column
+                  key="runner_id"
+                  id="runner_id"
+                  className="text-center"
+                >
+                  Runner
+                </Table.Column>
+                <Table.Column
+                  key="scheduled_at"
+                  id="scheduled_at"
+                  className="text-center"
+                >
+                  Scheduled At
+                </Table.Column>
+                <Table.Column
+                  key="created_at"
+                  id="created_at"
+                  className="text-center"
+                >
+                  Created At
+                </Table.Column>
+                <Table.Column
+                  key="executed_at"
+                  id="executed_at"
+                  className="text-center"
+                >
+                  Executed At
+                </Table.Column>
+                <Table.Column
+                  key="finished_at"
+                  id="finished_at"
+                  className="text-center"
+                >
+                  Finished At
+                </Table.Column>
+                <Table.Column key="id" id="id" className="text-center">
+                  ID
+                </Table.Column>
+                <Table.Column
+                  key="actions"
+                  id="actions"
+                  className="text-center"
+                >
+                  Actions
+                </Table.Column>
+              </Table.Header>
+              <Table.Body items={executions}>
+                {(item: any) => (
+                  <Table.Row key={item.id} id={item.id}>
+                    {(columnKey) => (
+                      <Table.Cell>{renderCell(item, columnKey)}</Table.Cell>
+                    )}
+                  </Table.Row>
                 )}
-              </TableRow>
-            )}
-          </TableBody>
+              </Table.Body>
+            </Table.Content>
+          </Table.ScrollContainer>
         </Table>
       </motion.div>
 

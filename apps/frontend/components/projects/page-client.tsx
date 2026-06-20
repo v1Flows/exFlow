@@ -1,6 +1,5 @@
 "use client";
-
-import { Divider } from "@heroui/react";
+import { Separator } from "@heroui/react";
 
 import ErrorCard from "@/components/error/ErrorCard";
 import { ProjectsList } from "@/components/projects/list";
@@ -57,7 +56,7 @@ export default function ProjectsPageClient() {
   return (
     <main>
       <ProjectsHeading settings={settings} user={user} />
-      <Divider className="mt-4 mb-4" />
+      <Separator className="mt-4 mb-4" />
       <ProjectsList
         pending_projects={pendingProjects || []}
         projects={projects}

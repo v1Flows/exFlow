@@ -184,6 +184,33 @@ func startProcessing(actions []jf_models.Action, loadedPlugins map[string]plugin
 		return
 	}
 
+	if flow.UseDag {
+		result := runDAG(cfg, workspace, actions, loadedPlugins, flow, flowBytes, alert, flowActionStepsWithIDs, execution)
+		switch result {
+		case "recovered":
+			postProcessing(cfg, execution, flow, "recovered")
+			executions.EndWithRecovered(nil, execution)
+		case "canceled":
+			cancelRemainingSteps(execution.ID.String())
+			postProcessing(cfg, execution, flow, "canceled")
+			executions.EndCanceled(nil, execution)
+		case "noPatternMatch":
+			cancelRemainingSteps(execution.ID.String())
+			postProcessing(cfg, execution, flow, "noPatternMatch")
+			executions.EndNoPatternMatch(nil, execution)
+		case "error":
+			cancelRemainingSteps(execution.ID.String())
+			postProcessing(cfg, execution, flow, "error")
+			executions.EndWithError(nil, execution)
+		default:
+			postProcessing(cfg, execution, flow, "success")
+			executions.EndSuccess(nil, execution)
+		}
+		close(doneHeartbeat)
+		finishProcessing(cfg, execution, flow)
+		return
+	}
+
 	if !flow.ExecParallel {
 		// process each flow action step in sequential order where pending is true
 		for _, step := range flowActionStepsWithIDs {

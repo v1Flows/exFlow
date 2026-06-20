@@ -1,11 +1,15 @@
 @import "tailwindcss";
-@config "../tailwind.config.ts";
+@import "@heroui/styles";
 
 @theme inline {
+  --font-mono: var(--font-geist-mono);
   --animate-shine: shine var(--duration) infinite linear;
   --animate-ripple: ripple var(--duration, 2s) ease calc(var(--i, 0) * 0.2s)
     infinite;
- 
+  --animate-gradient: gradient 8s linear infinite;
+  --animate-marquee: marquee var(--duration) linear infinite;
+  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
+
   @keyframes shine {
     0% {
       background-position: 0% 0%;
@@ -25,6 +29,30 @@
     }
     50% {
       transform: translate(-50%, -50%) scale(0.9);
+    }
+  }
+
+  @keyframes gradient {
+    to {
+      background-position: var(--bg-size) 0;
+    }
+  }
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(-100% - var(--gap)));
+    }
+  }
+
+  @keyframes marquee-vertical {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(calc(-100% - var(--gap)));
     }
   }
 }

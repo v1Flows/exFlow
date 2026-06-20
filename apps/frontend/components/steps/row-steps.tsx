@@ -1,12 +1,11 @@
 "use client";
 
 import type { ComponentProps } from "react";
-import type { ButtonProps } from "@heroui/react";
 
 import React from "react";
 import { useControlledState } from "@react-stately/utils";
 import { m, LazyMotion, domAnimation } from "framer-motion";
-import { cn } from "@heroui/react";
+import { cn } from "@/components/cn/cn";
 
 export type RowStepProps = {
   title?: React.ReactNode;
@@ -26,7 +25,13 @@ export interface RowStepsProps extends React.HTMLAttributes<HTMLButtonElement> {
    *
    * @default "primary"
    */
-  color?: ButtonProps["color"];
+  color?:
+    | "primary"
+    | "secondary"
+    | "success"
+    | "warning"
+    | "danger"
+    | "default";
   /**
    * The current step index.
    */
@@ -121,8 +126,8 @@ const RowSteps = React.forwardRef<HTMLButtonElement, RowStepsProps>(
 
       switch (color) {
         case "primary":
-          userColor = "[--step-color:hsl(var(--heroui-primary))]";
-          fgColor = "[--step-fg-color:hsl(var(--heroui-primary-foreground))]";
+          userColor = "[--step-color:hsl(var(--heroui-accent))]";
+          fgColor = "[--step-fg-color:hsl(var(--heroui-accent-foreground))]";
           break;
         case "secondary":
           userColor = "[--step-color:hsl(var(--heroui-secondary))]";
@@ -145,8 +150,8 @@ const RowSteps = React.forwardRef<HTMLButtonElement, RowStepsProps>(
           fgColor = "[--step-fg-color:hsl(var(--heroui-default-foreground))]";
           break;
         default:
-          userColor = "[--step-color:hsl(var(--heroui-primary))]";
-          fgColor = "[--step-fg-color:hsl(var(--heroui-primary-foreground))]";
+          userColor = "[--step-color:hsl(var(--heroui-accent))]";
+          fgColor = "[--step-fg-color:hsl(var(--heroui-accent-foreground))]";
           break;
       }
 
@@ -186,7 +191,7 @@ const RowSteps = React.forwardRef<HTMLButtonElement, RowStepsProps>(
                   ref={ref}
                   aria-current={status === "active" ? "step" : undefined}
                   className={cn(
-                    "group flex w-full cursor-pointer flex-row items-center justify-center gap-x-3 rounded-large py-2.5",
+                    "group flex w-full cursor-pointer flex-row items-center justify-center gap-x-3 rounded-lg py-2.5",
                     stepClassName,
                   )}
                   onClick={() => setCurrentStep(stepIdx)}
@@ -197,7 +202,7 @@ const RowSteps = React.forwardRef<HTMLButtonElement, RowStepsProps>(
                       <m.div animate={status} className="relative">
                         <m.div
                           className={cn(
-                            "relative flex h-[34px] w-[34px] items-center justify-center rounded-full border-medium text-large font-semibold text-default-foreground",
+                            "relative flex h-[34px] w-[34px] items-center justify-center rounded-full border-2 text-lg font-semibold text-default-foreground",
                             {
                               "shadow-lg": status === "complete",
                             },
@@ -236,9 +241,9 @@ const RowSteps = React.forwardRef<HTMLButtonElement, RowStepsProps>(
                   <div className="max-w-full flex-1 text-start">
                     <div
                       className={cn(
-                        "text-small font-medium text-default-foreground transition-[color,opacity] duration-300 group-active:opacity-80 lg:text-medium",
+                        "text-sm font-medium text-default-foreground transition-[color,opacity] duration-300 group-active:opacity-80 lg:text-base",
                         {
-                          "text-default-500": status === "inactive",
+                          "text-muted": status === "inactive",
                         },
                       )}
                     >

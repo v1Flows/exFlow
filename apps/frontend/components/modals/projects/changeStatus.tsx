@@ -1,76 +1,62 @@
-import type { UseDisclosureReturn } from "@heroui/use-disclosure";
-
+import { CopySnippet } from "@/components/ui/copy-snippet";
 import {
-  addToast,
   Button,
+  Description,
+  FieldError,
   Input,
+  InputGroup,
+  Label,
   Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Snippet,
+  TextField,
+  toast,
+  type UseOverlayStateReturn,
 } from "@heroui/react";
 import React from "react";
-
 import ChangeProjectStatus from "@/lib/fetch/admin/PUT/ChangeProjectStatus";
 import ErrorCard from "@/components/error/ErrorCard";
 import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
-
 export default function ChangeProjectStatusModal({
   disclosure,
   project,
   status,
 }: {
-  disclosure: UseDisclosureReturn;
+  disclosure: UseOverlayStateReturn;
   project: any;
   status: any;
 }) {
-  const { isOpen, onOpenChange } = disclosure;
+  const { isOpen, setOpen: onOpenChange } = disclosure;
   const { refreshProjects } = useRefreshCache();
-
   const [disableReason, setDisableReason] = React.useState("");
   const [isLoading, setLoading] = React.useState(false);
   const [error, setError] = React.useState(false);
   const [errorText, setErrorText] = React.useState("");
   const [errorMessage, setErrorMessage] = React.useState("");
-
   async function changeProjectStatus() {
     setLoading(true);
-
     const res = (await ChangeProjectStatus(
       project.id,
       status,
       disableReason || "no info provided",
     )) as any;
-
     if (!res) {
       setLoading(false);
       setError(true);
       setErrorText("Failed to update project status");
       setErrorMessage("An error occurred while updating the project status");
-      addToast({
-        title: "Project",
+      toast.danger("Project", {
         description: "Failed to update project status",
-        color: "danger",
-        variant: "flat",
       });
-
       return;
     }
-
     if (res.success) {
       setLoading(false);
       setError(false);
       setErrorText("");
       setErrorMessage("");
-      onOpenChange();
+      onOpenChange(false);
       refreshProjects(); // Refresh SWR cache instead of router
-      addToast({
-        title: "Project",
+      toast.success("Project", {
         description: "Project status updated successfully",
-        color: "success",
-        variant: "flat",
       });
     } else {
       setLoading(false);
@@ -78,101 +64,105 @@ export default function ChangeProjectStatusModal({
       setErrorText(res.error);
       setErrorMessage(res.message);
       refreshProjects(); // Refresh SWR cache instead of router
-      addToast({
-        title: "Project",
+      toast.danger("Project", {
         description: "Failed to update project status",
-        color: "danger",
-        variant: "flat",
       });
     }
   }
-
   return (
     <main>
-      <Modal isOpen={isOpen} placement="top-center" onOpenChange={onOpenChange}>
-        {status && (
-          <ModalContent>
-            {(onClose) => (
-              <>
-                <ModalHeader className="flex flex-wrap items-center">
-                  <div className="flex flex-col gap-2">
-                    <p className="text-lg font-bold">Disable Project</p>
-                    <p className="text-sm text-default-500">
-                      Are you sure you want to disable this project?
-                    </p>
-                  </div>
-                </ModalHeader>
-                <ModalBody>
-                  {error && (
-                    <ErrorCard error={errorText} message={errorMessage} />
-                  )}
-                  <Snippet hideCopyButton hideSymbol>
-                    <span>
-                      ID:
-                      {project.id}
-                    </span>
-                  </Snippet>
-                  <Input
-                    label="Disable Reason"
-                    labelPlacement="outside"
-                    placeholder="Enter the reason for disabling this project"
-                    value={disableReason}
-                    variant="flat"
-                    onValueChange={setDisableReason}
-                  />
-                </ModalBody>
-                <ModalFooter className="grid grid-cols-2">
-                  <Button color="default" variant="ghost" onPress={onClose}>
-                    Cancel
-                  </Button>
-                  <Button
-                    color="danger"
-                    isLoading={isLoading}
-                    onPress={changeProjectStatus}
-                  >
-                    Disable
-                  </Button>
-                </ModalFooter>
-              </>
+      <Modal>
+        <Modal.Backdrop isOpen={isOpen} onOpenChange={onOpenChange}>
+          <Modal.Container placement="top">
+            {status && (
+              <Modal.Dialog>
+                {({ close: onClose }) => (
+                  <>
+                    <Modal.Header className="flex flex-wrap items-center">
+                      <Modal.Heading>
+                        <div className="flex flex-col gap-2">
+                          <p className="text-lg font-bold">Disable Project</p>
+                          <p className="text-sm text-muted">
+                            Are you sure you want to disable this project?
+                          </p>
+                        </div>
+                      </Modal.Heading>
+                    </Modal.Header>
+                    <Modal.Body>
+                      {error && (
+                        <ErrorCard error={errorText} message={errorMessage} />
+                      )}
+                      <CopySnippet copyable={false} showPrompt={false}>
+                        <span>
+                          ID:
+                          {project.id}
+                        </span>
+                      </CopySnippet>
+                      <TextField
+                        value={disableReason}
+                        onChange={setDisableReason}
+                      >
+                        <Label>{"Disable Reason"}</Label>
+                        <InputGroup>
+                          <Input placeholder="Enter the reason for disabling this project" />
+                        </InputGroup>
+                      </TextField>
+                    </Modal.Body>
+                    <Modal.Footer className="grid grid-cols-2">
+                      <Button variant="ghost" onPress={onClose}>
+                        Cancel
+                      </Button>
+                      <Button
+                        isPending={isLoading}
+                        onPress={changeProjectStatus}
+                        variant="danger"
+                      >
+                        Disable
+                      </Button>
+                    </Modal.Footer>
+                  </>
+                )}
+              </Modal.Dialog>
             )}
-          </ModalContent>
-        )}
-        {!status && (
-          <ModalContent>
-            {(onClose) => (
-              <>
-                <ModalHeader className="flex flex-wrap items-center">
-                  <div className="flex flex-col gap-2">
-                    <p className="text-lg font-bold">Enable Project</p>
-                    <p className="text-sm text-default-500">
-                      Are you sure you want to enable this project?
-                    </p>
-                  </div>
-                </ModalHeader>
-                <ModalBody>
-                  <Snippet hideCopyButton hideSymbol>
-                    <span>
-                      ID:
-                      {project.id}
-                    </span>
-                  </Snippet>
-                </ModalBody>
-                <ModalFooter className="grid grid-cols-2">
-                  <Button color="default" variant="ghost" onPress={onClose}>
-                    Cancel
-                  </Button>
-                  <Button
-                    color="success"
-                    isLoading={isLoading}
-                    onPress={changeProjectStatus}
-                  >
-                    Enable
-                  </Button>
-                </ModalFooter>
-              </>
+            {!status && (
+              <Modal.Dialog>
+                {({ close: onClose }) => (
+                  <>
+                    <Modal.Header className="flex flex-wrap items-center">
+                      <Modal.Heading>
+                        <div className="flex flex-col gap-2">
+                          <p className="text-lg font-bold">Enable Project</p>
+                          <p className="text-sm text-muted">
+                            Are you sure you want to enable this project?
+                          </p>
+                        </div>
+                      </Modal.Heading>
+                    </Modal.Header>
+                    <Modal.Body>
+                      <CopySnippet copyable={false} showPrompt={false}>
+                        <span>
+                          ID:
+                          {project.id}
+                        </span>
+                      </CopySnippet>
+                    </Modal.Body>
+                    <Modal.Footer className="grid grid-cols-2">
+                      <Button variant="ghost" onPress={onClose}>
+                        Cancel
+                      </Button>
+                      <Button
+                        isPending={isLoading}
+                        onPress={changeProjectStatus}
+                      >
+                        Enable
+                      </Button>
+                    </Modal.Footer>
+                  </>
+                )}
+              </Modal.Dialog>
             )}
-          </ModalContent>
-        )}
+          </Modal.Container>
+        </Modal.Backdrop>
       </Modal>
     </main>
   );

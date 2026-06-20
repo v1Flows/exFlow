@@ -1,16 +1,13 @@
 "use client";
-
-import { addToast, Button, useDisclosure } from "@heroui/react";
+import { Button, toast, useOverlayState } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
-
 import ScheduleExecutionModal from "@/components/modals/executions/schedule";
 import EditFlowModal from "@/components/modals/flows/edit";
 import canEditProject from "@/lib/functions/canEditProject";
 import { startExecution } from "@/lib/swr/api/executions";
 import { useRefreshCache } from "@/lib/swr/hooks/useRefreshCache";
 import SimulateAlertModal from "@/components/modals/alerts/simulate";
-
 export default function FlowHeading({
   flow,
   projects,
@@ -26,30 +23,20 @@ export default function FlowHeading({
   folders: any;
   settings: any;
 }) {
-  const editFlowModal = useDisclosure();
-  const scheduleExecutionModal = useDisclosure();
-  const simulateAlertModal = useDisclosure();
+  const editFlowModal = useOverlayState();
+  const scheduleExecutionModal = useOverlayState();
+  const simulateAlertModal = useOverlayState();
   const { refreshAllExecutionCaches } = useRefreshCache();
-
   const handleExecuteFlow = async () => {
     const result = await startExecution(flow.id);
-
     if (result.success) {
-      addToast({
-        title: "Execution Started",
-        color: "success",
-      });
+      toast.success("Execution Started");
       // Immediately refresh executions data
       refreshAllExecutionCaches(flow.id);
     } else {
-      addToast({
-        title: "Execution start failed",
-        description: result.error,
-        color: "danger",
-      });
+      toast.danger("Execution start failed", { description: result.error });
     }
   };
-
   return (
     <motion.div
       animate={{ opacity: 1, y: 0 }}
@@ -70,36 +57,35 @@ export default function FlowHeading({
         </div>
         <div>
           <h1 className="text-2xl font-bold leading-tight">{flow.name}</h1>
-          <p className="text-small text-default-500">{flow.description}</p>
+          <p className="text-sm text-muted">{flow.description}</p>
         </div>
       </div>
       <div className="flex items-center gap-2 md:ml-auto">
         <Button
-          isIconOnly
           isDisabled={
             (!canEditProject(user.id, project.members) || flow.disabled) &&
             user.role !== "admin"
           }
-          variant="light"
+          variant="ghost"
           onPress={() => {
-            editFlowModal.onOpen();
+            editFlowModal.open();
           }}
+          className="aspect-square p-0"
         >
           <Icon icon="hugeicons:pencil-edit-02" width={20} />
         </Button>
         {flow.type === "alert" ? (
           <Button
-            color="secondary"
             isDisabled={
               (flow.disabled || !settings.start_executions) &&
               user.role !== "admin"
             }
-            startContent={<Icon icon="hugeicons:alert-02" width={20} />}
-            variant="flat"
+            variant="tertiary"
             onPress={() => {
-              simulateAlertModal.onOpen();
+              simulateAlertModal.open();
             }}
           >
+            {<Icon icon="hugeicons:alert-02" width={20} />}
             Simulate Alert
           </Button>
         ) : (
@@ -109,24 +95,23 @@ export default function FlowHeading({
                 (flow.disabled || !settings.start_executions) &&
                 user.role !== "admin"
               }
-              startContent={<Icon icon="hugeicons:time-schedule" width={20} />}
-              variant="flat"
+              variant="tertiary"
               onPress={() => {
-                scheduleExecutionModal.onOpen();
+                scheduleExecutionModal.open();
               }}
             >
+              {<Icon icon="hugeicons:time-schedule" width={20} />}
               Schedule
             </Button>
             <Button
-              color="primary"
               isDisabled={
                 (flow.disabled || !settings.start_executions) &&
                 user.role !== "admin"
               }
-              startContent={<Icon icon="hugeicons:play" width={20} />}
-              variant="solid"
+              variant="primary"
               onPress={handleExecuteFlow}
             >
+              {<Icon icon="hugeicons:play" width={20} />}
               Run Flow
             </Button>
           </>

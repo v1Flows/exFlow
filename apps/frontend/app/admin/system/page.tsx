@@ -1,5 +1,3 @@
-import { Divider, Spacer } from "@heroui/react";
-
 import AdminSystemHeading from "@/components/admin/system/heading";
 import AdminGetPageSettings from "@/lib/fetch/admin/settings";
 import { AdminSystemSettings } from "@/components/admin/system/settings";
@@ -13,9 +11,9 @@ export default async function AdminSettingsPage() {
   return (
     <main>
       <AdminSystemHeading />
-      <Divider className="mt-4 mb-4" />
+      <hr className="my-4 border-default" />
       <AdminSystemStatus />
-      <Spacer y={4} />
+      <div aria-hidden className="h-4" />
       <AdminSystemSettings settings={settings.data.settings} />
     </main>
   );

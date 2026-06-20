@@ -17,6 +17,7 @@ type Flows struct {
 	ProjectID              string            `bun:"project_id,type:text,notnull" json:"project_id"`
 	RunnerID               string            `bun:"runner_id,type:text,default:''" json:"runner_id"`
 	ExecParallel           bool              `bun:"exec_parallel,type:bool,default:false" json:"exec_parallel"`
+	UseDag                 bool              `bun:"use_dag,type:bool,default:false" json:"use_dag"`
 	Actions                []Action          `bun:"type:jsonb,default:jsonb('[]')" json:"actions"`
 	Maintenance            bool              `bun:"maintenance,type:bool,default:false" json:"maintenance"`
 	MaintenanceMessage     string            `bun:"maintenance_message,type:text,default:''" json:"maintenance_message"`
@@ -34,25 +35,47 @@ type Flows struct {
 	GroupAlertsIdentifier  string            `bun:"group_alerts_identifier,type:text,default:''" json:"group_alerts_identifier"`
 	AlertThreshold         int               `bun:"alert_threshold,type:int,default:0" json:"alert_threshold"`
 	AlwaysCleanupWorkspace bool              `bun:"always_cleanup_workspace,type:bool,default:false" json:"always_cleanup_workspace"`
+	InputParams            []InputParam      `bun:"type:jsonb,default:jsonb('[]')" json:"input_params"`
+}
+
+// InputParam defines a user-facing input field for a flow.
+// Values supplied by the user at execution time are stored as InputValues on the Execution.
+type InputParam struct {
+	ID          string   `json:"id"`
+	Name        string   `json:"name"`
+	Label       string   `json:"label"`
+	Description string   `json:"description"`
+	Type        string   `json:"type"` // text | number | boolean | select | textarea
+	Required    bool     `json:"required"`
+	Default     string   `json:"default"`
+	Options     []Option `json:"options,omitempty"` // for type=select
+	Order       int      `json:"order"`
+}
+
+type NodePosition struct {
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
 }
 
 type Action struct {
-	ID                uuid.UUID `json:"id"`
-	Name              string    `json:"name"`
-	Description       string    `json:"description"`
-	Plugin            string    `json:"plugin"`
-	Version           string    `json:"version"`
-	Icon              string    `json:"icon"`
-	Category          string    `json:"category"`
-	Active            bool      `json:"active"`
-	Params            []Params  `json:"params"`
-	CustomName        string    `json:"custom_name"`
-	CustomDescription string    `json:"custom_description"`
-	FailurePipelineID string    `json:"failure_pipeline_id"`
-	UpdateAvailable   bool      `json:"update_available"`
-	UpdateVersion     string    `json:"update_version,omitempty"`
-	UpdatedAction     *Action   `json:"updated_action,omitempty"`
-	Condition         Condition `json:"condition,omitempty"`
+	ID                uuid.UUID    `json:"id"`
+	Name              string       `json:"name"`
+	Description       string       `json:"description"`
+	Plugin            string       `json:"plugin"`
+	Version           string       `json:"version"`
+	Icon              string       `json:"icon"`
+	Category          string       `json:"category"`
+	Active            bool         `json:"active"`
+	Params            []Params     `json:"params"`
+	CustomName        string       `json:"custom_name"`
+	CustomDescription string       `json:"custom_description"`
+	FailurePipelineID string       `json:"failure_pipeline_id"`
+	UpdateAvailable   bool         `json:"update_available"`
+	UpdateVersion     string       `json:"update_version,omitempty"`
+	UpdatedAction     *Action      `json:"updated_action,omitempty"`
+	Condition         Condition    `json:"condition,omitempty"`
+	DependsOn         []string     `json:"depends_on,omitempty"`
+	Position          NodePosition `json:"position,omitempty"`
 }
 
 type Params struct {

@@ -120,5 +120,9 @@ export function useRefreshCache() {
         mutate(`flow-executions-${flowId}`);
       }
     },
+
+    refreshSelfServicePages: () => mutate("self-service-pages"),
+    refreshSelfServicePage: (slugOrID: string) =>
+      mutate(`self-service-page-${slugOrID}`),
   };
 }

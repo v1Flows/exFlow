@@ -1,139 +1,104 @@
 "use client";
+import { PagePagination } from "@/components/ui/page-pagination";
+import { CopySnippet } from "@/components/ui/copy-snippet";
 import { Icon } from "@iconify/react";
 import {
-  addToast,
+  Avatar,
   Button,
   Chip,
+  Description,
   Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownSection,
-  DropdownTrigger,
+  FieldError,
+  Header,
   Input,
+  InputGroup,
+  Label,
   Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Pagination,
-  Snippet,
   Table,
-  TableBody,
-  TableCell,
-  TableColumn,
-  TableHeader,
-  TableRow,
-  useDisclosure,
-  User,
+  TextField,
+  toast,
+  useOverlayState,
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import React from "react";
-
 import UpdateUserStatus from "@/lib/fetch/admin/PUT/UpdateUserState";
 import AdminDeleteUserModal from "@/components/modals/admin/deleteUser";
 import AdminEditUserModal from "@/components/modals/admin/editUser";
-
 export function AdminUsersList({ users }: any) {
   const router = useRouter();
-  const { isOpen, onOpenChange } = useDisclosure();
+  const { isOpen, setOpen: onOpenChange } = useOverlayState();
   const [disableReason, setDisableReason] = React.useState("");
   const [isDisableLoading, setIsDisableLoading] = React.useState(false);
-
   const [userID, setUserID] = React.useState("");
   const [disableUser, setDisableUser] = React.useState(false);
-
   const [targetUser, setTargetUser] = React.useState<any>(null);
-  const editUserModal = useDisclosure();
-  const deleteUserModal = useDisclosure();
-
+  const editUserModal = useOverlayState();
+  const deleteUserModal = useOverlayState();
   React.useEffect(() => {
     if (userID !== "" && !disableUser) {
       changeUserStatus();
     }
   }, [userID, disableUser]);
-
   function roleColor(role: string) {
     switch (role) {
       case "admin":
         return "danger";
+      case "editor":
+        return "primary";
       case "vip":
         return "warning";
       default:
         return "text";
     }
   }
-
   function handleEditUser(user: any) {
     setTargetUser(user);
-    editUserModal.onOpen();
+    editUserModal.open();
   }
-
   function handleDeleteUser(user: any) {
     setTargetUser(user);
-    deleteUserModal.onOpen();
+    deleteUserModal.open();
   }
-
   function changeUserStatusModal(userID: string, disabled: boolean) {
     setUserID(userID);
     setDisableUser(disabled);
-
     if (disabled) {
-      onOpenChange();
+      onOpenChange(false);
     }
   }
-
   async function changeUserStatus() {
     if (!disableUser) {
       const res = await UpdateUserStatus(userID, disableUser, "");
-
       if (res.success) {
         setUserID("");
         router.refresh();
-        addToast({
-          title: "User",
-          description: "User status updated successfully",
-          color: "success",
-          variant: "flat",
+        toast.success("", {
+          description: "status updated successfully",
         });
       } else {
         router.refresh();
-        addToast({
-          title: "User",
-          description: "Failed to update user status",
-          color: "danger",
-          variant: "flat",
-        });
+        toast.danger("", { description: "Failed to update user status" });
       }
     } else {
       setIsDisableLoading(true);
       const res = await UpdateUserStatus(userID, disableUser, disableReason);
-
       if (res.success) {
         setIsDisableLoading(false);
         setDisableReason("");
         setUserID("");
         setDisableUser(false);
-        onOpenChange();
+        onOpenChange(false);
         router.refresh();
-        addToast({
-          title: "User",
-          description: "User status updated successfully",
-          color: "success",
-          variant: "flat",
+        toast.success("", {
+          description: "status updated successfully",
         });
       } else {
         setIsDisableLoading(false);
         router.refresh();
-        addToast({
-          title: "User",
-          description: "Failed to update user status",
-          color: "danger",
-          variant: "flat",
-        });
+        toast.danger("", { description: "Failed to update user status" });
       }
     }
   }
-
   // pagination
   const [page, setPage] = React.useState(1);
   const rowsPerPage = 7;
@@ -141,40 +106,27 @@ export function AdminUsersList({ users }: any) {
   const items = React.useMemo(() => {
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
-
     return users.slice(start, end);
   }, [page, users]);
-
   const renderCell = React.useCallback((user: any, columnKey: any) => {
     const cellValue = user[columnKey];
-
     switch (columnKey) {
       case "username":
         return (
-          <User
-            avatarProps={{
-              radius: "lg",
-              isBordered: true,
-              name: user.username,
-              color:
-                user.role === "admin"
-                  ? "danger"
-                  : user.role === "vip"
-                    ? "warning"
-                    : "primary",
-            }}
-            description={user.email}
-            name={cellValue}
-          >
-            {user.email}
-          </User>
+          <div className={`flex items-center gap-3 ${""}`}>
+            <Avatar>
+              <Avatar.Fallback>
+                {String("").slice(0, 2).toUpperCase()}
+              </Avatar.Fallback>
+            </Avatar>
+            <div className="min-w-0">
+              <div className="truncate">{cellValue}</div>
+              <div className="truncate text-sm text-muted">{user.email}</div>
+            </div>
+          </div>
         );
       case "id":
-        return (
-          <Snippet hideSymbol size="sm" variant="flat">
-            {cellValue}
-          </Snippet>
-        );
+        return <CopySnippet showPrompt={false}>{cellValue}</CopySnippet>;
       case "role":
         return (
           <p
@@ -189,14 +141,11 @@ export function AdminUsersList({ users }: any) {
             <Chip
               className="capitalize"
               color={user.disabled ? "danger" : "success"}
-              radius="sm"
-              size="sm"
-              variant="flat"
             >
-              {user.disabled ? "Disabled" : "Active"}
+              <Chip.Label>{user.disabled ? "Disabled" : "Active"}</Chip.Label>
             </Chip>
             {user.disabled && (
-              <p className="text-sm text-default-400">{user.disabled_reason}</p>
+              <p className="text-sm text-muted">{user.disabled_reason}</p>
             )}
           </div>
         );
@@ -214,66 +163,67 @@ export function AdminUsersList({ users }: any) {
         return (
           <div className="relative flex items-center justify-center gap-2">
             <Dropdown>
-              <DropdownTrigger>
-                <Button isIconOnly size="sm" variant="light">
+              <Dropdown.Trigger>
+                <Button variant="ghost" className="aspect-square p-0">
                   <Icon
-                    className="text-default-400"
+                    className="text-muted"
                     icon="hugeicons:more-vertical-circle-01"
                     width={24}
                   />
                 </Button>
-              </DropdownTrigger>
-              <DropdownMenu variant="flat">
-                <DropdownSection showDivider title="Edit Zone">
-                  <DropdownItem
-                    key="edit"
-                    color="warning"
-                    startContent={
-                      <Icon icon="hugeicons:pencil-edit-02" width={20} />
-                    }
-                    onPress={() => handleEditUser(user)}
-                  >
-                    Edit
-                  </DropdownItem>
-                  {!user.disabled && (
-                    <DropdownItem
-                      key="disable"
-                      color="danger"
-                      startContent={
-                        <Icon icon="hugeicons:square-lock-01" width={20} />
-                      }
-                      onPress={() => changeUserStatusModal(user.id, true)}
+              </Dropdown.Trigger>
+              <Dropdown.Popover>
+                <Dropdown.Menu>
+                  <Dropdown.Section>
+                    <Header>{"Edit Zone"}</Header>
+                    <Dropdown.Item
+                      key="edit"
+                      id="edit"
+                      onPress={() => handleEditUser(user)}
+                      textValue="Edit"
                     >
-                      Disable
-                    </DropdownItem>
-                  )}
-                  {user.disabled && (
-                    <DropdownItem
-                      key="enable"
-                      color="success"
-                      startContent={
-                        <Icon icon="hugeicons:square-unlock-01" width={20} />
-                      }
-                      onPress={() => changeUserStatusModal(user.id, false)}
+                      {<Icon icon="hugeicons:pencil-edit-02" width={20} />}
+                      Edit
+                    </Dropdown.Item>
+                    {!user.disabled && (
+                      <Dropdown.Item
+                        key="disable"
+                        id="disable"
+                        onPress={() => changeUserStatusModal(user.id, true)}
+                        className="text-danger"
+                        textValue="Disable"
+                      >
+                        {<Icon icon="hugeicons:square-lock-01" width={20} />}
+                        Disable
+                      </Dropdown.Item>
+                    )}
+                    {user.disabled && (
+                      <Dropdown.Item
+                        key="enable"
+                        id="enable"
+                        onPress={() => changeUserStatusModal(user.id, false)}
+                        textValue="Enable"
+                      >
+                        {<Icon icon="hugeicons:square-unlock-01" width={20} />}
+                        Enable
+                      </Dropdown.Item>
+                    )}
+                  </Dropdown.Section>
+                  <Dropdown.Section>
+                    <Header>{"Danger Zone"}</Header>
+                    <Dropdown.Item
+                      key="delete"
+                      id="delete"
+                      className="text-danger"
+                      onPress={() => handleDeleteUser(user)}
+                      textValue="Delete"
                     >
-                      Enable
-                    </DropdownItem>
-                  )}
-                </DropdownSection>
-                <DropdownSection title="Danger Zone">
-                  <DropdownItem
-                    key="delete"
-                    className="text-danger"
-                    color="danger"
-                    startContent={
-                      <Icon icon="hugeicons:delete-02" width={20} />
-                    }
-                    onPress={() => handleDeleteUser(user)}
-                  >
-                    Delete
-                  </DropdownItem>
-                </DropdownSection>
-              </DropdownMenu>
+                      {<Icon icon="hugeicons:delete-02" width={20} />}
+                      Delete
+                    </Dropdown.Item>
+                  </Dropdown.Section>
+                </Dropdown.Menu>
+              </Dropdown.Popover>
             </Dropdown>
           </div>
         );
@@ -281,94 +231,107 @@ export function AdminUsersList({ users }: any) {
         return cellValue;
     }
   }, []);
-
   return (
     <main>
-      <Table
-        aria-label="Example table with custom cells"
-        bottomContent={
-          <div className="flex w-full justify-center">
-            <Pagination
-              showControls
-              page={page}
-              total={pages}
-              onChange={(page) => setPage(page)}
-            />
-          </div>
-        }
-        classNames={{
-          wrapper: "min-h-[222px]",
-        }}
-      >
-        <TableHeader>
-          <TableColumn key="username" align="start">
-            Username
-          </TableColumn>
-          <TableColumn key="role" align="center">
-            Role
-          </TableColumn>
-          <TableColumn key="disabled" align="center">
-            Status
-          </TableColumn>
-          <TableColumn key="created_at" align="center">
-            Created At
-          </TableColumn>
-          <TableColumn key="updated_at" align="center">
-            Updated At
-          </TableColumn>
-          <TableColumn key="id" align="center">
-            ID
-          </TableColumn>
-          <TableColumn key="actions" align="center">
-            Actions
-          </TableColumn>
-        </TableHeader>
-        <TableBody items={items}>
-          {(item: any) => (
-            <TableRow key={item.id}>
-              {(columnKey) => (
-                <TableCell>{renderCell(item, columnKey)}</TableCell>
+      <Table>
+        <Table.ScrollContainer>
+          <Table.Content aria-label="Example table with custom cells">
+            <Table.Header>
+              <Table.Column key="username" id="username" className="text-start">
+                name
+              </Table.Column>
+              <Table.Column key="role" id="role" className="text-center">
+                Role
+              </Table.Column>
+              <Table.Column
+                key="disabled"
+                id="disabled"
+                className="text-center"
+              >
+                Status
+              </Table.Column>
+              <Table.Column
+                key="created_at"
+                id="created_at"
+                className="text-center"
+              >
+                Created At
+              </Table.Column>
+              <Table.Column
+                key="updated_at"
+                id="updated_at"
+                className="text-center"
+              >
+                Updated At
+              </Table.Column>
+              <Table.Column key="id" id="id" className="text-center">
+                ID
+              </Table.Column>
+              <Table.Column key="actions" id="actions" className="text-center">
+                Actions
+              </Table.Column>
+            </Table.Header>
+            <Table.Body items={items}>
+              {(item: any) => (
+                <Table.Row key={item.id} id={item.id}>
+                  {(columnKey) => (
+                    <Table.Cell>{renderCell(item, columnKey)}</Table.Cell>
+                  )}
+                </Table.Row>
               )}
-            </TableRow>
-          )}
-        </TableBody>
+            </Table.Body>
+          </Table.Content>
+        </Table.ScrollContainer>
+        <Table.Footer>
+          {
+            <div className="flex w-full justify-center">
+              <PagePagination
+                page={page}
+                pageCount={pages}
+                onPageChange={(page) => setPage(page)}
+              />
+            </div>
+          }
+        </Table.Footer>
       </Table>
       <div>
-        <Modal
-          isOpen={isOpen}
-          placement="top-center"
-          onOpenChange={onOpenChange}
-        >
-          <ModalContent>
-            {(onClose) => (
-              <>
-                <ModalHeader className="flex flex-wrap items-center justify-center gap-2 font-bold text-danger">
-                  <Icon icon="hugeicons:user-block-01" /> Disable User
-                </ModalHeader>
-                <ModalBody>
-                  <Input
-                    label="Disable Reason"
-                    placeholder="Enter the reason for disabling this user"
-                    value={disableReason}
-                    variant="bordered"
-                    onValueChange={setDisableReason}
-                  />
-                </ModalBody>
-                <ModalFooter>
-                  <Button color="default" variant="flat" onPress={onClose}>
-                    Cancel
-                  </Button>
-                  <Button
-                    color="danger"
-                    isLoading={isDisableLoading}
-                    onPress={changeUserStatus}
-                  >
-                    Disable
-                  </Button>
-                </ModalFooter>
-              </>
-            )}
-          </ModalContent>
+        <Modal>
+          <Modal.Backdrop isOpen={isOpen} onOpenChange={onOpenChange}>
+            <Modal.Container placement="top">
+              <Modal.Dialog>
+                {({ close: onClose }) => (
+                  <>
+                    <Modal.Header className="flex flex-wrap items-center justify-center gap-2 font-bold text-danger">
+                      <Modal.Heading>
+                        <Icon icon="hugeicons:user-block-01" /> Disable{" "}
+                      </Modal.Heading>
+                    </Modal.Header>
+                    <Modal.Body>
+                      <TextField
+                        value={disableReason}
+                        onChange={setDisableReason}
+                      >
+                        <Label>{"Disable Reason"}</Label>
+                        <InputGroup>
+                          <Input placeholder="Enter the reason for disabling this user" />
+                        </InputGroup>
+                      </TextField>
+                    </Modal.Body>
+                    <Modal.Footer>
+                      <Button onPress={onClose}>Cancel</Button>
+                      <Button
+                        isPending={isDisableLoading}
+                        onPress={changeUserStatus}
+                        variant="danger"
+                      >
+                        Disable
+                      </Button>
+                    </Modal.Footer>
+                  </>
+                )}
+              </Modal.Dialog>
+            </Modal.Container>
+          </Modal.Backdrop>
         </Modal>
       </div>
       <AdminEditUserModal disclosure={editUserModal} user={targetUser} />

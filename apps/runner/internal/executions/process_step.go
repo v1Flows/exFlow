@@ -2,9 +2,11 @@ package internal_executions
 
 import (
 	"errors"
+	"fmt"
+	"strings"
 	"time"
 
-	"github.com/JustLABv1/justflow/pkg/contracts"
+	models "github.com/JustLABv1/justflow/pkg/contracts"
 	"github.com/JustLABv1/runner/config"
 	internal_actions "github.com/JustLABv1/runner/internal/actions"
 	"github.com/JustLABv1/runner/internal/common"
@@ -13,6 +15,27 @@ import (
 
 	log "github.com/sirupsen/logrus"
 )
+
+// resolveInputValues replaces {{inputs.key}} placeholders in action param values
+// with the corresponding values from execution.InputValues.
+func resolveInputValues(step models.ExecutionSteps, inputValues map[string]interface{}) models.ExecutionSteps {
+	if len(inputValues) == 0 {
+		return step
+	}
+	for i, param := range step.Action.Params {
+		if strings.Contains(param.Value, "{{inputs.") {
+			for key, val := range inputValues {
+				placeholder := fmt.Sprintf("{{inputs.%s}}", key)
+				step.Action.Params[i].Value = strings.ReplaceAll(
+					step.Action.Params[i].Value,
+					placeholder,
+					fmt.Sprintf("%v", val),
+				)
+			}
+		}
+	}
+	return step
+}
 
 func RegisterActions(loadedPluginActions []models.Plugin) (actions []models.Action) {
 	for _, plugin := range loadedPluginActions {
@@ -207,7 +230,7 @@ func processStep(cfg *config.Config, workspace string, actions []models.Action, 
 		Flow:      flow,
 		FlowBytes: flowBytes,
 		Execution: execution,
-		Step:      step,
+		Step:      resolveInputValues(step, execution.InputValues),
 		Alert:     alert,
 		Workspace: workspace,
 	}

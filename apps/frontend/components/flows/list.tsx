@@ -1,32 +1,24 @@
 "use client";
-
 import {
-  addToast,
   Button,
   Card,
-  CardBody,
   Chip,
   Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownTrigger,
-  useDisclosure,
+  toast,
+  useOverlayState,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-
 import canEditProject from "@/lib/functions/canEditProject";
 import APIStartExecution from "@/lib/fetch/executions/start";
-
 import DeleteFolderModal from "../modals/folders/delete";
 import UpdateFolderModal from "../modals/folders/update";
 import ScheduleExecutionModal from "../modals/executions/schedule";
 import EditFlowModal from "../modals/flows/edit";
 import DeleteFlowModal from "../modals/flows/delete";
 import CopyFlowModal from "../modals/flows/copy";
-
 export default function FlowList({
   flows,
   folders,
@@ -41,24 +33,19 @@ export default function FlowList({
   user: any;
 }) {
   const router = useRouter();
-
   const [filteredFolders, setFilteredFolders] = useState([]);
   const [filteredFlows, setFilteredFlows] = useState([]);
   const [targetFolder, setTargetFolder] = useState({});
   const [targetFlow, setTargetFlow] = useState({});
-
-  const scheduleExecutionModal = useDisclosure();
-  const updateFolderModal = useDisclosure();
-  const copyFlowModal = useDisclosure();
-  const deleteFolderModal = useDisclosure();
-
-  const editFlowModal = useDisclosure();
-  const deleteFlowModal = useDisclosure();
-
+  const scheduleExecutionModal = useOverlayState();
+  const updateFolderModal = useOverlayState();
+  const copyFlowModal = useOverlayState();
+  const deleteFolderModal = useOverlayState();
+  const editFlowModal = useOverlayState();
+  const deleteFlowModal = useOverlayState();
   // get folder id from query params
   const searchParams = useSearchParams();
   const searchFolderID = searchParams.get("folder");
-
   useEffect(() => {
     if (searchFolderID) {
       setFilteredFolders(
@@ -72,26 +59,16 @@ export default function FlowList({
       setFilteredFlows(flows.filter((f: any) => f.folder_id === ""));
     }
   }, [searchFolderID, folders, flows]);
-
   const copyFlowIDtoClipboard = (key: string) => {
     if (typeof navigator !== "undefined" && navigator.clipboard) {
       navigator.clipboard.writeText(key);
-      addToast({
-        title: "Flow",
-        description: "Flow ID copied to clipboard!",
-        color: "success",
-        variant: "flat",
-      });
+      toast.success("Flow", { description: "Flow ID copied to clipboard!" });
     } else {
-      addToast({
-        title: "Flow",
+      toast.danger("Flow", {
         description: "Failed to copy Flow ID to clipboard",
-        color: "danger",
-        variant: "flat",
       });
     }
   };
-
   return (
     <motion.main
       animate="visible"
@@ -107,8 +84,7 @@ export default function FlowList({
           </div>
           <Button
             isDisabled={!searchFolderID}
-            startContent={<Icon icon="hugeicons:link-backward" width={18} />}
-            variant="light"
+            variant="ghost"
             onPress={() => {
               if (
                 folders.find((f: any) => f.id === searchFolderID).parent_id !==
@@ -123,6 +99,7 @@ export default function FlowList({
               }
             }}
           >
+            {<Icon icon="hugeicons:link-backward" width={18} />}
             Back
           </Button>
         </div>
@@ -130,7 +107,6 @@ export default function FlowList({
           {searchFolderID &&
             (() => {
               const f = folders.find((f: any) => f.id === searchFolderID);
-
               return (
                 <motion.div
                   variants={{
@@ -138,29 +114,26 @@ export default function FlowList({
                     visible: { y: 0, opacity: 1 },
                   }}
                 >
-                  <Card
-                    isDisabled
-                    className="w-full h-full bg-content1/40 backdrop-blur-md border border-primary/20 shadow-sm"
-                  >
-                    <CardBody className="p-4">
+                  <Card className="w-full h-full bg-surface/40 backdrop-blur-md border border-accent/20 shadow-sm">
+                    <Card.Content className="p-4">
                       <div className="flex items-start justify-between mb-2">
-                        <div className="p-3 rounded-xl bg-primary/20 text-primary">
+                        <div className="p-3 rounded-xl bg-accent/20 text-accent">
                           <Icon
                             className="text-2xl"
                             icon="hugeicons:folder-open"
                           />
                         </div>
-                        <Chip color="primary" size="sm" variant="flat">
-                          Current
+                        <Chip color="accent" size="sm" variant="soft">
+                          <Chip.Label>Current</Chip.Label>
                         </Chip>
                       </div>
                       <div>
                         <h3 className="font-semibold text-lg">{f.name}</h3>
-                        <p className="text-default-500 text-sm line-clamp-2">
+                        <p className="text-muted text-sm line-clamp-2">
                           {f.description}
                         </p>
                       </div>
-                    </CardBody>
+                    </Card.Content>
                   </Card>
                 </motion.div>
               );
@@ -173,71 +146,77 @@ export default function FlowList({
                 visible: { y: 0, opacity: 1 },
               }}
             >
-              <Card
-                isPressable
-                className="w-full h-full bg-content1/60 backdrop-blur-md shadow-sm border border-default-100 hover:scale-[1.02] hover:bg-content1/80 transition-all duration-300 group"
+              <Button
+                className="h-auto w-full justify-start p-0 text-left"
+                variant="tertiary"
                 onPress={() => router.push("/flows?folder=" + f.id)}
               >
-                <CardBody className="p-4">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="p-3 rounded-xl bg-default-100 text-default-500 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                      <Icon className="text-2xl" icon="hugeicons:folder-01" />
+                <Card className="w-full h-full bg-surface/60 backdrop-blur-md shadow-sm border border-default hover:scale-[1.02] hover:bg-surface/80 transition-all duration-300 group">
+                  <Card.Content className="p-4">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="p-3 rounded-xl bg-default text-muted group-hover:bg-accent/10 group-hover:text-accent transition-colors">
+                        <Icon className="text-2xl" icon="hugeicons:folder-01" />
+                      </div>
+                      <Dropdown>
+                        <Dropdown.Trigger>
+                          <Button
+                            className="opacity-0 group-hover:opacity-100 transition-opacity"
+                            size="sm"
+                            variant="ghost"
+                          >
+                            <Icon
+                              className="text-lg"
+                              icon="hugeicons:more-vertical-circle-01"
+                            />
+                          </Button>
+                        </Dropdown.Trigger>
+                        <Dropdown.Popover>
+                          <Dropdown.Menu>
+                            <Dropdown.Item
+                              key="edit"
+                              id="edit"
+                              onPress={() => {
+                                setTargetFolder(f);
+                                updateFolderModal.open();
+                              }}
+                              textValue="Edit"
+                            >
+                              {
+                                <Icon
+                                  icon="hugeicons:pencil-edit-02"
+                                  width={18}
+                                />
+                              }
+                              Edit
+                            </Dropdown.Item>
+                            <Dropdown.Item
+                              key="delete"
+                              id="delete"
+                              className="text-danger"
+                              onPress={() => {
+                                setTargetFolder(f);
+                                deleteFolderModal.open();
+                              }}
+                              textValue="Delete"
+                            >
+                              {<Icon icon="hugeicons:delete-02" width={18} />}
+                              Delete
+                            </Dropdown.Item>
+                          </Dropdown.Menu>
+                        </Dropdown.Popover>
+                      </Dropdown>
                     </div>
-                    <Dropdown placement="bottom-end">
-                      <DropdownTrigger>
-                        <Button
-                          isIconOnly
-                          className="opacity-0 group-hover:opacity-100 transition-opacity"
-                          size="sm"
-                          variant="light"
-                        >
-                          <Icon
-                            className="text-lg"
-                            icon="hugeicons:more-vertical-circle-01"
-                          />
-                        </Button>
-                      </DropdownTrigger>
-                      <DropdownMenu variant="flat">
-                        <DropdownItem
-                          key="edit"
-                          color="warning"
-                          startContent={
-                            <Icon icon="hugeicons:pencil-edit-02" width={18} />
-                          }
-                          onPress={() => {
-                            setTargetFolder(f);
-                            updateFolderModal.onOpen();
-                          }}
-                        >
-                          Edit
-                        </DropdownItem>
-                        <DropdownItem
-                          key="delete"
-                          className="text-danger"
-                          color="danger"
-                          startContent={
-                            <Icon icon="hugeicons:delete-02" width={18} />
-                          }
-                          onPress={() => {
-                            setTargetFolder(f);
-                            deleteFolderModal.onOpen();
-                          }}
-                        >
-                          Delete
-                        </DropdownItem>
-                      </DropdownMenu>
-                    </Dropdown>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
-                      {f.name}
-                    </h3>
-                    <p className="text-default-500 text-sm line-clamp-2">
-                      {f.description}
-                    </p>
-                  </div>
-                </CardBody>
-              </Card>
+                    <div>
+                      <h3 className="font-semibold text-lg group-hover:text-accent transition-colors">
+                        {f.name}
+                      </h3>
+                      <p className="text-muted text-sm line-clamp-2">
+                        {f.description}
+                      </p>
+                    </div>
+                  </Card.Content>
+                </Card>
+              </Button>
             </motion.div>
           ))}
         </div>
@@ -247,7 +226,7 @@ export default function FlowList({
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-semibold">Flows</h2>
           <p className="text-sm">
-            <span className="text-default-500">Current Folder:</span>{" "}
+            <span className="text-muted">Current Folder:</span>{" "}
             {folders.find((f: any) => f.id === searchFolderID)?.name ||
               "All Flows"}
           </p>
@@ -260,7 +239,6 @@ export default function FlowList({
               runningExecutions.executions.filter(
                 (e: any) => e.flow_id === flow.id,
               ).length > 0;
-
             return (
               <motion.div
                 key={flow.id}
@@ -269,181 +247,207 @@ export default function FlowList({
                   visible: { y: 0, opacity: 1 },
                 }}
               >
-                <Card
-                  isPressable
-                  className="w-full h-full bg-content1/60 backdrop-blur-md shadow-sm border border-default-100 hover:scale-[1.02] hover:bg-content1/80 transition-all duration-300 group"
-                  isDisabled={flow.disabled}
+                <Button
+                  className="h-auto w-full justify-start p-0 text-left"
+                  variant="tertiary"
                   onPress={() => router.push("/flows/" + flow.id)}
                 >
-                  <CardBody className="p-5">
-                    <div className="flex flex-col h-full justify-between gap-4">
-                      <div className="flex items-start justify-between gap-4">
-                        <div
-                          className="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center shadow-sm transition-transform group-hover:scale-110"
-                          style={{
-                            background: `linear-gradient(135deg, ${project?.color || "#000"}20 0%, ${project?.color || "#000"}40 100%)`,
-                            color: project?.color || "#000",
-                            border: `1px solid ${project?.color || "#000"}40`,
-                          }}
-                        >
-                          <Icon
-                            className="text-2xl"
-                            icon="hugeicons:workflow-square-01"
-                          />
-                        </div>
-                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button
-                            isIconOnly
-                            color="success"
-                            size="sm"
-                            variant="light"
-                            onPress={() => {
-                              APIStartExecution(flow.id)
-                                .then(() => {
-                                  addToast({
-                                    title: "Execution Started",
-                                    color: "success",
-                                  });
-                                })
-                                .catch((err) => {
-                                  addToast({
-                                    title: "Execution start failed",
-                                    description: err.message,
-                                    color: "danger",
-                                  });
-                                });
+                  <Card className="w-full h-full bg-surface/60 backdrop-blur-md shadow-sm border border-default hover:scale-[1.02] hover:bg-surface/80 transition-all duration-300 group">
+                    <Card.Content className="p-5">
+                      <div className="flex flex-col h-full justify-between gap-4">
+                        <div className="flex items-start justify-between gap-4">
+                          <div
+                            className="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center shadow-sm transition-transform group-hover:scale-110"
+                            style={{
+                              background: `linear-gradient(135deg, ${project?.color || "#000"}20 0%, ${project?.color || "#000"}40 100%)`,
+                              color: project?.color || "#000",
+                              border: `1px solid ${project?.color || "#000"}40`,
                             }}
                           >
-                            <Icon icon="hugeicons:play" width={20} />
-                          </Button>
-                          <Dropdown placement="bottom-end">
-                            <DropdownTrigger>
-                              <Button isIconOnly size="sm" variant="light">
-                                <Icon
-                                  className="text-lg"
-                                  icon="hugeicons:more-vertical-circle-01"
-                                  width={20}
-                                />
-                              </Button>
-                            </DropdownTrigger>
-                            <DropdownMenu
-                              aria-label="Flow actions"
-                              variant="flat"
+                            <Icon
+                              className="text-2xl"
+                              icon="hugeicons:workflow-square-01"
+                            />
+                          </div>
+                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onPress={() => {
+                                APIStartExecution(flow.id)
+                                  .then(() => {
+                                    toast.success("Execution Started");
+                                  })
+                                  .catch((err) => {
+                                    toast.danger("Execution start failed", {
+                                      description: err.message,
+                                    });
+                                  });
+                              }}
+                              className="aspect-square p-0"
                             >
-                              <DropdownItem
-                                key="copy-id"
-                                showDivider
-                                startContent={
-                                  <Icon icon="hugeicons:copy-01" width={18} />
-                                }
-                                onPress={() => copyFlowIDtoClipboard(flow.id)}
-                              >
-                                Copy ID
-                              </DropdownItem>
-                              <DropdownItem
-                                key="edit"
-                                isDisabled={
-                                  (!canEditProject(user.id, project.members) ||
-                                    flow.disabled) &&
-                                  user.role !== "admin"
-                                }
-                                startContent={
+                              <Icon icon="hugeicons:play" width={20} />
+                            </Button>
+                            <Dropdown>
+                              <Dropdown.Trigger>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="aspect-square p-0"
+                                >
                                   <Icon
-                                    icon="hugeicons:pencil-edit-02"
-                                    width={18}
+                                    className="text-lg"
+                                    icon="hugeicons:more-vertical-circle-01"
+                                    width={20}
                                   />
-                                }
-                                onPress={() => {
-                                  setTargetFlow(flow);
-                                  editFlowModal.onOpen();
-                                }}
-                              >
-                                Edit
-                              </DropdownItem>
-                              <DropdownItem
-                                key="copy-flow"
-                                isDisabled={
-                                  (!canEditProject(user.id, project.members) ||
-                                    flow.disabled) &&
-                                  user.role !== "admin"
-                                }
-                                startContent={
-                                  <Icon icon="hugeicons:copy-02" width={18} />
-                                }
-                                onPress={() => {
-                                  setTargetFlow(flow);
-                                  copyFlowModal.onOpen();
-                                }}
-                              >
-                                Copy Flow
-                              </DropdownItem>
-                              <DropdownItem
-                                key="delete"
-                                className="text-danger"
-                                color="danger"
-                                isDisabled={
-                                  (!canEditProject(user.id, project.members) ||
-                                    flow.disabled) &&
-                                  user.role !== "admin"
-                                }
-                                startContent={
-                                  <Icon icon="hugeicons:delete-02" width={18} />
-                                }
-                                onPress={() => {
-                                  setTargetFlow(flow);
-                                  deleteFlowModal.onOpen();
-                                }}
-                              >
-                                Delete
-                              </DropdownItem>
-                            </DropdownMenu>
-                          </Dropdown>
+                                </Button>
+                              </Dropdown.Trigger>
+                              <Dropdown.Popover>
+                                <Dropdown.Menu aria-label="Flow actions">
+                                  <Dropdown.Item
+                                    key="copy-id"
+                                    id="copy-id"
+                                    onPress={() =>
+                                      copyFlowIDtoClipboard(flow.id)
+                                    }
+                                    textValue="Copy ID"
+                                  >
+                                    {
+                                      <Icon
+                                        icon="hugeicons:copy-01"
+                                        width={18}
+                                      />
+                                    }
+                                    Copy ID
+                                  </Dropdown.Item>
+                                  <Dropdown.Item
+                                    key="edit"
+                                    id="edit"
+                                    isDisabled={
+                                      (!canEditProject(
+                                        user.id,
+                                        project.members,
+                                      ) ||
+                                        flow.disabled) &&
+                                      user.role !== "admin"
+                                    }
+                                    onPress={() => {
+                                      setTargetFlow(flow);
+                                      editFlowModal.open();
+                                    }}
+                                    textValue="Edit"
+                                  >
+                                    {
+                                      <Icon
+                                        icon="hugeicons:pencil-edit-02"
+                                        width={18}
+                                      />
+                                    }
+                                    Edit
+                                  </Dropdown.Item>
+                                  <Dropdown.Item
+                                    key="copy-flow"
+                                    id="copy-flow"
+                                    isDisabled={
+                                      (!canEditProject(
+                                        user.id,
+                                        project.members,
+                                      ) ||
+                                        flow.disabled) &&
+                                      user.role !== "admin"
+                                    }
+                                    onPress={() => {
+                                      setTargetFlow(flow);
+                                      copyFlowModal.open();
+                                    }}
+                                    textValue="Copy Flow"
+                                  >
+                                    {
+                                      <Icon
+                                        icon="hugeicons:copy-02"
+                                        width={18}
+                                      />
+                                    }
+                                    Copy Flow
+                                  </Dropdown.Item>
+                                  <Dropdown.Item
+                                    key="delete"
+                                    id="delete"
+                                    className="text-danger"
+                                    isDisabled={
+                                      (!canEditProject(
+                                        user.id,
+                                        project.members,
+                                      ) ||
+                                        flow.disabled) &&
+                                      user.role !== "admin"
+                                    }
+                                    onPress={() => {
+                                      setTargetFlow(flow);
+                                      deleteFlowModal.open();
+                                    }}
+                                    textValue="Delete"
+                                  >
+                                    {
+                                      <Icon
+                                        icon="hugeicons:delete-02"
+                                        width={18}
+                                      />
+                                    }
+                                    Delete
+                                  </Dropdown.Item>
+                                </Dropdown.Menu>
+                              </Dropdown.Popover>
+                            </Dropdown>
+                          </div>
                         </div>
-                      </div>
 
-                      <div>
-                        <h3 className="font-bold text-lg text-default-900 mb-1 group-hover:text-primary transition-colors">
-                          {flow.name}
-                        </h3>
-                        <p className="text-default-500 text-sm line-clamp-2 leading-relaxed">
-                          {flow.description || "No description"}
-                        </p>
-                      </div>
+                        <div>
+                          <h3 className="font-bold text-lg text-foreground mb-1 group-hover:text-accent transition-colors">
+                            {flow.name}
+                          </h3>
+                          <p className="text-muted text-sm line-clamp-2 leading-relaxed">
+                            {flow.description || "No description"}
+                          </p>
+                        </div>
 
-                      <div className="pt-4 border-t border-default-100 flex items-center justify-between">
-                        <div className="flex gap-2">
-                          {isExecuting && (
+                        <div className="pt-4 border-t border-default flex items-center justify-between">
+                          <div className="flex gap-2">
+                            {isExecuting && (
+                              <Chip
+                                className="border-none pl-0"
+                                color="accent"
+                                size="sm"
+                                variant="soft"
+                              >
+                                <Chip.Label>Executing</Chip.Label>
+                              </Chip>
+                            )}
                             <Chip
                               className="border-none pl-0"
-                              color="primary"
+                              color={flow.disabled ? "danger" : "success"}
                               size="sm"
-                              variant="dot"
+                              variant="soft"
                             >
-                              Executing
+                              <Chip.Label>
+                                {flow.disabled ? "Disabled" : "Active"}
+                              </Chip.Label>
                             </Chip>
-                          )}
-                          <Chip
-                            className="border-none pl-0"
-                            color={flow.disabled ? "danger" : "success"}
-                            size="sm"
-                            variant="dot"
-                          >
-                            {flow.disabled ? "Disabled" : "Active"}
-                          </Chip>
-                        </div>
-                        <div className="text-tiny text-default-400 font-medium">
-                          {project?.name || "Unknown Project"}
+                          </div>
+                          <div className="text-xs text-muted font-medium">
+                            {project?.name || "Unknown Project"}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </CardBody>
-                </Card>
+                    </Card.Content>
+                  </Card>
+                </Button>
               </motion.div>
             );
           })}
         </div>
         {filteredFlows.length === 0 && (
-          <p className="text-default-500 text-center mt-8">No flows found</p>
+          <p className="text-muted text-center mt-8">No flows found</p>
         )}
       </div>
 

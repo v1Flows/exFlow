@@ -1,6 +1,5 @@
 "use client";
-
-import { Divider } from "@heroui/react";
+import { Separator } from "@heroui/react";
 
 import RunnersList from "@/components/runners/list";
 import RunnersHeading from "@/components/runners/heading";
@@ -52,7 +51,7 @@ export default function RunnersPageClient() {
   return (
     <main>
       <RunnersHeading />
-      <Divider className="mt-4 mb-4" />
+      <Separator className="mt-4 mb-4" />
       <RunnersList
         globalView
         projects={projects}

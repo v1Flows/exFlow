@@ -1,19 +1,8 @@
+import { PagePagination } from "@/components/ui/page-pagination";
 import { Icon } from "@iconify/react";
-import {
-  Chip,
-  Pagination,
-  Table,
-  TableBody,
-  TableCell,
-  TableColumn,
-  TableHeader,
-  TableRow,
-  Tooltip,
-  User,
-} from "@heroui/react";
+import { Avatar, Chip, Table, Tooltip } from "@heroui/react";
 import React from "react";
 import { motion } from "framer-motion";
-
 export default function ProjectAuditLogs({ audit, project, user }: any) {
   // pagination
   const [page, setPage] = React.useState(1);
@@ -22,10 +11,8 @@ export default function ProjectAuditLogs({ audit, project, user }: any) {
   const items = React.useMemo(() => {
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
-
     return audit.slice(start, end);
   }, [page, audit]);
-
   function operationColor(operation: string) {
     switch (operation) {
       case "create":
@@ -35,55 +22,69 @@ export default function ProjectAuditLogs({ audit, project, user }: any) {
       case "delete":
         return "danger";
       case "info":
-        return "primary";
+        return "accent";
       default:
         return "default";
     }
   }
-
   const renderCell = React.useCallback((entry: any, columnKey: any) => {
     const cellValue = entry[columnKey];
-
     switch (columnKey) {
       case "user_id":
         return (
-          <Tooltip
-            content={
-              <div>
-                <p className="font-bold text-default-500">User ID</p>
-                <p>{entry.user_id}</p>
+          <Tooltip>
+            <Tooltip.Trigger>
+              <div className={`flex items-center gap-3 ${""}`}>
+                <Avatar>
+                  <Avatar.Fallback>
+                    {String("").slice(0, 2).toUpperCase()}
+                  </Avatar.Fallback>
+                </Avatar>
+                <div className="min-w-0">
+                  <div className="truncate">
+                    {
+                      <div className="flex items-center gap-2">
+                        <p>{entry?.username}</p>
+                        {!project.members.find(
+                          (member: any) => member.user_id === entry.user_id,
+                        ) &&
+                          entry?.role !== "admin" && (
+                            <Tooltip>
+                              <Tooltip.Trigger>
+                                <Icon icon="solar:ghost-outline" />
+                              </Tooltip.Trigger>
+                              <Tooltip.Content>
+                                {"left the project"}
+                              </Tooltip.Content>
+                            </Tooltip>
+                          )}
+                        {entry.user_id === user.id && (
+                          <Chip color="accent" size="sm" variant="soft">
+                            <Chip.Label>You</Chip.Label>
+                          </Chip>
+                        )}
+                        {entry?.role === "admin" && (
+                          <Chip color="danger" size="sm" variant="soft">
+                            <Chip.Label>Admin</Chip.Label>
+                          </Chip>
+                        )}
+                      </div>
+                    }
+                  </div>
+                  <div className="truncate text-sm text-muted">
+                    {entry?.email}
+                  </div>
+                </div>
               </div>
-            }
-          >
-            <User
-              avatarProps={{
-                name: entry?.username,
-              }}
-              description={entry?.email}
-              name={
-                <div className="flex items-center gap-2">
-                  <p>{entry?.username}</p>
-                  {!project.members.find(
-                    (member: any) => member.user_id === entry.user_id,
-                  ) &&
-                    entry?.role !== "admin" && (
-                      <Tooltip content="User left the project">
-                        <Icon icon="solar:ghost-outline" />
-                      </Tooltip>
-                    )}
-                  {entry.user_id === user.id && (
-                    <Chip color="primary" radius="sm" size="sm" variant="flat">
-                      You
-                    </Chip>
-                  )}
-                  {entry?.role === "admin" && (
-                    <Chip color="danger" radius="sm" size="sm" variant="flat">
-                      Admin
-                    </Chip>
-                  )}
+            </Tooltip.Trigger>
+            <Tooltip.Content>
+              {
+                <div>
+                  <p className="font-bold text-muted">ID</p>
+                  <p>{entry.user_id}</p>
                 </div>
               }
-            />
+            </Tooltip.Content>
           </Tooltip>
         );
       case "operation":
@@ -91,11 +92,10 @@ export default function ProjectAuditLogs({ audit, project, user }: any) {
           <Chip
             className="capitalize"
             color={operationColor(entry.operation)}
-            radius="sm"
             size="sm"
-            variant="flat"
+            variant="soft"
           >
-            {entry.operation}
+            <Chip.Label>{entry.operation}</Chip.Label>
           </Chip>
         );
       case "created_at":
@@ -104,7 +104,6 @@ export default function ProjectAuditLogs({ audit, project, user }: any) {
         return cellValue;
     }
   }, []);
-
   return (
     <motion.div
       animate="visible"
@@ -122,9 +121,7 @@ export default function ProjectAuditLogs({ audit, project, user }: any) {
         }}
       >
         <h2 className="text-xl font-bold">Audit Logs</h2>
-        <p className="text-small text-default-500">
-          {audit.length} Audit Entries
-        </p>
+        <p className="text-sm text-muted">{audit.length} Audit Entries</p>
       </motion.div>
 
       <motion.div
@@ -133,53 +130,65 @@ export default function ProjectAuditLogs({ audit, project, user }: any) {
           visible: { y: 0, opacity: 1 },
         }}
       >
-        <Table
-          aria-label="Project Audit Logs"
-          bottomContent={
-            <div className="flex w-full justify-center">
-              <Pagination
-                isCompact
-                showControls
-                showShadow
-                color="primary"
-                page={page}
-                total={pages}
-                onChange={(page) => setPage(page)}
-              />
-            </div>
-          }
-          classNames={{
-            wrapper:
-              "bg-content1/60 backdrop-blur-md border border-default-100 shadow-sm min-h-[222px]",
-            th: "bg-default-100/50 backdrop-blur-sm",
-          }}
-        >
-          <TableHeader>
-            <TableColumn key="user_id" align="start">
-              User
-            </TableColumn>
-            <TableColumn key="operation" align="center">
-              Operation
-            </TableColumn>
-            <TableColumn key="details" align="center">
-              Details
-            </TableColumn>
-            <TableColumn key="id" align="center">
-              ID
-            </TableColumn>
-            <TableColumn key="created_at" align="center">
-              Created At
-            </TableColumn>
-          </TableHeader>
-          <TableBody emptyContent="No rows to display." items={items}>
-            {(item: any) => (
-              <TableRow key={item.id}>
-                {(columnKey) => (
-                  <TableCell>{renderCell(item, columnKey)}</TableCell>
+        <Table>
+          <Table.ScrollContainer>
+            <Table.Content aria-label="Project Audit Logs">
+              <Table.Header>
+                <Table.Column
+                  key="user_id"
+                  id="user_id"
+                  className="text-start"
+                ></Table.Column>
+                <Table.Column
+                  key="operation"
+                  id="operation"
+                  className="text-center"
+                >
+                  Operation
+                </Table.Column>
+                <Table.Column
+                  key="details"
+                  id="details"
+                  className="text-center"
+                >
+                  Details
+                </Table.Column>
+                <Table.Column key="id" id="id" className="text-center">
+                  ID
+                </Table.Column>
+                <Table.Column
+                  key="created_at"
+                  id="created_at"
+                  className="text-center"
+                >
+                  Created At
+                </Table.Column>
+              </Table.Header>
+              <Table.Body
+                items={items}
+                renderEmptyState={() => "No rows to display."}
+              >
+                {(item: any) => (
+                  <Table.Row key={item.id} id={item.id}>
+                    {(columnKey) => (
+                      <Table.Cell>{renderCell(item, columnKey)}</Table.Cell>
+                    )}
+                  </Table.Row>
                 )}
-              </TableRow>
-            )}
-          </TableBody>
+              </Table.Body>
+            </Table.Content>
+          </Table.ScrollContainer>
+          <Table.Footer>
+            {
+              <div className="flex w-full justify-center">
+                <PagePagination
+                  page={page}
+                  pageCount={pages}
+                  onPageChange={(page) => setPage(page)}
+                />
+              </div>
+            }
+          </Table.Footer>
         </Table>
       </motion.div>
     </motion.div>

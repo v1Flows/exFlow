@@ -142,10 +142,20 @@ export async function middleware(request: NextRequest) {
     const isMaintenanceMode =
       settings?.success && settings.data?.settings?.maintenance;
     const isAdmin = userData?.role === "admin";
+    const isEditor = userData?.role === "editor";
+    const isEditorOrAdmin = isAdmin || isEditor;
 
     // Admin Route Protection
     if (pathname.startsWith("/admin") && !isAdmin) {
       return NextResponse.redirect(new URL("/", request.url));
+    }
+
+    // Services management requires editor or admin
+    if (pathname.startsWith("/services/create") && !isEditorOrAdmin) {
+      return NextResponse.redirect(new URL("/services", request.url));
+    }
+    if (pathname.endsWith("/edit") && pathname.startsWith("/services/") && !isEditorOrAdmin) {
+      return NextResponse.redirect(new URL("/services", request.url));
     }
 
     // Maintenance Mode

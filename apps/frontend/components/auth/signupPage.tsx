@@ -1,30 +1,29 @@
 "use client";
-
 import { Icon } from "@iconify/react";
 import {
   Alert,
   Button,
   Card,
-  CardBody,
+  Description,
+  FieldError,
   Input,
+  InputGroup,
+  Label,
   Link,
+  TextField,
+  toast,
   Tooltip,
-  addToast,
 } from "@heroui/react";
 import { AnimatePresence, domAnimation, LazyMotion, m } from "framer-motion";
 import { useRouter } from "next/navigation";
 import React from "react";
-
 import { setSession } from "@/lib/setSession";
 import SignUpAPI from "@/lib/auth/signup";
 import LoginAPI from "@/lib/auth/login";
 import CheckUserTaken from "@/lib/auth/checkTaken";
-
 import { Ripple } from "../magicui/ripple";
-
 export default function SignUpPage({ settings }: any) {
   const router = useRouter();
-
   const [isPasswordVisible, setIsPasswordVisible] = React.useState(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
     React.useState(false);
@@ -39,15 +38,12 @@ export default function SignUpPage({ settings }: any) {
   const [isPasswordValid, setIsPasswordValid] = React.useState(true);
   const [isConfirmPasswordValid, setIsConfirmPasswordValid] =
     React.useState(true);
-
   const [error, setError] = React.useState(false);
   const [errorText, setErrorText] = React.useState("");
-
   const togglePasswordVisibility = () =>
     setIsPasswordVisible(!isPasswordVisible);
   const toggleConfirmPasswordVisibility = () =>
     setIsConfirmPasswordVisible(!isConfirmPasswordVisible);
-
   const Title = React.useCallback(
     (props: React.PropsWithChildren<{}>) => (
       <m.h1
@@ -61,7 +57,6 @@ export default function SignUpPage({ settings }: any) {
     ),
     [page],
   );
-
   const titleContent = React.useMemo(() => {
     return page === 0
       ? "Sign Up"
@@ -69,7 +64,6 @@ export default function SignUpPage({ settings }: any) {
         ? "Enter Password"
         : "Confirm Password";
   }, [page]);
-
   const variants = {
     enter: (direction: number) => ({
       x: direction > 0 ? 50 : -50,
@@ -86,25 +80,19 @@ export default function SignUpPage({ settings }: any) {
       opacity: 0,
     }),
   };
-
   const paginate = (newDirection: number) => {
     setPage([page + newDirection, newDirection]);
   };
-
   const handleEmailSubmit = async () => {
     if (!email.length) {
       setIsEmailValid(false);
-
       return;
     }
     if (!username.length) {
       setIsUsernameValid(false);
-
       return;
     }
-
     const res = await CheckUserTaken(null, email, username);
-
     if (res.result === "success") {
       setError(false);
       setErrorText("");
@@ -118,64 +106,42 @@ export default function SignUpPage({ settings }: any) {
       setIsEmailValid(res.error !== "Email already taken");
     }
   };
-
   const handlePasswordSubmit = () => {
     if (!password.length) {
       setIsPasswordValid(false);
-
       return;
     }
     setIsPasswordValid(true);
     paginate(1);
   };
-
   const handleConfirmPasswordSubmit = async () => {
     if (!confirmPassword.length || confirmPassword !== password) {
       setIsConfirmPasswordValid(false);
-
       return;
     }
     setIsConfirmPasswordValid(true);
-
     setIsLoading(true);
     const res = await SignUpAPI(email, username, password);
-
     if (res.result === "success") {
       // login
       const loginRes = await LoginAPI(email, password, false);
-
       if (!loginRes.error) {
         await setSession(loginRes.token, loginRes.user, loginRes.expires_at);
-
         setIsLoading(false);
         router.push("/");
-        addToast({
-          title: "Sign Up",
+        toast.success("Sign Up", {
           description: "Successfully signed up and logged in!",
-          color: "success",
-          variant: "flat",
         });
       } else {
-        addToast({
-          title: "Sign Up",
-          description: loginRes.error,
-          color: "danger",
-          variant: "flat",
-        });
+        toast.danger("Sign Up", { description: loginRes.error });
       }
     } else {
       setIsLoading(false);
       setError(true);
       setErrorText(res.error);
-      addToast({
-        title: "Sign Up",
-        description: res.error,
-        color: "danger",
-        variant: "flat",
-      });
+      toast.danger("Sign Up", { description: res.error });
     }
   };
-
   // eslint-disable-next-line no-undef
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -193,26 +159,25 @@ export default function SignUpPage({ settings }: any) {
         break;
     }
   };
-
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-4 bg-background relative overflow-hidden">
       <div className="z-10 w-full max-w-md space-y-8">
         {/* Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center p-3 mb-4 rounded-2xl bg-primary/10 ring-1 ring-primary/20">
+          <div className="inline-flex items-center justify-center p-3 mb-4 rounded-2xl bg-accent/10 ring-1 ring-accent/20">
             <Icon
-              className="text-3xl text-primary"
+              className="text-3xl text-accent"
               icon="hugeicons:user-add-01"
             />
           </div>
           <h1 className="text-4xl font-bold tracking-tight">
-            Create <span className="text-primary">Account</span>
+            Create <span className="text-accent">Account</span>
           </h1>
           <p className="text-gray-400 text-lg">Join JustFlow to get started</p>
         </div>
 
-        <Card className="w-full border-none shadow-2xl bg-content1/60 backdrop-blur-md">
-          <CardBody className="px-8 py-8 space-y-6">
+        <Card className="w-full border-none shadow-2xl bg-surface/60 backdrop-blur-md">
+          <Card.Content className="px-8 py-8 space-y-6">
             <LazyMotion features={domAnimation}>
               <m.div className="flex min-h-[40px] items-center gap-2 pb-2">
                 <AnimatePresence initial={false} mode="popLayout">
@@ -222,19 +187,22 @@ export default function SignUpPage({ settings }: any) {
                       exit={{ opacity: 0, x: -10 }}
                       initial={{ opacity: 0, x: -10 }}
                     >
-                      <Tooltip content="Go back" delay={3000}>
-                        <Button
-                          isIconOnly
-                          size="sm"
-                          variant="flat"
-                          onPress={() => paginate(-1)}
-                        >
-                          <Icon
-                            className="text-default-500"
-                            icon="hugeicons:arrow-left-01"
-                            width={16}
-                          />
-                        </Button>
+                      <Tooltip>
+                        <Tooltip.Trigger>
+                          <Button
+                            size="sm"
+                            variant="tertiary"
+                            onPress={() => paginate(-1)}
+                            className="aspect-square p-0"
+                          >
+                            <Icon
+                              className="text-muted"
+                              icon="hugeicons:arrow-left-01"
+                              width={16}
+                            />
+                          </Button>
+                        </Tooltip.Trigger>
+                        <Tooltip.Content>{"Go back"}</Tooltip.Content>
                       </Tooltip>
                     </m.div>
                   )}
@@ -253,21 +221,27 @@ export default function SignUpPage({ settings }: any) {
                       initial={false}
                       mode="wait"
                     >
-                      <Alert
-                        color="danger"
-                        description={errorText}
-                        title="Error"
-                        variant="flat"
-                      />
+                      <Alert status={"danger"}>
+                        <Alert.Indicator></Alert.Indicator>
+                        <Alert.Content>
+                          <Alert.Title>{"Error"}</Alert.Title>
+                          <Alert.Description>{errorText}</Alert.Description>
+                        </Alert.Content>
+                      </Alert>
                     </AnimatePresence>
                   )}
                   {!settings.signup && (
-                    <Alert
-                      color="danger"
-                      description="Sign up is currently disabled. Please check back later."
-                      title="Sign Up Disabled"
-                      variant="faded"
-                    />
+                    <Alert status={"danger"}>
+                      <Alert.Indicator></Alert.Indicator>
+                      <Alert.Content>
+                        <Alert.Title>{"Sign Up Disabled"}</Alert.Title>
+                        <Alert.Description>
+                          {
+                            "Sign up is currently disabled. Please check back later."
+                          }
+                        </Alert.Description>
+                      </Alert.Content>
+                    </Alert>
                   )}
                 </m.div>
               </m.div>
@@ -285,116 +259,123 @@ export default function SignUpPage({ settings }: any) {
                 >
                   {page === 0 && (
                     <>
-                      <Input
+                      <TextField
                         isRequired
                         isDisabled={!settings.signup}
-                        label="Username"
                         name="username"
-                        type="username"
-                        validationState={isUsernameValid ? "valid" : "invalid"}
                         value={username}
-                        variant="bordered"
-                        onValueChange={(value) => {
+                        onChange={(value) => {
                           setIsUsernameValid(true);
                           setUsername(value);
                         }}
-                      />
-                      <Input
+                      >
+                        <Label>{"Username"}</Label>
+                        <InputGroup>
+                          <Input type="username" />
+                        </InputGroup>
+                      </TextField>
+                      <TextField
                         isRequired
                         isDisabled={!settings.signup}
-                        label="Email Address"
                         name="email"
-                        type="email"
-                        validationState={isEmailValid ? "valid" : "invalid"}
                         value={email}
-                        variant="bordered"
-                        onValueChange={(value) => {
+                        onChange={(value) => {
                           setIsEmailValid(true);
                           setEmail(value);
                         }}
-                      />
+                      >
+                        <Label>{"Email Address"}</Label>
+                        <InputGroup>
+                          <Input type="email" />
+                        </InputGroup>
+                      </TextField>
                     </>
                   )}
                   {page === 1 && (
-                    <Input
+                    <TextField
                       isRequired
-                      endContent={
-                        <button
-                          type="button"
-                          onClick={togglePasswordVisibility}
-                        >
-                          {isPasswordVisible ? (
-                            <Icon
-                              className="pointer-events-none text-xl text-default-400"
-                              icon="hugeicons:view"
-                            />
-                          ) : (
-                            <Icon
-                              className="pointer-events-none text-xl text-default-400"
-                              icon="hugeicons:view-off"
-                            />
-                          )}
-                        </button>
-                      }
-                      label="Password"
                       name="password"
-                      type={isPasswordVisible ? "text" : "password"}
-                      validationState={isPasswordValid ? "valid" : "invalid"}
                       value={password}
-                      variant="bordered"
-                      onValueChange={(value) => {
+                      onChange={(value) => {
                         setIsPasswordValid(true);
                         setPassword(value);
                       }}
-                    />
+                    >
+                      <Label>{"Password"}</Label>
+                      <InputGroup>
+                        <Input type={isPasswordVisible ? "text" : "password"} />
+                        <InputGroup.Suffix>
+                          {
+                            <button
+                              type="button"
+                              onClick={togglePasswordVisibility}
+                            >
+                              {isPasswordVisible ? (
+                                <Icon
+                                  className="pointer-events-none text-xl text-muted"
+                                  icon="hugeicons:view"
+                                />
+                              ) : (
+                                <Icon
+                                  className="pointer-events-none text-xl text-muted"
+                                  icon="hugeicons:view-off"
+                                />
+                              )}
+                            </button>
+                          }
+                        </InputGroup.Suffix>
+                      </InputGroup>
+                    </TextField>
                   )}
                   {page === 2 && (
-                    <Input
+                    <TextField
                       isRequired
-                      endContent={
-                        <button
-                          type="button"
-                          onClick={toggleConfirmPasswordVisibility}
-                        >
-                          {isConfirmPasswordVisible ? (
-                            <Icon
-                              className="pointer-events-none text-xl text-default-400"
-                              icon="hugeicons:view"
-                            />
-                          ) : (
-                            <Icon
-                              className="pointer-events-none text-xl text-default-400"
-                              icon="hugeicons:view-off"
-                            />
-                          )}
-                        </button>
-                      }
-                      errorMessage={
-                        !isConfirmPasswordValid
-                          ? "Passwords do not match"
-                          : undefined
-                      }
-                      label="Confirm Password"
                       name="confirmPassword"
-                      type={isConfirmPasswordVisible ? "text" : "password"}
-                      validationState={
-                        isConfirmPasswordValid ? "valid" : "invalid"
-                      }
                       value={confirmPassword}
-                      variant="bordered"
-                      onValueChange={(value) => {
+                      onChange={(value) => {
                         setIsConfirmPasswordValid(true);
                         setConfirmPassword(value);
                       }}
-                    />
+                    >
+                      <Label>{"Confirm Password"}</Label>
+                      <InputGroup>
+                        <Input
+                          type={isConfirmPasswordVisible ? "text" : "password"}
+                        />
+                        <InputGroup.Suffix>
+                          {
+                            <button
+                              type="button"
+                              onClick={toggleConfirmPasswordVisibility}
+                            >
+                              {isConfirmPasswordVisible ? (
+                                <Icon
+                                  className="pointer-events-none text-xl text-muted"
+                                  icon="hugeicons:view"
+                                />
+                              ) : (
+                                <Icon
+                                  className="pointer-events-none text-xl text-muted"
+                                  icon="hugeicons:view-off"
+                                />
+                              )}
+                            </button>
+                          }
+                        </InputGroup.Suffix>
+                      </InputGroup>
+                      <FieldError>
+                        {!isConfirmPasswordValid
+                          ? "Passwords do not match"
+                          : undefined}
+                      </FieldError>
+                    </TextField>
                   )}
                   <Button
-                    fullWidth
-                    className="font-bold shadow-lg shadow-primary/20"
-                    color="primary"
+                    className="font-bold shadow-lg shadow-accent/20"
                     isDisabled={isLoading || !settings.signup}
-                    isLoading={isLoading}
+                    isPending={isLoading}
                     type="submit"
+                    variant="primary"
                   >
                     {page === 0
                       ? "Continue with Email"
@@ -405,13 +386,11 @@ export default function SignUpPage({ settings }: any) {
                 </m.form>
               </AnimatePresence>
             </LazyMotion>
-            <p className="text-center text-small">
+            <p className="text-center text-sm">
               Already have an account?&nbsp;
-              <Link href="/auth/login" size="sm">
-                Log In
-              </Link>
+              <Link href="/auth/login">Log In</Link>
             </p>
-          </CardBody>
+          </Card.Content>
         </Card>
       </div>
       <Ripple mainCircleOpacity={0.15} numCircles={8} />

@@ -1,12 +1,10 @@
-import { addToast, Card, CardBody, Switch, Tooltip } from "@heroui/react";
+import { Card, Switch, toast, Tooltip } from "@heroui/react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
-
 import UpdateProject from "@/lib/fetch/project/PUT/UpdateProject";
 import canEditProject from "@/lib/functions/canEditProject";
-
 export default function ProjectRunnerDetails({
   project,
   user,
@@ -15,17 +13,14 @@ export default function ProjectRunnerDetails({
   user: any;
 }) {
   const router = useRouter();
-
   const [sharedRunners, setSharedRunners] = useState(project.shared_runners);
   const [autoJoin, setAutoJoin] = useState(project.enable_auto_runners);
   const [disableJoin, setDisableJoin] = useState(project.disable_runner_join);
-
   useEffect(() => {
     setSharedRunners(project.shared_runners);
     setAutoJoin(project.enable_auto_runners);
     setDisableJoin(project.disable_runner_join);
   }, [project]);
-
   useEffect(() => {
     if (
       sharedRunners === project.shared_runners &&
@@ -36,7 +31,6 @@ export default function ProjectRunnerDetails({
     }
     updateProject();
   }, [sharedRunners, autoJoin, disableJoin]);
-
   async function updateProject() {
     const response = (await UpdateProject(
       project.id,
@@ -48,36 +42,17 @@ export default function ProjectRunnerDetails({
       autoJoin,
       disableJoin,
     )) as any;
-
     if (!response) {
-      addToast({
-        title: "Project",
-        description: "Failed to update project",
-        color: "danger",
-        variant: "flat",
-      });
-
+      toast.danger("Project", { description: "Failed to update project" });
       return;
     }
-
     if (response.success) {
       router.refresh();
-      addToast({
-        title: "Project",
-        description: "Project updated successfully",
-        color: "success",
-        variant: "flat",
-      });
+      toast.success("Project", { description: "Project updated successfully" });
     } else {
-      addToast({
-        title: "Project",
-        description: "Failed to update project",
-        color: "danger",
-        variant: "flat",
-      });
+      toast.danger("Project", { description: "Failed to update project" });
     }
   }
-
   return (
     <motion.div
       animate="visible"
@@ -93,15 +68,12 @@ export default function ProjectRunnerDetails({
           visible: { y: 0, opacity: 1 },
         }}
       >
-        <Card
-          fullWidth
-          className="h-full border-none shadow-sm bg-content1/60 backdrop-blur-md border border-default-100"
-        >
-          <CardBody>
+        <Card className="h-full border-none shadow-sm bg-surface/60 backdrop-blur-md border border-default">
+          <Card.Content>
             <div className="flex items-center justify-between h-full">
               <div className="flex flex-col">
                 <p className="text-md font-bold">Shared Runners</p>
-                <p className="text-sm text-default-500">
+                <p className="text-sm text-muted">
                   Use Runners from shared pool
                 </p>
               </div>
@@ -112,13 +84,16 @@ export default function ProjectRunnerDetails({
                   user.role !== "admin"
                 }
                 isSelected={sharedRunners}
-                size="sm"
-                onValueChange={(value) => {
+                onChange={(value) => {
                   setSharedRunners(value);
                 }}
-              />
+              >
+                <Switch.Control>
+                  <Switch.Thumb />
+                </Switch.Control>
+              </Switch>
             </div>
-          </CardBody>
+          </Card.Content>
         </Card>
       </motion.div>
 
@@ -128,20 +103,24 @@ export default function ProjectRunnerDetails({
           visible: { y: 0, opacity: 1 },
         }}
       >
-        <Card
-          fullWidth
-          className="h-full border-none shadow-sm bg-content1/60 backdrop-blur-md border border-default-100"
-        >
-          <CardBody>
+        <Card className="h-full border-none shadow-sm bg-surface/60 backdrop-blur-md border border-default">
+          <Card.Content>
             <div className="flex items-center justify-between h-full">
               <div className="flex flex-col">
                 <div className="flex flex-cols items-center gap-2">
                   <p className="text-md font-bold">Auto Join</p>
-                  <Tooltip content="You have to configure the projects runner join secret in your runner configuration">
-                    <Icon icon="solar:info-circle-linear" />
+                  <Tooltip>
+                    <Tooltip.Trigger>
+                      <Icon icon="solar:info-circle-linear" />
+                    </Tooltip.Trigger>
+                    <Tooltip.Content>
+                      {
+                        "You have to configure the projects runner join secret in your runner configuration"
+                      }
+                    </Tooltip.Content>
                   </Tooltip>
                 </div>
-                <p className="text-sm text-default-500 max-w-xs">
+                <p className="text-sm text-muted max-w-xs">
                   Runners on scalable infrastructure can automatically join
                 </p>
               </div>
@@ -152,13 +131,16 @@ export default function ProjectRunnerDetails({
                   user.role !== "admin"
                 }
                 isSelected={autoJoin}
-                size="sm"
-                onValueChange={(value) => {
+                onChange={(value) => {
                   setAutoJoin(value);
                 }}
-              />
+              >
+                <Switch.Control>
+                  <Switch.Thumb />
+                </Switch.Control>
+              </Switch>
             </div>
-          </CardBody>
+          </Card.Content>
         </Card>
       </motion.div>
 
@@ -168,33 +150,32 @@ export default function ProjectRunnerDetails({
           visible: { y: 0, opacity: 1 },
         }}
       >
-        <Card
-          fullWidth
-          className="h-full border-none shadow-sm bg-content1/60 backdrop-blur-md border border-default-100"
-        >
-          <CardBody>
+        <Card className="h-full border-none shadow-sm bg-surface/60 backdrop-blur-md border border-default">
+          <Card.Content>
             <div className="flex items-center justify-between h-full">
               <div className="flex flex-col">
                 <p className="text-md font-bold">Disable Join</p>
-                <p className="text-sm text-default-500">
+                <p className="text-sm text-muted">
                   Disable new runners from joining
                 </p>
               </div>
               <Switch
-                color="danger"
                 isDisabled={
                   (!canEditProject(user.id, project.members) ||
                     project.disabled) &&
                   user.role !== "admin"
                 }
                 isSelected={disableJoin}
-                size="sm"
-                onValueChange={(value) => {
+                onChange={(value) => {
                   setDisableJoin(value);
                 }}
-              />
+              >
+                <Switch.Control>
+                  <Switch.Thumb />
+                </Switch.Control>
+              </Switch>
             </div>
-          </CardBody>
+          </Card.Content>
         </Card>
       </motion.div>
     </motion.div>
