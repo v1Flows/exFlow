@@ -1,7 +1,10 @@
 allowBuilds:
-  '@heroui/shared-utils': true
+  'msw': true
+  'sharp': true
+  'unrs-resolver': true
+  'protobufjs': true
   '@tailwindcss/oxide': true
   '@tsparticles/engine': true
-  protobufjs: true
-  sharp: true
-  unrs-resolver: true
+minimumReleaseAgeExclude:
+  - '@heroui/react'
+  - '@heroui/styles'
