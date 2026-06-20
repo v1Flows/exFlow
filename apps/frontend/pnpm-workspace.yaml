@@ -3,8 +3,8 @@ allowBuilds:
   sharp: true
   unrs-resolver: true
   protobufjs: true
-  tailwindcss/oxide: true
-  tsparticles/engine: true
+  tailwindcss: true
+  tsparticles: true
 minimumReleaseAgeExclude:
   - '@heroui/react'
   - '@heroui/styles'
