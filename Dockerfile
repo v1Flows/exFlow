@@ -7,7 +7,7 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app/frontend
 COPY apps/frontend/package.json apps/frontend/pnpm-lock.yaml apps/frontend/pnpm-workspace.yaml ./
 RUN npm install -g pnpm
-RUN pnpm install
+RUN pnpm install --frozen-lockfile
 COPY apps/frontend/ ./
 
 ENV NEXT_TELEMETRY_DISABLED=1
