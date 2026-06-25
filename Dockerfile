@@ -1,7 +1,7 @@
-FROM node:24.16.0-alpine AS base
+FROM node:24.17.0-alpine AS base
 
 # Stage 1: Build the frontend
-FROM node:24.16.0-alpine AS frontend-builder
+FROM node:24.17.0-alpine AS frontend-builder
 
 RUN apk add --no-cache libc6-compat
 WORKDIR /app/frontend
@@ -15,7 +15,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm run build
 
 # Stage 2: Build the backend
-FROM golang:1.24-alpine AS backend-builder
+FROM golang:1.26-alpine AS backend-builder
 WORKDIR /app/backend
 COPY apps/backend/go.mod apps/backend/go.sum ./
 RUN go mod download
