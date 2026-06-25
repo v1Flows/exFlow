@@ -29,7 +29,7 @@ jobs:
         run: docker build . --file apps/runner/Dockerfile --tag ghcr.io/justlabv1/runner:beta --tag ghcr.io/justlabv1/runner:${{ github.sha }} --tag ghcr.io/justlabv1/runner:${{ steps.version.outputs.value }}
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
