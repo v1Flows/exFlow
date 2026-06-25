@@ -1,6 +1,6 @@
 module github.com/JustLABv1/runner-plugins/action-plugins/debug
 
-go 1.24.0
+go 1.26.0
 
 require (
 	github.com/JustLABv1/runner v1.3.3-0.20251130114418-9c6e8455bd50
