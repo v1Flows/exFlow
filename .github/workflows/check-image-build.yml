@@ -23,7 +23,7 @@ jobs:
       justflow: ${{ steps.changes.outputs.justflow }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - uses: dorny/paths-filter@v4
         id: changes
         with:
@@ -53,7 +53,7 @@ jobs:
     if: ${{ needs.changes.outputs.frontend == 'true' }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Build Frontend Docker Image
         run: docker build apps/frontend --file apps/frontend/Dockerfile --tag justnz/justflow:frontend-test
@@ -64,7 +64,7 @@ jobs:
     if: ${{ needs.changes.outputs.backend == 'true' }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Build Backend Docker Image
         run: docker build apps/backend --file apps/backend/Dockerfile --tag justnz/justflow:backend-test
@@ -75,7 +75,7 @@ jobs:
     if: ${{ needs.changes.outputs.runner == 'true' }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Build Runner Docker Image
         run: docker build . --file apps/runner/Dockerfile --tag justnz/runner:test
@@ -86,7 +86,7 @@ jobs:
     if: ${{ needs.changes.outputs.plugins == 'true' }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Go
         uses: actions/setup-go@v6
@@ -111,7 +111,7 @@ jobs:
     if: ${{ needs.changes.outputs.justflow == 'true' }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Build justFlow Docker Image
         run: docker build . --file Dockerfile --tag justnz/justflow:test
