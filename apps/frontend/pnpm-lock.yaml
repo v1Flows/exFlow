@@ -207,7 +207,7 @@ importers:
         specifier: ^4.4.1
         version: 4.4.1(@typescript-eslint/eslint-plugin@8.62.0(@typescript-eslint/parser@8.62.0(eslint@9.39.1(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.1(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.1(jiti@2.7.0))
       framer-motion:
-        specifier: ^12.40.0
+        specifier: ^12.41.0
         version: 12.41.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       globals:
         specifier: ^16.5.0
@@ -225,7 +225,7 @@ importers:
         specifier: ^8.3.0
         version: 8.3.0
       motion:
-        specifier: ^12.40.0
+        specifier: ^12.41.0
         version: 12.41.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       next:
         specifier: 15.5.19
@@ -7660,7 +7660,7 @@ snapshots:
     dependencies:
       '@babel/compat-data': 7.29.7
       '@babel/helper-validator-option': 7.29.7
-      browserslist: 4.24.4
+      browserslist: 4.28.4
       lru-cache: 5.1.1
       semver: 6.3.1
 
@@ -11157,7 +11157,7 @@ snapshots:
       '@typescript-eslint/parser': 8.62.0(eslint@9.39.1(jiti@2.7.0))(typescript@5.9.3)
       '@typescript-eslint/typescript-estree': 8.62.0(typescript@5.9.3)
       '@typescript-eslint/utils': 8.62.0(eslint@9.39.1(jiti@2.7.0))(typescript@5.9.3)
-      ajv: 6.12.6
+      ajv: 6.15.0
       eslint: 9.39.1(jiti@2.7.0)
       json-stable-stringify-without-jsonify: 1.0.1
       lodash.merge: 4.6.2
@@ -11540,7 +11540,7 @@ snapshots:
       '@vue/shared': 3.5.13
       estree-walker: 2.0.2
       magic-string: 0.30.21
-      postcss: 8.5.6
+      postcss: 8.5.15
       source-map-js: 1.2.1
 
   '@vue/compiler-ssr@3.5.13':
@@ -12588,7 +12588,7 @@ snapshots:
     dependencies:
       '@pkgr/core': 0.2.10
       '@types/doctrine': 0.0.9
-      '@typescript-eslint/utils': 8.61.1(eslint@9.39.1(jiti@2.7.0))(typescript@5.9.3)
+      '@typescript-eslint/utils': 8.62.0(eslint@9.39.1(jiti@2.7.0))(typescript@5.9.3)
       debug: 4.4.3
       doctrine: 3.0.0
       eslint: 9.39.1(jiti@2.7.0)
@@ -16026,7 +16026,7 @@ snapshots:
       '@webassemblyjs/wasm-edit': 1.14.1
       '@webassemblyjs/wasm-parser': 1.14.1
       acorn: 8.17.0
-      browserslist: 4.24.4
+      browserslist: 4.28.4
       chrome-trace-event: 1.0.4
       enhanced-resolve: 5.24.0
       es-module-lexer: 1.7.0
