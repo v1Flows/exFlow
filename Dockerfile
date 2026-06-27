@@ -1,7 +1,7 @@
-FROM node:24.17.0-alpine AS base
+FROM node:24.18.0-alpine AS base
 
 # Stage 1: Build the frontend
-FROM node:24.17.0-alpine AS frontend-builder
+FROM node:24.18.0-alpine AS frontend-builder
 
 RUN apk add --no-cache libc6-compat
 WORKDIR /app/frontend
