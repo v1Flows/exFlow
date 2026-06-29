@@ -22,7 +22,7 @@
     "@heroui/styles": "^3.2.1",
     "@iconify/react": "^6.0.2",
     "@internationalized/date": "^3.12.1",
-    "@number-flow/react": "^0.6.0",
+    "@number-flow/react": "^0.6.1",
     "@opentelemetry/api-logs": "^0.219.0",
     "@opentelemetry/auto-instrumentations-node": "^0.77.0",
     "@opentelemetry/exporter-trace-otlp-grpc": "^0.219.0",
