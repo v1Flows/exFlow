@@ -1,18 +1,18 @@
 module github.com/JustLABv1/justflow/apps/backend
 
-go 1.26.0
+go 1.26.4
 
 require (
 	github.com/prometheus/client_golang v1.23.2
-	github.com/uptrace/bun v1.2.16
-	github.com/uptrace/bun/driver/pgdriver v1.2.16
-	github.com/uptrace/bun/extra/bunotel v1.2.16
-	go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.63.0
-	go.opentelemetry.io/otel v1.43.0
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.39.0
-	go.opentelemetry.io/otel/sdk v1.43.0
-	golang.org/x/crypto v0.46.0
-	google.golang.org/grpc v1.79.3
+	github.com/uptrace/bun v1.2.18
+	github.com/uptrace/bun/driver/pgdriver v1.2.18
+	github.com/uptrace/bun/extra/bunotel v1.2.18
+	go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.69.0
+	go.opentelemetry.io/otel v1.44.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.44.0
+	go.opentelemetry.io/otel/sdk v1.44.0
+	golang.org/x/crypto v0.53.0
+	google.golang.org/grpc v1.82.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -83,15 +83,15 @@ require (
 require (
 	github.com/Masterminds/semver v1.5.0
 	github.com/alecthomas/kingpin/v2 v2.4.0
-	github.com/gin-contrib/cors v1.7.6
-	github.com/gin-gonic/gin v1.11.0
-	github.com/golang-jwt/jwt/v5 v5.3.0
+	github.com/gin-contrib/cors v1.7.7
+	github.com/gin-gonic/gin v1.12.0
+	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/google/uuid v1.6.0
-	github.com/lib/pq v1.10.9
-	github.com/mattn/go-sqlite3 v1.14.32
+	github.com/lib/pq v1.12.3
+	github.com/mattn/go-sqlite3 v1.14.47
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826
-	github.com/sirupsen/logrus v1.9.3
+	github.com/sirupsen/logrus v1.9.4
 	github.com/spf13/viper v1.21.0
-	github.com/uptrace/bun/dialect/pgdialect v1.2.16
+	github.com/uptrace/bun/dialect/pgdialect v1.2.18
 	golang.org/x/sys v0.42.0 // indirect
 )

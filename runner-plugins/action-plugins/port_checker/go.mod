@@ -1,10 +1,10 @@
 module github.com/JustLABv1/runner-plugins/action-plugins/port_checker
 
-go 1.26.0
+go 1.26.4
 
 require (
 	github.com/JustLABv1/runner v1.3.3-0.20251130114418-9c6e8455bd50
-	github.com/hashicorp/go-plugin v1.7.0
+	github.com/hashicorp/go-plugin v1.8.0
 )
 
 require (
