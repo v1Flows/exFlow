@@ -24,7 +24,7 @@
     "@internationalized/date": "^3.12.1",
     "@number-flow/react": "^0.6.1",
     "@opentelemetry/api-logs": "^0.220.0",
-    "@opentelemetry/auto-instrumentations-node": "^0.77.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.78.0",
     "@opentelemetry/exporter-trace-otlp-grpc": "^0.220.0",
     "@opentelemetry/exporter-trace-otlp-http": "^0.220.0",
     "@opentelemetry/instrumentation": "^0.220.0",
