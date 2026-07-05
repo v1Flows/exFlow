@@ -1,10 +1,10 @@
 module github.com/JustLABv1/runner-plugins/action-plugins/terraform
 
-go 1.26.0
+go 1.26.4
 
 require (
 	github.com/JustLABv1/runner v1.3.3-0.20251130114418-9c6e8455bd50
-	github.com/hashicorp/go-plugin v1.7.0
+	github.com/hashicorp/go-plugin v1.8.0
 )
 
 require (
@@ -31,9 +31,9 @@ require (
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/go-hclog v1.6.3 // indirect
-	github.com/hashicorp/go-version v1.7.0
-	github.com/hashicorp/hc-install v0.9.2
-	github.com/hashicorp/terraform-exec v0.24.0
+	github.com/hashicorp/go-version v1.9.0
+	github.com/hashicorp/hc-install v0.9.5
+	github.com/hashicorp/terraform-exec v0.25.2
 	github.com/hashicorp/yamux v0.1.2 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect

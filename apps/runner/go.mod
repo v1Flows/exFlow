@@ -1,13 +1,13 @@
 module github.com/JustLABv1/runner
 
-go 1.26.0
+go 1.26.4
 
 require (
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-hclog v1.6.3
-	github.com/hashicorp/go-plugin v1.7.0
-	github.com/sirupsen/logrus v1.9.3
+	github.com/hashicorp/go-plugin v1.8.0
+	github.com/sirupsen/logrus v1.9.4
 )
 
 require (
@@ -60,8 +60,8 @@ require (
 	github.com/JustLABv1/justflow/apps/backend v0.0.0-20251130104321-781435597f44
 	github.com/JustLABv1/justflow/pkg/contracts v0.0.0
 	github.com/alecthomas/units v0.0.0-20240927000941-0f3dac36c52b // indirect
-	github.com/gin-contrib/cors v1.7.6
-	github.com/gin-gonic/gin v1.11.0
+	github.com/gin-contrib/cors v1.7.7
+	github.com/gin-gonic/gin v1.12.0
 	github.com/spf13/viper v1.21.0
 	github.com/xhit/go-str2duration/v2 v2.1.0 // indirect
 	golang.org/x/sys v0.42.0 // indirect
