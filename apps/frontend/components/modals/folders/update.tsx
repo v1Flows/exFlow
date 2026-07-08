@@ -4,7 +4,6 @@ import {
   Description,
   FieldError,
   Form,
-  Input,
   InputGroup,
   Label,
   ListBox,
@@ -111,7 +110,7 @@ export default function UpdateFolderModal({
                         >
                           <Label>{"Name"}</Label>
                           <InputGroup>
-                            <Input />
+                            <InputGroup.Input />
                           </InputGroup>
                         </TextField>
                         <TextField
@@ -120,7 +119,7 @@ export default function UpdateFolderModal({
                         >
                           <Label>{"Description"}</Label>
                           <InputGroup>
-                            <Input />
+                            <InputGroup.Input />
                           </InputGroup>
                         </TextField>
                         <Select

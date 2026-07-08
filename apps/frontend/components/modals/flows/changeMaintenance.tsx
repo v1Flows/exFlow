@@ -3,7 +3,6 @@ import {
   Button,
   Description,
   FieldError,
-  Input,
   InputGroup,
   Label,
   Modal,
@@ -101,7 +100,7 @@ export default function ChangeFlowMaintenanceModal({
                       >
                         <Label>{"Maintenance Message"}</Label>
                         <InputGroup>
-                          <Input placeholder="Enter the reason for the maintenance" />
+                          <InputGroup.Input placeholder="Enter the reason for the maintenance" />
                         </InputGroup>
                       </TextField>
                     </Modal.Body>

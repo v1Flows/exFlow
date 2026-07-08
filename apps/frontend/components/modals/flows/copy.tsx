@@ -3,7 +3,6 @@ import {
   Button,
   Description,
   FieldError,
-  Input,
   InputGroup,
   Label,
   ListBox,
@@ -172,7 +171,7 @@ export default function CopyFlowModal({
                         <TextField isRequired value={name} onChange={setName}>
                           <Label>{"Name"}</Label>
                           <InputGroup>
-                            <Input type="name" />
+                            <InputGroup.Input type="name" />
                           </InputGroup>
                         </TextField>
                         <TextField
@@ -182,7 +181,7 @@ export default function CopyFlowModal({
                         >
                           <Label>{"Description"}</Label>
                           <InputGroup>
-                            <Input type="description" />
+                            <InputGroup.Input type="description" />
                           </InputGroup>
                         </TextField>
                         <Select

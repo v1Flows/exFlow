@@ -17,10 +17,20 @@ type BarChartProps = {
   title: string;
   categories: {
     title: string;
-    color: string;
+    color: ChartColor;
   }[];
   chartData: ChartData[];
 };
+type ChartColor = "accent" | "danger" | "default" | "success" | "warning";
+
+const chartColors: Record<ChartColor, string> = {
+  accent: "var(--accent)",
+  danger: "var(--danger)",
+  default: "var(--muted)",
+  success: "var(--success)",
+  warning: "var(--warning)",
+};
+
 export default function DashboardExecutionsStats({ stats }: { stats: any }) {
   const data: BarChartProps[] = [
     {
@@ -40,19 +50,19 @@ export default function DashboardExecutionsStats({ stats }: { stats: any }) {
         },
         {
           title: "Running",
-          color: "primary",
+          color: "accent",
         },
         {
           title: "Canceled",
-          color: "danger-300",
+          color: "danger",
         },
         {
           title: "Scheduled",
-          color: "secondary",
+          color: "accent",
         },
         {
           title: "NoPatternMatch",
-          color: "secondary-300",
+          color: "default",
         },
         {
           title: "Recovered",
@@ -77,7 +87,7 @@ export default function DashboardExecutionsStats({ stats }: { stats: any }) {
     },
   ];
   return (
-    <dl className="grid w-full grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-2">
+    <dl className="grid h-full w-full grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-2">
       {data.map((item, index) => (
         <BarChartCard key={index} {...item} />
       ))}
@@ -108,12 +118,12 @@ const BarChartCard = React.forwardRef<
     <Card
       ref={ref}
       className={cn(
-        "bg-surface/60 backdrop-blur-md shadow-lg border border-default h-[300px]",
+        "flex h-[280px] border border-default bg-surface/60 shadow-lg backdrop-blur-md",
         className,
       )}
       {...props}
     >
-      <div className="flex flex-col gap-y-4 p-4">
+      <div className="flex flex-none flex-col gap-y-4 p-4 pb-2">
         <dt>
           <h3 className="text-sm text-muted font-medium">{title}</h3>
         </dt>
@@ -123,7 +133,7 @@ const BarChartCard = React.forwardRef<
               <span
                 className="h-2 w-2 rounded-full"
                 style={{
-                  backgroundColor: `hsl(var(--heroui-${category.color}))`,
+                  backgroundColor: chartColors[category.color],
                 }}
               />
               <span className="capitalize">{category.title}</span>
@@ -131,84 +141,91 @@ const BarChartCard = React.forwardRef<
           ))}
         </dd>
       </div>
-      <ResponsiveContainer
-        className="[&_.recharts-surface]:outline-hidden"
-        height="100%"
-        width="100%"
-      >
-        <BarChart
-          accessibilityLayer
-          data={chartData}
-          margin={{
-            top: 20,
-            right: 14,
-            left: -8,
-            bottom: 5,
-          }}
+      <div className="min-h-0 flex-1 px-3 pb-4">
+        <ResponsiveContainer
+          className="[&_.recharts-surface]:outline-hidden"
+          height="100%"
+          width="100%"
         >
-          <XAxis
-            dataKey="weekday"
-            strokeOpacity={0.25}
-            style={{ fontSize: "var(--heroui-font-size-tiny)", color: "red" }}
-            tickLine={false}
-          />
-          <YAxis
-            axisLine={false}
-            style={{ fontSize: "var(--heroui-font-size-tiny)" }}
-            tickLine={false}
-          />
-          <Tooltip
-            content={({ label, payload }) => (
-              <div className="rounded-md bg-background text-xs shadow-sm flex h-auto min-w-[120px] items-center gap-x-2 p-2">
-                <div className="flex w-full flex-col gap-y-1">
-                  <span className="text-foreground font-medium">
-                    {formatWeekday(label)}
-                  </span>
-                  {payload?.map((p, index) => {
-                    const name = p.name;
-                    const value = p.value;
-                    const category = categories.find(
-                      (c) => c.title.toLowerCase() === name,
-                    ) ?? { title: name, color: "default" };
-                    return (
-                      <div
-                        key={`${index}-${name}`}
-                        className="flex w-full items-center gap-x-2"
-                      >
-                        <div
-                          className="h-2 w-2 flex-none rounded-full"
-                          style={{
-                            backgroundColor: `hsl(var(--heroui-${category.color}))`,
-                          }}
-                        />
-                        <div className="text-foreground flex w-full items-center justify-between gap-x-2 pr-1 text-xs">
-                          <span className="text-muted">{category.title}</span>
-                          <span className="text-foreground font-mono font-medium">
-                            {value}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            cursor={false}
-          />
-          {categories.map((category, index) => (
-            <Bar
-              key={`${category}-${index}`}
-              animationDuration={450}
-              animationEasing="ease"
-              barSize={24}
-              dataKey={category.title.toLowerCase()}
-              fill={`hsl(var(--heroui-${category.color}))`}
-              radius={index === categories.length - 1 ? [4, 4, 0, 0] : 0}
-              stackId="bars"
+          <BarChart
+            accessibilityLayer
+            data={chartData}
+            margin={{
+              top: 12,
+              right: 10,
+              left: -12,
+              bottom: 0,
+            }}
+          >
+            <XAxis
+              axisLine={{ stroke: "var(--separator)" }}
+              dataKey="weekday"
+              stroke="var(--muted)"
+              tickLine={false}
+              tickMargin={8}
+              style={{ fontSize: "0.75rem" }}
             />
-          ))}
-        </BarChart>
-      </ResponsiveContainer>
+            <YAxis
+              axisLine={false}
+              stroke="var(--muted)"
+              tickLine={false}
+              tickMargin={8}
+              style={{ fontSize: "0.75rem" }}
+            />
+            <Tooltip
+              content={({ label, payload }) => (
+                <div className="flex h-auto min-w-[120px] items-center gap-x-2 rounded-md border border-default bg-overlay p-2 text-xs shadow-overlay">
+                  <div className="flex w-full flex-col gap-y-1">
+                    <span className="text-foreground font-medium">
+                      {formatWeekday(label)}
+                    </span>
+                    {payload?.map((p, index) => {
+                      const name = p.name;
+                      const value = p.value;
+                      const category = categories.find(
+                        (c) => c.title.toLowerCase() === name,
+                      ) ?? { title: name, color: "default" as ChartColor };
+
+                      return (
+                        <div
+                          key={`${index}-${name}`}
+                          className="flex w-full items-center gap-x-2"
+                        >
+                          <div
+                            className="h-2 w-2 flex-none rounded-full"
+                            style={{
+                              backgroundColor: chartColors[category.color],
+                            }}
+                          />
+                          <div className="text-foreground flex w-full items-center justify-between gap-x-2 pr-1 text-xs">
+                            <span className="text-muted">{category.title}</span>
+                            <span className="text-foreground font-mono font-medium">
+                              {value}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+              cursor={false}
+            />
+            {categories.map((category, index) => (
+              <Bar
+                key={`${category}-${index}`}
+                animationDuration={450}
+                animationEasing="ease"
+                barSize={18}
+                dataKey={category.title.toLowerCase()}
+                fill={chartColors[category.color]}
+                radius={index === categories.length - 1 ? [4, 4, 0, 0] : 0}
+                stackId="bars"
+              />
+            ))}
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </Card>
   );
 });

@@ -2,11 +2,9 @@ import {
   Button,
   Description,
   FieldError,
-  Input,
   InputGroup,
   Label,
   Modal,
-  TextArea,
   TextField,
   toast,
   type UseOverlayStateReturn,
@@ -128,7 +126,7 @@ export default function SimulateAlertModal({
                     <TextField value={target} onChange={setTarget}>
                       <Label>{"Target"}</Label>
                       <InputGroup>
-                        <Input />
+                        <InputGroup.Input />
                       </InputGroup>
                       <Description>
                         {"The target URL where the payload will be sent to."}
@@ -140,7 +138,7 @@ export default function SimulateAlertModal({
                       onChange={setPayload}
                     >
                       <Label>{"Payload JSON"}</Label>
-                      <TextArea />
+                      <InputGroup.TextArea />
                     </TextField>
                   </Modal.Body>
                   <Modal.Footer>

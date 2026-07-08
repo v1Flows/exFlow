@@ -5,7 +5,6 @@ import {
   Description,
   FieldError,
   Form,
-  Input,
   InputGroup,
   Label,
   Modal,
@@ -112,7 +111,7 @@ export default function CreateRunnerModal({
                         <TextField isRequired name="name">
                           <Label>{"Name"}</Label>
                           <InputGroup>
-                            <Input placeholder="Enter the runner name" />
+                            <InputGroup.Input placeholder="Enter the runner name" />
                           </InputGroup>
                         </TextField>
                       </div>

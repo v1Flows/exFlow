@@ -3,7 +3,6 @@ import {
   Button,
   Description,
   FieldError,
-  Input,
   InputGroup,
   Label,
   Modal,
@@ -101,7 +100,7 @@ export default function ChangeProjectTokenStatusModal({
                       >
                         <Label>{"Disable Reason"}</Label>
                         <InputGroup>
-                          <Input placeholder="Enter the reason for disabling this flow" />
+                          <InputGroup.Input placeholder="Enter the reason for disabling this flow" />
                         </InputGroup>
                       </TextField>
                     </Modal.Body>

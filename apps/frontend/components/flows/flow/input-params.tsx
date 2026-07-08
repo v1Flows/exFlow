@@ -4,7 +4,6 @@ import {
   Card,
   Description,
   FieldError,
-  Input,
   InputGroup,
   Label,
   ListBox,
@@ -269,7 +268,7 @@ export default function FlowInputParams({
                           >
                             <Label>{"Name (key)"}</Label>
                             <InputGroup>
-                              <Input placeholder="e.g. target_host" />
+                              <InputGroup.Input placeholder="e.g. target_host" />
                             </InputGroup>
                             <Description>
                               {
@@ -285,7 +284,7 @@ export default function FlowInputParams({
                           >
                             <Label>{"Label"}</Label>
                             <InputGroup>
-                              <Input placeholder="e.g. Target Host" />
+                              <InputGroup.Input placeholder="e.g. Target Host" />
                             </InputGroup>
                             <Description>
                               {"Displayed to the user on the form."}
@@ -300,7 +299,7 @@ export default function FlowInputParams({
                         >
                           <Label>{"Description"}</Label>
                           <InputGroup>
-                            <Input placeholder="Brief explanation shown below the field" />
+                            <InputGroup.Input placeholder="Brief explanation shown below the field" />
                           </InputGroup>
                         </TextField>
                         <div className="grid grid-cols-2 gap-3">
@@ -337,7 +336,7 @@ export default function FlowInputParams({
                           >
                             <Label>{"Default Value"}</Label>
                             <InputGroup>
-                              <Input placeholder="Optional default" />
+                              <InputGroup.Input placeholder="Optional default" />
                             </InputGroup>
                           </TextField>
                         </div>
@@ -380,7 +379,7 @@ export default function FlowInputParams({
                                     }}
                                   >
                                     <InputGroup>
-                                      <Input placeholder="key" />
+                                      <InputGroup.Input placeholder="key" />
                                     </InputGroup>
                                   </TextField>
                                   <TextField
@@ -397,7 +396,7 @@ export default function FlowInputParams({
                                     }}
                                   >
                                     <InputGroup>
-                                      <Input placeholder="display label" />
+                                      <InputGroup.Input placeholder="display label" />
                                     </InputGroup>
                                   </TextField>
                                   <Button

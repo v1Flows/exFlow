@@ -3,7 +3,6 @@ import {
   Button,
   Description,
   FieldError,
-  Input,
   InputGroup,
   Label,
   Modal,
@@ -127,7 +126,7 @@ export default function ChangeUserPasswordModal({
                     >
                       <Label>{"Current Password"}</Label>
                       <InputGroup>
-                        <Input
+                        <InputGroup.Input
                           placeholder="Enter the current password"
                           type="password"
                         />
@@ -140,7 +139,7 @@ export default function ChangeUserPasswordModal({
                     >
                       <Label>{"New Password"}</Label>
                       <InputGroup>
-                        <Input
+                        <InputGroup.Input
                           placeholder="Enter the new password"
                           type="password"
                         />
@@ -153,7 +152,7 @@ export default function ChangeUserPasswordModal({
                     >
                       <Label>{"Confirm Password"}</Label>
                       <InputGroup>
-                        <Input
+                        <InputGroup.Input
                           placeholder="Enter the new password again"
                           type="password"
                         />

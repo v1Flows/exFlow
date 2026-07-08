@@ -4,7 +4,6 @@ import {
   Description,
   FieldError,
   Form,
-  Input,
   InputGroup,
   Label,
   Modal,
@@ -101,7 +100,7 @@ export default function EditRunnerModal({
                         >
                           <Label>{"Name"}</Label>
                           <InputGroup>
-                            <Input placeholder="Enter the new runner name" />
+                            <InputGroup.Input placeholder="Enter the new runner name" />
                           </InputGroup>
                         </TextField>
                       </div>

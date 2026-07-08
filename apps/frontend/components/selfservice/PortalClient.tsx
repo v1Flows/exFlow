@@ -3,7 +3,6 @@ import {
   Button,
   Description,
   FieldError,
-  Input,
   InputGroup,
   Label,
   TextField,
@@ -142,7 +141,7 @@ export default function PortalClient() {
                     />
                   }
                 </InputGroup.Prefix>
-                <Input placeholder="Search service pages and workflows…" />
+                <InputGroup.Input placeholder="Search service pages and workflows…" />
               </InputGroup>
             </TextField>
           </div>

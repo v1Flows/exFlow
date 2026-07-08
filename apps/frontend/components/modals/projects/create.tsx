@@ -13,7 +13,6 @@ import {
   ListBox,
   Modal,
   Select,
-  TextArea,
   TextField,
   toast,
   type UseOverlayStateReturn,
@@ -135,7 +134,7 @@ export default function CreateProjectModal({
                             >
                               <Label>{"Project Name"}</Label>
                               <InputGroup>
-                                <Input placeholder="e.g. My Awesome Project" />
+                                <InputGroup.Input placeholder="e.g. My Awesome Project" />
                               </InputGroup>
                             </TextField>
                             <TextField
@@ -145,7 +144,7 @@ export default function CreateProjectModal({
                               onChange={setDescription}
                             >
                               <Label>{"Description"}</Label>
-                              <TextArea
+                              <InputGroup.TextArea
                                 placeholder={"Briefly describe your project..."}
                               />
                             </TextField>
@@ -199,7 +198,7 @@ export default function CreateProjectModal({
                               >
                                 <Label>Project Icon</Label>
                                 <ComboBox.InputGroup>
-                                  <Input placeholder="Search icon..." />
+                                  <Input fullWidth placeholder="Search icon..." />
                                   <ComboBox.Trigger />
                                 </ComboBox.InputGroup>
                                 <ComboBox.Popover>

@@ -6,7 +6,6 @@ import {
   Chip,
   Description,
   FieldError,
-  Input,
   InputGroup,
   Label,
   TextField,
@@ -95,7 +94,7 @@ export default function PluginSidebar({
                 <InputGroup.Prefix>
                   {<Icon icon="hugeicons:search-01" width={14} />}
                 </InputGroup.Prefix>
-                <Input placeholder="Search actions..." />
+                <InputGroup.Input placeholder="Search actions..." />
               </InputGroup>
             </TextField>
           </div>

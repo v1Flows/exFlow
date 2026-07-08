@@ -3,14 +3,12 @@ import {
   Button,
   Description,
   FieldError,
-  Input,
   InputGroup,
   Label,
   ListBox,
   NumberField,
   Select,
   Switch,
-  TextArea,
   TextField,
 } from "@heroui/react";
 import { useState } from "react";
@@ -166,7 +164,7 @@ export default function InputForm({
               onChange={(v) => setValue(param.name, v)}
             >
               <Label>{label}</Label>
-              <TextArea />
+              <InputGroup.TextArea />
               <Description>{description}</Description>
             </TextField>
           );
@@ -181,7 +179,7 @@ export default function InputForm({
           >
             <Label>{label}</Label>
             <InputGroup>
-              <Input key={param.id} />
+              <InputGroup.Input key={param.id} />
             </InputGroup>
             <Description>{description}</Description>
           </TextField>

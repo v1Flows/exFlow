@@ -5,7 +5,6 @@ import {
   Card,
   Description,
   FieldError,
-  Input,
   InputGroup,
   Label,
   ListBox,
@@ -510,7 +509,7 @@ export default function SetupPageClient() {
                     <InputGroup.Prefix>
                       {<Icon className="text-muted" icon="hugeicons:link-01" />}
                     </InputGroup.Prefix>
-                    <Input
+                    <InputGroup.Input
                       placeholder="http://localhost:8080"
                       onChange={(e) => setCustomBackendUrl(e.target.value)}
                     />
@@ -617,7 +616,7 @@ export default function SetupPageClient() {
                             />
                           }
                         </InputGroup.Prefix>
-                        <Input
+                        <InputGroup.Input
                           placeholder="http://localhost:3000"
                           onChange={(e) =>
                             handleInputChange("frontend_url", e.target.value)
@@ -638,7 +637,7 @@ export default function SetupPageClient() {
                       <TextField value={setupData.database.server}>
                         <Label>{"Server Host"}</Label>
                         <InputGroup>
-                          <Input
+                          <InputGroup.Input
                             placeholder="localhost"
                             onChange={(e) =>
                               handleInputChange(
@@ -652,7 +651,7 @@ export default function SetupPageClient() {
                       <TextField value={setupData.database.port.toString()}>
                         <Label>{"Port"}</Label>
                         <InputGroup>
-                          <Input
+                          <InputGroup.Input
                             placeholder="5432"
                             type="number"
                             onChange={(e) =>
@@ -676,7 +675,7 @@ export default function SetupPageClient() {
                             />
                           }
                         </InputGroup.Prefix>
-                        <Input
+                        <InputGroup.Input
                           placeholder="justflow"
                           onChange={(e) =>
                             handleInputChange("database.name", e.target.value)
@@ -696,7 +695,7 @@ export default function SetupPageClient() {
                               />
                             }
                           </InputGroup.Prefix>
-                          <Input
+                          <InputGroup.Input
                             placeholder="postgres"
                             onChange={(e) =>
                               handleInputChange("database.user", e.target.value)
@@ -715,7 +714,7 @@ export default function SetupPageClient() {
                               />
                             }
                           </InputGroup.Prefix>
-                          <Input
+                          <InputGroup.Input
                             placeholder="••••••••"
                             type="password"
                             onChange={(e) =>

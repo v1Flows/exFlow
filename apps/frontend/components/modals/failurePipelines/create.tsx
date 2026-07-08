@@ -3,7 +3,6 @@ import {
   Button,
   Description,
   FieldError,
-  Input,
   InputGroup,
   Label,
   ListBox,
@@ -108,7 +107,7 @@ export default function CreateFailurePipelineModal({
                       <TextField isRequired value={name} onChange={setName}>
                         <Label>{"Name"}</Label>
                         <InputGroup>
-                          <Input type="name" />
+                          <InputGroup.Input type="name" />
                         </InputGroup>
                       </TextField>
                       <Select

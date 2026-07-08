@@ -18,6 +18,35 @@ import { Ripple } from "@/components/magicui/ripple";
 import Executions from "../executions/executions";
 import Alerts from "../alerts/alerts";
 import DashboardExecutionsStats from "./stats-charts";
+
+const statusVariables: Record<
+  string,
+  { background: string; foreground: string }
+> = {
+  accent: {
+    background: "color-mix(in oklab, var(--accent) 18%, transparent)",
+    foreground: "var(--accent)",
+  },
+  danger: {
+    background: "color-mix(in oklab, var(--danger) 18%, transparent)",
+    foreground: "var(--danger)",
+  },
+  default: {
+    background: "var(--default)",
+    foreground: "var(--default-foreground)",
+  },
+  success: {
+    background: "color-mix(in oklab, var(--success) 18%, transparent)",
+    foreground: "var(--success)",
+  },
+  warning: {
+    background: "color-mix(in oklab, var(--warning) 18%, transparent)",
+    foreground: "var(--warning)",
+  },
+};
+
+const getStatusVariables = (color: string) =>
+  statusVariables[color] ?? statusVariables.default;
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -81,20 +110,19 @@ export default function DashboardHome({
     subtext,
     icon,
     statusColor = "default",
-    onClick,
     children,
   }: any) => (
     <motion.div className="h-full" variants={itemVariants}>
-      <Button
-        className="h-auto w-full justify-start p-0 text-left"
-        variant="tertiary"
-        onPress={onClick}
-      >
-        <Card className="h-full bg-surface/60 backdrop-blur-md shadow-lg border border-default overflow-visible">
+      <div className="group h-full rounded-3xl outline-none transition-transform active:scale-[0.98]">
+        <Card className="h-full min-h-[132px] border border-default bg-surface/60 shadow-lg backdrop-blur-md transition-colors group-hover:bg-surface/75">
           <Card.Content className="p-4">
             <div className="flex justify-between items-start mb-2">
               <div
-                className={`flex size-10 items-center justify-center rounded-xl bg-${statusColor}/20 text-${statusColor}`}
+                className="flex size-10 items-center justify-center rounded-xl"
+                style={{
+                  backgroundColor: getStatusVariables(statusColor).background,
+                  color: getStatusVariables(statusColor).foreground,
+                }}
               >
                 <Icon icon={icon} width={24} />
               </div>
@@ -115,7 +143,7 @@ export default function DashboardHome({
             </div>
           </Card.Content>
         </Card>
-      </Button>
+      </div>
     </motion.div>
   );
   const flowIssues = flows.filter((f: any) => f.maintenance).length;
@@ -159,16 +187,14 @@ export default function DashboardHome({
         >
           {/* Top Row: Stats Tiles */}
           <Dropdown>
-            <Dropdown.Trigger>
-              <div>
-                <StatTile
-                  icon="hugeicons:workflow-square-01"
-                  statusColor={flowIssues > 0 ? "warning" : "success"}
-                  subtext={`${flowIssues} requiring attention`}
-                  title="Active Flows"
-                  value={flows.length}
-                />
-              </div>
+            <Dropdown.Trigger className="block w-full text-left">
+              <StatTile
+                icon="hugeicons:workflow-square-01"
+                statusColor={flowIssues > 0 ? "warning" : "success"}
+                subtext={`${flowIssues} requiring attention`}
+                title="Active Flows"
+                value={flows.length}
+              />
             </Dropdown.Trigger>
             <Dropdown.Popover>
               <Dropdown.Menu aria-label="Flow Problems">
@@ -204,16 +230,14 @@ export default function DashboardHome({
           </Dropdown>
 
           <Dropdown>
-            <Dropdown.Trigger>
-              <div>
-                <StatTile
-                  icon="hugeicons:rocket-02"
-                  statusColor={executionIssues > 0 ? "danger" : "primary"}
-                  subtext={`${executionIssues} failed or waiting`}
-                  title="24h Executions"
-                  value={executionsWithAttention.length} // This might need to be total executions count if available, using attention list for now
-                />
-              </div>
+            <Dropdown.Trigger className="block w-full text-left">
+              <StatTile
+                icon="hugeicons:rocket-02"
+                statusColor={executionIssues > 0 ? "danger" : "accent"}
+                subtext={`${executionIssues} failed or waiting`}
+                title="24h Executions"
+                value={executionsWithAttention.length} // This might need to be total executions count if available, using attention list for now
+              />
             </Dropdown.Trigger>
             <Dropdown.Popover>
               <Dropdown.Menu aria-label="Execution Problems">
@@ -267,16 +291,14 @@ export default function DashboardHome({
           </Dropdown>
 
           <Dropdown>
-            <Dropdown.Trigger>
-              <div>
-                <StatTile
-                  icon="hugeicons:ai-brain-04"
-                  statusColor={runnerIssues > 0 ? "danger" : "success"}
-                  subtext={`${runnerIssues} offline`}
-                  title="Online Runners"
-                  value={runners.length}
-                />
-              </div>
+            <Dropdown.Trigger className="block w-full text-left">
+              <StatTile
+                icon="hugeicons:ai-brain-04"
+                statusColor={runnerIssues > 0 ? "danger" : "success"}
+                subtext={`${runnerIssues} offline`}
+                title="Online Runners"
+                value={runners.length}
+              />
             </Dropdown.Trigger>
             <Dropdown.Popover>
               <Dropdown.Menu aria-label="Runner Problems">
@@ -319,21 +341,21 @@ export default function DashboardHome({
 
           {/* Middle Row: Chart & Pulse */}
           <motion.div className="md:col-span-2 h-full" variants={itemVariants}>
-            <Card className="h-full min-h-[350px] bg-surface/60 backdrop-blur-md shadow-lg border border-default">
+            <Card className="h-full min-h-[360px] border border-default bg-surface/60 shadow-lg backdrop-blur-md">
               <Card.Header className="pb-0 pt-4 px-4 flex-col items-start">
                 <h4 className="font-bold text-lg">Execution Volume</h4>
                 <p className="text-xs text-muted">
                   Daily activity over the last week
                 </p>
               </Card.Header>
-              <Card.Content className="overflow-hidden">
+              <Card.Content className="min-h-0 overflow-hidden px-4 pb-4">
                 <DashboardExecutionsStats stats={stats} />
               </Card.Content>
             </Card>
           </motion.div>
 
           <motion.div className="md:col-span-1 h-full" variants={itemVariants}>
-            <Card className="h-full min-h-[350px] bg-surface/60 backdrop-blur-md shadow-lg border border-default">
+            <Card className="h-full min-h-[360px] border border-default bg-surface/60 shadow-lg backdrop-blur-md">
               <Card.Header className="pb-0 pt-4 px-4 flex justify-between items-center">
                 <div>
                   <h4 className="font-bold text-lg">System Pulse</h4>
@@ -349,12 +371,28 @@ export default function DashboardHome({
                   <Chip.Label>Live</Chip.Label>
                 </Chip>
               </Card.Header>
-              <Card.Content className="px-2">
-                <ScrollShadow className="h-[280px]">
+              <Card.Content className="min-h-0 px-2 pb-4">
+                <ScrollShadow className="h-[260px]">
                   <div className="flex flex-col gap-2 p-2">
+                    {runners.length === 0 && (
+                      <div className="flex h-[220px] flex-col items-center justify-center gap-3 text-center text-muted">
+                        <Icon
+                          className="text-3xl"
+                          icon="hugeicons:ai-brain-04"
+                        />
+                        <div>
+                          <p className="text-sm font-medium text-foreground">
+                            No runners connected
+                          </p>
+                          <p className="text-xs">Waiting for heartbeat data</p>
+                        </div>
+                      </div>
+                    )}
                     {runners.map((runner: any) => {
                       const isAlive = runnerHeartbeatStatus(runner);
                       const color = heartbeatColor(runner);
+                      const colorVars = getStatusVariables(color ?? "default");
+
                       return (
                         <div
                           key={runner.id}
@@ -377,11 +415,17 @@ export default function DashboardHome({
                           <div className="flex items-center gap-3">
                             <div className={`relative`}>
                               <div
-                                className={`w-2 h-2 rounded-full bg-${color} ${isAlive ? "animate-pulse" : ""}`}
+                                className={`w-2 h-2 rounded-full ${isAlive ? "animate-pulse" : ""}`}
+                                style={{
+                                  backgroundColor: colorVars.foreground,
+                                }}
                               />
                               {isAlive && (
                                 <div
-                                  className={`absolute inset-0 w-2 h-2 rounded-full bg-${color} animate-ping opacity-75`}
+                                  className="absolute inset-0 h-2 w-2 animate-ping rounded-full opacity-75"
+                                  style={{
+                                    backgroundColor: colorVars.foreground,
+                                  }}
                                 />
                               )}
                             </div>

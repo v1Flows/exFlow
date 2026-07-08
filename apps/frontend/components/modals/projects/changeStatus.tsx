@@ -3,7 +3,6 @@ import {
   Button,
   Description,
   FieldError,
-  Input,
   InputGroup,
   Label,
   Modal,
@@ -104,7 +103,7 @@ export default function ChangeProjectStatusModal({
                       >
                         <Label>{"Disable Reason"}</Label>
                         <InputGroup>
-                          <Input placeholder="Enter the reason for disabling this project" />
+                          <InputGroup.Input placeholder="Enter the reason for disabling this project" />
                         </InputGroup>
                       </TextField>
                     </Modal.Body>

@@ -204,25 +204,21 @@ function FlowCanvasInner({
           snapToGrid
           style={
             {
-              "--xy-background-color-default": "hsl(var(--heroui-content1))",
-              "--xy-background-pattern-dots-color-default":
-                "hsl(var(--heroui-default-300))",
-              "--xy-edge-stroke-default": "hsl(var(--heroui-accent))",
-              "--xy-edge-stroke-selected-default":
-                "hsl(var(--heroui-accent-400))",
-              "--xy-connectionline-stroke-default": "hsl(var(--heroui-accent))",
+              "--xy-background-color-default": "var(--surface)",
+              "--xy-background-pattern-dots-color-default": "var(--border)",
+              "--xy-edge-stroke-default": "var(--accent)",
+              "--xy-edge-stroke-selected-default": "var(--accent)",
+              "--xy-connectionline-stroke-default": "var(--accent)",
               "--xy-controls-button-background-color-default":
-                "hsl(var(--heroui-content2))",
+                "var(--surface-secondary)",
               "--xy-controls-button-background-color-hover-default":
-                "hsl(var(--heroui-content3))",
-              "--xy-controls-button-color-default":
-                "hsl(var(--heroui-foreground))",
-              "--xy-controls-button-border-color-default":
-                "hsl(var(--heroui-default-100))",
+                "var(--surface-tertiary)",
+              "--xy-controls-button-color-default": "var(--foreground)",
+              "--xy-controls-button-border-color-default": "var(--border)",
               "--xy-minimap-background-color-default":
-                "hsl(var(--heroui-content2))",
+                "var(--surface-secondary)",
               "--xy-minimap-mask-background-color-default":
-                "hsl(var(--heroui-content1) / 0.7)",
+                "color-mix(in oklab, var(--surface) 70%, transparent)",
             } as React.CSSProperties
           }
           onConnect={isDisabled ? undefined : onConnect}
@@ -258,26 +254,26 @@ function FlowCanvasInner({
 
           <Controls
             style={{
-              backgroundColor: "hsl(var(--heroui-content2))",
-              borderColor: "hsl(var(--heroui-default-100))",
+              backgroundColor: "var(--surface-secondary)",
+              borderColor: "var(--border)",
               borderRadius: "12px",
               overflow: "hidden",
             }}
           />
           <MiniMap
-            maskColor="hsl(var(--heroui-content1) / 0.8)"
-            nodeColor="hsl(var(--heroui-content3))"
+            maskColor="color-mix(in oklab, var(--surface) 80%, transparent)"
+            nodeColor="var(--surface-tertiary)"
             nodeStrokeWidth={3}
             pannable
             style={{
-              backgroundColor: "hsl(var(--heroui-content2))",
+              backgroundColor: "var(--surface-secondary)",
               borderRadius: "12px",
-              border: "1px solid hsl(var(--heroui-default-100))",
+              border: "1px solid var(--border)",
             }}
             zoomable
           />
           <Background
-            color="hsl(var(--heroui-default-300))"
+            color="var(--border)"
             gap={24}
             size={1.5}
             variant={BackgroundVariant.Dots}

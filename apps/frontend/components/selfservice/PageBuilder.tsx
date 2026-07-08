@@ -5,14 +5,12 @@ import {
   Chip,
   Description,
   FieldError,
-  Input,
   InputGroup,
   Label,
   ListBox,
   Select,
   Separator,
   Switch,
-  TextArea,
   TextField,
   toast,
 } from "@heroui/react";
@@ -168,13 +166,13 @@ export default function PageBuilder({ existing }: PageBuilderProps) {
             <TextField isRequired value={name} onChange={handleNameChange}>
               <Label>{"Name"}</Label>
               <InputGroup>
-                <Input placeholder="My Service Page" />
+                <InputGroup.Input placeholder="My Service Page" />
               </InputGroup>
             </TextField>
             <TextField isRequired value={slug} onChange={setSlug}>
               <Label>{"Slug"}</Label>
               <InputGroup>
-                <Input placeholder="my-service-page" />
+                <InputGroup.Input placeholder="my-service-page" />
               </InputGroup>
               <Description>
                 {"URL-friendly identifier (lowercase, hyphens)"}
@@ -183,20 +181,20 @@ export default function PageBuilder({ existing }: PageBuilderProps) {
           </div>
           <TextField value={description} onChange={setDescription}>
             <Label>{"Description"}</Label>
-            <TextArea placeholder={"What does this page allow users to do?"} />
+            <InputGroup.TextArea placeholder={"What does this page allow users to do?"} />
           </TextField>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <TextField value={icon} onChange={setIcon}>
               <Label>{"Icon"}</Label>
               <InputGroup>
-                <Input placeholder="hugeicons:layout-01" />
+                <InputGroup.Input placeholder="hugeicons:layout-01" />
               </InputGroup>
               <Description>{"Iconify icon name"}</Description>
             </TextField>
             <TextField value={color} onChange={setColor}>
               <Label>{"Color (hex)"}</Label>
               <InputGroup>
-                <Input placeholder="#006FEE" type="color" />
+                <InputGroup.Input placeholder="#006FEE" type="color" />
               </InputGroup>
             </TextField>
             <div className="flex items-center pt-4">
@@ -321,7 +319,7 @@ export default function PageBuilder({ existing }: PageBuilderProps) {
                     >
                       <Label>{"Custom Label"}</Label>
                       <InputGroup>
-                        <Input placeholder={flowMeta?.name ?? ""} />
+                        <InputGroup.Input placeholder={flowMeta?.name ?? ""} />
                       </InputGroup>
                     </TextField>
                     <Select
@@ -360,7 +358,7 @@ export default function PageBuilder({ existing }: PageBuilderProps) {
                   >
                     <Label>{"Custom Description"}</Label>
                     <InputGroup>
-                      <Input placeholder={flowMeta?.description ?? ""} />
+                      <InputGroup.Input placeholder={flowMeta?.description ?? ""} />
                     </InputGroup>
                   </TextField>
                 </Card.Content>

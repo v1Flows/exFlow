@@ -5,7 +5,6 @@ import {
   Card,
   Description,
   FieldError,
-  Input,
   InputGroup,
   Label,
   TextField,
@@ -128,7 +127,7 @@ export function UserProfile({ user, session }: any) {
                   <div className="flex w-full flex-wrap items-center justify-end gap-6 sm:w-auto sm:flex-nowrap">
                     <TextField value={username} onChange={setUsername}>
                       <InputGroup>
-                        <Input type="username" />
+                        <InputGroup.Input type="username" />
                       </InputGroup>
                     </TextField>
                   </div>
@@ -145,7 +144,7 @@ export function UserProfile({ user, session }: any) {
                   <div className="flex w-full flex-wrap items-center justify-end gap-6 sm:w-auto sm:flex-nowrap">
                     <TextField value={email} onChange={setEmail}>
                       <InputGroup>
-                        <Input type="email" />
+                        <InputGroup.Input type="email" />
                       </InputGroup>
                     </TextField>
                   </div>

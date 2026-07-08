@@ -5,7 +5,6 @@ import {
   Description,
   Drawer,
   FieldError,
-  Input,
   InputGroup,
   Label,
   ListBox,
@@ -13,7 +12,6 @@ import {
   Select,
   Switch,
   Tabs,
-  TextArea,
   TextField,
   toast,
   type UseOverlayStateReturn,
@@ -380,7 +378,7 @@ export default function EditActionModal({
                             >
                               <Label>{"Custom Name"}</Label>
                               <InputGroup>
-                                <Input placeholder="Enter a custom name" />
+                                <InputGroup.Input placeholder="Enter a custom name" />
                               </InputGroup>
                               <Description>
                                 {
@@ -396,7 +394,7 @@ export default function EditActionModal({
                             >
                               <Label>{"Custom Description"}</Label>
                               <InputGroup>
-                                <Input placeholder="Enter a description" />
+                                <InputGroup.Input placeholder="Enter a description" />
                               </InputGroup>
                               <Description>
                                 {
@@ -701,7 +699,7 @@ export default function EditActionModal({
                                               }
                                             }}
                                           >
-                                            <TextArea />
+                                            <InputGroup.TextArea />
                                           </TextField>
                                         );
                                       }
@@ -725,7 +723,7 @@ export default function EditActionModal({
                                           }}
                                         >
                                           <InputGroup>
-                                            <Input
+                                            <InputGroup.Input
                                               type={
                                                 param.type === "password"
                                                   ? "password"
@@ -995,7 +993,7 @@ export default function EditActionModal({
                                               >
                                                 <Label>{"Value"}</Label>
                                                 <InputGroup>
-                                                  <Input className="w-2/3" />
+                                                  <InputGroup.Input className="w-2/3" />
                                                 </InputGroup>
                                               </TextField>
                                             )}

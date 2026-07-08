@@ -6,7 +6,6 @@ import {
   Description,
   Drawer,
   FieldError,
-  Input,
   InputGroup,
   Label,
   ListBox,
@@ -14,7 +13,6 @@ import {
   Select,
   Switch,
   Tabs,
-  TextArea,
   TextField,
   toast,
   type UseOverlayStateReturn,
@@ -377,7 +375,7 @@ export default function UpgradeActionModal({
                               >
                                 <Label>{"Custom Name"}</Label>
                                 <InputGroup>
-                                  <Input />
+                                  <InputGroup.Input />
                                 </InputGroup>
                                 <Description>
                                   {"Inherited from old version"}
@@ -389,7 +387,7 @@ export default function UpgradeActionModal({
                               >
                                 <Label>{"Custom Description"}</Label>
                                 <InputGroup>
-                                  <Input />
+                                  <InputGroup.Input />
                                 </InputGroup>
                                 <Description>
                                   {"Inherited from old version"}
@@ -587,7 +585,7 @@ export default function UpgradeActionModal({
                                                     });
                                                   }}
                                                 >
-                                                  <TextArea />
+                                                  <InputGroup.TextArea />
                                                 </TextField>
                                               );
                                             }
@@ -610,7 +608,7 @@ export default function UpgradeActionModal({
                                                 }}
                                               >
                                                 <InputGroup>
-                                                  <Input
+                                                  <InputGroup.Input
                                                     type={
                                                       param.type === "password"
                                                         ? "password"

@@ -7,14 +7,12 @@ import {
   Description,
   Drawer,
   FieldError,
-  Input,
   InputGroup,
   Label,
   ListBox,
   Select,
   Switch,
   Tabs,
-  TextArea,
   TextField,
   toast,
   type UseOverlayStateReturn,
@@ -579,7 +577,7 @@ export default function AddFlowActionModal({
                               <InputGroup.Prefix>
                                 {<Icon icon="hugeicons:search-01" />}
                               </InputGroup.Prefix>
-                              <Input
+                              <InputGroup.Input
                                 placeholder="Search actions..."
                                 type="text"
                               />
@@ -707,7 +705,7 @@ export default function AddFlowActionModal({
                               >
                                 <Label>{"Custom Name"}</Label>
                                 <InputGroup>
-                                  <Input placeholder="Enter a custom name" />
+                                  <InputGroup.Input placeholder="Enter a custom name" />
                                 </InputGroup>
                                 <Description>
                                   {
@@ -726,7 +724,7 @@ export default function AddFlowActionModal({
                               >
                                 <Label>{"Custom Description"}</Label>
                                 <InputGroup>
-                                  <Input placeholder="Enter a description" />
+                                  <InputGroup.Input placeholder="Enter a description" />
                                 </InputGroup>
                                 <Description>
                                   {
@@ -968,7 +966,7 @@ export default function AddFlowActionModal({
                                                 }
                                               }}
                                             >
-                                              <TextArea />
+                                              <InputGroup.TextArea />
                                             </TextField>
                                           );
                                         }
@@ -992,7 +990,7 @@ export default function AddFlowActionModal({
                                             }}
                                           >
                                             <InputGroup>
-                                              <Input
+                                              <InputGroup.Input
                                                 type={
                                                   param.type === "password"
                                                     ? "password"
@@ -1250,7 +1248,7 @@ export default function AddFlowActionModal({
                                               >
                                                 <Label>{"Value"}</Label>
                                                 <InputGroup>
-                                                  <Input className="w-2/3" />
+                                                  <InputGroup.Input className="w-2/3" />
                                                 </InputGroup>
                                               </TextField>
                                             )}

@@ -6,7 +6,6 @@ import {
   Chip,
   Description,
   FieldError,
-  Input,
   InputGroup,
   Label,
   ListBox,
@@ -15,7 +14,6 @@ import {
   ScrollShadow,
   Select,
   Separator,
-  TextArea,
   TextField,
   toast,
   type UseOverlayStateReturn,
@@ -460,7 +458,7 @@ export default function AddProjectActionModal({
                                 <InputGroup.Prefix>
                                   {<Icon icon="hugeicons:search-01" />}
                                 </InputGroup.Prefix>
-                                <Input placeholder="Search..." type="text" />
+                                <InputGroup.Input placeholder="Search..." type="text" />
                               </InputGroup>
                             </TextField>
                             <div aria-hidden className="h-2" />
@@ -556,7 +554,7 @@ export default function AddProjectActionModal({
                             >
                               <Label>{"Custom Name"}</Label>
                               <InputGroup>
-                                <Input type="text" />
+                                <InputGroup.Input type="text" />
                               </InputGroup>
                               <Description>
                                 {"Custom name for this action (optional)"}
@@ -570,7 +568,7 @@ export default function AddProjectActionModal({
                             >
                               <Label>{"Custom Description"}</Label>
                               <InputGroup>
-                                <Input type="text" />
+                                <InputGroup.Input type="text" />
                               </InputGroup>
                               <Description>
                                 {
@@ -656,7 +654,7 @@ export default function AddProjectActionModal({
                                               {param.title || param.key}
                                             </Label>
                                             <InputGroup>
-                                              <Input
+                                              <InputGroup.Input
                                                 key={param.key}
                                                 type={param.type}
                                               />
@@ -748,7 +746,7 @@ export default function AddProjectActionModal({
                                             <Label>
                                               {param.title || param.key}
                                             </Label>
-                                            <TextArea />
+                                            <InputGroup.TextArea />
                                             <Description>
                                               {param?.description}
                                             </Description>
@@ -781,7 +779,7 @@ export default function AddProjectActionModal({
                                               {param.title || param.key}
                                             </Label>
                                             <InputGroup>
-                                              <Input
+                                              <InputGroup.Input
                                                 key={param.key}
                                                 type={param.type}
                                               />

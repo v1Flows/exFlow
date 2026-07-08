@@ -2,7 +2,6 @@ import {
   Button,
   Description,
   FieldError,
-  Input,
   InputGroup,
   Label,
   ListBox,
@@ -124,7 +123,7 @@ export default function EditFailurePipelineModal({
                       >
                         <Label>{"Name"}</Label>
                         <InputGroup>
-                          <Input type="name" />
+                          <InputGroup.Input type="name" />
                         </InputGroup>
                       </TextField>
                       <Select

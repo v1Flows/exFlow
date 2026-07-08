@@ -6,7 +6,6 @@ import {
   Description,
   Dropdown,
   FieldError,
-  Input,
   InputGroup,
   Label,
   Modal,
@@ -138,7 +137,7 @@ export default function AddProjectMemberModal({
                       <TextField value={email} onChange={setEmail}>
                         <Label>{"Email Address"}</Label>
                         <InputGroup>
-                          <Input placeholder="Enter email address" />
+                          <InputGroup.Input placeholder="Enter email address" />
                           <InputGroup.Suffix>
                             {
                               <Dropdown>

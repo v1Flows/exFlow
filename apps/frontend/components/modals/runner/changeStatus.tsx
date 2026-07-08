@@ -3,7 +3,6 @@ import {
   Button,
   Description,
   FieldError,
-  Input,
   InputGroup,
   Label,
   Modal,
@@ -101,7 +100,7 @@ export default function ChangeRunnerStatusModal({
                       >
                         <Label>{"Disable Reason"}</Label>
                         <InputGroup>
-                          <Input placeholder="Enter the reason for disabling this runner" />
+                          <InputGroup.Input placeholder="Enter the reason for disabling this runner" />
                         </InputGroup>
                       </TextField>
                     </Modal.Body>

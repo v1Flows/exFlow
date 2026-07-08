@@ -27,6 +27,18 @@ type Chart = {
   changeType: "positive" | "negative" | "neutral";
   chartData: ChartData[];
 };
+
+const chartColors: Record<string, string> = {
+  accent: "var(--accent)",
+  danger: "var(--danger)",
+  default: "var(--muted)",
+  success: "var(--success)",
+  warning: "var(--warning)",
+};
+
+const getChartColor = (color: string) =>
+  chartColors[color] ?? chartColors.default;
+
 const formatValue = (value: number, type: string | undefined) => {
   if (type === "number") {
     if (value >= 1000000) {
@@ -90,7 +102,7 @@ export default function FlowStats({ flowID }: { flowID: string }) {
           ? "success"
           : chart?.changeType === "negative"
             ? "danger"
-            : "primary",
+            : "accent",
       type: chart?.type,
     };
   }, [activeChart, stats]);
@@ -228,18 +240,18 @@ export default function FlowStats({ flowID }: { flowID: string }) {
                   >
                     <stop
                       offset="5%"
-                      stopColor={`hsl(var(--heroui-${color}-500))`}
+                      stopColor={getChartColor(color)}
                       stopOpacity={0.3}
                     />
                     <stop
                       offset="95%"
-                      stopColor={`hsl(var(--heroui-${color}-500))`}
+                      stopColor={getChartColor(color)}
                       stopOpacity={0}
                     />
                   </linearGradient>
                 </defs>
                 <CartesianGrid
-                  stroke="hsl(var(--heroui-default-200))"
+                  stroke="var(--separator)"
                   strokeDasharray="3 3"
                   vertical={false}
                 />
@@ -249,7 +261,7 @@ export default function FlowStats({ flowID }: { flowID: string }) {
                   dataKey="key"
                   dy={10}
                   tick={{
-                    fill: "hsl(var(--heroui-default-500))",
+                    fill: "var(--muted)",
                     fontSize: 12,
                   }}
                   tickLine={false}
@@ -262,7 +274,8 @@ export default function FlowStats({ flowID }: { flowID: string }) {
                           <p className="text-xs text-muted mb-1">{label}</p>
                           <div className="flex items-center gap-2">
                             <div
-                              className={`w-2 h-2 rounded-full bg-${color}-500`}
+                              className="h-2 w-2 rounded-full"
+                              style={{ backgroundColor: getChartColor(color) }}
                             />
                             <span className="font-bold text-sm">
                               {formatValue(payload[0].value as number, type)}
@@ -279,15 +292,15 @@ export default function FlowStats({ flowID }: { flowID: string }) {
                 />
                 <Area
                   activeDot={{
-                    stroke: "hsl(var(--heroui-background))",
+                    stroke: "var(--background)",
                     strokeWidth: 2,
-                    fill: `hsl(var(--heroui-${color}-500))`,
+                    fill: getChartColor(color),
                     r: 5,
                   }}
                   animationDuration={1500}
                   dataKey="executions"
                   fill="url(#colorGradient)"
-                  stroke={`hsl(var(--heroui-${color}-500))`}
+                  stroke={getChartColor(color)}
                   strokeWidth={2}
                   type="monotone"
                 />

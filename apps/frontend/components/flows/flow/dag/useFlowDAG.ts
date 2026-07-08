@@ -39,10 +39,7 @@ function parseDep(dep: string): {
 function edgeStyle(handle: "success" | "fail") {
   return {
     strokeWidth: 2,
-    stroke:
-      handle === "fail"
-        ? "hsl(var(--heroui-danger))"
-        : "hsl(var(--heroui-success))",
+    stroke: handle === "fail" ? "var(--danger)" : "var(--success)",
   };
 }
 

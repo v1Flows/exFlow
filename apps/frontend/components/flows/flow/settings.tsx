@@ -3,7 +3,6 @@ import {
   Card,
   Description,
   FieldError,
-  Input,
   InputGroup,
   Label,
   ListBox,
@@ -329,7 +328,7 @@ export default function FlowSettings({
                           />
                         }
                       </InputGroup.Prefix>
-                      <Input placeholder="e.g. commonLabels.alertname" />
+                      <InputGroup.Input placeholder="e.g. commonLabels.alertname" />
                     </InputGroup>
                   </TextField>
                 </div>
@@ -411,7 +410,7 @@ export default function FlowSettings({
                             <Table.Cell>
                               <TextField value={pattern.key}>
                                 <InputGroup>
-                                  <Input
+                                  <InputGroup.Input
                                     placeholder="Key"
                                     onChange={(e) => {
                                       const newPatterns = [...flowPatterns];
@@ -477,7 +476,7 @@ export default function FlowSettings({
                             <Table.Cell>
                               <TextField value={pattern.value}>
                                 <InputGroup>
-                                  <Input
+                                  <InputGroup.Input
                                     placeholder="Value"
                                     onChange={(e) => {
                                       const newPatterns = [...flowPatterns];

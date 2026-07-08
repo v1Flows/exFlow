@@ -112,43 +112,43 @@ const MinimalRowSteps = ({
     let fgColor;
 
     const colorsVars = [
-      "[--active-fg-color:hsl(var(--step-fg-color))]",
-      "[--active-border-color:hsl(var(--step-color))]",
-      "[--active-color:hsl(var(--step-color))]",
-      "[--complete-background-color:hsl(var(--step-color))]",
-      "[--complete-border-color:hsl(var(--step-color))]",
-      "[--inactive-border-color:hsl(var(--heroui-default-300))]",
-      "[--inactive-color:hsl(var(--heroui-default-300))]",
+      "[--active-fg-color:var(--step-fg-color)]",
+      "[--active-border-color:var(--step-color)]",
+      "[--active-color:var(--step-color)]",
+      "[--complete-background-color:var(--step-color)]",
+      "[--complete-border-color:var(--step-color)]",
+      "[--inactive-border-color:var(--border)]",
+      "[--inactive-color:var(--muted)]",
     ];
 
     switch (color) {
       case "primary":
-        userColor = "[--step-color:var(--heroui-accent)]";
-        fgColor = "[--step-fg-color:var(--heroui-accent-foreground)]";
+        userColor = "[--step-color:var(--accent)]";
+        fgColor = "[--step-fg-color:var(--accent-foreground)]";
         break;
       case "secondary":
-        userColor = "[--step-color:var(--heroui-secondary)]";
-        fgColor = "[--step-fg-color:var(--heroui-secondary-foreground)]";
+        userColor = "[--step-color:var(--accent)]";
+        fgColor = "[--step-fg-color:var(--accent-foreground)]";
         break;
       case "success":
-        userColor = "[--step-color:var(--heroui-success)]";
-        fgColor = "[--step-fg-color:var(--heroui-success-foreground)]";
+        userColor = "[--step-color:var(--success)]";
+        fgColor = "[--step-fg-color:var(--success-foreground)]";
         break;
       case "warning":
-        userColor = "[--step-color:var(--heroui-warning)]";
-        fgColor = "[--step-fg-color:var(--heroui-warning-foreground)]";
+        userColor = "[--step-color:var(--warning)]";
+        fgColor = "[--step-fg-color:var(--warning-foreground)]";
         break;
       case "danger":
-        userColor = "[--step-color:var(--heroui-error)]";
-        fgColor = "[--step-fg-color:var(--heroui-error-foreground)]";
+        userColor = "[--step-color:var(--danger)]";
+        fgColor = "[--step-fg-color:var(--danger-foreground)]";
         break;
       case "default":
-        userColor = "[--step-color:var(--heroui-default)]";
-        fgColor = "[--step-fg-color:var(--heroui-default-foreground)]";
+        userColor = "[--step-color:var(--default)]";
+        fgColor = "[--step-fg-color:var(--default-foreground)]";
         break;
       default:
-        userColor = "[--step-color:var(--heroui-accent)]";
-        fgColor = "[--step-fg-color:var(--heroui-accent-foreground)]";
+        userColor = "[--step-color:var(--accent)]";
+        fgColor = "[--step-fg-color:var(--accent-foreground)]";
         break;
     }
 

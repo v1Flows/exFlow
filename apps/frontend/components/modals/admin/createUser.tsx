@@ -3,7 +3,6 @@ import {
   Button,
   Description,
   FieldError,
-  Input,
   InputGroup,
   Label,
   ListBox,
@@ -273,7 +272,7 @@ export default function AdminCreateUserModal({
                             >
                               <Label>{"Username"}</Label>
                               <InputGroup>
-                                <Input type="username" />
+                                <InputGroup.Input type="username" />
                               </InputGroup>
                             </TextField>
                             <TextField
@@ -287,7 +286,7 @@ export default function AdminCreateUserModal({
                             >
                               <Label>{"Email Address"}</Label>
                               <InputGroup>
-                                <Input type="email" />
+                                <InputGroup.Input type="email" />
                               </InputGroup>
                             </TextField>
                             <Select
@@ -344,7 +343,7 @@ export default function AdminCreateUserModal({
                           >
                             <Label>{"Password"}</Label>
                             <InputGroup>
-                              <Input
+                              <InputGroup.Input
                                 type={isPasswordVisible ? "text" : "password"}
                               />
                               <InputGroup.Suffix>
@@ -382,7 +381,7 @@ export default function AdminCreateUserModal({
                           >
                             <Label>{"Confirm Password"}</Label>
                             <InputGroup>
-                              <Input
+                              <InputGroup.Input
                                 type={
                                   isConfirmPasswordVisible ? "text" : "password"
                                 }

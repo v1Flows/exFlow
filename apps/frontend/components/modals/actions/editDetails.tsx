@@ -5,7 +5,6 @@ import {
   Description,
   Drawer,
   FieldError,
-  Input,
   InputGroup,
   Label,
   ListBox,
@@ -284,7 +283,7 @@ export default function EditFlowActionsDetails({
                                     >
                                       <Label>{"Key"}</Label>
                                       <InputGroup>
-                                        <Input
+                                        <InputGroup.Input
                                           className="flex-1"
                                           placeholder="e.g. commonLabels.alertname"
                                         />
@@ -344,7 +343,7 @@ export default function EditFlowActionsDetails({
                                     >
                                       <Label>{"Value"}</Label>
                                       <InputGroup>
-                                        <Input
+                                        <InputGroup.Input
                                           className="flex-1"
                                           placeholder="Value to match"
                                         />

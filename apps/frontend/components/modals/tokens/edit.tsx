@@ -4,7 +4,6 @@ import {
   Description,
   FieldError,
   Form,
-  Input,
   InputGroup,
   Label,
   Modal,
@@ -102,7 +101,7 @@ export default function EditTokenModal({
                         >
                           <Label>{"Description"}</Label>
                           <InputGroup>
-                            <Input
+                            <InputGroup.Input
                               placeholder="Enter the flow description"
                               type="description"
                             />

@@ -5,7 +5,6 @@ import {
   Chip,
   Description,
   FieldError,
-  Input,
   InputGroup,
   Label,
   ListBox,
@@ -233,7 +232,7 @@ export default function CreateFlowModal({
                           <TextField isRequired value={name} onChange={setName}>
                             <Label>{"Name"}</Label>
                             <InputGroup>
-                              <Input placeholder="e.g. Daily Backup" />
+                              <InputGroup.Input placeholder="e.g. Daily Backup" />
                             </InputGroup>
                           </TextField>
                           <TextField
@@ -242,7 +241,7 @@ export default function CreateFlowModal({
                           >
                             <Label>{"Description"}</Label>
                             <InputGroup>
-                              <Input placeholder="Describe what this flow does..." />
+                              <InputGroup.Input placeholder="Describe what this flow does..." />
                             </InputGroup>
                           </TextField>
                         </div>

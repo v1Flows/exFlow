@@ -6,7 +6,6 @@ import {
   Description,
   Drawer,
   FieldError,
-  Input,
   InputGroup,
   Label,
   ListBox,
@@ -15,7 +14,6 @@ import {
   Select,
   Switch,
   Tabs,
-  TextArea,
   TextField,
   toast,
   type UseOverlayStateReturn,
@@ -470,7 +468,7 @@ export default function CopyActionToDifferentFlowModal({
                             >
                               <Label>{"Custom Name"}</Label>
                               <InputGroup>
-                                <Input placeholder="Enter a custom name" />
+                                <InputGroup.Input placeholder="Enter a custom name" />
                               </InputGroup>
                               <Description>
                                 {"Custom name for this action (optional)"}
@@ -484,7 +482,7 @@ export default function CopyActionToDifferentFlowModal({
                             >
                               <Label>{"Custom Description"}</Label>
                               <InputGroup>
-                                <Input placeholder="Enter a description" />
+                                <InputGroup.Input placeholder="Enter a description" />
                               </InputGroup>
                               <Description>
                                 {
@@ -765,7 +763,7 @@ export default function CopyActionToDifferentFlowModal({
                                               }
                                             }}
                                           >
-                                            <TextArea />
+                                            <InputGroup.TextArea />
                                           </TextField>
                                         );
                                       }
@@ -789,7 +787,7 @@ export default function CopyActionToDifferentFlowModal({
                                           }}
                                         >
                                           <InputGroup>
-                                            <Input
+                                            <InputGroup.Input
                                               type={
                                                 param.type === "password"
                                                   ? "password"

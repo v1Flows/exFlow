@@ -3,7 +3,6 @@ import {
   Button,
   Description,
   FieldError,
-  Input,
   InputGroup,
   Label,
   ListBox,
@@ -106,13 +105,13 @@ export default function AdminEditUserModal({
                     >
                       <Label>{"Username"}</Label>
                       <InputGroup>
-                        <Input placeholder="Enter the username" type="name" />
+                        <InputGroup.Input placeholder="Enter the username" type="name" />
                       </InputGroup>
                     </TextField>
                     <TextField isRequired value={email} onChange={setEmail}>
                       <Label>{"Email"}</Label>
                       <InputGroup>
-                        <Input placeholder="Enter the email" type="email" />
+                        <InputGroup.Input placeholder="Enter the email" type="email" />
                       </InputGroup>
                     </TextField>
                     <Select
@@ -158,7 +157,7 @@ export default function AdminEditUserModal({
                     >
                       <Label>{"Password"}</Label>
                       <InputGroup>
-                        <Input
+                        <InputGroup.Input
                           placeholder="Enter the new password."
                           type="password"
                         />

@@ -4,7 +4,6 @@ import {
   Description,
   FieldError,
   Form,
-  Input,
   InputGroup,
   Label,
   ListBox,
@@ -104,13 +103,13 @@ export default function CreateFolderModal({
                         <TextField isRequired name="name">
                           <Label>{"Name"}</Label>
                           <InputGroup>
-                            <Input />
+                            <InputGroup.Input />
                           </InputGroup>
                         </TextField>
                         <TextField name="description">
                           <Label>{"Description"}</Label>
                           <InputGroup>
-                            <Input />
+                            <InputGroup.Input />
                           </InputGroup>
                         </TextField>
                         <Select isRequired name="projectID">

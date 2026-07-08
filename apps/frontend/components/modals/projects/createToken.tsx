@@ -4,7 +4,6 @@ import {
   Description,
   FieldError,
   Form,
-  Input,
   InputGroup,
   Label,
   Modal,
@@ -96,13 +95,13 @@ export default function CreateProjectTokenModal({
                         <TextField name="description">
                           <Label>{"Description"}</Label>
                           <InputGroup>
-                            <Input placeholder="Enter the key description" />
+                            <InputGroup.Input placeholder="Enter the key description" />
                           </InputGroup>
                         </TextField>
                         <TextField defaultValue="7" name="expiresIn">
                           <Label>{"Expires In"}</Label>
                           <InputGroup>
-                            <Input
+                            <InputGroup.Input
                               placeholder="Enter the token expiration time"
                               type="number"
                             />

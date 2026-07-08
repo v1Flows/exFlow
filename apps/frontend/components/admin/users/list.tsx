@@ -10,7 +10,6 @@ import {
   Dropdown,
   FieldError,
   Header,
-  Input,
   InputGroup,
   Label,
   Modal,
@@ -313,7 +312,7 @@ export function AdminUsersList({ users }: any) {
                       >
                         <Label>{"Disable Reason"}</Label>
                         <InputGroup>
-                          <Input placeholder="Enter the reason for disabling this user" />
+                          <InputGroup.Input placeholder="Enter the reason for disabling this user" />
                         </InputGroup>
                       </TextField>
                     </Modal.Body>
